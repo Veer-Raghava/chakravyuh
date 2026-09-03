@@ -1,0 +1,76 @@
+# Virtualenv and bytecode
+.venv/
+__pycache__/
+*.pyc
+
+# Tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Pipeline output. Regenerable; never committed.
+data/generated/
+
+# Quarantined labels, written by MAYAJAAL. Must never reach a commit.
+ground_truth/
+
+# Ed25519 signing keys for PRAMAAN.
+keys/
+
+# Deliberately fetched external data (GeoLite2, Tor exit lists, fonts).
+vendor/
+
+# data/fixtures/ is intentionally NOT ignored. DATA-CONTRACTS.md section 11
+# requires the fixture set to be committed.
+
+# Editor state and machine-local settings.
+.idea
+.vscode/
+.claude/settings.local.json
+
+# Shell and tool dotfiles that appear at the repository root inside the sandboxed
+# development container. They are character devices bound over host config, not project
+# files, and `git add .` must never try to stage them.
+.bashrc
+.bash_profile
+.zshrc
+.zprofile
+.profile
+.gitconfig
+.gitmodules
+.mcp.json
+.ripgreprc
+
+# Same reason, one level down: these .claude/ entries are character devices in the
+# container, so a wholesale `git add .claude/` aborts on them. Project assets that belong
+# in the repository (agents, commands) are added by path.
+.claude/hooks
+.claude/launch.json
+.claude/loop.md
+.claude/output-styles
+.claude/routines
+.claude/scheduled_tasks.json
+.claude/skills
+.claude/workflows
+.claude/worktrees
+.claude/.cc-writes
+
+# Shell and tool dotfiles that appear at the repository root inside the sandboxed
+# development container. They are character devices bound over host config, not project
+# files, and `git add .` must never try to stage them.
+.bashrc
+.bash_profile
+.zshrc
+.zprofile
+.profile
+.gitconfig
+.gitmodules
+.mcp.json
+.ripgreprc
+
+.claude/
+CLAUDE.md
+SESSIONS.md
+STATE.md
+docs/superpowers/
+install-claude-config.sh
