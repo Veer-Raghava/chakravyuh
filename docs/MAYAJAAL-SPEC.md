@@ -195,13 +195,26 @@ Slide 4 exists to answer.
 
 ```
 data/generated/<run_id>/
-  capture/           part-0000.csv.zst …          the PS schema, sharded
-  capture_json/      part-0000.jsonl.zst          same rows, for the JSON path
-  capture_xml/       sample.xml                   small only, to prove the XML reader works
-  ground_truth/      origins, entities, campaigns  .parquet
-  validation/        report.json, report.md, plots/
-  run_config.json    every parameter and the seed
+  config.effective.json  every parameter and the seed, as they actually ran
+  chain/                 transactions, endowment, blocks       .parquet, plus _meta.json
+  capture/               part-0000.csv.zst …                   the PS schema, sharded
+  capture_json/          part-0000.jsonl.zst                   same rows, for the JSON path
+  capture_xml/           sample.xml                            small only, to prove the reader works
+  validation/            report.json, report.md, plots/
+ground_truth/<run_id>/   origins, entities, campaigns, chain_txs  .parquet, plus _meta.json
+measurements/<run_id>/   scores and report cards               .json and .md only
 ```
+
+Three sibling trees, one run id, never nested. The answer key is a sibling and not
+`data/generated/<run_id>/ground_truth/` because a stage handed the run directory as its input
+root can walk into an in-run answer key with a plain glob, and would then be training on the
+labels it is being scored against. Siblings make that mistake take a deliberate `../..` that a
+reviewer can see. `validation/` stays inside the run: it describes the observable data only.
+Anything computed by comparing a prediction to the answer key is a score, and goes to
+`measurements/<run_id>/`.
+
+`--out` is the only path argument in the system. The other two directories are derived from its
+last component, so there is no flag anywhere that could point ground truth somewhere else.
 
 Sharding is not a detail. It is what makes a one million row run resumable and what lets the
 demo load instantly from a precomputed run. Shard on time so that a shard is a coherent slice.

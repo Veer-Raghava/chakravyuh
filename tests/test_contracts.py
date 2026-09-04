@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
@@ -21,6 +22,31 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 CAPTURE = REPO / "data" / "fixtures" / "capture"
+
+# docs/DATA-CONTRACTS.md section 2, first sentence: "Written by MAYAJAAL into ground_truth/.
+# Readable only by src/chakravyuh/eval/." Those two clauses pull in opposite directions for
+# exactly one file, the module that does the writing, so the grep below is absolute for every
+# file under src/ except this single hardcoded path. The exemption is paid for by
+# test_the_ground_truth_writer_never_reads, which proves the door only opens outwards.
+GT_WRITER = Path("src") / "chakravyuh" / "mayajaal" / "writers.py"
+
+# Every way this project could load a file back in. Absent from the writer, by assertion.
+FORBIDDEN_READ_CALLS = (
+    "read_parquet",
+    "scan_parquet",
+    "read_csv",
+    "scan_csv",
+    "read_ndjson",
+    "scan_ndjson",
+    "read_json",
+    "read_ipc",
+    "read_avro",
+    "read_database",
+    "read_text",
+    "read_bytes",
+    "iterdir",
+    "rglob",
+)
 
 # Section 1. Twelve required columns then six optional ones, in file order.
 REQUIRED = (
@@ -205,12 +231,13 @@ def test_no_ground_truth_column_name_appears_in_an_observable_fixture() -> None:
 
 
 def test_no_src_module_reaches_for_ground_truth() -> None:
-    """Only src/chakravyuh/eval/ may read ground_truth/. Everything else is checked by grep."""
+    """Only eval/ may read ground_truth/, and only writers.py may name it at all."""
     quarantine = REPO / "src" / "chakravyuh" / "eval"
+    writer = REPO / GT_WRITER
     offenders: list[str] = []
     checked = 0
     for module in sorted((REPO / "src").rglob("*.py")):
-        if quarantine in module.parents:
+        if quarantine in module.parents or module == writer:
             continue
         checked += 1
         if "ground_truth" in module.read_text(encoding="utf-8"):
@@ -221,6 +248,36 @@ def test_no_src_module_reaches_for_ground_truth() -> None:
     # Anti-vacuity: the skip clause must be excluding something real.
     permitted = (quarantine / "__init__.py").read_text(encoding="utf-8")
     assert "ground_truth" in permitted, "eval/__init__.py no longer names its own quarantine"
+
+    # Anti-vacuity for the allowlist: the one exempt file must exist and must actually
+    # name the path. A dead exemption is a hole nobody notices.
+    assert writer.is_file(), f"{GT_WRITER} is allowlisted but does not exist"
+    assert "ground_truth" in writer.read_text(
+        encoding="utf-8"
+    ), f"{GT_WRITER} is allowlisted but never names ground_truth, so the exemption is dead"
+
+
+def test_the_ground_truth_writer_never_reads() -> None:
+    """The allowlisted door is write-only.
+
+    Section 2 lets MAYAJAAL write labels and lets nothing outside eval/ read them. A writer
+    that can also read is a channel back into the pipeline, so the exemption above is paid
+    for by this check: no dataframe or file reader may appear in that module, and any open()
+    must carry an explicit write, append or exclusive-create mode. Hashing an output for
+    _meta.json must therefore hash the buffer it wrote, not the file it landed in.
+    """
+    source = (REPO / GT_WRITER).read_text(encoding="utf-8")
+    readers = sorted(name for name in FORBIDDEN_READ_CALLS if name in source)
+    assert not readers, f"{GT_WRITER} must not read: found {readers}"
+
+    for match in re.finditer(r"open\(([^)]*)\)", source):
+        mode = re.search(r"""["']([rwxab+]+)["']""", match.group(1))
+        assert mode is not None, f"{GT_WRITER}: open() with no explicit mode is a read"
+        assert mode.group(1)[0] in "wxa", f"{GT_WRITER}: open() in read mode {mode.group(1)!r}"
+
+    # Anti-vacuity: prove the substring search would fire on the call it is looking for.
+    assert "read_parquet" in FORBIDDEN_READ_CALLS
+    assert "read_parquet" in "pl.read_parquet(path)"
 
 
 def test_no_fixture_value_looks_like_a_ground_truth_label() -> None:

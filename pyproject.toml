@@ -38,9 +38,11 @@ select = ["E", "F", "I", "UP", "B", "SIM", "ANN", "T20"]
 
 [tool.ruff.lint.per-file-ignores]
 # T20 bans print() repo-wide so no stage can dump data to stdout.
-# These three are the only sanctioned writers to stdout in the project.
+# These four are the only sanctioned writers to stdout in the project. compare_runs.py prints
+# file names and field names to stderr, never a row.
 "scripts/peek.py" = ["T20"]
 "scripts/make_fixtures.py" = ["T20"]
+"scripts/compare_runs.py" = ["T20"]
 "tests/*" = ["T20"]
 
 [tool.mypy]
@@ -54,4 +56,10 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+# --strict-markers so a typo in a marker name is an error rather than a silent deselection.
+# `make verify-quarantine` selects on the marker below, and a marker that does not exist would
+# turn that gate green while running nothing.
+addopts = "-q --strict-markers"
+markers = [
+  "quarantine: leakage gates. Registered in tests/conftest.py, run by `make verify-quarantine`, which every stage calls.",
+]

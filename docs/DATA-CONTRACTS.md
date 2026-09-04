@@ -428,7 +428,7 @@ and it is the difference between an interface and a colleague.
 {
   "case_id": "", "generated_at_us": 0, "tool_version": "", "code_version": "",
   "input": {"files": [{"path": "", "sha256": ""}], "rows_sealed": 0},
-  "subject": {"subject_id": "", "addresses_redacted": ["bc1q…9f4d"], "cluster_id": ""},
+  "subject": {"subject_id": "", "addresses_redacted": ["bc1q4f…9f4d"], "cluster_id": ""},
   "attribution": {
     "peer_ip": "", "peer_port": 0, "observed_at_utc": "",
     "p_origin": 0.0, "margin": 0.0, "runner_up_peer_ip": "",
@@ -451,7 +451,7 @@ Three requirements on this stage that are not negotiable.
 
 **No complete identifiers in any rendered output.** IPs appear in `packet.json` because that
 is a machine artifact served to an authorised officer, but every PDF, every screen and every
-log line renders them redacted, `103.x.x.x`, and Bitcoin addresses truncated, `bc1q…9f4d`. A
+log line renders them redacted, `103.x.x.x`, and Bitcoin addresses truncated, `bc1q4f…9f4d`. A
 test greps the generated PDFs for a full address pattern and fails on a hit.
 
 **`replay.expected_packet_sha256` must actually verify.** `make verify-replay` re-runs from

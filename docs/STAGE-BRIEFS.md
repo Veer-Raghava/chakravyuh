@@ -39,9 +39,12 @@ than injected.
 
 **Reads.** `docs/MAYAJAAL-SPEC.md` Layers 1 and 2, `run_config.json`.
 
-**Writes.** `data/generated/<run>/` chain state, `ground_truth/entities.parquet`,
-`ground_truth/campaigns.parquet` including `change_index` and `heuristic_violation`.
-`tests/test_chain.py`.
+**Writes.** `data/generated/<run>/chain/` with its own `_meta.json`, and
+`data/generated/<run>/config.effective.json`. One sibling truth directory per run:
+`ground_truth/<run>/entities.parquet`, `ground_truth/<run>/campaigns.parquet` (zero rows at S01),
+and `ground_truth/<run>/chain_txs.parquet` holding `change_index` and `heuristic_violation` per
+transaction. Those two are not campaign columns: `campaigns.parquet` keeps the seven columns
+`docs/DATA-CONTRACTS.md` section 2 freezes. `tests/test_chain.py`.
 
 **Definition of done.** `make verify-s01`
 
@@ -57,12 +60,14 @@ to find. Any parameter hardcoded instead of read from `run_config.json`.
 **Goal.** Gossip every transaction across a peer graph with independent per-peer relay delays,
 record only what a partial observer would have seen, and export in the problem statement schema.
 
-**Reads.** `docs/MAYAJAAL-SPEC.md` Layers 3, 4, 5 and 6, `regions.yaml`, `run_config.json`,
-`ground_truth/` from S01.
+**Reads.** `docs/MAYAJAAL-SPEC.md` Layers 3, 4, 5 and 6, `regions.yaml`,
+`data/generated/<run>/config.effective.json` and `data/generated/<run>/chain/`. Never
+`ground_truth/`: the entity population is derived by calling the same builder S01 used, with the
+same seed.
 
 **Writes.** `capture/part-*.csv.zst` sharded on time, `capture_json/`, `capture_xml/sample.xml`,
-`ground_truth/origins.parquet` with exactly one true originator and a `broadcast_mode` per txid,
-`validation/report.json` and `report.md`. `tests/test_network.py`.
+`ground_truth/<run>/origins.parquet` with exactly one true originator and a `broadcast_mode` per
+txid, `validation/report.json` and `report.md`. `tests/test_network.py`.
 
 **Definition of done.** `make verify-s02 && make validate-data`, then the `truth-checker` subagent
 returns `USABLE`.

@@ -14,6 +14,10 @@ data/generated/
 # Quarantined labels, written by MAYAJAAL. Must never reach a commit.
 ground_truth/
 
+# Scores computed against those labels. Regenerable, and a metric named per entity is one
+# inference away from the label it was scored against.
+measurements/
+
 # Ed25519 signing keys for PRAMAAN.
 keys/
 
