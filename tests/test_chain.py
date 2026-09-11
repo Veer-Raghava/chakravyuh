@@ -7,6 +7,7 @@ in-memory run, because what the next stage consumes is the file.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 import shutil
@@ -69,6 +70,9 @@ def roots() -> Iterator[writers.Roots]:
     Both trees are gitignored and both are removed before and after, so a test cannot leave a
     label file behind. The directory is wiped first rather than trusted: a leftover from a
     crashed run would otherwise be refused by the clobber guard.
+
+    `--chain-only` keeps this file about the chain layer. Without it the fixture builds the peer
+    network as well, and every later stage that touches the network reddens the S01 gate.
     """
     place = writers.run_roots(REPO / "data" / "generated" / RUN_ID)
     _wipe(place)
@@ -84,6 +88,7 @@ def roots() -> Iterator[writers.Roots]:
                     str(TXS),
                     "--entities",
                     str(ENTITIES),
+                    "--chain-only",
                 ]
             )
             == 0
@@ -322,12 +327,28 @@ def test_the_observable_manifest_lists_only_observable_files(run_dir: Path) -> N
 
 
 def test_the_truth_tree_carries_its_own_manifest(roots: writers.Roots) -> None:
-    """Section 10 is satisfied on both sides, which is what lets the observable side stay quiet."""
+    """Section 10 is satisfied on both sides, which is what lets the observable side stay quiet.
+
+    The file list is compared against the directory rather than against a literal, for two
+    reasons. A literal breaks every time a later stage adds a truth artifact, which is a false
+    alarm. And a literal cannot catch the failure that matters here: a file written into the
+    answer key but left out of its own manifest, which is an unhashed, unaccounted label file.
+    """
     meta = json.loads((roots.truth / "_meta.json").read_text(encoding="utf-8"))
     listed = {entry["path"]: entry for entry in meta["outputs"]}
-    assert set(listed) == {"entities.parquet", "campaigns.parquet", "chain_txs.parquet"}
+    on_disk = {
+        str(path.relative_to(roots.truth))
+        for path in roots.truth.rglob("*")
+        if path.is_file() and path.name != "_meta.json"
+    }
+    assert set(listed) == on_disk
+    for path, entry in listed.items():
+        digest = hashlib.sha256((roots.truth / path).read_bytes()).hexdigest()
+        assert entry["sha256"] == digest, path
+    # The three artifacts the chain layer owns. A subset, so a later stage adding a fourth is
+    # not a failure, while one of these three disappearing still is.
+    assert {"entities.parquet", "campaigns.parquet", "chain_txs.parquet"} <= set(listed)
     assert listed["campaigns.parquet"]["rows"] == 0
-    assert all(len(entry["sha256"]) == 64 for entry in listed.values())
     assert meta["run_id"] == RUN_ID
     observable = json.loads((roots.observable / "chain" / "_meta.json").read_text(encoding="utf-8"))
     # The same config produced both trees, and the shared hash is what the clobber guard

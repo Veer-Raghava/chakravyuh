@@ -22,6 +22,7 @@ QUARANTINE: dict[str, tuple[str, ...]] = {
         "test_no_ground_truth_column_name_appears_in_an_observable_fixture",
     ),
     "test_chain": ("test_no_observable_artifact_names_the_quarantine",),
+    "test_network": ("test_no_capture_encoding_names_a_ground_truth_column",),
 }
 
 

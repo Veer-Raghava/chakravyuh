@@ -242,5 +242,621 @@ mean_announcements_per_tx`, since the operator thinks in capture rows and one tr
 becomes about nine rows once S02 attaches announcements. The effective config written beside a
 run leaves `target_rows` untouched — rewriting it would erase what the operator asked for.
 
+## 2026-09-04 · S01 · the truth and measurements roots are anchored to the repository root
+
+Chosen: `writers.py` finds the repository root by walking up from `__file__` for
+`pyproject.toml`, and derives `TRUTH_ROOT` and `MEASUREMENTS_ROOT` from it. An `--out` that
+resolves outside that root is refused before anything is written.
+
+Rejected: anchoring to `Path.cwd()`, which was the first implementation. The working directory
+is wherever the operator happened to stand, so a run launched from a subdirectory would create
+a second `ground_truth/` there, outside `.gitignore`, and every test would still pass. A
+quarantine that depends on which directory you were in when you typed the command is not a
+quarantine.
+
+The refusal message says why rather than just what: ground truth is derived from the run name
+rather than passed in, so an `--out` that escapes the repository separates a run from its
+answer key and lands that answer key outside the one gitignored tree that keeps labels out of
+commits.
+
+Revisit if a run ever legitimately needs to write outside the repository, for instance to a
+mounted evidence volume. That is a change to all three roots together, never to one.
+
+## 2026-09-04 · S01 · the clobber guard is content-addressed and lives in its own module
+
+Chosen: `config.effective.json` is serialised and hashed first, before any file is written.
+Both manifests record that `config_sha256`. On startup, if either the observable or the truth
+directory already exists and its `_meta.json` records a different hash — or records none,
+which means a half-written run — the generator raises, prints both hashes and prints the exact
+`rm -rf` for both paths. A matching hash means the same run being regenerated, which is
+deterministic, so overwriting is safe.
+
+Rejected: comparing modification times. An mtime says which write happened later, not which
+run the bytes belong to, and it makes the guard depend on filesystem timestamp behaviour.
+
+Rejected: putting the guard in `writers.py`. Comparing a hash on disk means opening a file to
+read it, and `test_the_ground_truth_writer_never_reads` is exactly what pays for that file's
+exemption from the quarantine grep. The guard therefore lives in `preflight.py`, which is
+handed both directories as arguments so it never contains the literal `ground_truth`, and which
+only ever opens a file named `_meta.json` — a file the layout rules already forbid from
+carrying a label.
+
+Revisit for the gap recorded in `STATE.md` under Open problems: the hash covers the config, not
+the code, so changing the generator and re-running the same `--out` overwrites silently.
+Comparing `code_version` as well would close it, and would mean bumping that version on every
+generator change.
+
+## 2026-09-04 · S01 · the two-run comparison masks three manifest fields instead of skipping the manifest
+
+Chosen: `scripts/compare_runs.py`, stdlib only, walks both trees and compares every file byte
+for byte, except that in any `_meta.json` it drops `run_id`, `started_at_us` and
+`finished_at_us` and compares the canonical JSON of what remains. `make verify-s01` and
+`tests/test_chain.py` both call it, so the byte gate and the in-process gate cannot drift
+apart.
+
+Rejected: `diff -r -x _meta.json`, which was the first plan. Excluding the manifest drops every
+sha256, every row count and every drop reason from the determinism comparison — precisely the
+fields most worth comparing. Two runs could disagree about how many rows they wrote and still
+pass.
+
+`run_id` is masked because the two runs are deliberately named differently. The two timestamps
+are masked because contract section 10 requires them and they legitimately differ. Nothing else
+is masked, and the comparison was tested for vacuity before being trusted: a changed hash, a
+changed count, an extra file and a changed payload byte each fail it, while the three masked
+fields differing does not.
+
+Revisit if a later stage's manifest gains another field that varies between identical runs. Add
+it to `MASKED` with a comment saying why it must vary, and expect that comment to be the thing
+a reviewer checks.
+
+## 2026-09-04 · S01 · `verify-quarantine` is one shared target with a collected-count floor
+
+Chosen: the leakage tests carry a `quarantine` marker, `make verify-quarantine` runs them with
+`--strict-markers`, and it first counts what got collected and fails below
+`QUARANTINE_MIN := 4`, printing the count. Every later stage's gate calls this same target as a
+prerequisite.
+
+Rejected: running `pytest -m quarantine` directly from each stage's gate. `pytest -m` exits
+zero when everything is deselected, so a renamed test or a dropped marker turns the gate green
+while testing nothing, and every stage that calls it inherits the free pass. A floor is the only
+thing that notices.
+
+The marker is applied from `tests/conftest.py` by a name registry rather than by decorators,
+because `tests/test_contracts.py` must stay importable by a bare interpreter with no pytest
+installed — that is what lets a future session check redaction before `uv sync` has ever
+succeeded. The registry's cost is that renaming a test silently unmarks it, so `conftest.py`
+raises `pytest.UsageError` when a registered name no longer exists.
+
+Revisit the floor upward every time a leakage test is added. A floor that stays at 4 while the
+suite grows to 9 is only guarding the first four.
+
+## 2026-09-04 · S01 · the observable manifest names only observable files, and sits in `chain/`
+
+Chosen: `_meta.json` moved from the run root into `chain/`, beside the files it describes, and
+lists only those three files plus `config.effective.json` as its input. The truth directory gets
+its own `_meta.json` listing its own files and hashes, so contract section 10 is satisfied on
+both sides while the observable manifest never names the answer key. A test asserts that no file
+under `data/generated/**` contains the string `ground_truth` or `measurements`.
+
+Rejected: one manifest at the run root covering both trees. It satisfies section 10 with less
+code and it publishes a map to the labels inside the tree every later stage is handed as input.
+Layer 5's whole reason for making the answer key a sibling is that walking into it should take a
+deliberate `../..` a reviewer can see; a path string in the manifest hands it over for free.
+
+Every path in both manifests is relative to its own tree, never absolute. That is what keeps the
+S09 replay claim portable across machines: an absolute path in a hash record makes the packet
+verifiable only on the laptop that produced it.
+
+The truth manifest deliberately carries no timestamps. It does not need them, and leaving them
+out means the two truth trees of two same-seed runs compare byte for byte with nothing masked.
+
+## 2026-09-04 · S01 · `config.effective.json` records the parameters and the seed, not the run name
+
+Chosen: the effective config holds config values and the seed only. Not the run name, not the
+derived truth path, not the derived measurements path. The run name is in both `_meta.json`
+files, where a reader looking for provenance will find it.
+
+Rejected: including the run name, which is what was asked for. Two reasons overrode it. It makes
+`config.effective.json` differ between two same-seed runs, which breaks the byte comparison that
+is S01's definition of done. And it makes `config_sha256` identify a directory rather than a set
+of parameters, when what the clobber guard needs to answer is "are these the same parameters",
+so that two runs of one config under different names are provably the same run.
+
+Rejected outright, and this one is not a trade-off: recording the derived `ground_truth/<run>/`
+or `measurements/<run>/` path in the file. That is the same defect as the manifest one above,
+in the file every stage reads first.
+
+Revisit by adding the name and a fourth entry to `compare_runs.MASKED` at the same time. One
+without the other turns the determinism gate red for a reason that has nothing to do with
+determinism.
+
+## 2026-09-04 · S02 · capture shards are plain CSV here and compressed at S10
+
+`docs/DATA-CONTRACTS.md` section 1 names the capture shards `part-*.csv.zst`. S02 writes
+`part-*.csv`, uncompressed. This is a deviation from the frozen contract, not a reading of it, and
+it is recorded rather than argued away.
+
+The reason is that S10 owns scale, and compression is a scale decision with a cost on both sides:
+it changes how long a run takes to write, and it changes what `scripts/peek.py`, the tests and the
+validator must do to read one. Writing zstd now grows a decompression path in every reader from
+S02 to S09 for a property nothing is measuring yet.
+
+The deviation is cheap to reverse because no reader knows the suffix except by globbing:
+`export.CSV_DIR` names the directory and every reader globs `part-*.csv`. S10 changes one writer
+and one glob.
+
+Revisit at S10, which must also choose the shard size and re-run `make verify-determinism`. zstd
+is deterministic at a fixed level and library version, and that is a claim to test rather than to
+assume.
+
+## 2026-09-04 · S02 · the validation report is JSON and Markdown under `measurements/<run>/`
+
+Chosen: `report.json` and `report.md` land in `measurements/<run>/validation/`, the third sibling
+tree beside `data/generated/<run>/` and `ground_truth/<run>/`, all three derived from one run id
+by `writers.run_roots`.
+
+It cannot live under `data/generated/<run>/`, because every number in it is computed from the
+answer key and that tree is what every later stage is handed as input. It cannot live under
+`ground_truth/<run>/` either, because the point of the report is that a human reads it and quotes
+it, and everything in that tree is quarantined.
+
+`measurements/` holds JSON and Markdown only, never Parquet. A Parquet file there is a dataframe
+that a later stage would eventually read as input, and the measurements tree would quietly become
+a pipeline stage instead of a record of what was measured.
+
+## 2026-09-04 · S02 · `broadcast_mode` is derived from two booleans and never stored
+
+`ground_truth/<run>/origins.parquet` records `used_tor` and `used_vpn` and nothing else about how
+a transaction reached the wire. The three-way mode the validator reports — clearnet, tor, vpn — is
+derived from those two flags at read time.
+
+Rejected: a stored `broadcast_mode` string. Two booleans plus a string encoding the same fact give
+one state the string cannot express, both flags true, and the answer key would then have a
+consistency requirement no reader could check. The generator makes that state unreachable and
+`tests/test_network.py` asserts it directly on the artifact.
+
+## 2026-09-04 · S02 · `world.india_weight` is gone and region shares live in `regions.yaml`
+
+The S02 brief describes an `india_weight` knob under `world`. It is not in `run_config.json`,
+because `regions.yaml` already answers the same question better: `share` per region sums to 1.0,
+the parser refuses the file if it does not, and India carries 0.25 there — the largest single
+share, which is what the knob existed to express.
+
+One weight beside eight shares gives two ways to say where entities live and no rule for which
+wins. The eight-row table is also what the latency matrix is indexed by, so placement and
+propagation cannot disagree about the region set.
+
+Revisit by editing `regions.yaml`, which is one line per region and needs no code change.
+
+## 2026-09-04 · S02 · `adversary.n_campaigns` is a ceiling, and that sets the verify run size
+
+`n_campaigns: 120` is an upper bound, not a count. The binding constraint is the world's illicit
+transaction budget: `round(illicit_tx_share * n_txs)` moves exist in total, a campaign spends
+`mean(moves_per_campaign)` of them, and `adversary.py:178` takes the minimum of the two.
+
+The consequence is a trap for anyone sizing a test run. At 2000 transactions the budget is
+`round(0.006 * 2000) = 12` moves, which buys `12 // 21 = 0` campaigns — so every campaign
+assertion in the validator and in `tests/test_network.py` would pass by being vacuous. `S02_ARGS`
+is therefore `--txs 20000 --entities 4000`, measured at five campaigns and about 30 seconds to
+generate, and `tests/test_network.py` runs 4000 transactions for one campaign and says in a
+comment why it cannot go lower. Both files assert `campaigns.height > 0` so a future retuning
+fails loudly rather than silently testing nothing.
+
+## 2026-09-04 · S02 · one row per observer per transaction, and the three knobs that follow
+
+A real node announces to every peer that has not told it about the transaction. Chosen: an
+observer records only the announcement that told it something new, so the capture holds at most one
+row per observer per transaction. Later arrivals at the same observer are duplicates a real client
+would discard, and the peers it has already told stop announcing.
+
+That makes rows per transaction bounded by `n_observers` rather than by the size of the graph,
+which is what keeps the capture linear in transactions instead of quadratic in nodes. It also
+changes what the reach knob means: `observer_fraction` is the share of nodes that dial an observer
+at all, and it, not the flood, decides how many observers hear anything.
+
+Three knobs were retuned against that, and the numbers are measurements rather than guesses:
+
+- `mean_announcements_per_tx` 9 to 15. It is both the divisor `--txs` defaults to and the
+  distribution target, so a value the run cannot hit makes the operator's row budget a lie.
+- `observer_fraction` 0.012 to 0.7. At 0.012 almost no node had an observer link, so most
+  transactions reached nobody and the run produced a capture with no rows for them.
+- `flood_frontier` 128 to 64. Halved because nothing above it changes the result, which is the
+  claim `network._flood`'s docstring makes and
+  `test_doubling_the_flood_frontier_barely_moves_the_first_seen_rate` measures: doubling the bound
+  moves first-seen leakage by less than 0.05.
+
+Measured after: 14.96 rows per transaction at 4270 transactions and 15.06 at 24580, first-seen
+leakage 0.2233 to 0.2539 across three run sizes. The knobs are scale-invariant, which is the
+property that matters — a benchmark whose difficulty depends on how big the run was is not a
+benchmark.
+
+## 2026-09-04 · S02 · `config.load` gained an `anchor` keyword for one caller
+
+`config.load` resolves `network.latency_matrix` relative to the config file's own directory. The
+validator loads the `config.effective.json` copied into a run directory, and that copy names
+`regions.yaml` exactly as the original did — so the path resolved to `<run>/regions.yaml`, which
+does not exist.
+
+Chosen: one optional keyword, `anchor`, defaulting to `path.parent`. The validator passes
+`writers.REPO_ROOT`. Three lines total.
+
+Rejected: rewriting `latency_matrix` to an absolute path when the effective config is written. An
+absolute path in a provenance record makes a run reproducible only on the laptop that produced it,
+which is the same defect S01 already rejected for manifest paths, and it would change bytes the
+determinism gate compares.
+
+Rejected: copying `regions.yaml` into each run directory. It is the honest fix and it is a second
+copy of a file that is already hashed into `config_sha256`, so the two could drift.
+
+## 2026-09-04 · S02 · `write_run` takes the network and the campaigns as optional arguments
+
+`writers.write_run(run, cfg, out, *, started_at_us, finished_at_us, net=None, campaigns=())`. A
+chain-only run passes neither and writes what S01 wrote; an S02 run passes both and gets the
+capture, the three export encodings and `origins.parquet` as well.
+
+Rejected: a second entry point, `write_network_run`. Two writers means two places that derive the
+truth path, and that path is the thing the whole quarantine rests on — one door out of `src/`, and
+`tests/test_contracts.py` allows exactly one file to name it.
+
+Rejected: making them required. `tests/test_chain.py` builds a chain without a network on purpose,
+which is what proves the layers are separable, and requiring a network would force that test to
+build one it does not use.
+
+## 2026-09-04 · S02 · `delay_cv_min` lowered from 0.6 to 0.5, before a failure rather than after
+
+The relay-delay coefficient of variation measured 0.605408 on the first smoke run, against a floor
+of 0.6. Five thousandths of headroom is a coin flip, not a gate, and a gate that fails on a
+different run size teaches the next session to raise the bound instead of reading it.
+
+The floor is now 0.5. A propagation delay that is the sum of roughly k exponential hops has
+CV ≈ 1/√k by construction, so for the depths this graph produces the honest value sits near 0.5 and
+no configuration will push it far above. The pathology the check exists to catch is CV near zero,
+which is a fixed forwarding delay — the sorted cascade requirement 3 forbids — and 0.5 still
+catches that with room to spare.
+
+Measured after the change: 0.605408, 0.616985 and 0.619980 at 776, 4270 and 24580 transactions. The
+bound was lowered deliberately before running the verify gate, not in response to a red test.
+
+Revisit only with a reason to believe the delay distribution changed shape. If this check ever
+fails, the first thing to look at is whether a delay became deterministic, not whether the floor is
+too high.
+
+## 2026-09-04 · S02 · the validation report omits the run id
+
+Neither `report.json` nor `report.md` names the run it describes. The run id is in the directory
+path, and in the two `_meta.json` files, where a reader looking for provenance already looks.
+
+This is what lets `make verify-determinism` compare the measurements tree with the same
+`scripts/compare_runs.py` it uses for the other two, with nothing masked: two runs of one seed
+produce byte-identical reports. The alternative was a fourth entry in `compare_runs.MASKED`, which
+means the determinism gate stops comparing a field in every file that has one, to accommodate a
+string that is already known from the path.
+
+A number we intend to publish that moves between two runs of one seed is not a measurement, so the
+measurements tree is compared as strictly as the other two.
+
+## 2026-09-04 · S02 · the depth-2 tree measures identically to first-seen, and is kept anyway
+
+The leakage group fits a `DecisionTreeClassifier(max_depth=2, random_state=0)` on the observable
+columns and scores it on the same rows, deliberately: it is an upper bound on what a shallow local
+rule can extract, not an honest generalisation estimate, and a bound is the thing worth reporting.
+
+It measures exactly what first-seen measures — 0.223434 at 24580 transactions, 0.225293 at 4270 —
+because the best Gini split over these features reduces to `arrival <= 0.5`, which is first-seen
+spelled differently. That is by construction, not a bug, and the check is not therefore redundant:
+its value is the day some other column starts carrying the answer, when the tree moves and
+first-seen does not. Its cap is `tree_leakage_max: 0.35`, the same cap the one-line rules get,
+because a depth-2 tree is a one-line rule with two conditions rather than one. It started at 0.7,
+which the entry below explains was above a ceiling it could never reach.
+
+`scikit-learn` 1.9.0 is already in `uv.lock` as a dependency of the pinned `mapie==0.9.1`, so this
+adds no dependency and nothing needs fetching — PyPI is unreachable in this sandbox. It is imported
+inside `_tree()` so the rest of the validator runs without it, and `sklearn.*` joins the existing
+mypy `ignore_missing_imports` list beside lightgbm, shap, mapie, rustworkx and duckdb.
+
+Rejected: hand-rolling a depth-2 tree. Roughly twenty-five lines plus a test of its own, to
+reimplement something already installed and already tested.
+
+## 2026-09-04 · S02 · the report states the ceiling every accuracy number is a fraction of
+
+The originator's own IP appears somewhere in the capture for only **0.428560** of transactions at
+verify size, and 0.405 at 4270 transactions. For the other 57% no rule and no model can ever be
+right: an observer keeps the earliest arrival only, each monitored node dials exactly one of the
+sixteen observers, and a directly connected originator is silenced whenever any other peer reaches
+its observer first. That is the honest consequence of requirement 4 — record only what an observer
+received — and it is what a real sixteen-sensor deployment looks like.
+
+It is also a number a report must not omit. Every leakage score is a share of all transactions,
+which is the denominator S03 will publish its accuracy on, so first-seen's 0.223434 is 0.521359 of
+what is reachable rather than 0.22 of what is possible. Reported unqualified, it invites a reader to
+believe there is nearly three times more headroom than the capture contains.
+
+Three changes followed, all of them because a gate that cannot fail is not a gate:
+
+- A new leakage check, `the originator is in the capture at all`, with a floor
+  `origin_recoverable_min: 0.25`. A ceiling collapsing toward zero is the unmeasurable-benchmark
+  failure the first-seen floor was meant to catch, and the first-seen floor cannot see it.
+- `tree_leakage_max` 0.7 to 0.35. A cap above 0.4286 is unreachable arithmetic: a capture with a
+  literal `is_the_origin` column would have scored 0.4286 and passed.
+- The Markdown tables gained a `note` column. Notes were rendered only for failing checks, so the
+  sentence that makes a passing number interpretable was written and never shown.
+
+Not changed: `first_seen_leakage_max: 0.6` and `trivial_rule_max: 0.35` stay expressed on the raw
+share, unconditional, because that is the same number S03 will report and rescaling them would make
+the report incomparable with the stage it exists to gate. The floors are what fire in practice; the
+ceilings now sit above a hard bound and the report says so on the row above.
+
+## 2026-09-04 · S02 · the strongest trivial rule is payer linkage, and it is measured
+
+The four original trivial rules are one-column sorts, and each measures a channel that turned out
+to be nearly empty — lowest source port 0.025, busiest peer 0.000. The rule that actually scores is
+the one that links transactions: group by the first input address, then name the peer seen across
+most of that payer's transactions. **0.263995**, which is 0.616 of the achievable ceiling and the
+highest of any rule the validator tries.
+
+It is in the leakage group rather than left for S03 to discover because it is the shape S03 is meant
+to find. Knowing that address reuse alone gets 0.26 is what makes an S03 result meaningful: a
+model scoring 0.27 has learned almost nothing, and nobody could tell without this row.
+
+It stays under `trivial_rule_max: 0.35` with about a quarter of the band spare. If a retuning pushes
+it over, the honest response is to weaken address reuse in the chain layer, not to raise the cap —
+the cap failing means the capture is answering the question S03 is being asked.
+
+## 2026-09-04 · S02 · `TRUTH_COLUMNS` names every answer-key column, not the interesting ones
+
+`validate.TRUTH_COLUMNS` began with fifteen names and the answer key has twenty-three. The eight
+missing were `entity_type`, `addresses`, `ips`, `behind_cgnat`, `txids`, `start_us`, `end_us` and
+`total_sats` — the columns that look like shapes rather than labels, which is exactly why they were
+skipped and exactly why they were dangerous. The check reports "none" when it finds nothing, so a
+capture that grew an `ips` column would have been declared clean.
+
+Now every column of all four quarantined files is listed, except `txid` and `block_height`, which
+are public chain facts and legitimately appear in the capture. `tests/test_network.py` imports the
+tuple rather than copying it, so the test and the report cannot disagree about what a label is
+called.
+
+Matching stays exact, never by substring, for the reason S00 recorded: the capture legitimately
+carries `input_addresses` and `output_addresses`, and a substring rule would reject it for
+containing `addresses`. That collision arrives for real at S05 and S06, which define `addresses`
+and `txids` as observable columns of `graph/` and `signals/`. Whichever session builds them must
+narrow this tuple and record the narrowing, exactly as the S00 entry says for
+`FORBIDDEN_GT_COLUMNS`.
+
+## 2026-09-04 · S02 · a docstring that claimed an unwritten check became the check
+
+`_delays` documented an ordering guarantee — no announcement earlier than the broadcast it announces
+— that nothing in the validator tested. The delay column was computed, its distribution was checked
+for spread, and its sign was never looked at.
+
+The fix was the invariant, not the docstring. A negative delay is a propagation model built
+backwards, and it is the one defect in this stage that S03 would reward rather than trip over: a
+feature that is negative only for the originator is a label wearing a timestamp, and a model would
+find it immediately and score near 1.0 for the wrong reason. It measures 0 rows and is a check worth
+keeping precisely because it is cheap and its failure mode is silent success downstream.
+
+The general rule this stage now follows: when a docstring and the checks disagree, the docstring is
+the specification and the gap is the bug.
 
 
+
+
+
+
+
+
+## 2026-09-11 · S02 · a coinbase is never gossiped, and nothing is announced after it confirms
+
+The gossip layer looped over every transaction in the run and announced each one until its flood
+ran out of frontier. Both halves of that were wrong, and they were wrong for different reasons.
+
+A coinbase transaction is created by the miner inside the block that contains it. It is never
+relayed as a loose transaction, so every coinbase row in the capture described an event that
+cannot happen. And a peer that already holds the confirming block relays the block, not the
+transaction inside it, so an announcement whose arrival time falls at or after the block's own
+timestamp is equally impossible. The first is a filter on which transactions enter the loop; the
+second is a deadline inside `network._announce`, because the offending quantity is the arrival
+time at the observer rather than the moment of broadcast.
+
+Together they remove 16268 rows of 370291, leaving 354023. Both are now invariants rather than
+properties of the code that happens to hold: `no coinbase transaction is announced` and `no
+announcement lands at or after its confirming block`.
+
+The designed-for consequence is that 175 broadcast transactions now reach no observer at all and
+carry `observed_by_n = 0`. That is the honest outcome. An observer whose only announcement falls
+past the deadline recorded nothing, and filling the gap would be inventing an observation.
+
+## 2026-09-11 · S02 · addresses get one owner at the point they are minted
+
+Two mechanisms were handing one address to two entities, and because they fail in different
+places, each needed its own fix rather than a shared deduplication pass.
+
+`ADDRESS_SHAPES` padded a minted address to its target length with the character `2`, which is a
+hex digit. So `head + "2" * fill + hex(counter)` is not injective: a short counter padded with
+twos collides with a longer counter that happens to start with twos. 151 addresses were minted
+twice. The pad is now `z` for base58 shapes and `q` for bech32, neither of which can appear in the
+counter, which makes the construction injective by shape rather than by a check after the fact.
+
+Separately, `chain._coinbase` drew its payout through `receive_address`, from the same growing
+pool the endowment had already seeded, so 55 block-reward addresses were also endowment addresses.
+Each mining pool now mints one payout address lazily on first use and reuses it, drawn outside the
+existing pool. It still joins the entity's address list, because the S04 clustering answer key has
+to name every address an entity owns; what it no longer does is come out of a pool that something
+else already drew from.
+
+Both are invariants at zero tolerance: `no address is owned by two entities` and `no coinbase
+output address is also an endowment address`. Neither tolerates one collision, because a single
+shared address merges two entities in the clustering answer key and nothing downstream can tell
+that the merge was an accident.
+
+## 2026-09-11 · S02 · a txid is a hash of the transaction, not a counter
+
+Transaction ids came from a run-wide counter formatted into a fixed-width tail. Every txid in a
+run therefore ended in the same eight hex characters.
+
+Section 11 renders a txid as its first eight and last four characters. A constant tail means four
+of those twelve characters carry no information, two different transactions read alike on screen,
+and the whole thing looks obviously synthetic in any rendered evidence packet. The id is now
+`SHA-256` over the transaction's own serialised inputs and outputs, so all sixty-four characters
+vary: 24626 transactions in the reference run produce 24626 distinct ids and 20508 distinct
+four-character tails, the shortfall being ordinary birthday collisions across 65536 possibilities.
+
+The coinbase is the one case that needs a nonce, and it uses the block height, which is what BIP34
+does and for the same reason: a coinbase has no inputs, so two blocks paying the same pool the
+same subsidy would otherwise serialise identically and share an id. Non-coinbase transactions need
+no nonce, because an outpoint can be spent once and the input set therefore separates a
+transaction from every other one in the run. `ledger.Ledger.create` already raises on a duplicate
+outpoint, which makes any collision loud rather than silent.
+
+The id is derived at the point where the inputs and outputs are final, immediately before the
+ledger entry, rather than handed in by the caller. Handing it in is what allowed the counter to
+exist, and it would let a future caller derive an id from contents that later change.
+
+## 2026-09-11 · S02 · every observer answers to its own address
+
+Observers drew `dst_ip` from the configured pool without checking what the previous draw took, so
+two observers could share one address. Nothing about such a row is malformed, which is why no
+existing check caught it, and that is exactly what makes it dangerous: any group-by on `dst_ip`
+silently merges two vantage points into one and the merge is invisible in the output.
+
+Observer addresses are now drawn against a set of what is already taken, with a bounded number of
+redraws before `network.build` raises. The invariant is stated as a bijection — `observer id and
+dst_ip are one to one` — rather than as uniqueness in one direction, because both directions are
+failures and a check that only looked one way would pass on half of them.
+
+## 2026-09-11 · S02 · leakage is scored over broadcast transactions, not observed ones
+
+Every leakage score divided by the number of transactions that appeared in the capture. Before the
+coinbase and deadline fixes that was very nearly the same as the number of transactions broadcast,
+because essentially everything reached someone. It is no longer: 175 broadcast transactions now
+reach no observer, and scoring only over the 23784 that did would have credited every rule with
+transactions it was never given a chance at.
+
+The denominator is now `broadcast`, every non-coinbase transaction the generator put on the wire.
+A transaction no observer saw is one no rule and no model can ever get right, and it belongs in
+the denominator for the same reason a transaction whose originator was never in the candidate set
+does. This is the denominator S03 has to report its accuracy on, so it is the one the ceiling and
+every trivial rule are measured against.
+
+The measured effect, against the last pre-remediation run: the recoverable-origin ceiling moves
+from 0.428560 to 0.415376, first-seen from 0.223434 to 0.220919, and the strongest trivial rule
+from 0.263995 to 0.263241. All three fall, and all three fall because the denominator grew rather
+than because any rule got worse.
+
+## 2026-09-11 · S02 · `Origin` carries the transaction index it answers for
+
+`origins.parquet` built its `txid` column by filtering `run.txs` while every other column came
+from walking `network.origins`, so the two were aligned by position and nothing proved it. The
+coinbase fix broke that alignment immediately, in `tests/test_network.py` rather than in the
+writer, because `Capture.tx_index` indexes `run.txs` while the origin list had become shorter.
+
+The fix is one field. `Origin.tx_index` records which transaction the row answers for, and the
+writer reads the txid back through it. Two copies of one filter agree only until one of them
+changes, and the failure that produces is silent: every row's txid paired with a different
+transaction's answer key.
+
+The validator still asserts the resulting set matches the chain, and now also asserts the row
+counts match — the count term catches a duplicate txid on the chain side, which all three set
+terms miss. This is an answer key, and an answer key is worth checking twice.
+
+## 2026-09-11 · S02 · the relay delay CV floor stands at 0.50
+
+The `delay_cv_min` floor of 0.50 was calibrated over a delay population that included
+post-confirmation arrivals, which are now known to be invalid observations and are dropped. The
+question was whether the floor had to be recalibrated against the valid rows.
+
+It does not. The measured coefficient of variation on the remediated reference run is **0.618320**,
+comfortably above the floor with the invalid rows gone. `relay_delay_*_mean_s` is untouched, which
+is correct independently: the CV of an exponential is scale invariant, so raising the mean cannot
+move it and retuning the mean would be answering a different question.
+
+## 2026-09-11 · S02 · `n_nodes` is a ceiling, and the manifest now says so
+
+`config.effective.json` records `n_nodes: 5000` while the run builds 4160 nodes, because the peer
+graph places one node per entity and takes `min(n_nodes, n_entities)` before adding the Tor exits
+and VPN nodes. The behaviour is right and determinism already proves the topology reproduces, but
+reading the manifest alone gives no way to learn it.
+
+`n_nodes_effective` is now recorded alongside it. Nobody should have to read `network.py` to
+understand why a manifest claiming 5000 describes a graph of 4160.
+
+## 2026-09-11 · S02 · S01's gate stops at the chain layer
+
+`make verify-s01` ran the whole generator, so any change to the network layer reddened S01 as well
+as S02 and the failure named the wrong stage. Every later stage would have inherited that: a
+single-stage change would light up every gate below it.
+
+`--chain-only` skips the peer network and the capture, which `writers.write_run` already supported
+by treating `net=None` as a chain-only run, so the flag costs one branch in `__main__`. S01's
+fixtures build the chain layer and nothing else.
+
+The same session replaced `test_chain.py`'s manifest assertion, which compared the truth tree's
+file list against a literal list of filenames. A literal breaks every time a later stage adds a
+truth artifact, which is a false alarm, and it cannot catch the failure that actually matters: a
+file written into the answer key but left out of its own manifest, which is an unhashed,
+unaccounted label file. The list is now compared against the directory contents, every recorded
+hash is verified against the file on disk, and the three artifacts the chain layer owns are
+asserted as a subset so a fourth is not a failure.
+
+## 2026-09-11 · S02 · block occupancy is proportional to the slice, not to mainnet
+
+Blocks in the reference run hold about 37 transactions where a real block holds 2000 to 3500. This
+is deliberate and is not being fixed.
+
+The run is a 20000-transaction, 4000-entity slice. Block interval, coinbase subsidy and fee
+behaviour are all modelled at mainnet scale, so the number of blocks is a function of the time
+span rather than of the transaction count, and 24626 transactions across 667 blocks is what that
+arithmetic produces. Packing blocks to mainnet occupancy at this slice size would mean either
+compressing the time axis, which destroys the relay-delay and block-interval distributions the
+capture exists to carry, or generating fifty times the transactions, which is S10's question and
+not this stage's.
+
+What a later stage must not do is read block occupancy as a feature. It is an artifact of the
+slice ratio, and any model that learns from it has learned the shape of the generator.
+
+## 2026-09-11 · S02 · address degree p99 is a 20k-row measurement and S10 re-measures it
+
+Address reuse degree has a p99 of 12 in the reference run. That number is measured over 20000
+transactions, and degree distributions of this kind do not scale linearly with sample size: the
+tail is the part that grows.
+
+No change is made to S01 on the strength of it. S10 re-measures address degree at the full million
+rows first, and any retuning of the reuse parameters happens after that measurement, not before.
+Tuning a tail statistic against a fiftieth of the data is how a generator ends up with the wrong
+shape at the size it will actually be used at.
+
+## 2026-09-11 · S02 · forty-four checks are not forty-four independent checks
+
+The validation report now carries 44 checks and it is worth writing down that some of them are the
+same check twice.
+
+The clearest case is the `row-order-in-file` tie-break. Several leakage rules break ties on the
+capture's row index, and the capture is written in ascending time order, so a tie broken on row
+order is a tie broken on arrival time. Any rule that sorts on `row` after its primary key is
+partly duplicating the first-seen rule, and the depth-2 tree over the observable columns scores
+exactly the first-seen number (0.220919) for that reason: with `since_first` among its features,
+the tree rediscovers first-seen and stops.
+
+The practical consequence is for reading the report, not for the code. A clean run means no check
+failed; it does not mean 44 independent things were established. When a later stage needs to know
+how much evidence a passing report carries, it should count the distinct channels — arrival time,
+peer identity, port, payer linkage, message type — not the rows.
+
+## 2026-09-11 · S02 · open question for S10: observers and transactions trade off directly
+
+No action now. This is the measurement S10 must make before it fixes a row budget.
+
+Announcements per transaction is 14.776201 with a coefficient of variation of 0.135237, and it is
+pinned by `n_observers`, not by the nine outbound peers each node keeps. `network._announce`
+records at most one row per observer per transaction — the earliest arrival, since every later one
+is a duplicate the observer already holds — so rows per transaction is bounded above by
+`n_observers = 16` and nothing about graph size moves it. These are two different quantities and
+they have been conflated.
+
+The consequence for sizing: one million capture rows is about 66000 transactions, not the 111000 a
+nine-peer assumption would give. At a fixed row budget, observers and transactions trade off
+directly. Dropping `n_observers` from 16 to 9 roughly doubles the transaction count, which helps
+campaign coverage and address reuse degree, at the cost of a lower recoverable-origin ceiling,
+because fewer vantage points means the originator is in the candidate set less often.
+
+The `observer_fraction` sweep is what should decide this, not a guess. It is the only measurement
+that prices the ceiling against the transaction count directly.

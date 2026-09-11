@@ -15,6 +15,7 @@ is left after the payments and the fee, and when that remainder is below dust it
 from __future__ import annotations
 
 import random
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from chakravyuh.mayajaal import entities, ledger
@@ -64,15 +65,9 @@ class Counters:
     """Run bookkeeping. `attempts`/`built`/`dropped` feed section 10's counts, which must
     satisfy `in == out + dropped`, so every attempt lands in exactly one of the last two."""
 
-    ordinal: int = 0
     attempts: int = 0
     built: int = 0
     drops: dict[str, int] = field(default_factory=dict)
-
-    def next_txid(self) -> str:
-        txid = ledger.txid_for(self.ordinal)
-        self.ordinal += 1
-        return txid
 
     def drop(self, reason: str) -> None:
         self.drops[reason] = self.drops.get(reason, 0) + 1
@@ -149,10 +144,16 @@ def endow(cfg: Config, pop: Population, book: Ledger, rng: random.Random) -> lis
     seeds: list[Seed] = []
     for index, entity in enumerate(pop.entities):
         spec = cfg.type_of(entity.entity_type)
-        txid = ledger.txid_for(-1 - index)
-        for vout in range(rng.randint(low, high)):
+        # Outputs are drawn before the txid exists, because the txid is a hash of them. The
+        # entity index is the nonce: an endowment has no inputs, so nothing else separates two
+        # entities that happen to draw one output of the same size to the same script type.
+        drawn: list[tuple[str, str, int]] = []
+        for _ in range(rng.randint(low, high)):
             address, kind = entity.receive_address(rng, pop.factory)
             sats = _draw_sats(rng, spec.value_mu + chain.endow_mu_offset, chain.endow_sigma, 1)
+            drawn.append((address, kind, sats))
+        txid = ledger.txid_for((), drawn, nonce=f"endowment:{index}")
+        for vout, (address, kind, sats) in enumerate(drawn):
             book.create(
                 (txid, vout),
                 Utxo(
@@ -242,7 +243,26 @@ def _cosigner(
     return None
 
 
-def _payment(
+@dataclass(frozen=True, slots=True)
+class Intent:
+    """What one campaign move wants from one transaction. None means "use the type's policy".
+
+    A move describes its shape and lets `payment` build it against the live ledger, rather than
+    writing a transaction of its own. That is the difference between an agent and an injected
+    pattern: a peel that cannot be funded does not happen, and the campaign has to react.
+    """
+
+    to: int | None = None
+    outputs: tuple[int, int] | None = None
+    equal: bool | None = None
+    sats: int | None = None
+    min_inputs: int | None = None
+
+
+_NO_INTENT = Intent()
+
+
+def payment(
     cfg: Config,
     pop: Population,
     book: Ledger,
@@ -251,9 +271,8 @@ def _payment(
     sender_index: int,
     height: int,
     time_us: int,
-    txid: str,
     control: MultiInput,
-    out_range: tuple[int, int] | None = None,
+    intent: Intent | None = None,
 ) -> Tx | None:
     """One spend by `sender_index`, or None when the sender cannot afford one.
 
@@ -263,15 +282,24 @@ def _payment(
     cannot cover a payment does not make it, and the caller tries a different sender.
     """
     chain = cfg.chain
+    plan = _NO_INTENT if intent is None else intent
     sender = pop.entities[sender_index]
     spec = cfg.type_of(sender.entity_type)
     cands = book.spendable(sender_index, height, chain.coin_select_window)
     if not cands:
         return None
 
-    low, high = spec.outputs if out_range is None else out_range
+    low, high = spec.outputs if plan.outputs is None else plan.outputs
     n_pay = rng.randint(low, high)
-    if spec.equal_outputs:
+    equal = spec.equal_outputs if plan.equal is None else plan.equal
+    if plan.sats is not None:
+        # A move naming an amount is moving one specific pot on, so the pot is divided rather
+        # than redrawn: a peel that redrew its value would not be peeling anything.
+        each, extra = divmod(plan.sats, n_pay)
+        amounts = [each + (1 if index < extra else 0) for index in range(n_pay)]
+        if amounts[-1] < chain.min_payment_sats:
+            return None
+    elif equal:
         # A mixer's outputs are equal by design, which is what defeats amount matching.
         each = _draw_sats(rng, spec.value_mu, spec.value_sigma, chain.min_payment_sats)
         amounts = [each] * n_pay
@@ -280,14 +308,16 @@ def _payment(
             _draw_sats(rng, spec.value_mu, spec.value_sigma, chain.min_payment_sats)
             for _ in range(n_pay)
         ]
-    if rng.random() < chain.round_payment_rate:
+    # Drawn either way so an intent cannot shift the draw sequence of the traffic around it.
+    rounding = rng.random() < chain.round_payment_rate
+    if rounding and plan.sats is None:
         amounts[0] = max(chain.round_to_sats, amounts[0] - amounts[0] % chain.round_to_sats)
 
     addresses: list[str] = []
     kinds: list[str] = []
     owners: list[int] = []
     for _ in range(n_pay):
-        who = pop.receivers.pick(rng)
+        who = pop.receivers.pick(rng) if plan.to is None else plan.to
         address, kind = pop.entities[who].receive_address(rng, pop.factory)
         addresses.append(address)
         kinds.append(kind)
@@ -295,8 +325,9 @@ def _payment(
 
     fee_rate = _fee_rate(cfg, rng)
     want_multi = rng.random() < control.p()
-    chosen = _select(cfg, cands, sum(amounts), 2 if want_multi else 1, kinds, fee_rate)
-    if chosen is None and want_multi:
+    min_inputs = (2 if want_multi else 1) if plan.min_inputs is None else plan.min_inputs
+    chosen = _select(cfg, cands, sum(amounts), min_inputs, kinds, fee_rate)
+    if chosen is None and min_inputs > 1:
         chosen = _select(cfg, cands, sum(amounts), 1, kinds, fee_rate)
     if chosen is None:
         return None
@@ -348,6 +379,11 @@ def _payment(
 
     for outpoint, _ in chosen:
         book.spend(outpoint)
+    # The txid is derived here rather than handed in, because it is a hash of exactly these
+    # inputs and outputs and they are only final now. No nonce: an outpoint can be spent once,
+    # so the input set already separates this transaction from every other one in the run.
+    inputs = tuple(outpoint for outpoint, _ in chosen)
+    txid = ledger.txid_for(inputs, list(zip(addresses, kinds, amounts, strict=True)))
     for vout, sats in enumerate(amounts):
         book.create(
             (txid, vout),
@@ -367,7 +403,7 @@ def _payment(
         height=height,
         time_us=time_us,
         is_coinbase=False,
-        inputs=tuple(outpoint for outpoint, _ in chosen),
+        inputs=inputs,
         input_addresses=tuple(utxo.address for _, utxo in chosen),
         input_sats=tuple(utxo.sats for _, utxo in chosen),
         output_addresses=tuple(addresses),
@@ -391,13 +427,16 @@ def _coinbase(
     *,
     height: int,
     time_us: int,
-    txid: str,
     fees: int,
 ) -> Tx:
     """The block reward, paid to one pool chosen in proportion to its hashrate."""
     pool = pop.hashrate.pick(rng)
-    address, kind = pop.entities[pool].receive_address(rng, pop.factory)
+    address, kind = pop.entities[pool].payout_address(rng, pop.factory)
     sats = cfg.chain.coinbase_subsidy_sats + fees
+    # BIP34 puts the block height in the coinbase, and this is why: a coinbase has no inputs,
+    # so without the height two blocks paying the same pool the same subsidy would serialise
+    # identically and share a txid.
+    txid = ledger.txid_for((), [(address, kind, sats)], nonce=f"height:{height}")
     book.create(
         (txid, 0),
         Utxo(address=address, kind=kind, sats=sats, height=height, owner=pool, coinbase=True),
@@ -451,16 +490,51 @@ def _quota(n_txs: int, n_blocks: int) -> list[int]:
     return [base + 1 if index < extra else base for index in range(n_blocks)]
 
 
-def generate(cfg: Config, rng: random.Random) -> Run:
+@dataclass(frozen=True, slots=True)
+class Context:
+    """One block, handed to an actor so it can spend inside the run rather than beside it.
+
+    `generate` owns the ledger, the clock and the txid counter, so an actor is given them
+    instead of building a chain of its own. A campaign transaction therefore competes for the
+    same coins as ordinary traffic and lands in the same block, which is what stops the
+    adversary's output from being separable by anything other than its behaviour.
+    """
+
+    cfg: Config
+    pop: Population
+    book: Ledger
+    rng: random.Random
+    control: MultiInput
+    counters: Counters
+    height: int
+    time_us: int
+
+
+# Called once per block, after ordinary traffic. Returns the transactions it managed to build,
+# which may be none: an actor that could not fund a move has not moved.
+Actor = Callable[[Context], list[Tx]]
+
+# Handed the population once it exists and asked for the per-block hook. A factory rather than a
+# ready-made actor because the population is built inside `generate` from the run's one random
+# stream: an actor built beforehand would have to be given a population that does not exist yet.
+ActorPlan = Callable[[Population], Actor]
+
+
+def generate(cfg: Config, rng: random.Random, plan: ActorPlan | None = None) -> Run:
     """Build the whole chain. Deterministic given `rng`, which is the only source of randomness.
 
     `cfg.n_txs` counts payments, not rows: each block also carries a coinbase, and the pools fan
     out a payout every `pool_payout_interval_blocks`, so the transaction file holds more rows
     than were asked for. The requested count is what section 10's `counts.in` records, against
     which the payments actually built and the attempts dropped have to add up.
+
+    The `plan` argument is the adversary's way in. Its transactions compete for the same coins,
+    land in the same blocks and are counted in the same totals as ordinary traffic, which is what
+    stops them from being separable by anything except how they behave.
     """
     chain = cfg.chain
     pop = entities.build(cfg, rng)
+    actor = None if plan is None else plan(pop)
     book = Ledger(maturity_blocks=chain.coinbase_maturity_blocks)
     seeds = endow(cfg, pop, book, rng)
     control = MultiInput(target=chain.multi_input_rate, gain=chain.multi_input_controller_gain)
@@ -481,7 +555,7 @@ def generate(cfg: Config, rng: random.Random) -> Run:
             # payout-cadence detector in S03 is meant to find. Failures are silent: a pool with
             # nothing matured yet simply does not pay this round.
             for pool in pop.pools:
-                payout = _payment(
+                payout = payment(
                     cfg,
                     pop,
                     book,
@@ -489,9 +563,8 @@ def generate(cfg: Config, rng: random.Random) -> Run:
                     sender_index=pool,
                     height=height,
                     time_us=time_us,
-                    txid=counters.next_txid(),
                     control=control,
-                    out_range=chain.pool_payout_outputs,
+                    intent=Intent(outputs=chain.pool_payout_outputs),
                 )
                 if payout is not None:
                     found.append(payout)
@@ -503,7 +576,7 @@ def generate(cfg: Config, rng: random.Random) -> Run:
             # another sender keeps the requested volume; giving up after a bounded number of
             # tries keeps a drained ledger from turning into an unbounded loop.
             for _ in range(chain.max_pick_attempts):
-                built = _payment(
+                built = payment(
                     cfg,
                     pop,
                     book,
@@ -511,7 +584,6 @@ def generate(cfg: Config, rng: random.Random) -> Run:
                     sender_index=senders.pick(rng),
                     height=height,
                     time_us=time_us,
-                    txid=counters.next_txid(),
                     control=control,
                 )
                 if built is not None:
@@ -522,6 +594,22 @@ def generate(cfg: Config, rng: random.Random) -> Run:
             counters.built += 1
             found.append(built)
 
+        if actor is not None:
+            found.extend(
+                actor(
+                    Context(
+                        cfg=cfg,
+                        pop=pop,
+                        book=book,
+                        rng=rng,
+                        control=control,
+                        counters=counters,
+                        height=height,
+                        time_us=time_us,
+                    )
+                )
+            )
+
         fees = sum(tx.fee_sats for tx in found)
         coinbase = _coinbase(
             cfg,
@@ -530,7 +618,6 @@ def generate(cfg: Config, rng: random.Random) -> Run:
             rng,
             height=height,
             time_us=time_us,
-            txid=counters.next_txid(),
             fees=fees,
         )
         txs.append(coinbase)

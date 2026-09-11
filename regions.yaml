@@ -1,0 +1,43 @@
+# MAYAJAAL region model. Peer selection, the latency matrix and the geo_country and asn
+# columns of the capture all come from this one table.
+#
+# Two blocks, and both are read by src/chakravyuh/mayajaal/regions.py, which is a strict
+# stdlib parser rather than PyYAML: pypi is unreachable in the build sandbox, so the file is
+# restricted to the subset of YAML that parser accepts. That subset is a section header at
+# column zero and one two-space-indented `key: {inline flow mapping}` line per entry. It is
+# still valid YAML, so a real parser reads it unchanged.
+#
+# `share` is the probability an entity is placed in that region. It sums to 1.0 and the
+# parser refuses the file if it does not. India carries the largest share deliberately: the
+# demo needs domestic leads in it.
+#
+# `asn` values sit in 64496-64511, the RFC 5398 documentation range, for the same reason the
+# address pools are documentation ranges. An invented ASN can turn out to belong to a real
+# network, and a forensics tool that names one has failed at its own premise.
+#
+# `jitter_ms` is the per-link jitter scale for links originating in that region, applied on
+# top of the base latency below. Mobile-heavy and long-haul regions jitter more.
+
+regions:
+  asia_in:    {share: 0.25, country: IN, asn: 64496, jitter_ms: 11}
+  asia_sg:    {share: 0.09, country: SG, asn: 64497, jitter_ms: 7}
+  asia_jp:    {share: 0.06, country: JP, asn: 64498, jitter_ms: 6}
+  eu_de:      {share: 0.17, country: DE, asn: 64499, jitter_ms: 5}
+  eu_nl:      {share: 0.10, country: NL, asn: 64500, jitter_ms: 5}
+  na_us_east: {share: 0.16, country: US, asn: 64501, jitter_ms: 6}
+  na_us_west: {share: 0.11, country: US, asn: 64502, jitter_ms: 6}
+  sa_br:      {share: 0.06, country: BR, asn: 64503, jitter_ms: 12}
+
+# One-way base latency in milliseconds. Symmetric, and the parser asserts that: an
+# asymmetric typo would quietly bias peer selection in one direction only. The diagonal is
+# the intra-region figure, tens of milliseconds; crossing continents costs a few hundred.
+
+latency_ms:
+  asia_in:    {asia_in: 24, asia_sg: 62,  asia_jp: 108, eu_de: 132, eu_nl: 128, na_us_east: 196, na_us_west: 232, sa_br: 292}
+  asia_sg:    {asia_in: 62, asia_sg: 18,  asia_jp: 74,  eu_de: 158, eu_nl: 152, na_us_east: 214, na_us_west: 174, sa_br: 328}
+  asia_jp:    {asia_in: 108, asia_sg: 74, asia_jp: 14,  eu_de: 232, eu_nl: 226, na_us_east: 148, na_us_west: 96,  sa_br: 268}
+  eu_de:      {asia_in: 132, asia_sg: 158, asia_jp: 232, eu_de: 12, eu_nl: 16,  na_us_east: 88,  na_us_west: 148, sa_br: 202}
+  eu_nl:      {asia_in: 128, asia_sg: 152, asia_jp: 226, eu_de: 16, eu_nl: 11,  na_us_east: 82,  na_us_west: 142, sa_br: 196}
+  na_us_east: {asia_in: 196, asia_sg: 214, asia_jp: 148, eu_de: 88, eu_nl: 82,  na_us_east: 13,  na_us_west: 64,  sa_br: 118}
+  na_us_west: {asia_in: 232, asia_sg: 174, asia_jp: 96,  eu_de: 148, eu_nl: 142, na_us_east: 64, na_us_west: 12,  sa_br: 178}
+  sa_br:      {asia_in: 292, asia_sg: 328, asia_jp: 268, eu_de: 202, eu_nl: 196, na_us_east: 118, na_us_west: 178, sa_br: 22}

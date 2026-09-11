@@ -16,19 +16,47 @@ from __future__ import annotations
 
 import hashlib
 import random
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 Outpoint = tuple[str, int]
 
-# A synthetic txid that cannot collide with a real one. The first 56 characters are a hash of
-# the transaction's ordinal, so the identifier carries no ordering signal a leakage check
-# could exploit; the last eight are zeros, which no real txid has (probability 2**-32).
-TXID_TAIL = "0" * 8
 
+def txid_for(
+    inputs: Sequence[Outpoint],
+    outputs: Sequence[tuple[str, str, int]],
+    *,
+    nonce: str = "",
+) -> str:
+    """The transaction id, a SHA-256 over this transaction's own serialised contents.
 
-def txid_for(ordinal: int) -> str:
-    digest = hashlib.sha256(f"chakravyuh-tx-{ordinal}".encode()).hexdigest()
-    return digest[: 64 - len(TXID_TAIL)] + TXID_TAIL
+    `outputs` is one `(address, script_type, sats)` triple per output, in the order they appear
+    in the transaction. `inputs` is the outpoints being spent, in the order they are spent.
+
+    A real txid is a hash of the serialised transaction, so a generated one has to be too. The
+    previous version hashed the transaction's ordinal and then overwrote the last eight
+    characters with zeros, which gave every txid in the run an identical tail. This project
+    truncates identifiers to the first eight and last four characters everywhere it renders
+    them, so a constant tail meant four of those twelve characters carried no information, and
+    a shared tail across every identifier is the first thing a reader spots as synthetic.
+
+    `nonce` exists for the two transaction kinds that have no inputs to be unique through. A
+    coinbase passes its block height, which is what BIP34 requires of a real coinbase and is
+    what separates two blocks that pay the same pool the same subsidy. An endowment passes its
+    entity index. Everything else leaves it empty: an outpoint can be spent only once, so a
+    transaction's input set already distinguishes it from every other transaction in the run.
+
+    The domain separator and the NUL delimiters are what make the preimage unambiguous. NUL
+    appears in no address, script type or txid, so no two different transactions can serialise
+    to the same string. A genuine digest collision would surface immediately rather than
+    silently, because `Ledger.create` refuses an outpoint it has already seen.
+    """
+    body = "\x00".join(
+        [nonce]
+        + [f"{txid}:{vout}" for txid, vout in inputs]
+        + [f"{address}:{kind}:{sats}" for address, kind, sats in outputs]
+    )
+    return hashlib.sha256(f"chakravyuh-tx\x00{body}".encode()).hexdigest()
 
 
 @dataclass(frozen=True, slots=True)

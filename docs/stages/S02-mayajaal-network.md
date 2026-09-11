@@ -10,8 +10,13 @@ by calling the same builder S01 used, with the same seed, which is why the seed 
 `config.effective.json`.
 
 **Writes.** `capture/part-*.csv.zst` sharded on time, `capture_json/`, `capture_xml/sample.xml`,
-`ground_truth/<run>/origins.parquet` with exactly one true originator and a `broadcast_mode` per
-txid, `validation/report.json` and `report.md`. `tests/test_network.py`.
+`ground_truth/<run>/origins.parquet` with exactly one true originator per announced txid and a
+`broadcast_mode` per txid, `validation/report.json` and `report.md`. `tests/test_network.py`.
+
+Announced, not simply on the chain. A coinbase transaction is minted by the miner inside its own
+block and is never relayed as a loose transaction, so it has no originating peer and gets no row
+here. An answer key that invented one would be asking S03 to attribute a broadcast that never
+happened.
 
 **Definition of done.** `make verify-s02 && make validate-data`, then the `truth-checker` subagent
 returns `USABLE`.

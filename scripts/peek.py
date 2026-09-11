@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect a Parquet or CSV file without ever emitting a complete identifier.
+"""Inspect a Parquet, CSV or JSONL file without ever emitting a complete identifier.
 
 This is the only sanctioned way to look at pipeline data. Prints the row count, every
 column with its dtype and null count, and three sample rows with identifiers truncated
@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import re
 import sys
 from pathlib import Path
@@ -208,12 +209,46 @@ def _load_parquet(path: Path) -> Table:
     )
 
 
+def _load_jsonl(path: Path) -> Table:
+    """Read a JSONL capture with the standard library. Types come from JSON, so nothing is
+    inferred: a list is a list and a null is a null, which is why this format loses nothing."""
+    # ponytail: full scan, same ceiling as the CSV loader above and the same upgrade.
+    names: dict[str, None] = {}
+    nulls: dict[str, int] = {}
+    kinds: dict[str, str] = {}
+    sample: list[dict[str, Any]] = []
+    n_rows = 0
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            n_rows += 1
+            for name, value in row.items():
+                names[name] = None
+                nulls.setdefault(name, 0)
+                if value is None:
+                    nulls[name] += 1
+                elif name not in kinds:
+                    kinds[name] = type(value).__name__
+            if len(sample) < 3:
+                sample.append(row)
+    return Table(
+        n_rows=n_rows,
+        columns=[(n, kinds.get(n, "null")) for n in names],
+        nulls=nulls,
+        sample=sample,
+    )
+
+
 def load(path: Path) -> Table:
     if path.suffix == ".parquet":
         return _load_parquet(path)
     if path.suffix in {".csv", ".tsv"}:
         return _load_csv(path)
-    raise ValueError(f"peek understands .parquet and .csv, not {path.suffix!r}")
+    if path.suffix in {".jsonl", ".ndjson"}:
+        return _load_jsonl(path)
+    raise ValueError(f"peek understands .parquet, .csv and .jsonl, not {path.suffix!r}")
 
 
 def render(path: Path, table: Table) -> str:
@@ -232,7 +267,7 @@ def render(path: Path, table: Table) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Inspect a Parquet or CSV file, redacted.")
+    parser = argparse.ArgumentParser(description="Inspect a Parquet, CSV or JSONL file, redacted.")
     parser.add_argument("path", type=Path)
     args = parser.parse_args(argv)
     path: Path = args.path

@@ -24,15 +24,18 @@ import hashlib
 import io
 import json
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
 import polars as pl
 
 from chakravyuh import __version__
-from chakravyuh.mayajaal import preflight
+from chakravyuh.mayajaal import export, preflight
+from chakravyuh.mayajaal.adversary import Campaign
 from chakravyuh.mayajaal.chain import Run
 from chakravyuh.mayajaal.config import Config
+from chakravyuh.mayajaal.network import Network
 
 
 def _repo_root() -> Path:
@@ -188,6 +191,16 @@ CAMPAIGN_SCHEMA: dict[str, pl.DataType] = {
     "total_sats": SATS,
 }
 
+ORIGIN_SCHEMA: dict[str, pl.DataType] = {
+    "txid": TEXT,
+    "true_origin_ip": TEXT,
+    "true_origin_entity_id": TEXT,
+    "broadcast_us": pl.Int64(),
+    "used_tor": pl.Boolean(),
+    "used_vpn": pl.Boolean(),
+    "observed_by_n": COUNT,
+}
+
 # Per-transaction truth, which section 2 has no table for. Recorded in docs/DECISIONS.md by
 # name, and quarantined with the rest: `change_index` is the answer key for the change
 # heuristic and `input_entity_ids` is the answer key for common-input-ownership.
@@ -261,15 +274,69 @@ def _entities(run: Run) -> pl.DataFrame:
             "entity_id": [one.entity_id for one in people],
             "entity_type": [one.entity_type for one in people],
             "is_illicit": [one.is_illicit for one in people],
-            # Empty on purpose. A typology label belongs to a campaign, and campaigns are
-            # MAYAJAAL-SPEC Layer 4, which S02 builds. Naming a typology here with no campaign
-            # behind it would be an unscoreable claim.
-            "typologies": [[] for _ in people],
+            # Set by the adversary layer from the campaigns that actually ran, and empty for
+            # every entity no campaign routed value through. A label with no transaction behind
+            # it would be an unscoreable claim, so nothing here derives one from the type.
+            "typologies": [list(one.typologies) for one in people],
             "addresses": [list(one.addresses) for one in people],
             "ips": [list(one.ips) for one in people],
             "behind_cgnat": [one.behind_cgnat for one in people],
         },
         schema=ENTITY_SCHEMA,
+    )
+
+
+def _campaigns(run: Run, records: Sequence[Campaign]) -> pl.DataFrame:
+    """One row per campaign that built something, in campaign id order.
+
+    `entity_ids` are the entities value actually passed through, not the ones a campaign was
+    planned around, which is why they come from the record rather than from the plan.
+    """
+    people = run.population.entities
+    return pl.DataFrame(
+        {
+            "campaign_id": [one.campaign_id for one in records],
+            "typology": [one.typology() for one in records],
+            "entity_ids": [[people[i].entity_id for i in one.participants] for one in records],
+            "txids": [list(one.txids) for one in records],
+            "start_us": [one.start_us for one in records],
+            "end_us": [one.end_us for one in records],
+            "total_sats": [one.total_sats for one in records],
+        },
+        schema=CAMPAIGN_SCHEMA,
+    )
+
+
+def _origins(run: Run, net: Network) -> pl.DataFrame:
+    """Exactly one row per announced transaction: who really sent it, and from which node.
+
+    `true_origin_ip` is the node the transaction entered the network from, so for a Tor or VPN
+    broadcast it is the exit rather than the sender's own address. That is the IP an attribution
+    method could conceivably recover; naming an address the transaction never crossed the
+    network from would make the metric unwinnable.
+
+    Coinbase transactions are absent, because they are never gossiped and so have no
+    originating peer to name. The transaction each row answers for is read back through
+    `Origin.tx_index` rather than by reapplying `network.build`'s own coinbase filter here: two
+    copies of one filter agree only until one of them changes, and the failure that produces is
+    silent, pairing every row's txid with a different transaction's answer. The validator still
+    asserts the resulting txid set matches the chain, because this table is the answer key and
+    an answer key is worth checking twice.
+    """
+    people = run.population.entities
+    nodes = net.topology.nodes
+    origins = net.origins
+    return pl.DataFrame(
+        {
+            "txid": [run.txs[one.tx_index].txid for one in origins],
+            "true_origin_ip": [nodes[one.node].ip for one in origins],
+            "true_origin_entity_id": [people[one.entity].entity_id for one in origins],
+            "broadcast_us": [one.broadcast_us for one in origins],
+            "used_tor": [one.used_tor for one in origins],
+            "used_vpn": [one.used_vpn for one in origins],
+            "observed_by_n": [one.observed_by_n for one in origins],
+        },
+        schema=ORIGIN_SCHEMA,
     )
 
 
@@ -293,6 +360,72 @@ def _entry(written: Written) -> dict[str, object]:
     return {"path": written.path, "sha256": written.sha256, "rows": written.rows}
 
 
+def _write_capture(
+    cfg: Config,
+    run: Run,
+    net: Network,
+    roots: Roots,
+    *,
+    consumed: Written,
+    started_at_us: int,
+    finished_at_us: int,
+    config_sha256: str,
+) -> None:
+    """Write every export directory and give each one its own section 10 manifest.
+
+    A part is written as it is produced rather than after all of them are, so the memory cost of
+    the export is one shard of text and not the whole capture in three encodings at once.
+
+    `counts.in` is the same number in all three manifests, the announcements the exporter was
+    handed. `counts.out` is what each directory actually carries, so the XML sample's difference
+    is a real drop with a reason, and `in == out + dropped` holds per directory rather than only
+    in total.
+    """
+    offered = export.offered(net)
+    grouped: dict[str, list[Written]] = {}
+    for part in export.parts(cfg, run, net):
+        grouped.setdefault(part.directory, []).append(
+            _put(part.text.encode("utf-8"), roots.observable, part.rel, part.rows)
+        )
+
+    for directory, files in grouped.items():
+        produced = sum(one.rows for one in files)
+        missing = offered - produced
+        _emit_text(
+            json.dumps(
+                {
+                    "stage": "mayajaal",
+                    "run_id": roots.run_id,
+                    "started_at_us": started_at_us,
+                    "finished_at_us": finished_at_us,
+                    "code_version": __version__,
+                    "seed": cfg.seed,
+                    "config_sha256": config_sha256,
+                    "params": {
+                        "n_transactions": len(run.txs),
+                        "n_nodes": len(net.topology.nodes),
+                        "n_observers": cfg.network.n_observers,
+                        "shard_rows": cfg.export.shard_rows,
+                    },
+                    "inputs": [_entry(consumed)],
+                    "outputs": [_entry(one) for one in files],
+                    "counts": {
+                        "in": offered,
+                        "out": produced,
+                        "dropped": missing,
+                        "drop_reasons": {"not sampled": missing} if missing else {},
+                    },
+                    "warnings": [],
+                    "optional_deps": {"geolite2": False, "kuzu": False, "gpu": False},
+                },
+                indent=2,
+            )
+            + "\n",
+            roots.observable,
+            f"{directory}/_meta.json",
+        )
+
+
 def write_run(
     run: Run,
     cfg: Config,
@@ -300,6 +433,8 @@ def write_run(
     *,
     started_at_us: int,
     finished_at_us: int,
+    net: Network | None = None,
+    campaigns: Sequence[Campaign] = (),
 ) -> Path:
     """Write every artifact of one run and return the path of its observable manifest.
 
@@ -310,8 +445,13 @@ def write_run(
     is not a parameter: an argument for where truth lands is an argument that could point
     somewhere unquarantined.
 
-    Each tree carries its own manifest. The observable one names only the observable files, so
-    the observable tree holds no machine-readable pointer to the answer key.
+    Each tree carries its own manifest, and so does each export directory, because each is a
+    separate file set a later stage could be handed on its own. The observable ones name only
+    observable files, so the observable tree holds no machine-readable pointer to the answer key.
+
+    `net` is optional so a chain-only run is still writable: the contract test for the chain
+    layer builds no network, and a network it does not need is not a network it should have to
+    construct. Without one there are no announcements to export and no entry point to record.
     """
     roots = run_roots(out)
 
@@ -337,11 +477,21 @@ def write_run(
     ]
     quarantined = [
         _emit(_entities(run), roots.truth, "entities.parquet", ENTITY_SCHEMA),
-        _emit(
-            pl.DataFrame(schema=CAMPAIGN_SCHEMA), roots.truth, "campaigns.parquet", CAMPAIGN_SCHEMA
-        ),
+        _emit(_campaigns(run, campaigns), roots.truth, "campaigns.parquet", CAMPAIGN_SCHEMA),
         _emit(_chain_txs(run), roots.truth, "chain_txs.parquet", CHAIN_TX_SCHEMA),
     ]
+    if net is not None:
+        quarantined.append(_emit(_origins(run, net), roots.truth, "origins.parquet", ORIGIN_SCHEMA))
+        _write_capture(
+            cfg,
+            run,
+            net,
+            roots,
+            consumed=consumed,
+            started_at_us=started_at_us,
+            finished_at_us=finished_at_us,
+            config_sha256=config_sha256,
+        )
 
     dropped = sum(run.counters.drops.values())
     meta = {

@@ -1,14 +1,14 @@
 {
   "seed": 42,
   "target_rows": 1000000,
-  "mean_announcements_per_tx": 9,
+  "mean_announcements_per_tx": 15,
   "world": {
     "n_entities": 20000,
     "illicit_entity_share": 0.03,
     "illicit_tx_share": 0.006,
     "cgnat_share_individuals": 0.35,
     "cgnat_share_mules": 0.3,
-    "india_weight": 0.25,
+    "cgnat_addresses_per_region": 64,
     "ips_per_entity": [1, 3],
     "ipv6_share": 0.06,
     "ip_pools": {
@@ -109,7 +109,16 @@
   "validation": {
     "value_p99_over_p50_min": 8.0,
     "value_p999_over_p50_min": 25.0,
-    "multi_input_rate_tolerance": 0.2
+    "multi_input_rate_tolerance": 0.2,
+    "announcements_per_tx_tolerance": 0.35,
+    "origin_recoverable_min": 0.25,
+    "first_seen_leakage_min": 0.15,
+    "first_seen_leakage_max": 0.6,
+    "trivial_rule_max": 0.35,
+    "tree_leakage_max": 0.35,
+    "delay_cv_min": 0.5,
+    "block_interval_cv_min": 0.7,
+    "block_interval_cv_max": 1.3
   },
   "network": {
     "n_nodes": 5000,
@@ -119,14 +128,47 @@
     "relay_delay_inbound_mean_s": 5.0,
     "latency_matrix": "regions.yaml",
     "n_observers": 16,
-    "observer_fraction": 0.1,
+    "observer_fraction": 0.7,
     "tor_share": 0.04,
-    "vpn_share": 0.08
+    "vpn_share": 0.08,
+    "bucket_penalty": 0.15,
+    "flood_frontier": 64,
+    "n_tor_exits": 40,
+    "n_vpn_nodes": 120,
+    "unresolved_asn_share": 0.02,
+    "unresolved_geo_share": 0.01,
+    "inv_share": 0.9,
+    "listen_port": 8333,
+    "ephemeral_ports": [32768, 60999],
+    "ip_pools": {
+      "observer": "198.51.100.0/24",
+      "tor_exit": "192.0.2.0/24",
+      "vpn": "203.0.113.0/24"
+    },
+    "tor_asn": 64510,
+    "vpn_asn": 64511
   },
   "adversary": {
     "n_campaigns": 120,
     "moves_per_campaign": [3, 40],
-    "risk_appetite_dist": "uniform"
+    "risk_appetite_dist": "uniform",
+    "structuring_threshold_sats": 1000000,
+    "peel_share": [0.05, 0.2],
+    "split_outputs": [4, 12],
+    "mix_outputs": [4, 8],
+    "merge_inputs": [3, 8],
+    "dwell_blocks": [2, 12],
+    "move_gap_blocks": [1, 4],
+    "move_weights": {
+      "peel": [0.3, 0.05],
+      "split": [0.1, 0.14],
+      "merge": [0.08, 0.1],
+      "mix": [0.12, 0.06],
+      "hop": [0.05, 0.35],
+      "structure": [0.15, 0.08],
+      "dwell": [0.18, 0.04],
+      "cash_out": [0.02, 0.18]
+    }
   },
   "export": {
     "shard_rows": 250000,
