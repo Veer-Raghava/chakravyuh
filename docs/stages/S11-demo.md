@@ -16,3 +16,18 @@ test passing.
 layout that breaks at 1366x768, which is what venue projectors often are. A demo that can only be
 run once because there is no reset. Beats that only work in one order. A fallback that is described
 in a document rather than proven by a test.
+
+**Runbook note, added at S03.** An evaluator's own capture file has to be copied under `data/`
+before it can be sealed. KAVACH's `--in` is allowlisted to that directory, so a file sitting on a
+USB stick or in `~/Downloads` is refused by design rather than by accident. The demo script's
+"seal the evaluator's file" beat is therefore two commands, not one:
+
+```
+cp /path/to/their/capture.csv data/incoming/
+uv run python -m chakravyuh.kavach --in data/incoming/capture.csv --out data/generated/<run>
+```
+
+Reasoning is in `docs/DECISIONS.md` under the `--in` allowlist entry. Do not present the copy as
+a workaround: it is the point at which an outside file enters the tree the tool is permitted to
+read, and it is also what makes `sealed/INPUT.sha256` a hash of a file that is still on disk to
+re-hash later.

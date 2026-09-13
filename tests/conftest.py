@@ -23,6 +23,10 @@ QUARANTINE: dict[str, tuple[str, ...]] = {
     ),
     "test_chain": ("test_no_observable_artifact_names_the_quarantine",),
     "test_network": ("test_no_capture_encoding_names_a_ground_truth_column",),
+    "test_kavach": (
+        "test_kavach_seals_with_the_answer_key_absent",
+        "test_no_sealed_artifact_names_the_quarantine",
+    ),
 }
 
 

@@ -860,3 +860,217 @@ because fewer vantage points means the originator is in the candidate set less o
 
 The `observer_fraction` sweep is what should decide this, not a guess. It is the only measurement
 that prices the ceiling against the transaction count directly.
+
+## 2026-09-11 · S03 · the amount unit needs the whole column, not one decimal
+
+The obvious rule is "if any amount contains a decimal point, the file is in BTC". It is wrong in
+a way that leaves no trace.
+
+A satoshi file with one corrupt value — a stray `0.5` in a column of integers — would flip the
+whole file to BTC under that rule. Every amount then gets multiplied by 1e8. The multiplication
+applies to inputs and outputs alike, so `sum(inputs) >= sum(outputs)` still holds, invariant 6
+never fires, and nothing downstream can tell a hundred thousand satoshis from a thousand BTC.
+The evidence packet would carry amounts off by eight orders of magnitude with every check green.
+
+So the rule is unanimity per column. Every parseable token integer-shaped means satoshis, every
+one fractional means BTC, and anything mixed is a `CaptureFormatError` naming the column. Columns
+that disagree with each other are the same error. Tokens that parse as neither — empty strings,
+words, scientific notation — are excluded from the detection and rejected per row instead, so one
+piece of junk costs one row rather than reinterpreting the file.
+
+Scientific notation is deliberately in the junk category. `1e8` is either a hundred million
+satoshis or a hundred million BTC and nothing in the token says which.
+
+The detected unit is recorded in `sealed/manifest.json` as `amount_unit_detected`, so the
+inference is auditable rather than implicit.
+
+## 2026-09-11 · S03 · `value_not_conserved` rejects, and this is a finding
+
+Asked whether invariant 6 should reject a row or flag it for a later stage. It rejects.
+
+Section 1 of the contract states the invariant and section 3 states that rows failing validation
+go to `sealed/rejected.parquet` with a reason. The contract is frozen, and CLAUDE.md is explicit
+that code which cannot satisfy it is a finding to report rather than a contract to change. So the
+behaviour follows the contract.
+
+The concern that prompted the question is real and is recorded here rather than acted on: on a
+real partial-visibility capture, where an announcement carries only the inputs the observer could
+resolve, `sum(inputs) < sum(outputs)` is what incomplete data looks like rather than what corrupt
+data looks like. Rejecting those rows would quietly shrink the dataset, and the only place it
+would show up is a `value_not_conserved` count in the manifest that nobody reads.
+
+Three things make that survivable for now. The count is in the manifest, not hidden. The rows are
+in `rejected.parquet`, not dropped, so a later stage could reconsider them without re-reading the
+original. And coinbase is exempt: a row with no inputs mints its outputs, so the comparison is
+skipped entirely rather than merely being generous about it.
+
+If a real slice turns out to reject a material fraction of its rows this way, the honest response
+is to raise it as a contract finding with the measured rate attached, not to weaken the check.
+
+## 2026-09-11 · S03 · a wall clock is excluded from every hash, not only from the diff
+
+`sealed/manifest.json` carries `sealed_at_us`, so its bytes cannot reproduce across two seals of
+one input. Masking that field in `scripts/compare_runs.py` is necessary but not sufficient: if
+anything downstream hashes the manifest raw — `sealed/_meta.json`'s output list, the S09 evidence
+chain — that hash changes on every seal, and a custody check built on it would report tampering
+where there was none.
+
+So the manifest is not listed in `_meta.json`'s `outputs` at all. What is recorded instead, under
+`params.manifest`, is `sha256_masked`: the hash of the manifest with `sealed_at_us` removed,
+key-sorted. `masked_fields` names what was excluded, so the recomputation is reproducible by
+anyone holding the file. `scripts/check_sealed.py` recomputes it and fails if it disagrees.
+
+The general rule for later stages: an unreproducible field is excluded from every hash and every
+comparison, and the exclusion is named in the artifact rather than living only in the tool that
+compares two of them.
+
+## 2026-09-11 · S03 · `--in` is allowlisted to `data/`, not denylisted
+
+KAVACH is the first stage that takes a second path argument. Law 1 says `--out` is the only path
+argument in the system, and the reason is that no flag may be able to point at the answer key.
+
+KAVACH derives no truth path at all, so the law's purpose is served by a different mechanism: an
+allowlist. `--in` must resolve, after `Path.resolve()`, inside `<cwd>/data`. Anything else is an
+`InputPathError`, traversal included.
+
+An allowlist rather than a denylist for a mechanical reason. A denylist would have to name the
+directories it excludes, and Law 2 rule 1 is a grep for exactly those names over `src/` — the
+guard would fail the guard. Importing the roots from `writers.py` would be a cross-stage import
+and would fail it too. Allowing only `data/` says the same thing without naming anything.
+
+The operational consequence, which belongs in the S11 runbook: an evaluator's file is copied
+under `data/` before it can be sealed. That copy is not friction to work around, it is the point
+at which an outside file enters the tree the tool is allowed to read.
+
+## 2026-09-11 · S03 · the column alias table is a judgement, and a conservative one
+
+Section 1 fixes twelve column names. It does not say what a stranger's file might call them, so
+the alias table in `kavach/schema.py` is ours rather than the contract's. Matching is
+case-insensitive and whitespace-stripped on top of it.
+
+It is deliberately short. A wrong alias silently mislabels a column, which is strictly worse than
+a `MISSING` tag in the manifest that an investigator can fix by renaming a header. `peer_ip` maps
+to `src_ip` and `tx_hash` to `txid` because those are unambiguous; nothing maps on a guess.
+
+When two headers in one file map to the same canonical name, the first spelling wins and the
+second is reported in `warnings` as unrecognised rather than overwriting it. A file carrying both
+`src_ip` and `peer_ip` is a file whose author meant something by the distinction, and picking one
+silently would discard that.
+
+Every one of the twelve gets a `MAPPED`, `SYNTHESISED` or `MISSING` entry in
+`manifest.json`'s `column_status`, so what was inferred is always visible.
+
+## 2026-09-11 · S03 · a naive timestamp is read as UTC, and the count is a warning
+
+The contract allows ISO 8601. It does not require an offset, and a real capture tool often writes
+local time with no zone at all.
+
+Reading a naive stamp as local time would put one column on a different clock from every other
+time in the project, all of which are UTC microseconds, and the error would be a whole-timezone
+offset in exactly the field the origin estimator is most sensitive to. So a naive stamp is read as
+UTC, and the number of rows it happened to is written into `manifest.json`'s `warnings`.
+
+A warning rather than a rejection because the alternative is worse: refusing the file would make
+every no-offset capture unusable, and the assumption is both stated and counted.
+
+## 2026-09-11 · S03 · rows that disagree about one txid are all quarantined
+
+Invariant 5 says rows sharing a txid must agree on the chain columns. When they do not, KAVACH
+rejects every row of the group with `chain_columns_disagree`, not the minority.
+
+A majority vote is a guess with extra steps. Two announcements agreeing and one differing does
+not make the two correct — it makes the file corrupt at that txid, and picking the popular answer
+would bake an unrecorded decision into the sealed copy that no later stage could see or revisit.
+Quarantining the group puts every row in `rejected.parquet`, where the disagreement is visible
+and recoverable.
+
+The check runs after per-row coercion and only over rows that passed it, so a row already
+rejected for its own reason is not counted twice and the manifest arithmetic still reconciles.
+
+## 2026-09-11 · S03 · a DOCTYPE is refused before the XML parser sees it
+
+`xml.etree.ElementTree` uses expat, which expands internal entities by default. That makes a
+DOCTYPE declaration both the XXE vector and the billion-laughs vector, at the one stage whose
+entire premise is parsing a file handed over by someone else.
+
+KAVACH refuses any input whose first 4096 characters contain `<!DOCTYPE`, before parsing rather
+than by configuring the parser afterwards. A capture has no legitimate use for a document type
+definition, so the refusal costs nothing real, and the check is a substring test that cannot
+itself be subverted by the thing it is checking for.
+
+Considered and rejected: adding `defusedxml`. It is the right library for a general XML intake
+problem, but it is a new dependency for a case where refusing the construct outright is both
+simpler and stricter.
+
+## 2026-09-12 · S03 · the rejected rows keep real Parquet list types
+
+Section 1's conventions block says array-valued columns are pipe-separated in CSV and real
+`list` types in Parquet. The first implementation of `rejected.parquet` stored the four array
+columns pipe-joined as `string`, on the reasoning that a rejected row holds original text.
+
+That was wrong, and a contract auditor caught it. Pipe-joining is the CSV spelling of an array,
+not the Parquet one, and the frontend track reads these files. The element type is `string`
+rather than `int64` deliberately: a row rejected because its amounts would not parse has no
+valid `list[int64]` form at all, while `list[string]` always exists and keeps the tokens
+separable. The fixture's one documented defect is two input addresses against three input
+amounts, which is only visible if both columns are really lists; joined, both lengths read 1.
+
+## 2026-09-12 · S03 · what the manifest carries beyond the contract's twelve keys
+
+Section 3 shows `manifest.json` as a JSON example rather than a column table, and unlike a
+Parquet schema an extra JSON key cannot break a reader that ignores it. Four keys are added:
+`column_status` and `warnings`, both required by the stage brief's schema-tolerance rule, and
+`column_spellings` and `encodings_detected`, which record what the content detection actually
+decided per input file so that a disputed seal can be argued about afterwards.
+
+Two others were written first and then removed: `distinct_txids`, which nothing read, and
+`duplicate_rows`, whose only real use is the warning it already produces in prose. A number in
+a manifest that no gate checks and no stage consumes is a number nobody maintains.
+
+The addition is recorded here as a finding rather than as an edit: the contract is frozen, and
+a stage that quietly extends a shared document is how a parallel track finds out too late.
+
+## 2026-09-12 · S03 · `code_version` is a git sha, and `tool_version` is the package version
+
+Section 3 asks for `"code_version": "git sha"` and `"tool_version": "0.1.0"` in one object, and
+the first implementation wrote `__version__` into both. That made the two fields identical and
+left neither able to answer the only question `code_version` exists for: which revision produced
+this seal. A packet that cites the seal could not be traced to a commit, and a replay could not
+show it re-ran the same code. A contract auditor flagged it as the one real deviation in the
+stage, and the contract's asking price is satisfiable, so the code satisfies it.
+
+The value is `<12 hex>` or `<12 hex>-dirty`, from `chakravyuh.buildinfo.code_version()`. The
+`-dirty` suffix is deliberate: a seal produced from a modified tree is not reproducible from the
+commit it names, and claiming otherwise is precisely the failure this field prevents. Only
+tracked modifications count, so an untracked scratch file cannot make the value flap. The helper
+resolves the repository root from its own file location, not the caller's working directory, so
+it reports the code that ran rather than wherever the process happened to stand. When git cannot
+answer it returns `unknown`, which is honest in a way a package version is not.
+
+This is repo-wide, not KAVACH-specific: `mayajaal/writers.py` writes `__version__` into
+`code_version` at three sites as well. Those are left alone here — they are another stage's
+internals, and the artifacts that carry them are already sealed — but they are reported to the
+user as a finding, and `buildinfo.code_version()` is there for whoever picks it up.
+
+`code_version` is deliberately not masked out of the determinism comparison, unlike
+`sealed_at_us`. It has to be stable within a commit and different between commits; that is the
+whole property being claimed.
+
+## 2026-09-12 · S03 · `_meta.json` `inputs` is the capture files and nothing else
+
+Section 3 says `INPUT.sha256` holds one line per input file, and section 10 types every
+`inputs[].rows` as an integer. The first implementation listed the upstream `capture/_meta.json`
+as a third input, with `rows: null`, because it is an input in the custody sense: KAVACH read
+it, and its hash is what the staleness check re-computes.
+
+That made `rows` a mixed type and made the entries sum to something other than `counts.in`. It
+also disagreed silently with `INPUT.sha256`, which covers only the capture files. The upstream
+manifest is not data — it carries no rows and is never sealed — and `params.upstream_meta`
+already records its path and hash in full, so nothing is lost by removing it from `inputs`.
+
+The lists now answer one question between them: `inputs` pairs with `INPUT.sha256` and with
+`manifest.input_files` by index, all three naming the same files in the same order. Every `rows`
+value is an integer and the list sums to `counts.in`, which is the useful part — a shard that
+read short now shows up as a discrepancy against the total rather than hiding inside it.
+`check_sealed.py` asserts the sum and the path agreement, so the per-file counts are load-bearing
+rather than decorative.

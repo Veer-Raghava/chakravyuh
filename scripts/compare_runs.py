@@ -4,14 +4,15 @@
 every sha256, every row count and every drop reason from the comparison, which is most of what
 a determinism gate exists to check, and no per-run self-assertion ever compares run A to run B.
 
-So every file is compared as bytes, except one named `_meta.json`, which is compared after
-exactly three fields are removed: `run_id`, which is the directory name and therefore differs
-by construction, and the two wall-clock timestamps section 10 requires. Everything else in the
-manifest is compared, hashes and counts included.
+So every file is compared as bytes, except the two that carry a wall clock, which are compared
+after exactly the unreproducible fields are removed: `_meta.json` loses `run_id`, the directory
+name and therefore different by construction, and the two timestamps section 10 requires;
+`sealed/manifest.json` loses `sealed_at_us`. Everything else in both is compared, hashes and
+counts included.
 
-Used by `make verify-s01` and imported by `tests/test_chain.py`, so the byte gate and the
-in-process gate cannot drift apart. Stdlib only, like `peek.py`, so it runs under the system
-interpreter. Prints paths and field names, never a row of data.
+Used by `make verify-s01` and `make verify-s03`, and imported by `tests/test_chain.py`, so the
+byte gate and the in-process gate cannot drift apart. Stdlib only, like `peek.py`, so it runs
+under the system interpreter. Prints paths and field names, never a row of data.
 """
 
 from __future__ import annotations
@@ -20,16 +21,23 @@ import json
 import sys
 from pathlib import Path
 
-MASKED = ("run_id", "started_at_us", "finished_at_us")
+# Field name to the file it is stripped from. A wall clock is excluded from every hash and
+# every comparison, never from the diff alone: KAVACH records the masked hash of
+# `sealed/manifest.json` rather than its raw one for the same reason.
+MASKED_BY_FILE = {
+    "_meta.json": ("run_id", "started_at_us", "finished_at_us"),
+    "manifest.json": ("sealed_at_us",),
+}
+MASKED = MASKED_BY_FILE["_meta.json"]
 MANIFEST = "_meta.json"
 
 
-def canonical_meta(payload: bytes) -> str:
-    """A manifest with the three unreproducible fields removed, key-sorted so order cannot lie."""
+def canonical_meta(payload: bytes, name: str = MANIFEST) -> str:
+    """A manifest with its unreproducible fields removed, key-sorted so order cannot lie."""
     node = json.loads(payload.decode("utf-8"))
     if not isinstance(node, dict):
-        raise TypeError(f"a {MANIFEST} must hold a JSON object, got {type(node).__name__}")
-    for field in MASKED:
+        raise TypeError(f"a {name} must hold a JSON object, got {type(node).__name__}")
+    for field in MASKED_BY_FILE[name]:
         node.pop(field, None)
     return json.dumps(node, indent=2, sort_keys=True)
 
@@ -49,9 +57,11 @@ def differences(left: Path, right: Path) -> list[str]:
     out += [f"only in {right}: {name}" for name in sorted(set(there) - set(here))]
     for name in sorted(set(here) & set(there)):
         mine, yours = here[name].read_bytes(), there[name].read_bytes()
-        if Path(name).name == MANIFEST:
-            if canonical_meta(mine) != canonical_meta(yours):
-                out.append(f"{name}: differs in a field other than {', '.join(MASKED)}")
+        base = Path(name).name
+        if base in MASKED_BY_FILE:
+            if canonical_meta(mine, base) != canonical_meta(yours, base):
+                masked = ", ".join(MASKED_BY_FILE[base])
+                out.append(f"{name}: differs in a field other than {masked}")
         elif mine != yours:
             out.append(f"{name}: differs, {len(mine)} bytes against {len(yours)}")
     return out

@@ -60,7 +60,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 5
+QUARANTINE_MIN := 7
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -140,12 +140,71 @@ verify-s02: guard-uv verify-quarantine
 	@rm -rf $(S02_A) $(S02_TA) $(S02_MA)
 	@echo "verify-s02: network, adversary and export OK, validation report clean."
 
-verify: verify-s00 verify-s01 verify-s02
-	@echo "verify: S00, S01 and S02. Later stages append themselves as they land."
+# S03 reads the capture as an outside consumer, so its gate seals two things: the three
+# committed fixtures, which is where the awkward cases live, and a real S02 capture directory,
+# which is the only input that exercises the staleness link and multi-file row_id ordering.
+# Both are sealed twice in two separate interpreters and compared, for the same reason S01
+# does it: a dict iteration order that leaked into the output would survive any single-process
+# check. Never pin PYTHONHASHSEED here.
+S03_ARGS := --txs 2000 --entities 400
+S03_CAP := data/generated/_verify-s03-cap
+S03_TCAP := ground_truth/_verify-s03-cap
+S03_MCAP := measurements/_verify-s03-cap
+S03_A := data/generated/_verify-s03-a
+S03_B := data/generated/_verify-s03-b
+
+verify-s03: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_kavach.py
+	@rm -rf $(S03_CAP) $(S03_TCAP) $(S03_MCAP) $(S03_A) $(S03_B)
+	@# The three fixtures, each sealed and checked. capture.csv carries the one documented
+	@# bad row, so a gate that never rejected anything would be lying about its accounting.
+	@for e in csv jsonl xml; do \
+	  uv run python -m chakravyuh.kavach --in data/fixtures/capture/capture.$$e \
+	    --out $(S03_A)-$$e >/dev/null \
+	    || { echo "FAIL verify-s03: sealing capture.$$e failed."; exit 1; }; \
+	  $(PY) scripts/check_sealed.py $(S03_A)-$$e \
+	    || { echo "FAIL verify-s03: $$e output does not satisfy contract section 3."; exit 1; }; \
+	done
+	@# All three encodings describe the same announcements, so they must seal to one file.
+	@count=$$(sha256sum $(S03_A)-csv/sealed/rows.parquet $(S03_A)-jsonl/sealed/rows.parquet \
+	    $(S03_A)-xml/sealed/rows.parquet | awk '{print $$1}' | sort -u | wc -l); \
+	  if [ "$$count" -ne 1 ]; then \
+	    echo "FAIL verify-s03: the three encodings sealed to $$count distinct files, expected 1."; \
+	    exit 1; \
+	  fi; \
+	  echo "verify-s03: csv, jsonl and xml seal byte-identically."
+	@# A real capture: two shards, an upstream _meta.json to link against, 24 thousand rows.
+	uv run python -m chakravyuh.mayajaal $(S03_ARGS) --out $(S03_CAP)
+	uv run python -m chakravyuh.kavach --in $(S03_CAP)/capture --out $(S03_A)
+	uv run python -m chakravyuh.kavach --in $(S03_CAP)/capture --out $(S03_B)
+	@$(PY) scripts/check_sealed.py $(S03_A) \
+	  || { echo "FAIL verify-s03: the sealed real capture does not satisfy section 3."; exit 1; }
+	@# Two interpreters, byte compared. manifest.json is canonicalised on sealed_at_us and
+	@# _meta.json on the run id and its two wall clocks; everything else, hashes included, must
+	@# match exactly.
+	@$(PY) scripts/compare_runs.py $(S03_A)/sealed $(S03_B)/sealed \
+	  || { echo "FAIL verify-s03: two seals of one capture produced different bytes."; exit 1; }
+	@# The staleness link, made to fail on purpose. Touching the upstream manifest must turn
+	@# check_sealed.py red, or the link is decorative.
+	@printf '\n' >> $(S03_CAP)/capture/_meta.json
+	@if $(PY) scripts/check_sealed.py $(S03_A) >/dev/null 2>&1; then \
+	  echo "FAIL verify-s03: the upstream manifest changed and the staleness check passed anyway."; \
+	  exit 1; \
+	fi
+	@echo "verify-s03: staleness is detected when the upstream manifest moves."
+	@rm -rf $(S03_CAP) $(S03_TCAP) $(S03_MCAP) $(S03_A) $(S03_B) \
+	  $(S03_A)-csv $(S03_A)-jsonl $(S03_A)-xml
+	@echo "verify-s03: intake, seal, manifest arithmetic and custody OK."
+
+verify: verify-s00 verify-s01 verify-s02 verify-s03
+	@echo "verify: S00 through S03. Later stages append themselves as they land."
 
 # One rule for all eight unbuilt stages. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s03 verify-s04 verify-s05 verify-s06 \
+verify-s04 verify-s05 verify-s06 \
 verify-s07 verify-s08 verify-s09 verify-s10 verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \
