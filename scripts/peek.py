@@ -266,14 +266,57 @@ def render(path: Path, table: Table) -> str:
     return "\n".join(lines)
 
 
+def counts(path: Path, column: str, limit: int = 20) -> str:
+    """The most common values of one column, redacted, with their frequencies.
+
+    A column-level histogram is the question a schema dump cannot answer: whether a derived
+    column is all sentinel, whether a vocabulary stayed closed, whether enrichment filled
+    anything. Every value still passes through redact(), so this cannot be used to read out
+    an identifier one frequency at a time.
+    """
+    import polars as pl
+
+    frame = pl.scan_parquet(path)
+    if column not in frame.collect_schema().names():
+        raise ValueError(f"{path.name} has no column {column!r}")
+    total = int(frame.select(pl.len()).collect().item())
+    top = (
+        frame.group_by(column)
+        .agg(pl.len().alias("n"))
+        .sort("n", descending=True)
+        .head(limit)
+        .collect()
+    )
+    distinct = int(frame.select(pl.col(column).n_unique()).collect().item())
+    lines = [
+        f"{path}",
+        f"{column}: {distinct} distinct over {total} rows, top {min(limit, distinct)}",
+    ]
+    for value, n in top.iter_rows():
+        lines.append(f"  {redact(column, value) or '(null)':<40}  {n:>10}  {n / total:7.3%}")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Inspect a Parquet, CSV or JSONL file, redacted.")
     parser.add_argument("path", type=Path)
+    parser.add_argument(
+        "--counts",
+        metavar="COLUMN",
+        default=None,
+        help="value frequencies for one column instead of the schema dump. Parquet only.",
+    )
     args = parser.parse_args(argv)
     path: Path = args.path
     if not path.exists():
         print(f"peek: no such file: {path}")
         return 1
+    if args.counts:
+        if path.suffix != ".parquet":
+            print(f"peek: --counts reads Parquet, not {path.suffix!r}")
+            return 1
+        print(counts(path, args.counts))
+        return 0
     print(render(path, load(path)))
     return 0
 

@@ -1074,3 +1074,48 @@ value is an integer and the list sums to `counts.in`, which is the useful part �
 read short now shows up as a discrepancy against the total rather than hiding inside it.
 `check_sealed.py` asserts the sum and the path agreement, so the per-file counts are load-bearing
 rather than decorative.
+
+## 2026-09-13 · S04 · GeoLite2 is read from the CSV distribution, not the mmdb
+
+SETU reads MaxMind's CSV files with the standard library — `csv`, `ipaddress`, `bisect` —
+building version-split sorted range tables and looking up per distinct peer IP. Chosen
+because no MaxMind reader is in the pinned dependencies and this sandbox cannot resolve a
+new one (`pypi.org` denied), while the CSV distribution carries the same data as the mmdb.
+An `.mmdb` with no CSV beside it warns
+`geolite2_mmdb_present_but_unreadable_csv_required` rather than enriching nothing silently.
+Rejected: writing a partial mmdb binary parser. A half-built parser is a worse answer than
+an honest null, and the operator who has the data can fetch the CSV variant. Revisit if the
+project ever gains a real dependency budget or a vendored wheel of `maxminddb`.
+
+## 2026-09-13 · S04 · null and `unknown` are different answers in `net_class`
+
+The stage brief said an absent Tor list means null, and the contract's vocabulary contains
+`unknown`. Both were kept, distinguished: null means no list was available to ask — a fact
+about the deployment; `unknown` means the lists were present and none recognised the
+address — a fact about the address. Rejected: collapsing to `unknown` everywhere, which
+would let a bare-bones deployment look like a rich one that classified every peer and found
+them all unrecognised. Revisit only if S06's abstention logic turns out to need one value,
+and then by migrating the deployments upward, not by erasing the distinction.
+
+## 2026-09-13 · S04 · `change_index` is deliberately weak
+
+The contract requires the column but names no heuristic. SETU names a suspected change
+output only when a transaction has exactly one non-round-value output paying an address that
+is not one of its own inputs, and `n_out >= 2`; anything else is -1. On the demo run this
+leaves 89% undetermined. Chosen because the real change heuristic is S05's and needs the
+graph: a change index that is nearly always right for a structural reason would hand the
+clustering stage a free answer and make its measured precision a lie. Rejected: the stronger
+common-heuristics bundle (round amount, address reuse across inputs, largest non-input
+output), which is exactly S05's job. Revisit if S05 finds it needs a richer starting signal
+than -1/valid, at which point the rule moves to S05 rather than growing here.
+
+## 2026-09-13 · S04 · the capture's own geo and ASN win over the vendored lookup
+
+Where a sealed row already carries `geo_country` or `asn`, SETU keeps it and fills only the
+nulls from `vendor/`. The contract says "enriched if null on input", which reads as
+fill-if-absent rather than overwrite. Rejected: vendored-wins, on the theory that the
+database is newer. A real NTRO capture may carry an ASN resolved at capture time, which is
+closer to the truth about that moment than a lookup done months later against a table that
+has since been re-delegated; for an evidence tool, the contemporaneous observation is the
+one that survives cross-examination. Revisit if a demo scenario specifically needs the
+vendored values to be the visible ones.

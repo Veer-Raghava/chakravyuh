@@ -27,6 +27,10 @@ QUARANTINE: dict[str, tuple[str, ...]] = {
         "test_kavach_seals_with_the_answer_key_absent",
         "test_no_sealed_artifact_names_the_quarantine",
     ),
+    "test_setu": (
+        "test_setu_normalises_with_the_answer_key_absent",
+        "test_no_normalised_artifact_names_the_quarantine",
+    ),
 }
 
 

@@ -60,7 +60,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 7
+QUARANTINE_MIN := 9
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -199,12 +199,60 @@ verify-s03: guard-uv verify-quarantine
 	  $(S03_A)-csv $(S03_A)-jsonl $(S03_A)-xml
 	@echo "verify-s03: intake, seal, manifest arithmetic and custody OK."
 
-verify: verify-s00 verify-s01 verify-s02 verify-s03
-	@echo "verify: S00 through S03. Later stages append themselves as they land."
+# S04 splits one table into four, so the gate is mostly arithmetic that must survive the
+# split: the announcement count, the txid count, and counts.in == out + dropped. On top of
+# that the two paths the brief calls out. `vendor/` is empty in this repo, so a plain run is
+# already the no-vendor path and the gate asserts the nulls and the warning are really there;
+# the populated path is exercised in tests/test_setu.py against a synthetic CSV tree.
+# Both normalisations read one shared seal rather than a copy each, so the only field that
+# differs between them is the run id, which compare_runs.py already masks. Two interpreters,
+# byte compared, for the same reason S01 and S03 do it. Never pin PYTHONHASHSEED here.
+S04_ARGS := --txs 2000 --entities 400
+S04_CAP := data/generated/_verify-s04-cap
+S04_TCAP := ground_truth/_verify-s04-cap
+S04_MCAP := measurements/_verify-s04-cap
+S04_SEAL := data/generated/_verify-s04-seal
+S04_A := data/generated/_verify-s04-a
+S04_B := data/generated/_verify-s04-b
 
-# One rule for all eight unbuilt stages. The brief path is globbed rather than
+verify-s04: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_setu.py
+	@rm -rf $(S04_CAP) $(S04_TCAP) $(S04_MCAP) $(S04_SEAL) $(S04_A) $(S04_B)
+	uv run python -m chakravyuh.mayajaal $(S04_ARGS) --out $(S04_CAP)
+	uv run python -m chakravyuh.kavach --in $(S04_CAP)/capture --out $(S04_SEAL)
+	uv run python -m chakravyuh.setu --in $(S04_SEAL)/sealed --out $(S04_A)
+	uv run python -m chakravyuh.setu --in $(S04_SEAL)/sealed --out $(S04_B)
+	@# Contract section 10, checked from outside the code that wrote it.
+	@$(PY) scripts/check_stage.py $(S04_A)/normalised \
+	  || { echo "FAIL verify-s04: normalised/ does not satisfy contract section 10."; exit 1; }
+	@# The grain split, asserted against the file it came from rather than against itself:
+	@# one sealed row is one announcement, and one txid is one transaction row.
+	@$(PY) scripts/check_grain.py $(S04_SEAL)/sealed $(S04_A)/normalised \
+	  || { echo "FAIL verify-s04: the grain split did not preserve the counts it must."; exit 1; }
+	@# Two interpreters, byte compared. _meta.json is canonicalised on the run id and its two
+	@# wall clocks; the four Parquet files and their recorded hashes must match exactly.
+	@$(PY) scripts/compare_runs.py $(S04_A)/normalised $(S04_B)/normalised \
+	  || { echo "FAIL verify-s04: two normalisations of one seal produced different bytes."; exit 1; }
+	@# The staleness link, made to fail on purpose. Touching the upstream _meta.json must turn
+	@# check_stage.py red, or the link is decorative.
+	@printf '\n' >> $(S04_SEAL)/sealed/_meta.json
+	@if $(PY) scripts/check_stage.py $(S04_A)/normalised >/dev/null 2>&1; then \
+	  echo "FAIL verify-s04: the upstream meta changed and the staleness check passed anyway."; \
+	  exit 1; \
+	fi
+	@echo "verify-s04: staleness is detected when sealed/_meta.json moves."
+	@rm -rf $(S04_CAP) $(S04_TCAP) $(S04_MCAP) $(S04_SEAL) $(S04_A) $(S04_B)
+	@echo "verify-s04: grain split, enrichment fallback, counts and determinism OK."
+
+verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04
+	@echo "verify: S00 through S04. Later stages append themselves as they land."
+
+# One rule for all seven unbuilt stages. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s04 verify-s05 verify-s06 \
+verify-s05 verify-s06 \
 verify-s07 verify-s08 verify-s09 verify-s10 verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \
