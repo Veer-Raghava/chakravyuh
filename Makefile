@@ -60,7 +60,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 9
+QUARANTINE_MIN := 11
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -247,12 +247,74 @@ verify-s04: guard-uv verify-quarantine
 	@rm -rf $(S04_CAP) $(S04_TCAP) $(S04_MCAP) $(S04_SEAL) $(S04_A) $(S04_B)
 	@echo "verify-s04: grain split, enrichment fallback, counts and determinism OK."
 
-verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04
-	@echo "verify: S00 through S04. Later stages append themselves as they land."
+# S05 builds the fused graph, so its gate is about three things the earlier gates could not
+# test. First, that clustering is non-destructive: check_graph.py asserts one address node per
+# normalised address row, which is exactly what a union-find merge would break. Second, that the
+# measured clustering precision stays where a heuristic belongs: above 0.8 on synthetic data
+# means a label leaked, not that the heuristic got good, so the gate fails on a high number the
+# same way it fails on a wrong one. Third, that validate.py's quarantine grep still passes over
+# a run whose graph/clusters.parquet legitimately carries a column named in contract section 2.
+#
+# Unlike S04 this gate keeps capture, seal, normalised and graph in ONE run directory: the run
+# id JAAL derives from --out is what eval.metrics uses to find the answer key, so splitting them
+# would score against a different run's truth. The second graph is built from the same
+# normalised/ into its own tree, which is all the byte compare needs.
+S05_ARGS := --txs 2000 --entities 400
+S05_RUN := _verify-s05
+S05_A := data/generated/$(S05_RUN)
+S05_T := ground_truth/$(S05_RUN)
+S05_M := measurements/$(S05_RUN)
+S05_B := data/generated/_verify-s05-b
 
-# One rule for all seven unbuilt stages. The brief path is globbed rather than
+verify-s05: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_jaal.py
+	@rm -rf $(S05_A) $(S05_T) $(S05_M) $(S05_B)
+	uv run python -m chakravyuh.mayajaal $(S05_ARGS) --out $(S05_A)
+	uv run python -m chakravyuh.kavach --in $(S05_A)/capture --out $(S05_A)
+	uv run python -m chakravyuh.setu --in $(S05_A)/sealed --out $(S05_A)
+	uv run python -m chakravyuh.jaal --in $(S05_A)/normalised --out $(S05_A) --score
+	uv run python -m chakravyuh.jaal --in $(S05_A)/normalised --out $(S05_B)
+	@# Contract section 10, checked from outside the code that wrote it.
+	@$(PY) scripts/check_stage.py $(S05_A)/graph \
+	  || { echo "FAIL verify-s05: graph/ does not satisfy contract section 10."; exit 1; }
+	@# Node coverage and edge integrity, asserted against the normalised/ the graph came from
+	@# rather than against itself. One address row, one address node, is the union-find trap.
+	@$(PY) scripts/check_graph.py $(S05_A)/normalised $(S05_A)/graph \
+	  || { echo "FAIL verify-s05: the graph does not cover the tables it was built from."; exit 1; }
+	@# Two interpreters, byte compared. Component numbering must not depend on set or dict
+	@# iteration order. Never pin PYTHONHASHSEED here: that is what would make this vacuous.
+	@$(PY) scripts/compare_runs.py $(S05_A)/graph $(S05_B)/graph \
+	  || { echo "FAIL verify-s05: two builds of one normalised/ produced different bytes."; exit 1; }
+	@# The brief's sharpest trap, as a gate. A clustering heuristic that scores like an oracle
+	@# has seen the answer key; the multi-input heuristic measures 0.36 in the field.
+	@$(PY) -c "import json,sys; \
+	p = json.load(open('$(S05_M)/cluster_metrics.json'))['pair_precision']; \
+	sys.stderr.write('verify-s05: pair precision %.4f\n' % p); \
+	sys.exit(0 if p <= 0.8 else 1)" \
+	  || { echo "FAIL verify-s05: cluster precision above 0.8 on this data means a leak, not a breakthrough."; exit 1; }
+	@# All 48 validator checks over a tree that now holds a section-5 file carrying a column
+	@# name section 2 also uses. This is what proves the TRUTH_COLUMNS narrowing is not a hole.
+	uv run python -m chakravyuh.eval.validate --run $(S05_RUN)
+	@# The staleness link, made to fail on purpose. Touching the upstream _meta.json must turn
+	@# check_stage.py red, or the link is decorative.
+	@printf '\n' >> $(S05_A)/normalised/_meta.json
+	@if $(PY) scripts/check_stage.py $(S05_A)/graph >/dev/null 2>&1; then \
+	  echo "FAIL verify-s05: the upstream meta changed and the staleness check passed anyway."; \
+	  exit 1; \
+	fi
+	@echo "verify-s05: staleness is detected when normalised/_meta.json moves."
+	@rm -rf $(S05_A) $(S05_T) $(S05_M) $(S05_B)
+	@echo "verify-s05: fused graph, non-destructive clustering, scoring and determinism OK."
+
+verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05
+	@echo "verify: S00 through S05. Later stages append themselves as they land."
+
+# One rule for all six unbuilt stages. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s05 verify-s06 \
+verify-s06 \
 verify-s07 verify-s08 verify-s09 verify-s10 verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \

@@ -70,8 +70,9 @@ _STAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%.f%:z"
 # that. `tests/test_network.py` greps the same list.
 #
 # Every column of all four quarantined files is named, except the two that are public chain facts
-# and legitimately appear in the capture: `txid` and `block_height`. A partial list is worse than
-# no list, because it reports "none" while a label walks past it.
+# and legitimately appear in the capture (`txid` and `block_height`) and the four the frozen
+# contract itself declares as observable columns, which live in CONTRACT_OBSERVABLE below. A
+# partial list is worse than no list, because it reports "none" while a label walks past it.
 TRUTH_COLUMNS: tuple[str, ...] = (
     "true_origin_ip",
     "true_origin_entity_id",
@@ -84,19 +85,42 @@ TRUTH_COLUMNS: tuple[str, ...] = (
     "input_entity_ids",
     "is_illicit",
     "typologies",
-    "addresses",
     "ips",
     "behind_cgnat",
-    "change_index",
     "heuristic_violation",
     "campaign_id",
-    "typology",
     "entity_ids",
-    "txids",
     "start_us",
     "end_us",
     "total_sats",
 )
+
+# Four names the frozen contract uses on BOTH sides of the quarantine, mapped to the one
+# observable file each is declared in. Anywhere else they are still a leak.
+#
+# These four name things: a set of addresses, a set of txids, an output index, a pattern name. A
+# predicted set of addresses and a true set of addresses are the same word for opposite epistemic
+# status, and section 5 needs the word. Every name left in TRUTH_COLUMNS above names a label or a
+# truth-only fact instead, and a predicted `is_illicit` cannot exist by construction.
+#
+# Keyed on `<stage-dir>/<file>`, never on the file name alone: MAYAJAAL already writes an
+# observable `chain/transactions.parquet` and SETU writes `normalised/transactions.parquet`, so a
+# bare basename would quietly permit `change_index` in the generator's own output too.
+#
+# Section 2 says no column name in it may appear in any observable artifact, and sections 4, 5 and
+# 6 then declare these four. That is a contradiction inside a frozen document, recorded in
+# docs/DECISIONS.md rather than resolved by deleting names from this grep: dropping them outright
+# would stop catching `change_index` in a capture shard, which is a real leak and the reason the
+# mapping is per file rather than global.
+CONTRACT_OBSERVABLE: dict[str, frozenset[str]] = {
+    # section 4, written by SETU. The deliberately weak change rule, one transaction at a time.
+    "change_index": frozenset({"normalised/transactions.parquet"}),
+    # section 5, written by JAAL. The addresses one clustering heuristic predicts share an owner.
+    "addresses": frozenset({"graph/clusters.parquet"}),
+    # section 6, written by SHASTRA. The predicted pattern and the transactions it spans.
+    "typology": frozenset({"signals/typology_hits.parquet"}),
+    "txids": frozenset({"signals/typology_hits.parquet"}),
+}
 
 _LIST_COLUMNS = (
     "input_addresses",
@@ -412,6 +436,10 @@ def _headers(observable: Path) -> list[Check]:
     capture is checked in all three encodings because they are three separate writers, and the one
     that regresses will be the one nothing looked at. `tests/test_network.py` asserts the same
     thing on a fresh run; this repeats it here so `make validate-data` on an old run still fails.
+
+    The four names in CONTRACT_OBSERVABLE are reported as `<name> in <file>` when they appear
+    somewhere the contract does not declare them, because "change_index" alone would not say
+    whether it was found in the file that is allowed to hold it.
     """
     found: dict[str, None] = {}
     checked = 0
@@ -431,8 +459,14 @@ def _headers(observable: Path) -> list[Check]:
         else:
             continue
         checked += 1
+        # `<stage-dir>/<file>`, matching how CONTRACT_OBSERVABLE is keyed. A file directly in the
+        # run directory has no stage directory and can never be permitted, which is correct.
+        where = "/".join(path.parts[-2:])
         for name in set(names) & set(TRUTH_COLUMNS):
             found[name] = None
+        for name in set(names) & set(CONTRACT_OBSERVABLE):
+            if where not in CONTRACT_OBSERVABLE[name]:
+                found[f"{name} in {where}"] = None
     return [
         Check(
             "quarantine",

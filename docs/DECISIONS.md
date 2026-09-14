@@ -1119,3 +1119,120 @@ closer to the truth about that moment than a lookup done months later against a 
 has since been re-delegated; for an evidence tool, the contemporaneous observation is the
 one that survives cross-examination. Revisit if a demo scenario specifically needs the
 vendored values to be the visible ones.
+
+## 2026-09-14 · S05 · four column names left `TRUTH_COLUMNS`, per-file rather than outright
+
+`validate.py`'s quarantine grep held 23 truth-only column names and fired on any observable
+file whose header contained one. Four of them — `change_index`, `addresses`, `typology`,
+`txids` — are also names the frozen contract gives to observable columns: section 4's
+`transactions.parquet`, section 5's `clusters.parquet` and section 6's `typology_hits.parquet`.
+The contract contradicts its own section 2 there, and that contradiction is a finding, not
+something code can resolve by editing the document.
+
+Chosen: a second structure, `CONTRACT_OBSERVABLE`, mapping each of the four names to the exact
+set of observable files the contract permits it in, keyed `<stage-dir>/<file>` and checked
+against the last two path components. The grep still fires on `change_index` in a capture
+shard; it no longer fires on the file section 4 requires it in. The keys are qualified with
+the stage directory deliberately: MAYAJAAL writes `chain/transactions.parquet` and SETU writes
+`normalised/transactions.parquet`, so a bare basename key would have quietly permitted
+`change_index` in the generator's own output — which was the first version, and the test caught
+it.
+
+Rejected: deleting the four names from `TRUTH_COLUMNS`, which is a smaller diff and stops
+catching a real leak. Every name left in the list names a label or a truth-only fact —
+`is_illicit`, `true_origin_ip`, `input_entity_ids` — and no observable file can legitimately
+carry one of those, so the list stays exact-match. `tests/test_jaal.py` and
+`tests/test_network.py` both assert the two structures are disjoint and that each narrowed name
+is permitted in exactly one file.
+
+## 2026-09-14 · S05 · SAME_OWNER edges form a star per transaction, not a clique
+
+Every input address of a transaction is linked to that transaction's lexicographically smallest
+input address: n-1 edges where a clique is n(n-1)/2. Connected components, `min_edge_confidence`
+and every derived cluster are identical either way, because a star and a clique over the same
+vertex set have the same component and the same weakest edge. One transaction in a
+2000-transaction run already has 38 inputs, which is 703 clique edges carrying nothing the 37
+star edges do not, and the count grows quadratically in a way a real capture would make painful.
+
+Chosen because the derived view is what an analyst reads and the view is provably unchanged;
+`test_a_star_and_a_clique_cluster_the_same` asserts that rather than arguing it. Rejected: the
+clique, on the theory that an edge between every pair is more honest about what the heuristic
+claims. It is not — the heuristic claims one thing per transaction, and repeating it n(n-1)/2
+times makes the edge table look like independent corroboration it never was. Revisit if some
+consumer needs pairwise edges specifically, at which point they are recoverable from the
+component without re-running the heuristic.
+
+## 2026-09-14 · S05 · 0.36 is quoted from the literature, 0.25 is invented and labelled so
+
+`multi_input` edges carry confidence 0.36, which is the published full-cluster precision
+contract section 5 quotes for the common-input heuristic in law enforcement settings. The
+number an analyst sees on the edge is therefore the number somebody measured, not one this
+project chose to look plausible.
+
+`change_addr` edges carry 0.25, which is **unmeasured in this project**. SETU's change rule is
+deliberately weak by its own S04 decision — sole non-round output not paying one of the
+transaction's own inputs, `n_out >= 2`, 89% undetermined — and low recall says nothing about
+precision. The value's only defensible property is being below `MULTI_INPUT_CONFIDENCE`, so a
+threshold set between the two selects multi-input alone, which is the comparison the console's
+slider most wants to offer. Rejected: leaving the change edges out until something measures
+them, which would make requirement 2 of the brief unmet; and giving them 0.36 as well, which
+would launder an unmeasured heuristic into a cited one. S10 measures it; until then the
+constant's docstring says the word UNMEASURED and this entry exists so nobody quotes 0.25 at a
+reviewer.
+
+## 2026-09-14 · S05 · `graph/_meta.json` counts rows, and the stage's own accounting sits beside it
+
+Contract section 10 wants `counts.in == counts.out + counts.dropped`, and says why: it is "how
+the whole pipeline stays accountable for every row it was given". The first implementation
+counted candidate `SAME_OWNER` edges — `in` what the heuristics proposed, `out` what survived
+deduplication and the threshold. The arithmetic held perfectly and meant nothing: the 11014
+normalised rows the stage was handed were unaccounted, which is precisely the question the
+equality exists to answer. `contract-auditor` caught it.
+
+`counts` is now at row grain. `in` is every row of all four normalised tables. Three of them are
+one row per entity and each row becomes exactly one node, so nothing can go missing there;
+`announcements.parquet` is the only table whose output is coarser than its input, because
+several rows can describe one `(txid, peer_ip)` pair and only one `ANNOUNCED_BY` edge is written
+for them — deliberately, so peer degree counts transactions rather than packets. Those collapsed
+rows are the stage's one real drop and `drop_reasons` names them.
+
+The edge accounting was not deleted, it moved to `params.same_owner_candidates`, where it still
+answers "did a heuristic silently lose edges" without pretending to be the row ledger.
+`scripts/check_graph.py` now asserts the grain from outside — `counts.in` against the rows on
+disk and `counts.dropped` against the collapsed pairs — because `check_stage.py` can only check
+that the arithmetic closes, never that it closes over the right quantity.
+
+## 2026-09-14 · S05 · a looked-up ASN is not a fact, and the manifest has to agree
+
+`HOSTED_IN` edges were written as `evidence: geoip` at `confidence: 1.0` in every case. Section 5
+reserves 1.0 for facts read off the chain and requires anything inferred below it, and a vendored
+GeoIP table's answer is an inference: a delegation can change between the table being cut and the
+capture being taken. Worse, the manifest said `optional_deps.geolite2: false` beside 171 edges
+labelled `geoip` — no vendored lookup ran in this repo at all, so the label named a provenance
+the run did not have. Both caught by `contract-auditor`.
+
+`hosting_edges` now takes upstream's `geolite2` flag and decides both columns together: `geoip`
+at 0.95 when a vendored table supplied the ASN, `observed` at 1.0 when the capture carried it
+itself, which is every run here today. The two cases are structurally identical and differ only
+in the provenance columns, which is what `test_a_looked_up_asn_is_not_a_fact` asserts. 0.95 is
+unmeasured and only ever an ordering — it exists so a console filtering on confidence can
+separate a lookup from an observation, not because anyone measured GeoIP at 95%.
+`scripts/check_graph.py` asserts both halves: no `geoip` edge at 1.0, and `optional_deps.geolite2`
+agreeing with whether any edge is labelled `geoip`.
+
+## 2026-09-14 · S05 · clustering is scored pairwise, and the JSON says so
+
+`measurements/<run>/cluster_metrics.json` reports pairwise precision and recall over
+same-cluster address pairs, restricted to the addresses the stage actually observed. Chosen
+because full-cluster scoring — a predicted cluster counts only if it exactly equals a true
+entity's address set — is discontinuous: one extra address flips a correct cluster to a wrong
+one, so the metric cannot show an analyst what moving the threshold slider did. Restricting to
+the observed universe is what makes the number measure the heuristic rather than the capture's
+coverage of it.
+
+The cost is that the result is **not comparable** to the 0.36 / 0.44 contract section 5 quotes,
+which are full-cluster figures. The JSON therefore carries `metric: "pairwise"` and a
+`metric_note` saying so, because the failure mode here is not a wrong number, it is a right
+number quoted against the wrong baseline in a slide. Measured on the gate's run: pairwise
+precision 0.0964, recall 0.3521 over 317 clusters. Revisit by adding full-cluster alongside, not
+by replacing — the pairwise figure is the one the console needs.

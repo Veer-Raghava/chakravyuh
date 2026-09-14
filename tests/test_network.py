@@ -375,6 +375,18 @@ def test_no_capture_encoding_names_a_ground_truth_column(roots: writers.Roots) -
     the one place allowed to know what an answer-key column is called.
     """
     forbidden = set(validate.TRUTH_COLUMNS)
+    # The four names the frozen contract declares on both sides of the quarantine are not in
+    # TRUTH_COLUMNS. None is declared in any file MAYAJAAL writes, so at this stage they are all
+    # still leaks and the two sets can simply be unioned. The assertion below is what fails if
+    # that ever stops being true, rather than the check silently going soft.
+    written = {"/".join(path.parts[-2:]) for path in roots.observable.rglob("*")}
+    for name, files in validate.CONTRACT_OBSERVABLE.items():
+        assert not (files & written), (
+            f"MAYAJAAL now writes a file that is allowed to carry {name!r}, so this test must "
+            f"check the per-file mapping rather than treating the name as always forbidden"
+        )
+        forbidden.add(name)
+
     checked = 0
     for path in sorted(roots.observable.rglob("*")):
         if path.suffix == ".csv":
@@ -393,3 +405,41 @@ def test_no_capture_encoding_names_a_ground_truth_column(roots: writers.Roots) -
         checked += 1
         assert not names & forbidden, f"{path.name} names {sorted(names & forbidden)}"
     assert checked >= 6, "the walk found fewer files than one run writes, so it proved nothing"
+
+
+def test_the_narrowed_truth_columns_still_catch_a_label() -> None:
+    """Anti-vacuity for the CONTRACT_OBSERVABLE split.
+
+    Four names left the exact-match list at S05 because contract sections 4, 5 and 6 declare them
+    as observable columns. The split is only sound if it is per file: a name permitted in
+    `clusters.parquet` must still be a leak in a capture shard. Asserted on a synthetic header so
+    it holds whether or not a run exists on disk.
+    """
+    assert set(validate.CONTRACT_OBSERVABLE) == {
+        "change_index",
+        "addresses",
+        "typology",
+        "txids",
+    }, "the narrowing grew or shrank without this test being reconsidered"
+
+    # Every narrowed name, in a file the contract does NOT declare it in, is still found.
+    for name, permitted in validate.CONTRACT_OBSERVABLE.items():
+        assert not permitted & {"capture/part-0000.csv", "chain/transactions.parquet"}, (
+            f"{name} is permitted in a file MAYAJAAL writes, so a generator regression that put "
+            f"a label there would no longer be caught"
+        )
+        assert not permitted & {
+            "ground_truth/origins.parquet",
+            "ground_truth/entities.parquet",
+            "ground_truth/campaigns.parquet",
+        }, f"{name} is permitted in a quarantined file, which is the opposite of the point"
+        # One file each, so no name is permitted across a whole stage tree.
+        assert len(permitted) == 1
+
+    # The names that carry a label, not a thing, must never leave the exact-match list.
+    for label in ("is_illicit", "true_origin_ip", "true_origin_entity_id", "input_entity_ids"):
+        assert label in validate.TRUTH_COLUMNS
+        assert label not in validate.CONTRACT_OBSERVABLE
+
+    # And the two lists must stay disjoint, or a name in both would read as permitted everywhere.
+    assert not set(validate.TRUTH_COLUMNS) & set(validate.CONTRACT_OBSERVABLE)
