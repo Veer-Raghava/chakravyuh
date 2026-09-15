@@ -35,6 +35,10 @@ QUARANTINE: dict[str, tuple[str, ...]] = {
         "test_jaal_builds_with_the_answer_key_absent",
         "test_no_graph_artifact_names_the_quarantine",
     ),
+    "test_shastra": (
+        "test_shastra_builds_with_the_answer_key_absent",
+        "test_no_signals_artifact_names_the_quarantine",
+    ),
 }
 
 

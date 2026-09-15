@@ -13,8 +13,9 @@ PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
 .PHONY: help setup fixtures verify verify-contracts verify-quarantine verify-determinism \
         verify-replay validate-data peek api demo demo-full demo-reset clean guard-uv \
-        verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 \
-        verify-s06 verify-s07 verify-s08 verify-s09 verify-s10 verify-s11
+        sweep-observer-fraction \
+        verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
+        verify-s07 verify-s08 verify-s09 verify-s10 verify-s11
 
 help:
 	@echo "CHAKRAVYUH targets"
@@ -22,6 +23,7 @@ help:
 	@echo "  fixtures           regenerate data/fixtures/capture/ (seed 42, deterministic)"
 	@echo "  verify             every stage that exists (S00, S01, S02 today)"
 	@echo "  verify-s00..s11    one stage each; unbuilt stages fail and name their brief"
+	@echo "  sweep-observer-fraction  the S06 accuracy curve over five observer fractions"
 	@echo "  verify-contracts   the schema and quarantine guards only"
 	@echo "  verify-quarantine  the leakage gates alone; every stage calls this one"
 	@echo "  validate-data      invariants, distributions and leakage for RUN=<run-id>"
@@ -60,7 +62,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 11
+QUARANTINE_MIN := 13
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -309,12 +311,111 @@ verify-s05: guard-uv verify-quarantine
 	@rm -rf $(S05_A) $(S05_T) $(S05_M) $(S05_B)
 	@echo "verify-s05: fused graph, non-destructive clustering, scoring and determinism OK."
 
-verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05
-	@echo "verify: S00 through S05. Later stages append themselves as they land."
+# S06 is the first stage whose gate asserts something about accuracy rather than about shape,
+# so the bar is where the whole target earns its keep. The brief says beat the strongest trivial
+# rule, not first-seen; the prompt says beat first-seen. Both are satisfied by asserting the
+# estimator beats max(first-seen, payer-linkage), and all three numbers are re-measured on THIS
+# run rather than copied from _s02-final, because every one of them moves when the generator does.
+#
+# The gate is one canonical run at a single observer_fraction. The five-point curve the brief
+# demands is real work but it is not a regression check: it costs five full pipelines, and an
+# iteration loop that pays that on every attempt stops being an iteration loop. It lives in
+# sweep-observer-fraction, and S06 is done when both targets are green.
+#
+# One run directory, for S05's reason: the run id SHASTRA derives from --out is what
+# eval.metrics uses to find the answer key, and splitting the trees would score against a
+# different run's truth. The second signals/ is built from the same normalised/ and graph/ into
+# its own tree, which is all the byte compare needs.
+S06_RUN := _verify-s06
+S06_A := data/generated/$(S06_RUN)
+S06_T := ground_truth/$(S06_RUN)
+S06_M := measurements/$(S06_RUN)
+S06_B := data/generated/_verify-s06-b
+S06_ARGS := --txs 8000 --entities 1600
+S06_FRACTION := 0.10
 
-# One rule for all six unbuilt stages. The brief path is globbed rather than
+# The validator's world-calibration bands, rescaled for the sparse world this gate runs in.
+# They were measured at observer_fraction 0.7 (DECISIONS 2026-09-04: ceiling 0.4286, 15 rows
+# per transaction), and this gate's world is a tenth as observed, so the ceiling itself falls
+# to 0.09 and rows per transaction to 4.8. Set through --set rather than edited into the file,
+# so the run's own config.effective.json records what it was checked against, and so the dense
+# world's numbers stay the default. Each band still binds on the same failure mode, displaced:
+# the recoverable floor sits below the ceiling this world actually has (0.0918), the first-seen
+# floor at the same share-of-reachable it binds at in the dense world (0.51 there, 0.51 here),
+# and the rows-per-transaction floor just under two thirds of this world's measured 4.83.
+S06_SETS := --set network.observer_fraction=$(S06_FRACTION) \
+  --set validation.origin_recoverable_min=0.07 \
+  --set validation.first_seen_leakage_min=0.035 \
+  --set validation.announcements_per_tx_tolerance=0.70
+
+verify-s06: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_shastra.py
+	@rm -rf $(S06_A) $(S06_T) $(S06_M) $(S06_B)
+	uv run python -m chakravyuh.mayajaal $(S06_ARGS) $(S06_SETS) --out $(S06_A)
+	uv run python -m chakravyuh.kavach --in $(S06_A)/capture --out $(S06_A)
+	uv run python -m chakravyuh.setu --in $(S06_A)/sealed --out $(S06_A)
+	uv run python -m chakravyuh.jaal --in $(S06_A)/normalised --out $(S06_A)
+	uv run python -m chakravyuh.shastra --in $(S06_A)/normalised --out $(S06_A) --score
+	uv run python -m chakravyuh.shastra --in $(S06_A)/normalised --out $(S06_B)
+	@# Contract section 10, checked from outside the code that wrote it.
+	@$(PY) scripts/check_stage.py $(S06_A)/signals \
+	  || { echo "FAIL verify-s06: signals/ does not satisfy contract section 10."; exit 1; }
+	@# Contract section 6, plus the two invariants a schema check cannot see: p_origin is not
+	@# renormalised to sum to one, and an abstaining transaction has no rank 1 row.
+	@$(PY) scripts/check_signals.py $(S06_A)/normalised $(S06_A)/signals \
+	  || { echo "FAIL verify-s06: signals/ does not satisfy contract section 6."; exit 1; }
+	@# Two interpreters, byte compared. A learned model whose row order depends on dict
+	@# iteration would pass every check above and still not be a measurement.
+	@# Never pin PYTHONHASHSEED here: that is what would make this vacuous.
+	@$(PY) scripts/compare_runs.py $(S06_A)/signals $(S06_B)/signals \
+	  || { echo "FAIL verify-s06: two estimations of one normalised/ produced different bytes."; exit 1; }
+	@# The bar, the parity self-check and the curve, read out of the one file that holds all
+	@# three numbers so the comparison is auditable rather than asserted.
+	@$(PY) scripts/check_origin.py $(S06_M)/origin_accuracy.json \
+	  || { echo "FAIL verify-s06: the estimator did not clear the re-measured bar."; exit 1; }
+	@# All the validator's checks over a tree that now holds signals/, which carries a column
+	@# name section 2 also uses. Proves the TRUTH_COLUMNS narrowing still is not a hole.
+	uv run python -m chakravyuh.eval.validate --run $(S06_RUN)
+	@# The staleness link, made to fail on purpose. Touching the upstream _meta.json must turn
+	@# check_stage.py red, or the link is decorative.
+	@printf '\n' >> $(S06_A)/normalised/_meta.json
+	@if $(PY) scripts/check_stage.py $(S06_A)/signals >/dev/null 2>&1; then \
+	  echo "FAIL verify-s06: the upstream meta changed and the staleness check passed anyway."; \
+	  exit 1; \
+	fi
+	@echo "verify-s06: staleness is detected when normalised/_meta.json moves."
+	@rm -rf $(S06_A) $(S06_T) $(S06_M) $(S06_B)
+	@echo "verify-s06: origin estimator, calibration, abstention, bar and determinism OK."
+
+# The curve the brief demands, out of the gate on purpose. Five worlds, five full pipelines,
+# one collated report. A single accuracy number is the trap this target exists to avoid: at
+# observer_fraction 0.50 the originator is nearly always in the candidate set and at 0.02 it
+# almost never is, so a number quoted without its fraction says nothing at all.
+SWEEP_FRACTIONS := 0.02 0.05 0.10 0.25 0.50
+
+sweep-observer-fraction: guard-uv
+	@for f in $(SWEEP_FRACTIONS); do \
+	  run=_sweep-$$f ; a=data/generated/$$run ; \
+	  rm -rf $$a ground_truth/$$run measurements/$$run || exit 1 ; \
+	  uv run python -m chakravyuh.mayajaal $(S06_ARGS) \
+	    --set network.observer_fraction=$$f --out $$a || exit 1 ; \
+	  uv run python -m chakravyuh.kavach --in $$a/capture --out $$a || exit 1 ; \
+	  uv run python -m chakravyuh.setu --in $$a/sealed --out $$a || exit 1 ; \
+	  uv run python -m chakravyuh.jaal --in $$a/normalised --out $$a || exit 1 ; \
+	  uv run python -m chakravyuh.shastra --in $$a/normalised --out $$a --score || exit 1 ; \
+	done
+	@$(PY) scripts/collate_sweep.py $(SWEEP_FRACTIONS) \
+	  || { echo "FAIL sweep-observer-fraction: the five runs did not collate."; exit 1; }
+	@echo "sweep-observer-fraction: curve written to measurements/_sweep/origin_curve.md"
+
+verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06
+	@echo "verify: S00 through S06. Later stages append themselves as they land."
+
+# One rule for all five unbuilt stages. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s06 \
 verify-s07 verify-s08 verify-s09 verify-s10 verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \

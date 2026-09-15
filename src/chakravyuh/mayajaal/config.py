@@ -267,6 +267,22 @@ class ValidationSpec:
 
 
 @dataclass(frozen=True, slots=True)
+class EvalSpec:
+    """How a run is split into a training window and a holdout, and when an estimator abstains.
+
+    These are properties of the run, not of the generator: MAYAJAAL never reads them. They live
+    here because `config.effective.json` is copied into every run directory, so a stage that scores
+    against a run can recover the split policy that run was measured under instead of hardcoding a
+    fraction of its own. `train_fraction` is a share of the capture's observed time span; the
+    boundary microsecond it implies is derived by `chakravyuh.eval.split` and by nothing else.
+    """
+
+    train_fraction: float
+    margin_floor: float
+    min_announcements: int
+
+
+@dataclass(frozen=True, slots=True)
 class Config:
     seed: int
     n_txs: int
@@ -277,6 +293,7 @@ class Config:
     adversary: AdversarySpec
     export: ExportSpec
     validation: ValidationSpec
+    evaluation: EvalSpec
     types: tuple[TypeSpec, ...]
     effective: Mapping[str, Any]
 
@@ -427,6 +444,96 @@ def _chain(node: Mapping[str, Any]) -> ChainSpec:
     )
 
 
+def _eval(node: Mapping[str, Any]) -> EvalSpec:
+    spec = EvalSpec(
+        train_fraction=_float(node, "eval.", "train_fraction"),
+        margin_floor=_float(node, "eval.", "margin_floor"),
+        min_announcements=_int(node, "eval.", "min_announcements"),
+    )
+    if not 0.0 < spec.train_fraction < 1.0:
+        raise ValueError(
+            f"run_config.json: eval.train_fraction must be strictly between 0 and 1, got "
+            f"{spec.train_fraction}. At 0 there is nothing to train on and at 1 there is nothing "
+            "held out, and either way the number a gate reads is not a measurement."
+        )
+    if not 0.0 <= spec.margin_floor < 1.0:
+        raise ValueError(
+            f"run_config.json: eval.margin_floor must be in [0, 1), got {spec.margin_floor}"
+        )
+    if spec.min_announcements < 1:
+        raise ValueError(
+            f"run_config.json: eval.min_announcements must be positive, got "
+            f"{spec.min_announcements}"
+        )
+    return spec
+
+
+# The one leaf `--set` may not touch. Everything else in the file is a scalar describing the
+# world; this one names a file on disk, and an override that can rewrite it is a second path
+# argument wearing a different hat.
+_UNSETTABLE: frozenset[str] = frozenset({"network.latency_matrix"})
+
+
+def _coerce(current: object, path: str, text: str) -> object:
+    """Parse `text` into the type the leaf already holds. The existing value is the schema."""
+    if isinstance(current, bool):
+        if text not in ("true", "false"):
+            raise ValueError(f"--set {path}: expected true or false, got {text!r}")
+        return text == "true"
+    if isinstance(current, int):
+        try:
+            return int(text)
+        except ValueError:
+            raise ValueError(f"--set {path}: expected an integer, got {text!r}") from None
+    if isinstance(current, float):
+        try:
+            return float(text)
+        except ValueError:
+            raise ValueError(f"--set {path}: expected a number, got {text!r}") from None
+    if isinstance(current, str):
+        return text
+    raise TypeError(
+        f"--set {path}: only a scalar leaf can be overridden, and this one holds "
+        f"{type(current).__name__}. Name the leaf inside it instead."
+    )
+
+
+def _apply_overrides(root: dict[str, Any], overrides: Mapping[str, str]) -> None:
+    """Fold dotted `key=value` overrides into the parsed config in place, before any check runs.
+
+    Applied before `_check`, so an override that makes the world impossible fails the same way a
+    bad file does rather than producing a wrong run. The mutated dict is the one that becomes
+    `Config.effective` and is written to `config.effective.json`, so a run always records the
+    parameters that produced it, never the file's defaults.
+
+    A key must name a leaf that already exists. That is the entire safety property: a typo cannot
+    invent a knob, so a sweep whose `--set network.observer_fractoin=0.02` silently did nothing is
+    impossible. Values are scalars, coerced to the leaf's current type, and never paths.
+    """
+    for path, text in sorted(overrides.items()):
+        if path in _UNSETTABLE:
+            raise ValueError(
+                f"--set {path} is refused: that key names a file, and the only path argument in "
+                "this system is --out."
+            )
+        parts = path.split(".")
+        if not all(parts):
+            raise ValueError(f"--set {path!r} is not a dotted key")
+        node: Any = root
+        for depth, part in enumerate(parts[:-1]):
+            if not isinstance(node, dict) or part not in node:
+                walked = ".".join(parts[: depth + 1])
+                raise KeyError(f"--set {path}: run_config.json has no {walked}")
+            node = node[part]
+        leaf = parts[-1]
+        if not isinstance(node, dict) or leaf not in node:
+            raise KeyError(
+                f"--set {path}: run_config.json has no such key. An override may only change a "
+                "value that already exists, or a misspelling would quietly do nothing."
+            )
+        node[leaf] = _coerce(node[leaf], path, text)
+
+
 def load(
     path: Path,
     *,
@@ -434,8 +541,9 @@ def load(
     n_txs: int | None = None,
     n_entities: int | None = None,
     anchor: Path | None = None,
+    overrides: Mapping[str, str] | None = None,
 ) -> Config:
-    """Parse `path`, apply the three CLI overrides, and check the config is self-consistent.
+    """Parse `path`, apply the CLI overrides, and check the config is self-consistent.
 
     `n_txs` defaults to `target_rows // mean_announcements_per_tx`, because the spec asks
     callers to think in capture rows and one transaction becomes about nine rows once S02
@@ -446,11 +554,17 @@ def load(
     default. The one caller that passes it is the validator, which loads the `config.effective.json`
     copied into a run directory: that copy names `regions.yaml` exactly as the original did, and
     the original's neighbour is in the repository root rather than beside the copy.
+
+    `overrides` is the generic `--set key=value` door, described on `_apply_overrides`. It exists
+    because the S06 accuracy curve needs five worlds that differ in one number, and five near
+    identical config files would drift apart the first time anyone edited four of them.
     """
     raw: Any = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
         raise TypeError(f"{path} must hold a JSON object")
     root: dict[str, Any] = raw
+    if overrides:
+        _apply_overrides(root, overrides)
 
     resolved_seed = _int(root, "", "seed") if seed is None else seed
     mean_announcements = _int(root, "", "mean_announcements_per_tx")
@@ -466,6 +580,7 @@ def load(
         world_node["n_entities"] = n_entities
     chain_node = _obj(root, "", "chain")
     valid_node = _obj(root, "", "validation")
+    eval_node = _obj(root, "", "eval")
     types_node = _obj(root, "", "types")
     export_node = _obj(root, "", "export")
 
@@ -522,6 +637,7 @@ def load(
             block_interval_cv_min=_float(valid_node, "validation.", "block_interval_cv_min"),
             block_interval_cv_max=_float(valid_node, "validation.", "block_interval_cv_max"),
         ),
+        evaluation=_eval(eval_node),
         types=types,
         effective=effective,
     )

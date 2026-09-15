@@ -120,6 +120,11 @@
     "block_interval_cv_min": 0.7,
     "block_interval_cv_max": 1.3
   },
+  "eval": {
+    "train_fraction": 0.7,
+    "margin_floor": 0.04,
+    "min_announcements": 2
+  },
   "network": {
     "n_nodes": 5000,
     "outbound_per_node": 8,

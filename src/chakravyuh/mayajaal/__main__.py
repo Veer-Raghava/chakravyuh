@@ -45,13 +45,49 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="build the chain and campaigns only, skipping the peer network and the capture",
     )
+    # Generic because the alternative is five near-identical config files. A dotted key must
+    # already exist in run_config.json and the value is coerced to the type that key already
+    # holds, so a misspelling is an error rather than a silent no-op. Values are scalars only:
+    # `network.latency_matrix` is refused by name, and --out stays the one path argument.
+    parser.add_argument(
+        "--set",
+        dest="overrides",
+        action="append",
+        metavar="KEY=VALUE",
+        default=[],
+        help=(
+            "override one existing run_config.json value, e.g. "
+            "--set network.observer_fraction=0.10. Repeatable. Recorded in "
+            "config.effective.json, so the run records the world it was actually given."
+        ),
+    )
     return parser
+
+
+def _overrides(pairs: list[str]) -> dict[str, str]:
+    """Split `KEY=VALUE` strings, rejecting a repeated key rather than letting the last one win."""
+    out: dict[str, str] = {}
+    for pair in pairs:
+        key, sep, value = pair.partition("=")
+        if not sep or not key.strip():
+            raise SystemExit(f"mayajaal: --set expects KEY=VALUE, got {pair!r}")
+        key = key.strip()
+        if key in out:
+            raise SystemExit(f"mayajaal: --set {key} given twice, with {out[key]!r} and {value!r}")
+        out[key] = value.strip()
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, stream=sys.stderr, format="%(message)s")
     args = _parser().parse_args(argv)
-    cfg = config.load(args.config, seed=args.seed, n_txs=args.txs, n_entities=args.entities)
+    cfg = config.load(
+        args.config,
+        seed=args.seed,
+        n_txs=args.txs,
+        n_entities=args.entities,
+        overrides=_overrides(args.overrides),
+    )
 
     # The only clock read in the stage. Section 10 requires wall-clock start and finish, which
     # is why scripts/compare_runs.py masks exactly those two fields plus the run id when it

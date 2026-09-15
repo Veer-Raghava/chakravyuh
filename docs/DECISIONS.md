@@ -1236,3 +1236,115 @@ which are full-cluster figures. The JSON therefore carries `metric: "pairwise"` 
 number quoted against the wrong baseline in a slide. Measured on the gate's run: pairwise
 precision 0.0964, recall 0.3521 over 317 clusters. Revisit by adding full-cluster alongside, not
 by replacing — the pairwise figure is the one the console needs.
+
+## 2026-09-15 · S06 · the headline accuracy ignores abstention, and the refusal policy is reported beside it
+
+Chose to score `top1`/`top3` over the ranking only, ignoring whether the estimator
+abstained, and to report the refusal separately as `top1_acted`, `precision_when_acted`
+and `coverage`. Rejected the alternative of zeroing an abstaining transaction's numerator,
+which is what a plain "accuracy" would do. The reason is that the two trivial rules never
+abstain, so a penalising metric would compare refusal policies rather than estimator
+quality — and at `observer_fraction` 0.10 a calibrated model is *right* to be unsure about
+most transactions, because for 91% of them the originator is not in the candidate set at
+all. Penalising the refusal would teach every future estimator never to abstain, which is
+the opposite of what the contract's first honesty rule demands. Revisit if a downstream
+consumer needs a single number that mixes both; the components are all in
+`origin_accuracy.json` already.
+
+## 2026-09-15 · S06 · `margin_floor` reads the separation, the `margin` column stays absolute
+
+Chose to apply the configured floor to `(p1 − p2) / (p1 + p2)` while leaving the
+contract's `margin` column as the absolute `p1 − p2`. Rejected applying the floor to the
+absolute margin, which is the reading the column invites. A calibrated probability lives
+on the scale of the base rate, and the base rate here is the recoverable ceiling — 0.0225
+at `observer_fraction` 0.02 against 0.3323 at 0.50, a fifteenfold range across the five
+sweep worlds. An absolute floor of 0.04 abstains on every transaction in one world and on
+none in another, so the single configured number would be measuring the world rather than
+the evidence. The separation is scale-free, zero exactly when the top two tie and one when
+the leader stands alone. The column keeps the contract's definition because the contract
+is frozen and because "small margin means do not act" is a statement about probability,
+not about the floor. Revisit only if the contract itself is ever revised.
+
+## 2026-09-15 · S06 · Platt scaling, not isotonic, on ~70 positive rows
+
+Chose Platt scaling — a logistic regression on the booster's raw log-odds — for the
+calibration layer. Rejected isotonic regression, the first implementation, which is the
+better calibrator with plenty of positives and collapses here: a capture at
+`observer_fraction` 0.10 yields about seventy positive rows in the training window and a
+quarter of that in the calibration slice, and isotonic's step function then maps the whole
+score range onto a handful of levels. Two candidates of one transaction land on the same
+level, the ranking inside the transaction is destroyed, and every transaction looks like a
+tie for first place — the abstention rule then fires on nearly everything and coverage
+collapses. Platt is strictly monotone, so it changes what the probabilities *mean* without
+touching the order they are in; ranking accuracy is preserved by construction. Revisit at
+S10's full scale, where the positive count is large enough for isotonic to behave.
+
+## 2026-09-15 · S06 · LightGBM's native API, not the sklearn wrapper
+
+Chose `lgb.train` with a plain parameter dict and manual prediction. Rejected
+`LGBMClassifier`, which is the interface every tutorial uses, because LightGBM 4.5.0's
+wrapper calls `sklearn.utils.check_X_y(force_all_finite=...)` and scikit-learn 1.9 removed
+that keyword — `fit` raises on this machine before any learning happens. The native API
+touches no scikit-learn at all, which also removes one version coupling from an offline
+tool that must still build in a year. Revisit if a pinned, mutually compatible pair of
+LightGBM and scikit-learn versions is ever installed together.
+
+## 2026-09-15 · S06 · the holdout window is a hard gate assertion, not a reported number
+
+Chose to make `scripts/check_origin.py` fail when the ensemble loses the holdout window to
+the best trivial rule, on the same run that produced the headline. Rejected reporting the
+holdout number without asserting it, which is all the brief's bar (rider 1: ensemble beats
+`max(first_seen, payer_linkage)` run-wide) required. The reason is that the first version
+of this stage passed the run-wide bar while losing the holdout 0.0201 to 0.0230 — it had
+won by memorising its own training window, and a gate that could not see that was a gate
+rewarding it. The report now carries `by_window` for every estimator and
+`recoverable_ceiling_by_window` beside them, because the windows are not equally winnable
+and a holdout figure read against the run-wide ceiling misleads. Revisit never as a
+loosening; a per-fraction exception was explicitly declined at 0.02 (open problem 14).
+
+## 2026-09-15 · S06 · the gate rescales three validator bands through `--set`, leaving the dense world the default
+
+Chose to pass `--set validation.origin_recoverable_min=0.07`,
+`--set validation.first_seen_leakage_min=0.035` and
+`--set validation.announcements_per_tx_tolerance=0.70` on the S06 gate's MAYAJAAL
+invocation only. Rejected editing `run_config.json`, and rejected deleting or `# type:
+ignore`-ing the three checks. The bands were calibrated in the dense world —
+`origin_recoverable_min` 0.25 against a measured ceiling of 0.4286, 15 announcements per
+transaction — and the S06 gate deliberately runs at `observer_fraction` 0.10, where the
+ceiling is 0.0918 and rows per transaction 4.83. The conditional behaviour is unchanged:
+first-seen captures 0.51 of the reachable share in both worlds, so the world got harder,
+not wrong. `--set` means the run's own `config.effective.json` records what it was checked
+against, the dense world's numbers stay the default for S02's gate, and each displaced
+band still binds on the same failure mode — the recoverable floor sits below this world's
+actual ceiling of 0.0918 and would still catch a collapsing one. Revisit if a future stage
+gates at yet another fraction: derive the bands from the fraction rather than adding a
+third column of overrides.
+
+## 2026-09-15 · S06 · a vendor tree generator exists and its output is not committed
+
+Chose to write `scripts/make_vendor_lists.py`, deriving a GeoLite2-CSV-shaped tree from
+`run_config.json`'s address pools and `regions.yaml`'s per-region ASNs alone, and to
+exercise it only from tests under `$TMPDIR`. Rejected committing its output into
+`vendor/`. The repository's `vendor/` being empty is load-bearing: `make verify-s04`
+asserts SETU's absent-vendor warnings and its null enrichment columns, and a populated
+tree also flips `optional_deps.geolite2`, which changes JAAL's `HOSTED_IN` provenance from
+`observed` (capture-carried ASN, confidence 1.0) to `geoip` (looked up, below 1.0) on
+every existing run. The generator is whole-CIDR rows per region slice — the inverse of
+`mayajaal.entities.region_of` — and never reads a run or a truth key, because which 40 of
+the 256 Tor-pool addresses a particular run minted is a property of that run's seed.
+Revisit when an operator wants a demo run with enrichment: generate into `vendor/`
+deliberately, re-run SETU onward, and accept that `verify-s04` then describes the other
+deployment.
+
+## 2026-09-15 · S06 · `typology_hits` and `entity_types` ship zero-row with the exact schema
+
+Chose to write both files with the contract's columns and dtypes and zero rows, recording
+the deferral in `_meta.json` under `params.deferred_outputs` and in STATE.md. Rejected two
+alternatives: omitting the files (the console would need an absent-file special case, and
+the contract lists them), and populating placeholder rows (contract section 6 states no
+nullability for either table, so a placeholder row is a row an auditor must reject — a
+`strength` of 0.0 is still a claim that a hit was assessed). A zero-row file with the exact
+schema is the honest shape of "this stage does not do typologies yet": it is readable by
+anything that expects the schema, and it asserts nothing. `entity_types` has a named
+consumer — BUDDHI's `exempt_from_scoring` rule for mining pools and exchanges — so
+populating it is S07 work with a real specification, not a backfill. Revisit at S07.
