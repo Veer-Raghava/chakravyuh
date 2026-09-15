@@ -62,7 +62,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 15
+QUARANTINE_MIN := 16
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -411,12 +411,13 @@ sweep-observer-fraction: guard-uv
 	  || { echo "FAIL sweep-observer-fraction: the five runs did not collate."; exit 1; }
 	@echo "sweep-observer-fraction: curve written to measurements/_sweep/origin_curve.md"
 
-verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06
-	@echo "verify: S00 through S07. Later stages append themselves as they land."
+verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
+        verify-s07 verify-s08
+	@echo "verify: S00 through S08. Later stages append themselves as they land."
 
-# One rule for the four unbuilt stages. The brief path is globbed rather than
+# One rule for the three unbuilt stages. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s08 verify-s09 verify-s10 verify-s11:
+verify-s09 verify-s10 verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \
 	 echo "FAIL $@: stage S$$n is not implemented yet."; \
@@ -478,6 +479,55 @@ verify-s07: guard-uv verify-quarantine
 	@echo "verify-s07: staleness is detected when signals/_meta.json moves."
 	@rm -rf $(S07_A) $(S07_T) $(S07_M) $(S07_B)
 	@echo "verify-s07: risk model, conformal calibration, coverage, bar and determinism OK."
+
+# S08 turns scores into alerts, so its gate is about the three things only this stage can
+# break. First, mandatory counter-evidence: every alert must carry at least one counter row,
+# and the test suite runs the named mining-pool case the brief calls out. Second, the
+# truncation law: no complete identifier anywhere in the written prose. Third, the read-time
+# reason string: two interpreters must derive the same three sentences from the same rows.
+# The run layout follows S07's: one run directory from capture to scores, so the run id the
+# eval side derives is the same one the alerts were scored under. The second alerts/ is built
+# from the same scores/ into its own tree, which is all the byte compare needs.
+S08_RUN := _verify-s08
+S08_A := data/generated/$(S08_RUN)
+S08_T := ground_truth/$(S08_RUN)
+S08_M := measurements/$(S08_RUN)
+S08_B := data/generated/_verify-s08-b
+S08_ARGS := $(S07_ARGS)
+S08_SETS := $(S07_SETS)
+
+verify-s08: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_vaani.py
+	@rm -rf $(S08_A) $(S08_T) $(S08_M) $(S08_B)
+	uv run python -m chakravyuh.mayajaal $(S08_ARGS) $(S08_SETS) --out $(S08_A)
+	uv run python -m chakravyuh.kavach --in $(S08_A)/capture --out $(S08_A)
+	uv run python -m chakravyuh.setu --in $(S08_A)/sealed --out $(S08_A)
+	uv run python -m chakravyuh.jaal --in $(S08_A)/normalised --out $(S08_A)
+	uv run python -m chakravyuh.shastra --in $(S08_A)/normalised --out $(S08_A) --score
+	uv run python -m chakravyuh.buddhi --in $(S08_A) --out $(S08_A) --score
+	uv run python -m chakravyuh.vaani --in $(S08_A) --out $(S08_A)
+	uv run python -m chakravyuh.vaani --in $(S08_A) --out $(S08_B)
+	@# Contract section 10, checked from outside the code that wrote it.
+	@$(PY) scripts/check_stage.py $(S08_A)/alerts \
+	  || { echo "FAIL verify-s08: alerts/ does not satisfy contract section 10."; exit 1; }
+	@# Two interpreters, byte compared. A reason string that depended on dict iteration order
+	@# would pass every schema check and still not be a deterministic artifact.
+	@# Never pin PYTHONHASHSEED here: that is what would make this vacuous.
+	@$(PY) scripts/compare_runs.py $(S08_A)/alerts $(S08_B)/alerts \
+	  || { echo "FAIL verify-s08: two alertings of one run produced different bytes."; exit 1; }
+	@# The staleness link, made to fail on purpose. VAANI's upstream meta is scores/'
+	@# (it reads scores/ and signals/), so that is the file touched.
+	@printf '\n' >> $(S08_A)/scores/_meta.json
+	@if $(PY) scripts/check_stage.py $(S08_A)/alerts >/dev/null 2>&1; then \
+	  echo "FAIL verify-s08: the upstream meta changed and the staleness check passed anyway."; \
+	  exit 1; \
+	fi
+	@echo "verify-s08: staleness is detected when scores/_meta.json moves."
+	@rm -rf $(S08_A) $(S08_T) $(S08_M) $(S08_B)
+	@echo "verify-s08: alerts, evidence, mandatory counter-evidence, truncation and determinism OK."
 
 # The same seed twice, in two interpreters, compared across all three trees. The
 # measurements tree is compared too: a report is a number we will publish, and a number

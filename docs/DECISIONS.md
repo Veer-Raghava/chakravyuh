@@ -1395,3 +1395,39 @@ is not reproducible, which is the whole premise of `verify-determinism`. Rejecte
 pinning `PYTHONHASHSEED` in the gate: that is precisely what would make the check
 vacuous, and the gate comment already says so. Revisit never; instead treat it as a
 standing rule (STATE.md "Never do").
+
+## 2026-09-16 · S08 · `alerts.parquet` stays column-exact; the reason string is read-time
+
+Chose to leave section 8's `alerts.parquet` with exactly its eleven contract columns and
+to assemble the brief's three-sentence reason at read time, from evidence and counter
+rows, in `chakravyuh.vaani.evidence.reason_string`. Rejected adding a `reason` column:
+section 8 names no such column, the contract is frozen, and a stored string would fork
+the prose from the rows that justify it. Rejected storing a template expression instead:
+read-time assembly is testable byte-for-byte across processes (a test proves it) and
+needs no schema change. Revisit if a downstream consumer cannot call Python — the API
+layer can render it server-side, so this should never bite.
+
+## 2026-09-16 · S08 · full identifiers in structured fields, truncation only in prose
+
+Chose to carry `alerts.origin_txid` and `alerts.origin_peer_ip` whole — section 9's
+packet quotes them, and truncating a machine field would force PRAMAAN to re-derive
+what the pipeline already had. `subject_id` and `source_ref`'s row fragments are
+`kind:value` node-id join keys and keep whole identifiers under the same precedent
+`check_scores.py` set for sections 5 and 7. Every human-readable surface truncates at
+write time through `vaani/redact.py`; the truncated prose is what the regex tests
+sweep. Rejected truncating everything "to be safe": a packet that quotes a truncated
+txid is not replayable evidence. Revisit only if a rendered surface ever reads those
+two fields directly instead of via `redact`.
+
+## 2026-09-16 · S08 · mandatory counter-evidence via the un-renormalised origin mass
+
+Chose to make the contract's "every alert has at least one counter row, or the pipeline
+fails" hold honestly by deriving an `insufficient_observation` counter from section 6's
+rule that ensemble `p_origin` is never renormalised to sum to one: mass below 1.0 is
+the measured probability the true originator was never observed, so nearly every
+anchored alert carries a real number, not padding. Rejected a synthetic always-present
+counter ("more research needed") — a counter that can mean anything means nothing — and
+rejected weakening the raise into a warning. The guarantee is load-bearing: every
+counter kind the stage emits is a computed doubt, and `build()` still fails the run if
+an alert somehow ends with none. Revisit if a future world genuinely reaches mass 1.0
+on a subject with no other doubt; the `build()` guard will say so loudly.
