@@ -62,7 +62,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 13
+QUARANTINE_MIN := 15
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -412,16 +412,72 @@ sweep-observer-fraction: guard-uv
 	@echo "sweep-observer-fraction: curve written to measurements/_sweep/origin_curve.md"
 
 verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06
-	@echo "verify: S00 through S06. Later stages append themselves as they land."
+	@echo "verify: S00 through S07. Later stages append themselves as they land."
 
-# One rule for all five unbuilt stages. The brief path is globbed rather than
+# One rule for the four unbuilt stages. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s07 verify-s08 verify-s09 verify-s10 verify-s11:
+verify-s08 verify-s09 verify-s10 verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \
 	 echo "FAIL $@: stage S$$n is not implemented yet."; \
 	 echo "  Brief: $${b:-docs/stages/ (missing)}"; \
 	 exit 1
+
+S07_RUN := _verify-s07
+S07_A := data/generated/$(S07_RUN)
+S07_T := ground_truth/$(S07_RUN)
+S07_M := measurements/$(S07_RUN)
+S07_B := data/generated/_verify-s07-b
+# Same world as the S06 gate, so the two stages' numbers are read against one capture.
+S07_ARGS := $(S06_ARGS)
+S07_SETS := $(S06_SETS)
+
+verify-s07: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_buddhi.py
+	@rm -rf $(S07_A) $(S07_T) $(S07_M) $(S07_B)
+	uv run python -m chakravyuh.mayajaal $(S07_ARGS) $(S07_SETS) --out $(S07_A)
+	uv run python -m chakravyuh.kavach --in $(S07_A)/capture --out $(S07_A)
+	uv run python -m chakravyuh.setu --in $(S07_A)/sealed --out $(S07_A)
+	uv run python -m chakravyuh.jaal --in $(S07_A)/normalised --out $(S07_A)
+	uv run python -m chakravyuh.shastra --in $(S07_A)/normalised --out $(S07_A) --score
+	uv run python -m chakravyuh.buddhi --in $(S07_A) --out $(S07_A) --score
+	uv run python -m chakravyuh.buddhi --in $(S07_A) --out $(S07_B)
+	@# Contract section 10, checked from outside the code that wrote it.
+	@$(PY) scripts/check_stage.py $(S07_A)/scores \
+	  || { echo "FAIL verify-s07: scores/ does not satisfy contract section 10."; exit 1; }
+	@# Contract section 7 itself: schema, label-from-interval, per-class coverage, no complete
+	# identifier in a bare column, and every eval_report.json key present and non-null.
+	@$(PY) scripts/check_scores.py $(S07_RUN) $(S07_A)/scores \
+	  || { echo "FAIL verify-s07: scores/ does not satisfy contract section 7."; exit 1; }
+	@# Two interpreters, byte compared. A learned model whose row order depends on dict
+	@# iteration would pass every check above and still not be a measurement.
+	@# Never pin PYTHONHASHSEED here: that is what would make this vacuous.
+	@# eval_report.json is excluded the way every manifest is: it carries code_version, which
+	@# differs between the two runs when the tree is dirty, and it quotes reports the second
+	@# interpreter never wrote (it runs without --score). check_scores.py asserts its shape
+	@# on run A; compare_runs.py asserts everything else is byte-identical.
+	@$(PY) scripts/compare_runs.py --except eval_report.json $(S07_A)/scores $(S07_B)/scores \
+	  || { echo "FAIL verify-s07: two scorings of one run produced different bytes."; exit 1; }
+	@# The bar the model had to clear is measured on this run, not asserted, and the model
+	@# cleared it: the three numbers live in one file so the comparison is auditable.
+	@$(PY) scripts/check_buddhi_bar.py $(S07_M) \
+	  || { echo "FAIL verify-s07: the model did not clear the re-measured baseline bar."; exit 1; }
+	@# All the validator's checks over a tree that now holds scores/, whose columns section 2
+	@# also names. Proves the TRUTH_COLUMNS narrowing still is not a hole.
+	uv run python -m chakravyuh.eval.validate --run $(S07_RUN)
+	@# The staleness link, made to fail on purpose. Buddhi's upstream meta is signals/'
+	@# (it reads signals/ and graph/, not normalised/), so that is the file touched.
+	@printf '\n' >> $(S07_A)/signals/_meta.json
+	@if $(PY) scripts/check_stage.py $(S07_A)/scores >/dev/null 2>&1; then \
+	  echo "FAIL verify-s07: the upstream meta changed and the staleness check passed anyway."; \
+	  exit 1; \
+	fi
+	@echo "verify-s07: staleness is detected when signals/_meta.json moves."
+	@rm -rf $(S07_A) $(S07_T) $(S07_M) $(S07_B)
+	@echo "verify-s07: risk model, conformal calibration, coverage, bar and determinism OK."
 
 # The same seed twice, in two interpreters, compared across all three trees. The
 # measurements tree is compared too: a report is a number we will publish, and a number

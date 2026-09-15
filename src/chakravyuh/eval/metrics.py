@@ -460,3 +460,299 @@ def score_origin(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     return scores
+
+
+# --- wallet risk scoring ------------------------------------------------------------------------
+#
+# BUDDHI's side of the label door. A stage passes its predictions in — subject, member addresses,
+# a score, and which side of its own conformal sets each class fell on — and gets figures back.
+# The labels those figures were computed from never cross back, which is what lets
+# `scores/eval_report.json` sit exactly where the frozen contract puts it while BUDDHI holds no
+# evaluation-window label of any kind.
+#
+# Everything measured here is measured on the holdout window alone. The training window's
+# addresses were the model's own fitting data, so a number that included them would measure
+# memorisation, and the report marks the denominator so it cannot be read as run-wide.
+
+
+@dataclass(frozen=True)
+class WalletScore:
+    """What a wallet risk model scored, on holdout subjects only. Numbers, never labels."""
+
+    n_subjects: int
+    n_illicit: int
+    n_labelled: int
+    pr_auc: float
+    roc_auc: float
+    precision_at_20: float
+    recall_at_20: float
+    abstain_rate: float
+    coverage_by_class: dict[str, float]
+    baseline: dict[str, Any]
+    baseline_beaten: bool
+    n_unlabelled: int
+
+
+def _auc(y_true: Sequence[int], scores: Sequence[float], pr: bool) -> float:
+    """PR-AUC by average precision, ROC-AUC by rank sum. Small data, no sklearn dependency.
+
+    Implemented here rather than imported for one reason: the evaluation is the answer key's side
+    of the door, and its arithmetic should be readable by the same person who audits the door.
+    """
+    pairs = sorted(zip(scores, y_true, strict=True), key=lambda p: (-p[0], p[1]))
+    n_pos = sum(y_true)
+    if n_pos == 0 or n_pos == len(y_true):
+        return 0.0
+    if pr:
+        tp = 0.0
+        fp = 0.0
+        ap = 0.0
+        prev_recall = 0.0
+        for _, label in pairs:
+            if label:
+                tp += 1
+            else:
+                fp += 1
+            recall = tp / n_pos
+            precision = tp / (tp + fp)
+            ap += (recall - prev_recall) * precision
+            prev_recall = recall
+        return ap
+    ranks = [i + 1 for i, (_, label) in enumerate(pairs) if label]
+    n_neg = len(y_true) - n_pos
+    return (sum(ranks) - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg)
+
+
+def _true_label_of_subject(addresses: Sequence[str], truth: pl.DataFrame) -> tuple[int, int]:
+    """A subject's label: majority `is_illicit` over its member addresses' true owners.
+
+    A tie is licit, on the same reasoning SHASTRA's rank 1 needs a strict winner: an accusation
+    must not rest on a coin toss. Returns `(label, n_labelled)`; zero labelled means the subject
+    cannot be scored and is excluded from every numerator and denominator here.
+    """
+    if not addresses:
+        return 0, 0
+    members = pl.DataFrame({"address": list(addresses)}).join(truth, on="address", how="inner")
+    if members.is_empty():
+        return 0, 0
+    illicit = int(members["is_illicit"].sum())
+    return (1 if illicit * 2 > members.height else 0), members.height
+
+
+def score_wallets(
+    run_id: str,
+    *,
+    predictions: pl.DataFrame,
+    boundary_us: int,
+    coverage_target: float,
+    params: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Score BUDDHI's wallet predictions against the run's answer key; write `model_report.json`.
+
+    `run_id` is a run id, never a path: the answer key, the observable tree and the measurements
+    directory are all derived from it, exactly as `score_origin` does it. Returns None when the
+    answer key is absent, because Law 2 rule 6 says inference must complete without it.
+
+    `predictions` carries `subject_id`, `addresses` (list[string]), `risk_score` (float), and the
+    per-class conformal verdicts `in_set_0` and `in_set_1` (bool). The per-class sets, not a
+    thresholded score, are what coverage means here: a class is covered when the true label's
+    column is in the set. Holdout is decided here, from the observable `addresses.parquet`, so a
+    stage cannot select its own evaluation rows.
+    """
+    if not RUN_ID.match(run_id):
+        raise ValueError(f"run_id must match {RUN_ID.pattern}, got {run_id!r}")
+    observable = GENERATED_ROOT / run_id
+    key = GROUND_TRUTH_ROOT / run_id / ENTITIES
+    if not key.is_file():
+        return None
+
+    truth = (
+        pl.read_parquet(key, columns=["is_illicit", "addresses"])
+        .explode("addresses")
+        .rename({"addresses": "address"})
+        .drop_nulls("address")
+        .unique(subset=["address"])
+    )
+
+    first_seen = pl.read_parquet(
+        observable / "normalised" / "addresses.parquet", columns=["address", "first_seen_us"]
+    )
+    truth = truth.join(first_seen, on="address", how="inner")
+    holdout_addresses = set(
+        truth.filter(pl.col("first_seen_us") >= boundary_us)["address"].to_list()
+    )
+
+    rows: list[dict[str, Any]] = []
+    for row in predictions.iter_rows(named=True):
+        members = [a for a in row["addresses"] if a in holdout_addresses]
+        if not members:
+            continue
+        label, _ = _true_label_of_subject(members, truth)
+        rows.append(
+            {
+                "subject_id": row["subject_id"],
+                "risk_score": float(row["risk_score"]),
+                "in_set_0": bool(row["in_set_0"]),
+                "in_set_1": bool(row["in_set_1"]),
+                "abstain": bool(row["abstain"]),
+                "label": label,
+            }
+        )
+    if not rows:
+        return None
+    frame = pl.DataFrame(rows)
+
+    y = frame["label"].to_list()
+    s = frame["risk_score"].to_list()
+    n_illicit = sum(y)
+    n_labelled = len(y)
+
+    # Tie-break on subject_id, so two runs of one seed rank equal scores identically: a metric
+    # whose top-20 depends on dict iteration order is not a measurement.
+    order = sorted(range(n_labelled), key=lambda i: (-s[i], frame["subject_id"][i]))
+    top = order[:20]
+    n_top = len(top)
+    hits = sum(y[i] for i in top)
+    precision_at_20 = hits / n_top if n_top else 0.0
+    total_illicit = n_illicit
+    recall_at_20 = hits / total_illicit if total_illicit else 0.0
+
+    abstain_rate = float(frame["abstain"].mean())  # type: ignore[arg-type]
+
+    coverage: dict[str, float] = {}
+    for k, col in ((0, "in_set_0"), (1, "in_set_1")):
+        mask = frame.filter(pl.col("label") == k)
+        coverage[str(k)] = _round(float(mask[col].mean())) if mask.height else 0.0  # type: ignore[arg-type]
+
+    n_unlabelled = int(
+        predictions.filter(~pl.col("subject_id").is_in(frame["subject_id"].to_list())).height
+    )
+
+    return _write_wallet_report(
+        run_id,
+        y=y,
+        s=s,
+        subject_ids=frame["subject_id"].to_list(),
+        precision_at_20=precision_at_20,
+        recall_at_20=recall_at_20,
+        abstain_rate=abstain_rate,
+        coverage=coverage,
+        n_unlabelled=n_unlabelled,
+        boundary_us=boundary_us,
+        coverage_target=coverage_target,
+        params=params,
+    )
+
+
+def _write_wallet_report(
+    run_id: str,
+    *,
+    y: list[int],
+    s: list[float],
+    subject_ids: list[str],
+    precision_at_20: float,
+    recall_at_20: float,
+    abstain_rate: float,
+    coverage: dict[str, float],
+    n_unlabelled: int,
+    boundary_us: int,
+    coverage_target: float,
+    params: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Assemble and write `model_report.json`, reading the baseline file if one exists.
+
+    Split out from `score_wallets` so the baseline measurement can pass through the same
+    assembly: it is scored here as an ordinary prediction table, its `wallet_model` numbers are
+    written to `baseline_wallet.json` where the model's own report reads them, and the file
+    `score_wallets` writes is restored afterwards — one scoring pass, one report.
+    """
+    n_illicit = sum(y)
+    n_labelled = len(y)
+    baseline_report = MEASUREMENTS_ROOT / run_id / "baseline_wallet.json"
+    baseline = json.loads(baseline_report.read_text()) if baseline_report.is_file() else None
+    baseline_beaten = bool(
+        baseline and precision_at_20 > float(baseline.get("precision_at_20", 0.0))
+    )
+    report: dict[str, Any] = {
+        "run_id": run_id,
+        "metric": "wallet risk, holdout subjects only",
+        "metric_note": (
+            "Every figure below is computed over subjects whose earliest activity is at or after "
+            "the split boundary. A subject's label is the majority is_illicit of its members' "
+            "true owners, ties licit; subjects with no holdout member are excluded. Coverage is "
+            "class-conditional: the fraction of class-k subjects whose class-k conformal flag is "
+            "in the set."
+        ),
+        "split": {
+            "boundary_us": boundary_us,
+            "policy": "subject first activity >= boundary is holdout",
+            "coverage_target": coverage_target,
+        },
+        "wallet_model": {
+            "pr_auc": _round(_auc(y, s, pr=True)),
+            "roc_auc": _round(_auc(y, s, pr=False)),
+            "precision_at_20": _round(precision_at_20),
+            "recall_at_20": _round(recall_at_20),
+            "n_scored": n_labelled,
+            "n_top": min(20, n_labelled),
+            "abstain_rate": _round(abstain_rate),
+        },
+        "coverage_by_class": coverage,
+        "imbalance_ratio": f"1:{max(1, round((n_labelled - n_illicit) / max(1, n_illicit)))}",
+        "baseline": baseline,
+        "baseline_beaten": baseline_beaten,
+        "n_subjects_excluded_unlabelled": n_unlabelled,
+        "params": dict(sorted(params.items())),
+    }
+    out = MEASUREMENTS_ROOT / run_id
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "model_report.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return report
+
+
+def write_baseline_wallet(
+    run_id: str,
+    *,
+    predictions: pl.DataFrame,
+    boundary_us: int,
+    params: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Score the trivial baseline and file its bar at `measurements/<run>/baseline_wallet.json`.
+
+    The baseline is scored through the same `score_wallets` arithmetic the model is, so the two
+    numbers on the slide are comparable by construction rather than by trust. Its report is
+    written to `baseline_wallet.json` — the file `score_wallets` reads `baseline_beaten` from —
+    and `model_report.json`, which that pass overwrote, is restored to its previous content so
+    a baseline measurement never replaces a model report.
+    """
+    model_report = MEASUREMENTS_ROOT / run_id / "model_report.json"
+    saved = model_report.read_text(encoding="utf-8") if model_report.is_file() else None
+    report = score_wallets(
+        run_id,
+        predictions=predictions,
+        boundary_us=boundary_us,
+        coverage_target=0.0,
+        params=params,
+    )
+    if report is None:
+        return None
+    (MEASUREMENTS_ROOT / run_id / "baseline_wallet.json").write_text(
+        json.dumps(
+            {
+                "rule": params.get("rule", "rank_by_total_value_received"),
+                "precision_at_20": report["wallet_model"]["precision_at_20"],
+                "recall_at_20": report["wallet_model"]["recall_at_20"],
+                "n_scored": report["wallet_model"]["n_scored"],
+                "split": report["split"],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    if saved is not None:
+        model_report.write_text(saved, encoding="utf-8")
+    return report

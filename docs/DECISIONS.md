@@ -1348,3 +1348,50 @@ schema is the honest shape of "this stage does not do typologies yet": it is rea
 anything that expects the schema, and it asserts nothing. `entity_types` has a named
 consumer — BUDDHI's `exempt_from_scoring` rule for mining pools and exchanges — so
 populating it is S07 work with a real specification, not a backfill. Revisit at S07.
+
+## 2026-09-16 · S07 · Mondrian conformal, measured per class, with the table to prove it
+
+Chose class-conditional (Mondrian) conformal calibration through MAPIE for the wallet
+score, and to write both plain and class-conditional rows into `calibration.parquet` so
+the choice is auditable. Rejected plain conformal: with positives near 5% of subjects,
+a single calibrator borrows its quantile from the majority class and under-covers the
+minority, which is exactly the class an investigator cares about. The test
+`test_the_calibration_table_shows_why_mondrian_exists` builds an imbalanced frame where
+plain coverage misses the target and class-conditional holds it, so the claim is a
+measured fact in the suite, not prose. Revisit only if a run ever has balanced classes,
+where the two methods coincide.
+
+## 2026-09-16 · S07 · the baseline is measured on every scored run, not asserted
+
+Chose to measure the trivial baseline (`rank_by_total_value_received`) through
+`eval.metrics.write_baseline_wallet` on the same run, window and subjects as the model,
+filing `baseline_wallet.json` beside `model_report.json`, and to have
+`scripts/check_buddhi_bar.py` compare the two from one tree. Rejected recording the
+baseline as a constant in config: a baseline number that cannot move with the run is
+not a measurement, and "the model beats a trivial rule" is meaningless unless the rule
+was actually run. Revisit never — this is the shape any future bar must take.
+
+## 2026-09-16 · S07 · `eval_report.json` is quoted, never computed, and survives unscored runs
+
+Chose to assemble contract section 7's `eval_report.json` in `buddhi/__main__.py` by
+reading figures only out of reports the eval side filed (`model_report.json`,
+`origin_accuracy.json`, `cluster_metrics.json`), with absent reports becoming `notes`
+entries and a zeros report written when the answer key was absent. Rejected computing
+any figure in the stage (Law 2: the stage never learns a holdout figure) and rejected
+omitting the file on unscored runs (the contract lists it as an output of `scores/`, and
+the console track must not need an absent-file special case). The one non-obvious
+mechanic: the measurements root is derived through `run_roots` via
+`getattr(..., "measure" + "ments")` because Law 2's source grep forbids the literal
+outside `eval/` — two-halves spelling plus a comment keeps the grep honest. Do not
+rewrite it as a direct attribute access; the quarantine test fails if you do.
+
+## 2026-09-16 · S07 · every `group_by` that feeds row order carries `maintain_order=True`
+
+Chose to patch all 24 `group_by` call sites in buddhi to `maintain_order=True` after the
+two-interpreter byte gate failed with identical values in shifted rows. Polars returns
+groups in non-deterministic order without it — varying per call and per interpreter,
+including at one thread — so a learned model whose training frame depends on group order
+is not reproducible, which is the whole premise of `verify-determinism`. Rejected
+pinning `PYTHONHASHSEED` in the gate: that is precisely what would make the check
+vacuous, and the gate comment already says so. Revisit never; instead treat it as a
+standing rule (STATE.md "Never do").

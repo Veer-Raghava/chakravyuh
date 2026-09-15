@@ -69,18 +69,44 @@ def differences(left: Path, right: Path) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     args = sys.argv[1:] if argv is None else argv
+    except_names: list[str] = []
+    if args and args[0] == "--except":
+        except_names, args = args[1].split(","), args[2:]
     if len(args) != 2:
-        print("usage: compare_runs.py <tree-a> <tree-b>", file=sys.stderr)
+        print("usage: compare_runs.py [--except file,file] <tree-a> <tree-b>", file=sys.stderr)
         return 2
     left, right = Path(args[0]), Path(args[1])
     for root in (left, right):
         if not root.is_dir():
             print(f"compare_runs: {root} is not a directory", file=sys.stderr)
             return 2
-    found = differences(left, right)
+    skipped = [
+        f"except {name}"
+        for name in except_names
+        if (left / name).is_file() or (right / name).is_file()
+    ]
+    found = [line for line in differences(left, right) if _name_of(line) not in except_names]
+    for line in skipped:
+        print(f"  {line}", file=sys.stderr)
     for line in found:
         print(f"  {line}", file=sys.stderr)
     return 1 if found else 0
+
+
+def _name_of(line: str) -> str:
+    """The file name a difference line names, for `--except` filtering.
+
+    Difference lines come in two shapes: `only in <dir>: <name>` and
+    `<name>: differs...`. The colon split cannot tell them apart, so an
+    "only in" line is taken by its last whitespace token instead.
+    """
+    if line.startswith("only in "):
+        return line.rsplit(" ", 1)[-1]
+    for token in line.split(":"):
+        token = token.strip()
+        if "/" in token or token.endswith(".json") or token.endswith(".parquet"):
+            return token.rsplit("/", 1)[-1]
+    return ""
 
 
 if __name__ == "__main__":
