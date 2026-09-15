@@ -62,7 +62,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 16
+QUARANTINE_MIN := 18
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -412,12 +412,12 @@ sweep-observer-fraction: guard-uv
 	@echo "sweep-observer-fraction: curve written to measurements/_sweep/origin_curve.md"
 
 verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
-        verify-s07 verify-s08
-	@echo "verify: S00 through S08. Later stages append themselves as they land."
+        verify-s07 verify-s08 verify-s09
+	@echo "verify: S00 through S09. Later stages append themselves as they land."
 
-# One rule for the three unbuilt stages. The brief path is globbed rather than
+# One rule for the two unbuilt stages. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s09 verify-s10 verify-s11:
+verify-s10 verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \
 	 echo "FAIL $@: stage S$$n is not implemented yet."; \
@@ -529,6 +529,84 @@ verify-s08: guard-uv verify-quarantine
 	@rm -rf $(S08_A) $(S08_T) $(S08_M) $(S08_B)
 	@echo "verify-s08: alerts, evidence, mandatory counter-evidence, truncation and determinism OK."
 
+# PRAMAAN's gate. Lint, contract tests, one full run packeted, and the two properties the
+# stage exists to prove: the signature proves authorship, the replay proves reproducibility.
+# The packet job runs twice over the same run; the packets/ trees are byte-compared, which
+# covers packet.json, both PDFs and the signature. Ed25519 signing is deterministic, so one
+# key pair across the two processes is exactly the point. The Merkle log is append-only, so
+# the second pass appends rather than replaces; its head will differ, and the comparison
+# excludes the logs on purpose. The replay check then runs against the first pass's log.
+S09_RUN := _verify-s09
+S09_A := data/generated/$(S09_RUN)
+S09_T := ground_truth/$(S09_RUN)
+S09_M := measurements/$(S09_RUN)
+S09_ARGS := $(S07_ARGS)
+S09_SETS := $(S07_SETS)
+
+verify-s09: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_pramaan.py
+	@rm -rf $(S09_A) $(S09_T) $(S09_M)
+	uv run python -m chakravyuh.mayajaal $(S09_ARGS) $(S09_SETS) --out $(S09_A)
+	uv run python -m chakravyuh.kavach --in $(S09_A)/capture --out $(S09_A)
+	uv run python -m chakravyuh.setu --in $(S09_A)/sealed --out $(S09_A)
+	uv run python -m chakravyuh.jaal --in $(S09_A)/normalised --out $(S09_A)
+	uv run python -m chakravyuh.shastra --in $(S09_A)/normalised --out $(S09_A) --score
+	uv run python -m chakravyuh.buddhi --in $(S09_A) --out $(S09_A) --score
+	uv run python -m chakravyuh.vaani --in $(S09_A) --out $(S09_A)
+	@# Packet the run, snapshot the packets tree, packet again in a second process.
+	@# Ed25519 signing is deterministic, so one key pair across the two passes is the point;
+	@# the Merkle log is reset between passes so the case-local copies compare equal too.
+	case_id=$$(uv run python -c \
+	  "import polars as pl; print(pl.read_parquet('$(S09_A)/alerts/alerts.parquet', columns=['alert_id'])['alert_id'][0])"); \
+	uv run python -m chakravyuh.pramaan --in $(S09_A) --out $(S09_A) --case $$case_id && \
+	mv $(S09_A)/packets $(S09_A)/packets.expected && \
+	uv run python -m chakravyuh.pramaan --in $(S09_A) --out $(S09_A) --case $$case_id || \
+	  { echo "FAIL verify-s09: the second packeting failed."; exit 1; }; \
+	for f in packet.json packet.pdf notice.pdf packet.sig; do \
+	   cmp -s "$(S09_A)/packets.expected/$$case_id/$$f" "$(S09_A)/packets/$$case_id/$$f" \
+	     || { echo "FAIL verify-s09: $$f differs between two packetings of one run."; exit 1; }; \
+	 done
+	@echo "verify-s09: two packetings of one run produced identical bytes."
+	@$(PY) scripts/check_stage.py $(S09_A)/packets \
+	  || { echo "FAIL verify-s09: packets/ does not satisfy contract section 10."; exit 1; }
+	@# The staleness link, made to fail on purpose: touch alerts/_meta.json, which is the
+	@# upstream PRAMAAN recorded, and check_stage must refuse.
+	@printf '\n' >> $(S09_A)/alerts/_meta.json
+	@if $(PY) scripts/check_stage.py $(S09_A)/packets >/dev/null 2>&1; then \
+	  echo "FAIL verify-s09: the upstream meta changed and the staleness check passed anyway."; \
+	  exit 1; \
+	fi
+	@echo "verify-s09: staleness is detected when alerts/_meta.json moves."
+	@# Restore the file the staleness break appended to, so the replay below rebuilds the
+	@# packet against the bytes the custody chain recorded.
+	@sed -i '$$d' $(S09_A)/alerts/_meta.json
+	@# Signature and replay, against the first pass's artifacts.
+	@case_id=$$(ls $(S09_A)/packets | grep -v merkle | grep -v _meta | head -1); \
+	 uv run python -m chakravyuh.pramaan --in $(S09_A) --out $(S09_A) --case $$case_id --verify-replay \
+	   || { echo "FAIL verify-s09: replay did not verify."; exit 1; }
+	@rm -rf $(S09_A) $(S09_T) $(S09_M)
+	@echo "verify-s09: packets, signature, replay, custody and staleness OK."
+
+verify-replay: guard-uv
+	@rm -rf data/generated/_pramaan-replay
+	uv run python -m chakravyuh.mayajaal $(S09_ARGS) $(S09_SETS) --out data/generated/_pramaan-replay
+	uv run python -m chakravyuh.kavach --in data/generated/_pramaan-replay/capture --out data/generated/_pramaan-replay
+	uv run python -m chakravyuh.setu --in data/generated/_pramaan-replay/sealed --out data/generated/_pramaan-replay
+	uv run python -m chakravyuh.jaal --in data/generated/_pramaan-replay/normalised --out data/generated/_pramaan-replay
+	uv run python -m chakravyuh.shastra --in data/generated/_pramaan-replay/normalised --out data/generated/_pramaan-replay --score
+	uv run python -m chakravyuh.buddhi --in data/generated/_pramaan-replay --out data/generated/_pramaan-replay --score
+	uv run python -m chakravyuh.vaani --in data/generated/_pramaan-replay --out data/generated/_pramaan-replay
+	@case_id=$$(uv run python -c \
+	  "import polars as pl; print(pl.read_parquet('data/generated/_pramaan-replay/alerts/alerts.parquet', columns=['alert_id'])['alert_id'][0])"); \
+	 uv run python -m chakravyuh.pramaan --in data/generated/_pramaan-replay --out data/generated/_pramaan-replay --case $$case_id && \
+	 uv run python -m chakravyuh.pramaan --in data/generated/_pramaan-replay --out data/generated/_pramaan-replay --case $$case_id --verify-replay \
+	   || { echo "FAIL verify-replay: the regenerated packet is not byte-identical."; exit 1; }
+	@rm -rf data/generated/_pramaan-replay
+	@echo "verify-replay: the packet regenerated from sealed inputs is byte-identical."
+
 # The same seed twice, in two interpreters, compared across all three trees. The
 # measurements tree is compared too: a report is a number we will publish, and a number
 # that moves between runs of the same seed is not a measurement.
@@ -548,11 +626,6 @@ verify-determinism: guard-uv
 	  || { echo "FAIL verify-determinism: two runs with one seed measured differently."; exit 1; }
 	@rm -rf $(S02_A) $(S02_B) $(S02_TA) $(S02_TB) $(S02_MA) $(S02_MB)
 	@echo "verify-determinism: observable, ground truth and measurements all reproduced."
-
-verify-replay:
-	@echo "FAIL verify-replay: needs a signed packet to replay. Arrives with S09."
-	@echo "  Brief: docs/stages/S09-pramaan.md"
-	@exit 1
 
 # RUN is a run id, never a path, because the answer key and the measurements directory are
 # derived from it. There is deliberately no flag anywhere that could point validation at a

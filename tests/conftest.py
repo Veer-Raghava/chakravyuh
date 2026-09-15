@@ -47,6 +47,10 @@ QUARANTINE: dict[str, tuple[str, ...]] = {
         "test_vaani_builds_with_the_answer_key_absent",
         "test_no_alerts_artifact_names_the_quarantine",
     ),
+    "test_pramaan": (
+        "test_pramaan_builds_with_the_answer_key_absent",
+        "test_no_packets_artifact_names_the_quarantine",
+    ),
 }
 
 

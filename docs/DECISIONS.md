@@ -1431,3 +1431,41 @@ rejected weakening the raise into a warning. The guarantee is load-bearing: ever
 counter kind the stage emits is a computed doubt, and `build()` still fails the run if
 an alert somehow ends with none. Revisit if a future world genuinely reaches mass 1.0
 on a subject with no other doubt; the `build()` guard will say so loudly.
+
+## 2026-09-16 · S09 · hand-written Ed25519 and a hand-written PDF writer
+
+Chose pure-Python Ed25519 (`pramaan/ed25519.py`) and a minimal deterministic PDF 1.4
+writer (`pramaan/pdflib.py`) over blocking the stage on dependency installation, which
+the sandbox forbids (open problem 3: uv cannot re-resolve, pypi.org denied). Both are
+narrow: Ed25519 is RFC 8032 to the byte and tested against the RFC's own five vectors;
+the PDF writer emits uncompressed literal text streams with base fonts, which is also
+what makes the identifier-grep test over the PDFs meaningful — the text is greppable
+because it is not compressed. Rejected vendoring a library fetched by hand: anything
+external must be deliberately fetched, and a crypto dependency slipped in sideways
+defeats the review it deserves. Revisit when dependencies become installable — replace
+both deliberately, never by drive-by, and keep the byte-format tests (RFC vectors,
+`render()` determinism) as the acceptance bar.
+
+## 2026-09-16 · S09 · replay digest computed over the packet with the field blanked
+
+Chose to define `replay.expected_packet_sha256` as the SHA-256 of the canonical packet
+serialisation with that one field blank, so a second analyst verifies it by the same
+rule without solving a self-reference, and made `verify_replay` also byte-compare a
+full rebuild from the sealed inputs — the digest is the portable claim, the byte
+compare is the proof. Rejected a hash-of-everything-except-the-hash notation (same
+thing, more words) and rejected dropping the digest for the byte compare alone: the
+digest travels in the packet and can be checked without this codebase. Revisit only if
+the canonical serialisation rule ever changes — the blanking rule is welded to it.
+
+## 2026-09-16 · S09 · derived timestamps and snapshot case logs
+
+Chose to derive `packet.generated_at_us` from `alerts/_meta.json`'s `finished_at_us`
+(the pipeline's own stamp) instead of a wall clock, so the same run packeted twice is
+byte-identical — this is what makes the gate's two-process compare and `--verify-replay`
+possible at all. For the case-local `merkle.log` that section 9's directory listing
+names, chose a snapshot copy of the shared append-only log over a per-case one-line
+file: the shared log is the authoritative chain, the copy reads as the history an
+investigator sees at case-open time. Rejected a wall clock on the packet ("generated
+when the packet was written") — it would make replay false, and a replay claim that
+cannot hold comes out of the packet. Revisit the log layout only if a real case
+management workflow needs per-case chains that diverge from the shared one.
