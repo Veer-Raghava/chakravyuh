@@ -1,43 +1,50 @@
 import { useEffect, useState } from "react";
-import { adapter, type Manifest } from "./adapter";
+import { adapter, type Manifest, type RunSummary } from "./adapter";
 import { SCREENS } from "./screens";
-import { StatusBar } from "./components/StatusBar";
-import { Rail } from "./components/Rail";
-import { CommandLine, type LastCall } from "./components/CommandLine";
-import { Panel } from "./components/Panel";
+import { Rail, type LampState } from "./components/Rail";
 import { Lineage } from "./routes/Lineage";
 import { Origin } from "./routes/Origin";
 import { Graph } from "./routes/Graph";
+import { Queue } from "./routes/Queue";
+import { Packet } from "./routes/Packet";
+import { Intake } from "./routes/Intake";
+import { Collapse } from "./routes/Collapse";
+import { Data } from "./routes/Data";
 import styles from "./App.module.css";
 
 export function App() {
-  const [manifest, setManifest] = useState<Manifest | null>(null);
   const [activeKey, setActiveKey] = useState("1");
-  const [last, setLast] = useState<LastCall | null>(null);
-  const [inspectorOpen, setInspectorOpen] = useState(true);
+  const [manifest, setManifest] = useState<Manifest | null>(null);
+  const [runs, setRuns] = useState<RunSummary[]>([]);
+  const [activeRunId, setActiveRunId] = useState("");
 
-  // On load the StatusBar's values come from one real adapter call, timed so the
-  // CommandLine can show an honest latency rather than a decorative spinner.
   useEffect(() => {
-    const t0 = performance.now();
     adapter.getManifest().then((m) => {
       setManifest(m);
-      setLast({ label: "getManifest", ms: Math.round(performance.now() - t0) });
+      setActiveRunId((cur) => cur || m.run_id);
+    });
+    adapter.listRuns().then((rs) => {
+      setRuns(rs);
+      setActiveRunId((cur) => cur || rs.find((r) => r.active)?.run_id || rs[0]?.run_id || "");
     });
   }, []);
+
+  const switchRun = (runId: string) => {
+    setActiveRunId(runId);
+    adapter.setActiveRun(runId).then(setManifest);
+  };
+
+  // Lamp states for the rail's L0–L6 strip, straight from the manifest's completed flags.
+  const lampStates: Record<string, LampState> = {};
+  for (const s of manifest?.stages ?? []) lampStates[s.id] = s.complete ? "ok" : "pending";
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
-      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
-      // LINEAGE owns the keyboard (1–8 stages, arrows, enter/space); Rail click navigates away.
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT")) return;
+      // LINEAGE owns the keyboard (1–8 stages, arrows, enter/space); a Rail click navigates away.
       if (activeKey === "7") return;
-      if (e.key >= "1" && e.key <= "7") {
-        setActiveKey(e.key);
-        setInspectorOpen(true);
-      } else if (e.key === "Escape") {
-        setInspectorOpen(false);
-      }
+      if (e.key >= "1" && e.key <= "8") setActiveKey(e.key);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -45,79 +52,30 @@ export function App() {
 
   const active = SCREENS.find((s) => s.key === activeKey) ?? SCREENS[0];
 
-  // Screen 7 is a complete page that owns its own StatusBar + CommandLine, so the shell
-  // renders only the Rail beside it — no doubled chrome. Screens 1–6 are still the
-  // placeholder frame until their Track B surfaces land.
-  // Screen 3 (ORIGIN) is a full page like LINEAGE: the fan needs the room to be the hero
-  // and owns its own keyboard (j/k move, Space reveals). It carries its own StatusBar +
-  // CommandLine, so the shell renders only the Rail beside it.
-  if (active.id === "ORIGIN") {
-    return (
-      <div className={styles.lineageFrame}>
-        <div className={styles.rail}>
-          <Rail screens={SCREENS} activeKey={activeKey} onSelect={setActiveKey} />
-        </div>
-        <div className={styles.lineageStage}>
-          <Origin />
-        </div>
-      </div>
-    );
-  }
-
-  if (active.id === "GRAPH") {
-    return (
-      <div className={styles.lineageFrame}>
-        <div className={styles.rail}>
-          <Rail screens={SCREENS} activeKey={activeKey} onSelect={setActiveKey} />
-        </div>
-        <div className={styles.lineageStage}>
-          <Graph />
-        </div>
-      </div>
-    );
-  }
-
-  if (active.id === "LINEAGE") {    return (
-      <div className={styles.lineageFrame}>
-        <div className={styles.rail}>
-          <Rail screens={SCREENS} activeKey={activeKey} onSelect={setActiveKey} />
-        </div>
-        <div className={styles.lineageStage}>
-          <Lineage />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.frame}>
-      <div className={styles.status}>
-        <StatusBar manifest={manifest} />
-      </div>
-
+    <div className={styles.appFrame}>
       <div className={styles.rail}>
-        <Rail screens={SCREENS} activeKey={activeKey} onSelect={setActiveKey} />
+        <Rail
+          screens={SCREENS}
+          activeKey={activeKey}
+          onSelect={setActiveKey}
+          runs={runs}
+          activeRunId={activeRunId}
+          airGapped={manifest?.air_gapped ?? true}
+          lampStages={manifest?.stages ?? []}
+          lampStates={lampStates}
+          onSwitchRun={switchRun}
+        />
       </div>
-
       <div className={styles.stage}>
-        <Panel title={active.id} right={<span className={`${styles.screenKey} mono`}>{active.key}</span>}>
-          <p className={styles.verdict}>{active.verdict}</p>
-          <p className={styles.note}>Working surface renders in a later Track B session.</p>
-        </Panel>
-      </div>
-
-      <div className={styles.inspector} data-open={inspectorOpen}>
-        <Panel title="inspector">
-          {inspectorOpen ? (
-            <p className={styles.empty}>Select an object to see its evidence and counter-evidence.</p>
-          ) : (
-            <p className={styles.empty}>Closed. Press a screen key to reopen.</p>
-          )}
-        </Panel>
-      </div>
-
-      <div className={styles.command}>
-        <CommandLine last={last} />
+        {active.id === "INTAKE" && <Intake />}
+        {active.id === "COLLAPSE" && <Collapse />}
+        {active.id === "ORIGIN" && <Origin />}
+        {active.id === "GRAPH" && <Graph />}
+        {active.id === "QUEUE" && <Queue onNavigate={setActiveKey} />}
+        {active.id === "PACKET" && <Packet />}
+        {active.id === "LINEAGE" && <Lineage />}
+        {active.id === "DATA" && <Data />}
       </div>
     </div>
   );

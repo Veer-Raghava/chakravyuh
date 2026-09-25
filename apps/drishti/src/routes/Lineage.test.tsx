@@ -25,7 +25,7 @@ describe("getLineage — the per-record trace", () => {
   });
 
   it("SETU carries the canonical src_ip -> peer_ip rename", async () => {
-    const trace = await adapter.getLineage("4f2a9c3e…b19d");
+    const trace = await adapter.getLineage("4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d");
     const setu = trace.stages.find((s) => s.stage === "SETU")!;
     const rename = setu.after.find((f) => f.status === "renamed" && f.name === "peer_ip");
     expect(rename).toBeDefined();
@@ -33,7 +33,7 @@ describe("getLineage — the per-record trace", () => {
   });
 
   it("the grain-split mean is computed from data, not the hardcoded 9", async () => {
-    const trace = await adapter.getLineage("4f2a9c3e…b19d");
+    const trace = await adapter.getLineage("4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d");
     const { n_announcements, n_transactions } = trace.setu.collapse;
     const mean = n_announcements / n_transactions;
     // ~9, but not exactly 9 — a future run that lands at seven would show seven.
@@ -42,7 +42,7 @@ describe("getLineage — the per-record trace", () => {
   });
 
   it("PRAMAAN carries the Merkle head in full (64 hex), not truncated", async () => {
-    const trace = await adapter.getLineage("4f2a9c3e…b19d");
+    const trace = await adapter.getLineage("4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d");
     expect(trace.merkle_head).toMatch(/^[0-9a-f]{64}$/);
   });
 });

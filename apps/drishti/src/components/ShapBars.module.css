@@ -1,0 +1,97 @@
+/* WHY — diverging SHAP bars. Cool = argues down, signal = argues up, split on a centre
+   axis. Muted fills, hairlines, no shadow: the shape carries the meaning, not contrast. */
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.axisLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.axisCool { color: var(--cool); }
+.axisSignal { color: var(--signal); }
+
+.rows {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+/* the axis the bars diverge from — one hairline down the middle */
+.centre {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-hi);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 40% auto;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 22px;
+}
+
+.feature {
+  font-size: var(--fs-small);
+  line-height: 1.35;
+  color: var(--ink-dim);
+}
+
+.track {
+  position: relative;
+  height: 10px;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--radius);
+  background: var(--cool);
+  opacity: 0.5;
+}
+.bar[data-pos] {
+  background: var(--signal);
+  opacity: 0.55;
+}
+
+.value {
+  font-size: var(--fs-small);
+  color: var(--cool);
+  text-align: right;
+  min-width: 5ch;
+}
+.value[data-pos] { color: var(--signal); }
+
+.base {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  padding-top: var(--s3);
+  border-top: var(--hair);
+}
+.baseLabel {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.baseValue {
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+.baseGloss {
+  font-size: var(--fs-micro);
+  color: var(--ink-faint);
+}

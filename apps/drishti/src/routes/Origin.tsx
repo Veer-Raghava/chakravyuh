@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { adapter, type Manifest, type OriginEstimate, type TransactionRow } from "../adapter";
-import { StatusBar } from "../components/StatusBar";
+import { adapter, type OriginEstimate, type TransactionRow } from "../adapter";
 import { CommandLine, type LastCall } from "../components/CommandLine";
 import { Fan } from "../components/Fan";
 import { MetricReadout } from "../components/MetricReadout";
@@ -28,7 +27,6 @@ interface Case {
 }
 
 export function Origin() {
-  const [manifest, setManifest] = useState<Manifest | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
   const [selected, setSelected] = useState(0);
   const [estimate, setEstimate] = useState<OriginEstimate | null>(null);
@@ -39,7 +37,6 @@ export function Origin() {
   // for each txid's estimate and keep only the ones the adapter answered for (est.txid ===
   // txid), so a transaction with no estimate never shows a borrowed fan.
   useEffect(() => {
-    adapter.getManifest().then(setManifest);
     adapter.listTransactions().then(async (txs) => {
       const qualified: Case[] = [];
       for (const tx of txs) {
@@ -93,7 +90,6 @@ export function Origin() {
   if (!estimate || !current) {
     return (
       <div className={styles.page}>
-        <StatusBar manifest={manifest} />
         <div className={styles.loading}>loading origin estimate…</div>
         <CommandLine last={last} />
       </div>
@@ -105,8 +101,6 @@ export function Origin() {
 
   return (
     <div className={styles.page}>
-      <StatusBar manifest={manifest} />
-
       <div className={styles.head}>
         <span className={styles.crumb}>
           DRISHTI · /_origin · <span className="mono">{estimate.txid}</span>

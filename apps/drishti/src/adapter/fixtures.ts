@@ -4,8 +4,10 @@
  * data/fixtures/ui/*.json lands after S04 each constant is replaced by a JSON import
  * and nothing else in the app changes.
  *
- * All identifiers here are already redacted (ip 103.x.x.x, address bc1q..first6..last4,
- * txid first8..last4). SHA-256 and Merkle roots are carried in full on purpose.
+ * Every identifier here is carried IN FULL — full IPs, full Bitcoin addresses, full
+ * txids — because this workstation shows an investigator exactly what goes on the notice.
+ * SHA-256, the Merkle root and the Ed25519 signature are cryptographic evidence and are
+ * likewise carried in full.
  *
  * Deliberately includes the awkward cases the contract demands: a coinbase tx, a
  * single-peer tx, a >15-peer tx, a Tor-broadcast tx that abstains, a CGNAT pair sharing
@@ -18,12 +20,16 @@ import type {
   CollapseStats,
   FieldStatus,
   GraphData,
+  LaunchEvent,
   LineageField,
   LineageRecord,
+  LineageStageName,
   LineageTrace,
   Manifest,
   OriginEstimate,
   Packet,
+  RunSummary,
+  SealedRow,
   TransactionRow,
 } from "./types";
 
@@ -74,10 +80,10 @@ export const COLLAPSE_STATS: CollapseStats = {
   ],
 };
 
-// keyed by redacted txid; the two entries are the confident case and the Tor abstain case.
+// keyed by full txid; the two entries are the confident case and the Tor abstain case.
 export const ORIGIN_ESTIMATES: Record<string, OriginEstimate> = {
-  "4f2a9c3e…b19d": {
-    txid: "4f2a9c3e…b19d",
+  "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d": {
+    txid: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d",
     estimator: "ensemble",
     window_ms: 12_000,
     abstain: false,
@@ -103,35 +109,35 @@ export const ORIGIN_ESTIMATES: Record<string, OriginEstimate> = {
     ],
     lanes: [
       {
-        peer_ip: "103.x.x.x", peer_port: 8333, asn: 9829, as_org: "BSNL", geo_country: "IN",
+        peer_ip: "103.21.244.17", peer_port: 8333, asn: 9829, as_org: "BSNL", geo_country: "IN",
         net_class: "residential", first_seen_us: 0, announce_times_ms: [0, 118, 402],
         p_origin: 0.87, rank: 1,
       },
       {
-        peer_ip: "185.x.x.x", peer_port: 8333, asn: 24940, as_org: "Hetzner", geo_country: "DE",
+        peer_ip: "185.220.101.47", peer_port: 8333, asn: 24940, as_org: "Hetzner", geo_country: "DE",
         net_class: "hosting", first_seen_us: 940_000, announce_times_ms: [940, 1_320],
         p_origin: 0.06, rank: 2,
       },
       // CGNAT pair: one public IP, two ports, ranked separately.
       {
-        peer_ip: "198.51.x.x", peer_port: 51_820, asn: 55836, as_org: "Reliance Jio",
+        peer_ip: "198.51.100.23", peer_port: 51_820, asn: 55836, as_org: "Reliance Jio",
         geo_country: "IN", net_class: "mobile", first_seen_us: 2_110_000,
         announce_times_ms: [2_110, 3_004], p_origin: 0.03, rank: 3,
       },
       {
-        peer_ip: "198.51.x.x", peer_port: 51_944, asn: 55836, as_org: "Reliance Jio",
+        peer_ip: "198.51.100.23", peer_port: 51_944, asn: 55836, as_org: "Reliance Jio",
         geo_country: "IN", net_class: "mobile", first_seen_us: 3_540_000,
         announce_times_ms: [3_540], p_origin: 0.02, rank: 4,
       },
       {
-        peer_ip: "45.x.x.x", peer_port: 8333, asn: 14061, as_org: "DigitalOcean",
+        peer_ip: "45.79.132.8", peer_port: 8333, asn: 14061, as_org: "DigitalOcean",
         geo_country: "US", net_class: "hosting", first_seen_us: 5_220_000,
         announce_times_ms: [5_220, 7_880], p_origin: 0.01, rank: 5,
       },
     ],
   },
-  "e7c4a018…9f4d": {
-    txid: "e7c4a018…9f4d",
+  "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d": {
+    txid: "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d",
     estimator: "ensemble",
     window_ms: 12_000,
     abstain: true,
@@ -145,12 +151,12 @@ export const ORIGIN_ESTIMATES: Record<string, OriginEstimate> = {
     ],
     lanes: [
       {
-        peer_ip: "104.x.x.x", peer_port: 8333, asn: 60729, as_org: "Tor Exit",
+        peer_ip: "104.244.76.13", peer_port: 8333, asn: 60729, as_org: "Tor Exit",
         geo_country: "NL", net_class: "tor_exit", first_seen_us: 0,
         announce_times_ms: [0, 470], p_origin: 0, rank: 0,
       },
       {
-        peer_ip: "171.x.x.x", peer_port: 8333, asn: 9808, as_org: "China Mobile",
+        peer_ip: "171.8.200.55", peer_port: 8333, asn: 9808, as_org: "China Mobile",
         geo_country: "CN", net_class: "unknown", first_seen_us: 510_000,
         announce_times_ms: [510], p_origin: 0, rank: 0,
       },
@@ -158,8 +164,8 @@ export const ORIGIN_ESTIMATES: Record<string, OriginEstimate> = {
   },
   // A second confident case, nine lanes — the "typical" fan the spec describes. Lower
   // margin than 4f2a, so the bracket between first and second reads as a real, smaller gap.
-  "c39f1d5a…4e88": {
-    txid: "c39f1d5a…4e88",
+  "c39f1d5a082b823ff7ad04b1a5af5f309bdc0b0a4653ec88de37ae74ed824e88": {
+    txid: "c39f1d5a082b823ff7ad04b1a5af5f309bdc0b0a4653ec88de37ae74ed824e88",
     estimator: "ensemble",
     window_ms: 12_000,
     abstain: false,
@@ -172,15 +178,15 @@ export const ORIGIN_ESTIMATES: Record<string, OriginEstimate> = {
       { label: "OBSERVER COVERAGE", value: "6 of 16", gloss: "ten of our listeners never saw it, which is itself information" },
     ],
     lanes: [
-      { peer_ip: "49.x.x.x", peer_port: 8333, asn: 45609, as_org: "Bharti Airtel", geo_country: "IN", net_class: "residential", first_seen_us: 0, announce_times_ms: [0, 214, 628], p_origin: 0.79, rank: 1 },
-      { peer_ip: "162.x.x.x", peer_port: 8333, asn: 63949, as_org: "Akamai Linode", geo_country: "US", net_class: "hosting", first_seen_us: 1_260_000, announce_times_ms: [1_260, 1_902], p_origin: 0.09, rank: 2 },
-      { peer_ip: "88.x.x.x", peer_port: 8333, asn: 24940, as_org: "Hetzner", geo_country: "DE", net_class: "hosting", first_seen_us: 2_540_000, announce_times_ms: [2_540, 3_310], p_origin: 0.04, rank: 3 },
-      { peer_ip: "116.x.x.x", peer_port: 8333, asn: 4713, as_org: "NTT", geo_country: "JP", net_class: "residential", first_seen_us: 3_980_000, announce_times_ms: [3_980], p_origin: 0.03, rank: 4 },
-      { peer_ip: "51.x.x.x", peer_port: 8333, asn: 16276, as_org: "OVH", geo_country: "FR", net_class: "hosting", first_seen_us: 5_410_000, announce_times_ms: [5_410, 6_120], p_origin: 0.02, rank: 5 },
-      { peer_ip: "203.x.x.x", peer_port: 8333, asn: 7545, as_org: "TPG", geo_country: "AU", net_class: "residential", first_seen_us: 6_870_000, announce_times_ms: [6_870], p_origin: 0.01, rank: 6 },
-      { peer_ip: "77.x.x.x", peer_port: 8333, asn: 12389, as_org: "Rostelecom", geo_country: "RU", net_class: "residential", first_seen_us: 8_240_000, announce_times_ms: [8_240], p_origin: 0.01, rank: 7 },
-      { peer_ip: "197.x.x.x", peer_port: 8333, asn: 36992, as_org: "Etisalat", geo_country: "EG", net_class: "mobile", first_seen_us: 9_710_000, announce_times_ms: [9_710], p_origin: 0.005, rank: 8 },
-      { peer_ip: "190.x.x.x", peer_port: 8333, asn: 27699, as_org: "Telefonica", geo_country: "BR", net_class: "residential", first_seen_us: 11_020_000, announce_times_ms: [11_020], p_origin: 0.005, rank: 9 },
+      { peer_ip: "49.36.210.94", peer_port: 8333, asn: 45609, as_org: "Bharti Airtel", geo_country: "IN", net_class: "residential", first_seen_us: 0, announce_times_ms: [0, 214, 628], p_origin: 0.79, rank: 1 },
+      { peer_ip: "162.213.199.5", peer_port: 8333, asn: 63949, as_org: "Akamai Linode", geo_country: "US", net_class: "hosting", first_seen_us: 1_260_000, announce_times_ms: [1_260, 1_902], p_origin: 0.09, rank: 2 },
+      { peer_ip: "88.198.44.21", peer_port: 8333, asn: 24940, as_org: "Hetzner", geo_country: "DE", net_class: "hosting", first_seen_us: 2_540_000, announce_times_ms: [2_540, 3_310], p_origin: 0.04, rank: 3 },
+      { peer_ip: "116.50.72.19", peer_port: 8333, asn: 4713, as_org: "NTT", geo_country: "JP", net_class: "residential", first_seen_us: 3_980_000, announce_times_ms: [3_980], p_origin: 0.03, rank: 4 },
+      { peer_ip: "51.15.88.203", peer_port: 8333, asn: 16276, as_org: "OVH", geo_country: "FR", net_class: "hosting", first_seen_us: 5_410_000, announce_times_ms: [5_410, 6_120], p_origin: 0.02, rank: 5 },
+      { peer_ip: "203.34.19.77", peer_port: 8333, asn: 7545, as_org: "TPG", geo_country: "AU", net_class: "residential", first_seen_us: 6_870_000, announce_times_ms: [6_870], p_origin: 0.01, rank: 6 },
+      { peer_ip: "77.88.55.60", peer_port: 8333, asn: 12389, as_org: "Rostelecom", geo_country: "RU", net_class: "residential", first_seen_us: 8_240_000, announce_times_ms: [8_240], p_origin: 0.01, rank: 7 },
+      { peer_ip: "197.210.64.12", peer_port: 8333, asn: 36992, as_org: "Etisalat", geo_country: "EG", net_class: "mobile", first_seen_us: 9_710_000, announce_times_ms: [9_710], p_origin: 0.005, rank: 8 },
+      { peer_ip: "190.15.128.44", peer_port: 8333, asn: 27699, as_org: "Telefonica", geo_country: "BR", net_class: "residential", first_seen_us: 11_020_000, announce_times_ms: [11_020], p_origin: 0.005, rank: 9 },
     ],
   },
 };
@@ -196,14 +202,14 @@ export const GRAPHS: Record<string, GraphData> = {
     aggregated: { addresses: 171, clusters: 6 },
     nodes: [
       // network layer — eight observed peers nearest the seam, six ASNs behind them
-      { node_id: "peer:103.x.x.x", kind: "peer", label: "103.x.x.x", on_origin_path: true },
-      { node_id: "peer:49.x.x.x", kind: "peer", label: "49.x.x.x", on_origin_path: false },
-      { node_id: "peer:185.x.x.x", kind: "peer", label: "185.x.x.x", on_origin_path: false },
-      { node_id: "peer:162.x.x.x", kind: "peer", label: "162.x.x.x", on_origin_path: false },
-      { node_id: "peer:88.x.x.x", kind: "peer", label: "88.x.x.x", on_origin_path: false },
-      { node_id: "peer:198.51.x.x", kind: "peer", label: "198.51.x.x", on_origin_path: false },
-      { node_id: "peer:45.x.x.x", kind: "peer", label: "45.x.x.x", on_origin_path: false },
-      { node_id: "peer:116.x.x.x", kind: "peer", label: "116.x.x.x", on_origin_path: false },
+      { node_id: "peer:103.21.244.17", kind: "peer", label: "103.21.244.17", on_origin_path: true },
+      { node_id: "peer:49.36.210.94", kind: "peer", label: "49.36.210.94", on_origin_path: false },
+      { node_id: "peer:185.220.101.47", kind: "peer", label: "185.220.101.47", on_origin_path: false },
+      { node_id: "peer:162.213.199.5", kind: "peer", label: "162.213.199.5", on_origin_path: false },
+      { node_id: "peer:88.198.44.21", kind: "peer", label: "88.198.44.21", on_origin_path: false },
+      { node_id: "peer:198.51.100.23", kind: "peer", label: "198.51.100.23", on_origin_path: false },
+      { node_id: "peer:45.79.132.8", kind: "peer", label: "45.79.132.8", on_origin_path: false },
+      { node_id: "peer:116.50.72.19", kind: "peer", label: "116.50.72.19", on_origin_path: false },
       { node_id: "asn:9829", kind: "asn", label: "AS9829 BSNL", on_origin_path: true },
       { node_id: "asn:24940", kind: "asn", label: "AS24940 Hetzner", on_origin_path: false },
       { node_id: "asn:45609", kind: "asn", label: "AS45609 Airtel", on_origin_path: false },
@@ -211,16 +217,16 @@ export const GRAPHS: Record<string, GraphData> = {
       { node_id: "asn:55836", kind: "asn", label: "AS55836 Jio", on_origin_path: false },
       { node_id: "asn:14061", kind: "asn", label: "AS14061 DigitalOcean", on_origin_path: false },
       // chain layer — ten transactions nearest the seam, six clusters behind them
-      { node_id: "tx:4f2a9c3e", kind: "transaction", label: "4f2a9c3e…b19d", on_origin_path: true },
-      { node_id: "tx:c39f1d5a", kind: "transaction", label: "c39f1d5a…4e88", on_origin_path: false },
-      { node_id: "tx:9b02fa7c", kind: "transaction", label: "9b02fa7c…d341", on_origin_path: false },
-      { node_id: "tx:0a17be44", kind: "transaction", label: "0a17be44…7c02", on_origin_path: false },
-      { node_id: "tx:7d3e1a90", kind: "transaction", label: "7d3e1a90…af15", on_origin_path: false },
-      { node_id: "tx:2c8b5f01", kind: "transaction", label: "2c8b5f01…6b7a", on_origin_path: false },
-      { node_id: "tx:5a9d2e3f", kind: "transaction", label: "5a9d2e3f…10cc", on_origin_path: false },
-      { node_id: "tx:b1c04d7e", kind: "transaction", label: "b1c04d7e…8e29", on_origin_path: false },
-      { node_id: "tx:38f6a2b9", kind: "transaction", label: "38f6a2b9…5d4f", on_origin_path: false },
-      { node_id: "tx:e7c4a018", kind: "transaction", label: "e7c4a018…9f4d", on_origin_path: false },
+      { node_id: "tx:4f2a9c3e", kind: "transaction", label: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d", on_origin_path: true },
+      { node_id: "tx:c39f1d5a", kind: "transaction", label: "c39f1d5a082b823ff7ad04b1a5af5f309bdc0b0a4653ec88de37ae74ed824e88", on_origin_path: false },
+      { node_id: "tx:9b02fa7c", kind: "transaction", label: "9b02fa7ce00271e5d3ec4f76f8e5c39ac763ab77205949195c23f31e0a00d341", on_origin_path: false },
+      { node_id: "tx:0a17be44", kind: "transaction", label: "0a17be44976a13ec525a25b248a314d2f7e82e85ad2d645304d936f35cec7c02", on_origin_path: false },
+      { node_id: "tx:7d3e1a90", kind: "transaction", label: "7d3e1a909c9d0c8d7221364ed86d3b51da2716498f3e2698d59e2691356daf15", on_origin_path: false },
+      { node_id: "tx:2c8b5f01", kind: "transaction", label: "2c8b5f017429a40d38f2cd6cab3689c9debc6a5783b87c3ca1bfafd51e116b7a", on_origin_path: false },
+      { node_id: "tx:5a9d2e3f", kind: "transaction", label: "5a9d2e3f73feb56bcb97157685c92e53306cc717d4d72f66eb928abcea3710cc", on_origin_path: false },
+      { node_id: "tx:b1c04d7e", kind: "transaction", label: "b1c04d7e49c1c272f2d418d0a3598d70943f3f146d435ed3684c90401aaa8e29", on_origin_path: false },
+      { node_id: "tx:38f6a2b9", kind: "transaction", label: "38f6a2b95b7083d7a277db03c0e42204990ef6a4096d2125f07c408b13e45d4f", on_origin_path: false },
+      { node_id: "tx:e7c4a018", kind: "transaction", label: "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d", on_origin_path: false },
       { node_id: "cluster:12", kind: "cluster", label: "cluster 12 · 41 addr", on_origin_path: true },
       { node_id: "cluster:07", kind: "cluster", label: "cluster 07 · 88 addr", on_origin_path: false },
       { node_id: "cluster:19", kind: "cluster", label: "cluster 19 · 12 addr", on_origin_path: false },
@@ -228,48 +234,48 @@ export const GRAPHS: Record<string, GraphData> = {
       { node_id: "cluster:31", kind: "cluster", label: "cluster 31 · 15 addr", on_origin_path: false },
       { node_id: "cluster:44", kind: "cluster", label: "cluster 44 · 6 addr", on_origin_path: false },
       // sample member wallets — hidden until their cluster is expanded (fold folds these in)
-      { node_id: "addr:bc1q4f", kind: "address", label: "bc1q4f…9f4d", on_origin_path: true },
-      { node_id: "addr:bc1q7a", kind: "address", label: "bc1q7a…22c8", on_origin_path: false },
-      { node_id: "addr:bc1q9c", kind: "address", label: "bc1q9c…4d10", on_origin_path: false },
-      { node_id: "addr:bc1qd2", kind: "address", label: "bc1qd2…7f31", on_origin_path: false },
-      { node_id: "addr:bc1q1e", kind: "address", label: "bc1q1e…0a9b", on_origin_path: false },
-      { node_id: "addr:bc1q88", kind: "address", label: "bc1q88…c3e7", on_origin_path: false },
-      { node_id: "addr:bc1qa3", kind: "address", label: "bc1qa3…91f0", on_origin_path: false },
-      { node_id: "addr:bc1qf0", kind: "address", label: "bc1qf0…5b22", on_origin_path: false },
-      { node_id: "addr:bc1q55", kind: "address", label: "bc1q55…8e14", on_origin_path: false },
-      { node_id: "addr:bc1q2b", kind: "address", label: "bc1q2b…d6a1", on_origin_path: false },
-      { node_id: "addr:bc1q6d", kind: "address", label: "bc1q6d…2c88", on_origin_path: false },
-      { node_id: "addr:bc1qc1", kind: "address", label: "bc1qc1…7a03", on_origin_path: false },
-      { node_id: "addr:bc1q90", kind: "address", label: "bc1q90…e4d5", on_origin_path: false },
-      { node_id: "addr:bc1q4a", kind: "address", label: "bc1q4a…13bf", on_origin_path: false },
-      { node_id: "addr:bc1qe7", kind: "address", label: "bc1qe7…6021", on_origin_path: false },
-      { node_id: "addr:bc1q33", kind: "address", label: "bc1q33…9c7e", on_origin_path: false },
-      { node_id: "addr:bc1qb8", kind: "address", label: "bc1qb8…4f10", on_origin_path: false },
-      { node_id: "addr:bc1q0f", kind: "address", label: "bc1q0f…a288", on_origin_path: false },
-      { node_id: "addr:bc1q7e", kind: "address", label: "bc1q7e…30d4", on_origin_path: false },
+      { node_id: "addr:bc1q4f", kind: "address", label: "bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d", on_origin_path: true },
+      { node_id: "addr:bc1q7a", kind: "address", label: "bc1q7a2yylt2gjtumhhtcsvdqt4cr5dswxurng22c8", on_origin_path: false },
+      { node_id: "addr:bc1q9c", kind: "address", label: "bc1q9cw9xp6a590m9dw7utz8nrrnwvkn5cx8684d10", on_origin_path: false },
+      { node_id: "addr:bc1qd2", kind: "address", label: "bc1qd2ga0xwsp7ejv4r35hlltslczv2f04clf47f31", on_origin_path: false },
+      { node_id: "addr:bc1q1e", kind: "address", label: "bc1q1ejl8mad7zlsnv49yg0qgr4xxe4myncxwq0a9b", on_origin_path: false },
+      { node_id: "addr:bc1q88", kind: "address", label: "bc1q88qavan9khhekjwy6lyhyxsagd8wgup4nwc3e7", on_origin_path: false },
+      { node_id: "addr:bc1qa3", kind: "address", label: "bc1qa3dszkqlrgffat8vvqlq5dlnftgyqjzfr691f0", on_origin_path: false },
+      { node_id: "addr:bc1qf0", kind: "address", label: "bc1qf0n7ekvtld8ta3wfdm6jqyd728dlk2njqx5b22", on_origin_path: false },
+      { node_id: "addr:bc1q55", kind: "address", label: "bc1q55zk4myy06xeq49mrcu5alw2uh6zet24kh8e14", on_origin_path: false },
+      { node_id: "addr:bc1q2b", kind: "address", label: "bc1q2buy2c8hq4apf632e77gnuxhnukjwjqy8sd6a1", on_origin_path: false },
+      { node_id: "addr:bc1q6d", kind: "address", label: "bc1q6d253405c60sgueu78wjcfaazz8z3l898x2c88", on_origin_path: false },
+      { node_id: "addr:bc1qc1", kind: "address", label: "bc1qc1wuqgc3jgag7877px9zf5tm0d8znh6m697a03", on_origin_path: false },
+      { node_id: "addr:bc1q90", kind: "address", label: "bc1q90x9pd3hk8x80wveh3c4cyj2vvnl2k08lje4d5", on_origin_path: false },
+      { node_id: "addr:bc1q4a", kind: "address", label: "bc1q4aa7szqya7ee5v92222m5l4r7npkus7m5213bf", on_origin_path: false },
+      { node_id: "addr:bc1qe7", kind: "address", label: "bc1qe7ypf6jx2megv3c6edytd79qhyvej5wa426021", on_origin_path: false },
+      { node_id: "addr:bc1q33", kind: "address", label: "bc1q33r4pmnudnqmvx3wkfs9y596wqjv92tcx29c7e", on_origin_path: false },
+      { node_id: "addr:bc1qb8", kind: "address", label: "bc1qb8dnjugtku2s6g57l8jphdymwl0ehpfwgl4f10", on_origin_path: false },
+      { node_id: "addr:bc1q0f", kind: "address", label: "bc1q0f2uaq74z2fwqdsepgkhc506ypyz2gw02ga288", on_origin_path: false },
+      { node_id: "addr:bc1q7e", kind: "address", label: "bc1q7ee3ne246vpuqq0sx8r2elhjthvqv9gz6730d4", on_origin_path: false },
     ],
     edges: [
       // announcements (dotted, cross the seam). The origin peer announced 4f2a first.
-      { src: "peer:103.x.x.x", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed first, 402ms spread", on_origin_path: true },
-      { src: "peer:185.x.x.x", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "relayed 940ms later", on_origin_path: false },
-      { src: "peer:49.x.x.x", dst: "tx:c39f1d5a", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:185.x.x.x", dst: "tx:9b02fa7c", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:162.x.x.x", dst: "tx:0a17be44", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:88.x.x.x", dst: "tx:7d3e1a90", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:198.51.x.x", dst: "tx:2c8b5f01", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:45.x.x.x", dst: "tx:5a9d2e3f", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:116.x.x.x", dst: "tx:b1c04d7e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:103.x.x.x", dst: "tx:38f6a2b9", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
-      { src: "peer:198.51.x.x", dst: "tx:e7c4a018", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:103.21.244.17", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed first, 402ms spread", on_origin_path: true },
+      { src: "peer:185.220.101.47", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "relayed 940ms later", on_origin_path: false },
+      { src: "peer:49.36.210.94", dst: "tx:c39f1d5a", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:185.220.101.47", dst: "tx:9b02fa7c", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:162.213.199.5", dst: "tx:0a17be44", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:88.198.44.21", dst: "tx:7d3e1a90", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:198.51.100.23", dst: "tx:2c8b5f01", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:45.79.132.8", dst: "tx:5a9d2e3f", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:116.50.72.19", dst: "tx:b1c04d7e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:103.21.244.17", dst: "tx:38f6a2b9", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
+      { src: "peer:198.51.100.23", dst: "tx:e7c4a018", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: false },
       // peer → ASN scaffolding (hair)
-      { src: "peer:103.x.x.x", dst: "asn:9829", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: true },
-      { src: "peer:185.x.x.x", dst: "asn:24940", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
-      { src: "peer:88.x.x.x", dst: "asn:24940", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
-      { src: "peer:49.x.x.x", dst: "asn:45609", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
-      { src: "peer:162.x.x.x", dst: "asn:63949", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
-      { src: "peer:116.x.x.x", dst: "asn:63949", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
-      { src: "peer:198.51.x.x", dst: "asn:55836", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
-      { src: "peer:45.x.x.x", dst: "asn:14061", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
+      { src: "peer:103.21.244.17", dst: "asn:9829", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: true },
+      { src: "peer:185.220.101.47", dst: "asn:24940", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
+      { src: "peer:88.198.44.21", dst: "asn:24940", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
+      { src: "peer:49.36.210.94", dst: "asn:45609", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
+      { src: "peer:162.213.199.5", dst: "asn:63949", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
+      { src: "peer:116.50.72.19", dst: "asn:63949", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
+      { src: "peer:198.51.100.23", dst: "asn:55836", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
+      { src: "peer:45.79.132.8", dst: "asn:14061", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: false },
       // transaction → wallet flows (solid); fold redirects each onto the wallet's cluster
       { src: "tx:4f2a9c3e", dst: "addr:bc1q4f", kind: "SPENDS", confidence: 1, evidence: "multi_input", on_origin_path: true },
       { src: "tx:4f2a9c3e", dst: "addr:bc1q1e", kind: "RECEIVES", confidence: 1, evidence: "output 0", on_origin_path: false },
@@ -321,20 +327,20 @@ export const GRAPHS: Record<string, GraphData> = {
   single: {
     aggregated: null,
     nodes: [
-      { node_id: "peer:103.x.x.x", kind: "peer", label: "103.x.x.x", on_origin_path: true },
-      { node_id: "tx:4f2a9c3e", kind: "transaction", label: "4f2a9c3e…b19d", on_origin_path: true },
-      { node_id: "addr:bc1q4f", kind: "address", label: "bc1q4f…9f4d", on_origin_path: true },
-      { node_id: "addr:bc1q7a", kind: "address", label: "bc1q7a…22c8", on_origin_path: false },
+      { node_id: "peer:103.21.244.17", kind: "peer", label: "103.21.244.17", on_origin_path: true },
+      { node_id: "tx:4f2a9c3e", kind: "transaction", label: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d", on_origin_path: true },
+      { node_id: "addr:bc1q4f", kind: "address", label: "bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d", on_origin_path: true },
+      { node_id: "addr:bc1q7a", kind: "address", label: "bc1q7a2yylt2gjtumhhtcsvdqt4cr5dswxurng22c8", on_origin_path: false },
       { node_id: "cluster:12", kind: "cluster", label: "cluster 12", on_origin_path: false },
       { node_id: "asn:9829", kind: "asn", label: "AS9829 BSNL", on_origin_path: true },
     ],
     edges: [
-      { src: "peer:103.x.x.x", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: true },
+      { src: "peer:103.21.244.17", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: true },
       { src: "tx:4f2a9c3e", dst: "addr:bc1q4f", kind: "SPENDS", confidence: 1, evidence: "multi_input", on_origin_path: true },
       { src: "tx:4f2a9c3e", dst: "addr:bc1q7a", kind: "RECEIVES", confidence: 1, evidence: "multi_input", on_origin_path: false },
       { src: "addr:bc1q4f", dst: "cluster:12", kind: "MEMBER_OF", confidence: 0.36, evidence: "multi_input", on_origin_path: false },
       { src: "addr:bc1q7a", dst: "cluster:12", kind: "SAME_OWNER", confidence: 0.36, evidence: "multi_input", on_origin_path: false },
-      { src: "peer:103.x.x.x", dst: "asn:9829", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: true },
+      { src: "peer:103.21.244.17", dst: "asn:9829", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: true },
     ],
   },
   // Above the node cap: getGraph collapses addresses into cluster nodes and sets
@@ -342,26 +348,26 @@ export const GRAPHS: Record<string, GraphData> = {
   aggregated: {
     aggregated: { addresses: 4912, clusters: 318 },
     nodes: [
-      { node_id: "peer:103.x.x.x", kind: "peer", label: "103.x.x.x", on_origin_path: true },
-      { node_id: "tx:4f2a9c3e", kind: "transaction", label: "4f2a9c3e…b19d", on_origin_path: true },
+      { node_id: "peer:103.21.244.17", kind: "peer", label: "103.21.244.17", on_origin_path: true },
+      { node_id: "tx:4f2a9c3e", kind: "transaction", label: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d", on_origin_path: true },
       { node_id: "cluster:12", kind: "cluster", label: "cluster 12 · 41 addr", on_origin_path: true },
       { node_id: "cluster:07", kind: "cluster", label: "cluster 07 · 318 addr", on_origin_path: false },
       { node_id: "cluster:19", kind: "cluster", label: "cluster 19 · 12 addr", on_origin_path: false },
       { node_id: "asn:9829", kind: "asn", label: "AS9829 BSNL", on_origin_path: true },
     ],
     edges: [
-      { src: "peer:103.x.x.x", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: true },
+      { src: "peer:103.21.244.17", dst: "tx:4f2a9c3e", kind: "ANNOUNCED_BY", confidence: 1, evidence: "observed", on_origin_path: true },
       { src: "tx:4f2a9c3e", dst: "cluster:12", kind: "SPENDS", confidence: 1, evidence: "multi_input", on_origin_path: true },
       { src: "tx:4f2a9c3e", dst: "cluster:07", kind: "RECEIVES", confidence: 1, evidence: "multi_input", on_origin_path: false },
       { src: "cluster:12", dst: "cluster:19", kind: "SAME_OWNER", confidence: 0.36, evidence: "multi_input", on_origin_path: false },
-      { src: "peer:103.x.x.x", dst: "asn:9829", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: true },
+      { src: "peer:103.21.244.17", dst: "asn:9829", kind: "HOSTED_IN", confidence: 1, evidence: "geoip", on_origin_path: true },
     ],
   },
 };
 
 export const TRANSACTIONS: TransactionRow[] = [
   {
-    txid: "4f2a9c3e…b19d",
+    txid: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d",
     first_seen_us: 1_756_872_100_000_000,
     n_announcements: 10,
     n_distinct_peers: 5,
@@ -372,7 +378,7 @@ export const TRANSACTIONS: TransactionRow[] = [
     abstained: false,
   },
   {
-    txid: "0a17be44…7c02",
+    txid: "0a17be44976a13ec525a25b248a314d2f7e82e85ad2d645304d936f35cec7c02",
     first_seen_us: 1_756_872_260_000_000,
     n_announcements: 1,
     n_distinct_peers: 1,
@@ -383,7 +389,7 @@ export const TRANSACTIONS: TransactionRow[] = [
     abstained: true,
   },
   {
-    txid: "c39f1d5a…4e88",
+    txid: "c39f1d5a082b823ff7ad04b1a5af5f309bdc0b0a4653ec88de37ae74ed824e88",
     first_seen_us: 1_756_872_410_000_000,
     n_announcements: 14,
     n_distinct_peers: 9,
@@ -394,7 +400,7 @@ export const TRANSACTIONS: TransactionRow[] = [
     abstained: false,
   },
   {
-    txid: "9b02fa7c…d341",
+    txid: "9b02fa7ce00271e5d3ec4f76f8e5c39ac763ab77205949195c23f31e0a00d341",
     first_seen_us: 1_756_872_540_000_000,
     n_announcements: 6,
     n_distinct_peers: 5,
@@ -405,7 +411,7 @@ export const TRANSACTIONS: TransactionRow[] = [
     abstained: false,
   },
   {
-    txid: "e7c4a018…9f4d",
+    txid: "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d",
     first_seen_us: 1_756_872_690_000_000,
     n_announcements: 3,
     n_distinct_peers: 3,
@@ -464,7 +470,7 @@ export const ALERT_DETAILS: Record<string, AlertDetail> = {
     },
     evidence: [
       { kind: "typology", statement: "902 outputs share one funding source in 40 minutes.", weight: 0.31, source_ref: "signals/typology_hits.parquet#h-2231" },
-      { kind: "network_context", statement: "Funding peer sits in a hosting ASN, not residential.", weight: 0.12, source_ref: "normalised/peers.parquet#185.x.x.x" },
+      { kind: "network_context", statement: "Funding peer sits in a hosting ASN, not residential.", weight: 0.12, source_ref: "normalised/peers.parquet#185.220.101.47" },
     ],
     counter: [
       { kind: "pool_payout_pattern", statement: "Cadence and fan-out match a mining pool payout, not laundering.", strength: 0.88, would_clear: true },
@@ -483,9 +489,9 @@ export const PACKETS: Record<string, Packet> = {
     generated_at_us: 1_756_890_000_000_000,
     tool_version: "0.1.0",
     code_version: "f70e451",
-    subject: { subject_id: "cluster:12", addresses_redacted: ["bc1q4f…9f4d", "bc1q7a…22c8"], cluster_id: "cluster:12" },
+    subject: { subject_id: "cluster:12", addresses: ["bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d", "bc1q7a2yylt2gjtumhhtcsvdqt4cr5dswxurng22c8"], cluster_id: "cluster:12" },
     attribution: {
-      peer_ip: "103.x.x.x", peer_port: 8333, observed_at_utc: "2026-09-03T04:15:00Z",
+      peer_ip: "103.21.244.17", peer_port: 8333, observed_at_utc: "2026-09-03T04:15:00Z",
       p_origin: 0.87, margin: 0.81, asn: 9829, as_org: "BSNL", geo_country: "IN",
       net_class: "residential",
     },
@@ -510,9 +516,9 @@ export const PACKETS: Record<string, Packet> = {
       statute: "BNSS 2023 s.94",
       exchange: "CoinExch Pvt Ltd",
       requested_records: [
-        "KYC records for the account controlling bc1q4f…9f4d",
+        "KYC records for the account controlling bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d",
         "Login IP history for 2026-09-01 to 2026-09-03",
-        "Withdrawal ledger referencing txid 4f2a9c3e…b19d",
+        "Withdrawal ledger referencing txid 4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d",
       ],
     },
   },
@@ -573,7 +579,7 @@ const SETU_DETAIL = {
 const first = <T>(rec: Record<string, T>): T => rec[Object.keys(rec)[0]];
 
 const HERO_TRACE: LineageTrace = {
-  record_id: "4f2a9c3e…b19d",
+  record_id: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d",
   merkle_head: MANIFEST.merkle_head,
   kavach: KAVACH_DETAIL,
   setu: SETU_DETAIL,
@@ -584,35 +590,35 @@ const HERO_TRACE: LineageTrace = {
       before: [],
       after: [
         f("timestamp", "2026-09-03T04:15:00Z", "added"),
-        f("src_ip", "103.x.x.x", "added"),
+        f("src_ip", "103.21.244.17", "added"),
         f("src_port", "8333", "added"),
-        f("dst_ip", "198.18.x.x", "added"),
-        f("txid", "4f2a9c3e…b19d", "added"),
-        f("output_addresses", "bc1q4f…9f4d | bc1q7a…22c8", "added"),
+        f("dst_ip", "198.18.0.14", "added"),
+        f("txid", "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d", "added"),
+        f("output_addresses", "bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d | bc1q7a2yylt2gjtumhhtcsvdqt4cr5dswxurng22c8", "added"),
         f("output_amounts", "248,500,000 | 12,000,000", "added"),
       ],
     },
     {
       stage: "KAVACH", complete: true, counts: { in: 1_000_000, out: 999_847, dropped: 153 },
       note: "sha256 taken on the raw bytes before any coercion. 153 rows rejected run-wide — none of them this record's. Click to open the custody detail.",
-      before: [f("timestamp", "2026-09-03T04:15:00Z"), f("src_ip", "103.x.x.x"), f("txid", "4f2a9c3e…b19d")],
+      before: [f("timestamp", "2026-09-03T04:15:00Z"), f("src_ip", "103.21.244.17"), f("txid", "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d")],
       after: [
         f("ts_us", "1,756,872,900,000,000", "renamed", { from: "timestamp" }),
         f("ts_raw", "2026-09-03T04:15:00Z", "added"),
         f("row_id", "728,041", "added"),
         f("src_ip_version", "4", "added"),
-        f("src_ip", "103.x.x.x"),
-        f("txid", "4f2a9c3e…b19d"),
+        f("src_ip", "103.21.244.17"),
+        f("txid", "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d"),
       ],
     },
     {
       stage: "SETU", complete: true, counts: { in: 999_847, out: 999_847, dropped: 0 },
       note: "The grain splits: announcements become transactions. This record is 9 announcements of 1 transaction. Click to open the collapse detail.",
-      before: [f("src_ip", "103.x.x.x"), f("src_port", "8333"), f("dst_ip", "198.18.x.x")],
+      before: [f("src_ip", "103.21.244.17"), f("src_port", "8333"), f("dst_ip", "198.18.0.14")],
       after: [
-        f("peer_ip", "103.x.x.x", "renamed", { from: "src_ip" }),
+        f("peer_ip", "103.21.244.17", "renamed", { from: "src_ip" }),
         f("peer_port", "8333", "renamed", { from: "src_port" }),
-        f("observer_ip", "198.18.x.x", "renamed", { from: "dst_ip" }),
+        f("observer_ip", "198.18.0.14", "renamed", { from: "dst_ip" }),
         f("geo_country", "IN", "added"),
         f("asn", "9829", "added"),
         f("as_org", "BSNL", "added"),
@@ -624,12 +630,12 @@ const HERO_TRACE: LineageTrace = {
     {
       stage: "JAAL", complete: true, counts: { in: 111_043, out: 111_043, dropped: 0 },
       note: "SAME_OWNER never merges nodes — the cluster link stays an edge at 0.36 confidence, so a weak heuristic reads weak.",
-      before: [f("peer_ip", "103.x.x.x"), f("txid", "4f2a9c3e…b19d")],
+      before: [f("peer_ip", "103.21.244.17"), f("txid", "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d")],
       after: [
         f("node", "tx:4f2a9c3e", "added"),
-        f("ANNOUNCED_BY", "peer 103.x.x.x → tx 4f2a9c3e · conf 1.00", "added"),
-        f("SPENDS", "tx 4f2a9c3e → addr bc1q4f…9f4d · conf 1.00", "added"),
-        f("MEMBER_OF", "addr bc1q4f…9f4d → cluster 12 · conf 0.36", "added"),
+        f("ANNOUNCED_BY", "peer 103.21.244.17 → tx 4f2a9c3e · conf 1.00", "added"),
+        f("SPENDS", "tx 4f2a9c3e → addr bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d · conf 1.00", "added"),
+        f("MEMBER_OF", "addr bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d → cluster 12 · conf 0.36", "added"),
       ],
     },
     {
@@ -675,7 +681,7 @@ const HERO_TRACE: LineageTrace = {
 // The Tor-broadcast record: the honest refusal, end to end. Origin abstains, so no
 // confidence is claimed downstream and the packet is withheld as not attribution-ready.
 const ABSTAIN_TRACE: LineageTrace = {
-  record_id: "e7c4a018…9f4d",
+  record_id: "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d",
   merkle_head: MANIFEST.merkle_head,
   kavach: KAVACH_DETAIL,
   setu: SETU_DETAIL,
@@ -685,28 +691,28 @@ const ABSTAIN_TRACE: LineageTrace = {
       note: "Synthetic capture from a seeded generator.",
       before: [],
       after: [
-        f("src_ip", "104.x.x.x", "added"),
+        f("src_ip", "104.244.76.13", "added"),
         f("src_port", "8333", "added"),
-        f("txid", "e7c4a018…9f4d", "added"),
+        f("txid", "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d", "added"),
         f("output_amounts", "4,500,000", "added"),
       ],
     },
     {
       stage: "KAVACH", complete: true, counts: { in: 1_000_000, out: 999_847, dropped: 153 },
       note: "sha256 taken on the raw bytes. Click to open the custody detail.",
-      before: [f("timestamp", "2026-09-03T04:31:30Z"), f("src_ip", "104.x.x.x")],
+      before: [f("timestamp", "2026-09-03T04:31:30Z"), f("src_ip", "104.244.76.13")],
       after: [
         f("ts_us", "1,756,872,690,000,000", "renamed", { from: "timestamp" }),
         f("row_id", "804,517", "added"),
-        f("src_ip", "104.x.x.x"),
+        f("src_ip", "104.244.76.13"),
       ],
     },
     {
       stage: "SETU", complete: true, counts: { in: 999_847, out: 999_847, dropped: 0 },
       note: "The grain splits: announcements become transactions. This record is 3 announcements of 1 transaction.",
-      before: [f("src_ip", "104.x.x.x"), f("src_port", "8333")],
+      before: [f("src_ip", "104.244.76.13"), f("src_port", "8333")],
       after: [
-        f("peer_ip", "104.x.x.x", "renamed", { from: "src_ip" }),
+        f("peer_ip", "104.244.76.13", "renamed", { from: "src_ip" }),
         f("peer_port", "8333", "renamed", { from: "src_port" }),
         f("geo_country", "NL", "added"),
         f("asn", "60729", "added"),
@@ -716,10 +722,10 @@ const ABSTAIN_TRACE: LineageTrace = {
     {
       stage: "JAAL", complete: true, counts: { in: 111_043, out: 111_043, dropped: 0 },
       note: "The record still projects to nodes and edges; the announcement edge is observed.",
-      before: [f("peer_ip", "104.x.x.x"), f("txid", "e7c4a018…9f4d")],
+      before: [f("peer_ip", "104.244.76.13"), f("txid", "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d")],
       after: [
         f("node", "tx:e7c4a018", "added"),
-        f("ANNOUNCED_BY", "peer 104.x.x.x → tx e7c4a018 · conf 1.00", "added"),
+        f("ANNOUNCED_BY", "peer 104.244.76.13 → tx e7c4a018 · conf 1.00", "added"),
       ],
     },
     {
@@ -753,15 +759,71 @@ const ABSTAIN_TRACE: LineageTrace = {
 };
 
 export const LINEAGE_TRACES: Record<string, LineageTrace> = {
-  "4f2a9c3e…b19d": HERO_TRACE,
-  "e7c4a018…9f4d": ABSTAIN_TRACE,
+  "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d": HERO_TRACE,
+  "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d": ABSTAIN_TRACE,
 };
 
 // The selector list, keyed to LINEAGE_TRACES; notes live here, not in the view layer.
 export const LINEAGE_RECORDS: LineageRecord[] = [
-  { id: "4f2a9c3e…b19d", note: "confident originator" },
-  { id: "e7c4a018…9f4d", note: "Tor · abstains" },
+  { id: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d", note: "confident originator" },
+  { id: "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d", note: "Tor · abstains" },
 ];
+
+// ---- runs, sealed rows, simulated launch ----
+// One real manifest backs the console; RUNS is the switcher's list. Switching runs is
+// cosmetic here (there is only one fixture manifest), but the seam is real: setActiveRun
+// returns the active run's manifest, exactly as a live backend would.
+// ponytail: single manifest reused across runs; add per-run manifests when a second
+// fixture capture exists.
+
+let activeRunId = MANIFEST.run_id;
+
+const RUNS: RunSummary[] = [
+  { run_id: "20260903-A", label: "seized-laptop capture", captured_at_utc: "2026-09-03T04:15:00Z", n_transactions: 111_043, active: true },
+  { run_id: "20260828-C", label: "exchange cold-wallet pull", captured_at_utc: "2026-08-28T22:40:00Z", n_transactions: 84_501, active: false },
+  { run_id: "20260815-B", label: "mixer egress tap", captured_at_utc: "2026-08-15T11:05:00Z", n_transactions: 203_774, active: false },
+];
+
+// Sealed intake rows for the DATA (CSV) viewer. Full identifiers; the two unsealed rows
+// carry the intake reject reason, so the viewer shows the in/out/dropped story concretely.
+const SEALED_ROWS: SealedRow[] = [
+  { row_id: 728_041, txid: "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d", peer_ip: "103.21.244.17", peer_port: 8333, first_seen_us: 1_756_872_900_000_000, out_sats: 248_500_000, sealed: true, reject_reason: null },
+  { row_id: 728_042, txid: "c39f1d5a082b823ff7ad04b1a5af5f309bdc0b0a4653ec88de37ae74ed824e88", peer_ip: "49.36.210.94", peer_port: 8333, first_seen_us: 1_756_872_410_000_000, out_sats: 12_004_120, sealed: true, reject_reason: null },
+  { row_id: 728_043, txid: "9b02fa7ce00271e5d3ec4f76f8e5c39ac763ab77205949195c23f31e0a00d341", peer_ip: "185.220.101.47", peer_port: 8333, first_seen_us: 1_756_872_540_000_000, out_sats: 88_190_000, sealed: true, reject_reason: null },
+  { row_id: 728_044, txid: "0a17be44976a13ec525a25b248a314d2f7e82e85ad2d645304d936f35cec7c02", peer_ip: "162.213.199.5", peer_port: 8333, first_seen_us: 1_756_872_260_000_000, out_sats: 5_000_000_000, sealed: true, reject_reason: null },
+  { row_id: 728_045, txid: "7d3e1a909c9d0c8d7221364ed86d3b51da2716498f3e2698d59e2691356daf15", peer_ip: "88.198.44.21", peer_port: 8333, first_seen_us: 1_756_872_620_000_000, out_sats: 34_920_000, sealed: true, reject_reason: null },
+  { row_id: 728_046, txid: "2c8b5f017429a40d38f2cd6cab3689c9debc6a5783b87c3ca1bfafd51e116b7a", peer_ip: "198.51.100.23", peer_port: 51_820, first_seen_us: 1_756_872_710_000_000, out_sats: 9_100_000, sealed: true, reject_reason: null },
+  { row_id: 728_047, txid: "5a9d2e3f73feb56bcb97157685c92e53306cc717d4d72f66eb928abcea3710cc", peer_ip: "45.79.132.8", peer_port: 8333, first_seen_us: 1_756_872_760_000_000, out_sats: 61_400_000, sealed: true, reject_reason: null },
+  { row_id: 728_048, txid: "e7c4a0187f42ea55761de37b2135201aa3853bbdf8c11efb3c6db654f4949f4d", peer_ip: "104.244.76.13", peer_port: 8333, first_seen_us: 1_756_872_690_000_000, out_sats: 4_500_000, sealed: true, reject_reason: null },
+  // rejected at intake — never seals, shown so in/out/dropped reads on the data surface
+  { row_id: 48_991, txid: "b1c04d7e49c1c272f2d418d0a3598d70943f3f146d435ed3684c90401aaa8e29", peer_ip: "116.50.72.19", peer_port: 8333, first_seen_us: 1_756_872_480_000_000, out_sats: 0, sealed: false, reject_reason: "chain_columns_differ" },
+  { row_id: 12_004, txid: "38f6a2b95b7083d7a277db03c0e42204990ef6a4096d2125f07c408b13e45d4f", peer_ip: "203.34.19.77", peer_port: 8333, first_seen_us: 1_756_872_330_000_000, out_sats: 0, sealed: false, reject_reason: "amount_mismatch" },
+];
+
+// The simulated pipeline: seven stages, each running then done, deterministic order and
+// timings. No network, no real execution — the whole run lives in the browser.
+const LAUNCH_STAGES: { stage: LineageStageName; rows_out: number; ms: number }[] = [
+  { stage: "KAVACH", rows_out: 999_847, ms: 140 },
+  { stage: "SETU", rows_out: 999_847, ms: 120 },
+  { stage: "JAAL", rows_out: 111_043, ms: 180 },
+  { stage: "SHASTRA", rows_out: 111_043, ms: 160 },
+  { stage: "BUDDHI", rows_out: 4_912, ms: 150 },
+  { stage: "VAANI", rows_out: 20, ms: 90 },
+  { stage: "PRAMAAN", rows_out: 1, ms: 110 },
+];
+
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+async function simulateLaunch(onEvent: (e: LaunchEvent) => void): Promise<void> {
+  // A launch replays a finished run at a watchable cadence, honouring reduced-motion by
+  // collapsing the per-stage dwell to near-zero.
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  for (const s of LAUNCH_STAGES) {
+    onEvent({ stage: s.stage, status: "running", rows_out: null, elapsed_ms: 0 });
+    await wait(reduce ? 0 : s.ms);
+    onEvent({ stage: s.stage, status: "done", rows_out: s.rows_out, elapsed_ms: s.ms });
+  }
+}
 
 export const fixturesAdapter: Adapter = {
   getManifest: () => reply(MANIFEST),
@@ -774,4 +836,11 @@ export const fixturesAdapter: Adapter = {
   getPacket: (caseId) => reply(PACKETS[caseId] ?? first(PACKETS)),
   listLineageRecords: () => reply(LINEAGE_RECORDS),
   getLineage: (recordId) => reply(LINEAGE_TRACES[recordId] ?? first(LINEAGE_TRACES)),
+  listRuns: () => reply(RUNS.map((r) => ({ ...r, active: r.run_id === activeRunId }))),
+  setActiveRun: (runId) => {
+    if (RUNS.some((r) => r.run_id === runId)) activeRunId = runId;
+    return reply(MANIFEST);
+  },
+  launchRun: (onEvent) => simulateLaunch(onEvent),
+  getRows: () => reply(SEALED_ROWS),
 };

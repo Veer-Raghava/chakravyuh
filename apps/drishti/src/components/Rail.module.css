@@ -31,6 +31,81 @@
   color: var(--ink-mute);
 }
 
+/* ---- run context block ---- */
+.run {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s3);
+  border-bottom: var(--hair);
+}
+
+.runHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.runLabel {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.airGap {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  color: var(--ok);
+}
+
+.runSelect {
+  width: 100%;
+  font-size: var(--fs-micro);
+  color: var(--ink);
+  background: var(--bg-raise);
+  border: var(--hair);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s2);
+}
+
+.lamps {
+  display: flex;
+  gap: var(--s1);
+  justify-content: space-between;
+}
+
+.lampCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.lamp {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--ink-faint);
+  background: transparent;
+  transition: border-color var(--t-state), background var(--t-state);
+}
+
+.lamp[data-state="ok"] {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+
+.lamp[data-state="fail"] {
+  border-color: var(--alert);
+  background: var(--alert);
+}
+
+.lampId {
+  font-size: var(--fs-micro);
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
+}
+
 .list {
   list-style: none;
   margin: var(--s2) 0 0;

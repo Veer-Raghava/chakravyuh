@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { adapter, type LineageStage, type LineageTrace, type Manifest } from "../adapter";
-import { StatusBar } from "../components/StatusBar";
 import { CommandLine, type LastCall } from "../components/CommandLine";
 import { DataTable, type Column } from "../components/DataTable";
 import { HashBlock } from "../components/HashBlock";
@@ -162,7 +161,6 @@ export function Lineage() {
   if (!trace || !stage) {
     return (
       <div className={styles.page}>
-        <StatusBar manifest={manifest} />
         <div className={styles.loading}>loading trace…</div>
         <CommandLine last={last} />
       </div>
@@ -183,8 +181,6 @@ export function Lineage() {
 
   return (
     <div className={styles.page}>
-      <StatusBar manifest={manifest} />
-
       <div className={styles.head}>
         <div>
           <div className={styles.h1}>Lineage</div>

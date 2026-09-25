@@ -26,23 +26,19 @@ describe("balances — the in == out + dropped identity", () => {
   });
 });
 
-describe("id — display-only redaction guard", () => {
-  it("passes already-redacted identifiers through unchanged", () => {
-    expect(id("103.x.x.x:8333", "ip")).toBe("103.x.x.x:8333");
-    expect(id("4f2a9c3e…c19d", "txid")).toBe("4f2a9c3e…c19d");
-    expect(id("bc1q4f…9f4d", "addr")).toBe("bc1q4f…9f4d");
+describe("id — full identifier pass-through", () => {
+  it("returns identifiers unchanged and in full, whatever their kind", () => {
+    expect(id("103.21.244.17:8333", "ip")).toBe("103.21.244.17:8333");
+    expect(id("4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d", "txid")).toBe(
+      "4f2a9c3ee847fb7ea4367d08c823857b4f1a4f547a706d46dff57b24ba6bb19d",
+    );
+    expect(id("bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d", "addr")).toBe(
+      "bc1q4fk3tzn0kpdsvzt8d7zy85exj8tn9yzv8l9f4d",
+    );
   });
 
-  it("throws when a full IP reaches display", () => {
-    expect(() => id("103.21.244.17:8333", "ip")).toThrow(/redaction invariant/);
-    expect(() => id("2001:db8:0:0:0:0:0:1", "ip")).toThrow(/redaction invariant/);
-  });
-
-  it("throws when a full 64-hex txid reaches display", () => {
-    expect(() => id("f".repeat(64), "txid")).toThrow(/redaction invariant/);
-  });
-
-  it("throws when a full bitcoin address reaches display", () => {
-    expect(() => id("bc1q4f8k2m9x7p3q6r5t0w1e2y3u4i5o6a7s8d9f4d", "addr")).toThrow(/redaction invariant/);
+  it("never throws on a full value — full display is the point", () => {
+    expect(() => id("2001:db8:0:0:0:0:0:1", "ip")).not.toThrow();
+    expect(() => id("f".repeat(64), "txid")).not.toThrow();
   });
 });

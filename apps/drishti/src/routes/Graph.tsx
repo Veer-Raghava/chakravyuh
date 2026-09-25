@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { adapter, type GraphData, type GraphEdge, type Manifest } from "../adapter";
-import { StatusBar } from "../components/StatusBar";
+import { adapter, type GraphData, type GraphEdge } from "../adapter";
 import { CommandLine, type LastCall } from "../components/CommandLine";
 import { ForceGraph, type View } from "../components/ForceGraph";
 import { Legend } from "../components/Legend";
@@ -34,7 +33,6 @@ const EDGE_WORD: Record<GraphEdge["kind"], string> = {
 };
 
 export function Graph() {
-  const [manifest, setManifest] = useState<Manifest | null>(null);
   const [data, setData] = useState<GraphData | null>(null);
   const [last, setLast] = useState<LastCall | null>(null);
   const [mode, setMode] = useState<Mode>("both");
@@ -48,7 +46,6 @@ export function Graph() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    adapter.getManifest().then(setManifest);
     const t0 = performance.now();
     adapter.getGraph({}).then((g) => {
       setData(g);
@@ -108,7 +105,6 @@ export function Graph() {
   if (!data) {
     return (
       <div className={styles.page}>
-        <StatusBar manifest={manifest} />
         <div className={styles.loading}>loading fused graph…</div>
         <CommandLine last={last} />
       </div>
@@ -117,8 +113,6 @@ export function Graph() {
 
   return (
     <div className={styles.page}>
-      <StatusBar manifest={manifest} />
-
       {/* quiet hairline control strip — never competes with the graph */}
       <div className={styles.strip}>
         <div className={styles.stripGroup}>

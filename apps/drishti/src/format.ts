@@ -1,10 +1,10 @@
 /**
- * The one display-only formatter every component uses. Redaction is NOT done here:
- * data from the adapter is already truncated at write time (see adapter/types.ts). So a
- * COMPLETE identifier reaching `id()` is a pipeline bug, and we throw rather than smooth
- * it over — a forensics tool that silently renders a full IP/address/txid has failed at
- * its own premise. SHA-256 and Merkle roots are the sanctioned exception and go through
- * HashBlock, never through here.
+ * The one display-only formatter every component uses. This workstation shows identifiers
+ * IN FULL — full IPs, full Bitcoin addresses, full txids — so an investigator reads exactly
+ * what will go on the production notice, not a redacted stand-in. `id()` is kept as the one
+ * seam every identifier passes through (so a future policy change lives in one place), but it
+ * is now a pass-through: it never truncates and never throws. SHA-256, the Merkle root and the
+ * Ed25519 signature are cryptographic evidence and go through HashBlock, never here.
  */
 
 /** Grouped integer for mono tabular display, e.g. 1000000 -> "1,000,000". */
@@ -34,34 +34,11 @@ export function balances(counts: { in: number; out: number; dropped: number }): 
 
 type IdKind = "ip" | "addr" | "txid";
 
-// A complete IPv4/6 has every segment; the redacted form always carries an `x`.
-const FULL_IPV4 = /^\d{1,3}(\.\d{1,3}){3}(:\d+)?$/;
-const FULL_IPV6 = /^([0-9a-fA-F]{1,4}:){2,}[0-9a-fA-F]{1,4}(:\d+)?$/;
-// A complete txid/hash is 64 hex; the redacted form carries an ellipsis.
-const FULL_HEX64 = /^[0-9a-fA-F]{64}$/;
-const ELLIPSIS = /[…]|\.\.\./;
-
 /**
- * Pass a value already redacted upstream through to display. Throws if it looks complete,
- * because that means the invariant upstream broke. Display-only: never mutates the value.
+ * Pass an identifier through to display, in full. Kept as the single seam every id crosses
+ * so display policy lives in one function; today that policy is "show everything". Never
+ * mutates the value. `kind` is retained for call-site clarity and future per-kind handling.
  */
-export function id(value: string, kind: IdKind): string {
-  if (kind === "ip") {
-    if (FULL_IPV4.test(value) || FULL_IPV6.test(value)) {
-      throw new Error(`redaction invariant broken: full IP reached display: ${value}`);
-    }
-    return value;
-  }
-  if (kind === "txid") {
-    if (FULL_HEX64.test(value)) {
-      throw new Error(`redaction invariant broken: full txid reached display`);
-    }
-    return value;
-  }
-  // addr: a redacted bitcoin address keeps first6+last4 and carries an ellipsis. A long
-  // string with no ellipsis is a full address that escaped truncation.
-  if (!ELLIPSIS.test(value) && value.length > 14) {
-    throw new Error(`redaction invariant broken: full address reached display`);
-  }
+export function id(value: string, _kind: IdKind): string {
   return value;
 }

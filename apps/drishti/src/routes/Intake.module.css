@@ -1,0 +1,181 @@
+/* INTAKE — the custody surface: the seal over their raw bytes, the read/sealed/rejected
+   identity, and why anything was refused. Instrument typography; --signal stays absent —
+   sealing carries --ok, refusal carries --alert. Structure only; literals live in tokens. */
+
+.page {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s5);
+  padding: var(--s4) var(--s6);
+  border-bottom: var(--hair);
+}
+.crumb {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.crumb .mono {
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+}
+.verdict {
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
+.loading {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: var(--ink-mute);
+  font-size: var(--fs-small);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: var(--s5);
+  padding: var(--s5) var(--s6);
+}
+
+.left,
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  min-width: 0;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--bg-panel);
+  border: var(--hair);
+  border-radius: var(--radius);
+}
+.blockTitle {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  padding-bottom: var(--s2);
+  border-bottom: var(--hair);
+}
+.foot {
+  font-size: var(--fs-micro);
+  line-height: 1.55;
+  color: var(--ink-mute);
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s3);
+}
+
+/* the intake identity: read == sealed + rejected */
+.balance {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+  border: var(--hair);
+  border-radius: var(--radius);
+}
+.eq {
+  color: var(--ink-mute);
+}
+.ok {
+  color: var(--ok);
+  font-weight: var(--w-semi);
+}
+.cap {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.balance[data-fail] {
+  border-color: var(--alert);
+}
+.balance[data-fail] .ok {
+  color: var(--alert);
+}
+
+.reasons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.reason {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+.reasonHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s3);
+}
+.reasonName {
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+.reasonN {
+  font-size: var(--fs-small);
+  color: var(--ink);
+}
+.reasonBar {
+  height: 4px;
+  background: var(--bg-raise);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.reasonFill {
+  height: 100%;
+  background: var(--alert);
+  opacity: 0.55;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+.chip {
+  font-size: var(--fs-micro);
+  color: var(--ink-dim);
+  padding: 2px var(--s2);
+  border: var(--hair);
+  border-radius: var(--radius);
+}
+
+.meta {
+  display: flex;
+  gap: var(--s4);
+  font-size: var(--fs-micro);
+  color: var(--ink-mute);
+}

@@ -22,6 +22,10 @@ export const apiAdapter: Adapter = {
   getPacket: notBuilt,
   listLineageRecords: notBuilt,
   getLineage: notBuilt,
+  listRuns: notBuilt,
+  setActiveRun: notBuilt,
+  launchRun: notBuilt,
+  getRows: notBuilt,
 };
 
 export { BASE as API_BASE };

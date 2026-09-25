@@ -5,9 +5,10 @@
  * only the fixtures constants get swapped for JSON in data/fixtures/ui/ — these types
  * and this call surface do not change.
  *
- * Identifier redaction is a value invariant, not a formatting step: every ip/address/
- * txid string that reaches this layer is ALREADY truncated. SHA-256 and Merkle roots
- * are the deliberate exception and are carried in full.
+ * Identifiers are carried and displayed IN FULL on this workstation: full IPs, full
+ * Bitcoin addresses, full txids, so an investigator reads exactly what goes on the
+ * production notice. SHA-256, Merkle roots and the Ed25519 signature are cryptographic
+ * evidence and render through HashBlock, in full.
  */
 
 // ----- status / intake (contract section 3) -----
@@ -21,12 +22,12 @@ export interface StageLamp {
 
 export interface Manifest {
   run_id: string;
-  /** SHA-256 of the sealed input, in full. The StatusBar truncates for display. */
+  /** SHA-256 of the sealed input, in full. */
   input_sha256: string;
   rows_read: number;
   rows_sealed: number;
   rows_rejected: number;
-  /** Denormalised onto the manifest so the StatusBar is a single adapter call. */
+  /** Denormalised onto the manifest so intake is a single adapter call. */
   n_transactions: number;
   stages: StageLamp[];
   /** Head of the append-only Merkle log for this run, in full. */
@@ -52,7 +53,7 @@ export interface CollapseStats {
 // ----- transactions list (contract section 4) -----
 
 export interface TransactionRow {
-  txid: string; // redacted: first 8 + last 4
+  txid: string; // full 64-hex
   first_seen_us: number;
   n_announcements: number;
   n_distinct_peers: number;
@@ -67,7 +68,7 @@ export interface TransactionRow {
 // ----- origin estimate (contract section 6) -----
 
 export interface OriginLane {
-  peer_ip: string; // redacted: 103.x.x.x
+  peer_ip: string; // full, e.g. 103.21.244.17
   peer_port: number;
   asn: number | null;
   as_org: string | null;
@@ -87,7 +88,7 @@ export interface OriginFeature {
 }
 
 export interface OriginEstimate {
-  txid: string; // redacted
+  txid: string; // full
   estimator: string;
   lanes: OriginLane[];
   /** ms extent of the fan x-axis, e.g. 12000. */
@@ -123,7 +124,7 @@ export interface GraphParams {
 export interface GraphNode {
   node_id: string;
   kind: "address" | "transaction" | "peer" | "cluster" | "asn";
-  label: string; // already truncated
+  label: string; // full
   on_origin_path: boolean;
 }
 
@@ -207,9 +208,9 @@ export interface Packet {
   generated_at_us: number;
   tool_version: string;
   code_version: string;
-  subject: { subject_id: string; addresses_redacted: string[]; cluster_id: string };
+  subject: { subject_id: string; addresses: string[]; cluster_id: string };
   attribution: {
-    peer_ip: string; // redacted
+    peer_ip: string; // full
     peer_port: number;
     observed_at_utc: string;
     p_origin: number;
@@ -245,7 +246,7 @@ export type FieldStatus = "passthrough" | "added" | "renamed" | "dropped";
 export interface LineageField {
   /** Column/field name at this stage. */
   name: string;
-  /** Pre-formatted, already redacted. Numeric values arrive mono-ready. */
+  /** Pre-formatted, in full. Numeric values arrive mono-ready. */
   value: string;
   status: FieldStatus;
   /** renamed only: the previous name, rendered as `from -> name`. */
@@ -307,7 +308,7 @@ export interface SetuDetail {
 }
 
 export interface LineageTrace {
-  /** The redacted txid the whole screen follows. */
+  /** The txid the whole screen follows, in full. */
   record_id: string;
   /** Printed in full on the PRAMAAN stage via HashBlock; the one string not truncated. */
   merkle_head: string;
@@ -320,8 +321,44 @@ export interface LineageTrace {
 /** One entry in the hero-record selector. The note is a short human label; it comes from
  *  the adapter, not the component, so nothing on screen is invented in the view layer. */
 export interface LineageRecord {
-  id: string; // redacted txid
+  id: string; // full txid
   note: string;
+}
+
+// ----- runs: switcher + simulated launch + sealed-row viewer -----
+// These four calls are the frontend-owned seam. The pipeline run is SIMULATED in the
+// browser against fixtures — no network, no real execution — so the read-only, loopback
+// API principle is untouched. When a live backend lands, only fixtures change.
+
+/** One run in the switcher. `active` marks the run the console currently analyses. */
+export interface RunSummary {
+  run_id: string;
+  label: string; // short human note, e.g. "seized laptop capture"
+  captured_at_utc: string;
+  n_transactions: number;
+  active: boolean;
+}
+
+/** One sealed intake row for the DATA (CSV) viewer. Every identifier in full. */
+export interface SealedRow {
+  row_id: number;
+  txid: string;
+  peer_ip: string;
+  peer_port: number;
+  first_seen_us: number;
+  out_sats: number;
+  sealed: boolean; // false = rejected at intake
+  reject_reason: string | null;
+}
+
+/** One tick of a simulated pipeline launch: a stage moving to running, then done. */
+export interface LaunchEvent {
+  stage: LineageStageName;
+  status: "running" | "done";
+  /** rows the stage emitted once done; null while running. */
+  rows_out: number | null;
+  /** simulated wall-clock for the stage, ms. */
+  elapsed_ms: number;
 }
 
 // ----- the fixed adapter surface -----
@@ -339,4 +376,12 @@ export interface Adapter {
   listLineageRecords(): Promise<LineageRecord[]>;
   /** A per-record trace through all eight stages. S10 backs this with a real endpoint. */
   getLineage(recordId: string): Promise<LineageTrace>;
+  /** Runs available to analyse, active one flagged. */
+  listRuns(): Promise<RunSummary[]>;
+  /** Switch the active run; returns the new active run's manifest. */
+  setActiveRun(runId: string): Promise<Manifest>;
+  /** Simulated pipeline launch: yields stage events in order via the callback. */
+  launchRun(onEvent: (e: LaunchEvent) => void): Promise<void>;
+  /** Sealed intake rows for the DATA viewer, active run. */
+  getRows(): Promise<SealedRow[]>;
 }

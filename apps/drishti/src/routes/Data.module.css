@@ -1,0 +1,70 @@
+/* DATA — the raw sealed rows, exactly as read. A dense virtualised table fills the surface;
+   --signal is absent, sealed carries --ok, rejected carries --alert. Structure only. */
+
+.page {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s5);
+  padding: var(--s4) var(--s6);
+  border-bottom: var(--hair);
+}
+.crumb {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.crumb .mono {
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+}
+.counts {
+  display: flex;
+  gap: var(--s4);
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--s4) var(--s6) var(--s3);
+}
+.tableFill {
+  flex: 1;
+  min-height: 0;
+}
+.note {
+  flex: none;
+  padding-top: var(--s3);
+  font-size: var(--fs-micro);
+  color: var(--ink-mute);
+}
+
+.sealed {
+  color: var(--ok);
+}
+.rejected {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s2);
+  color: var(--alert);
+}
+.reason {
+  font-size: var(--fs-micro);
+  color: var(--ink-mute);
+}

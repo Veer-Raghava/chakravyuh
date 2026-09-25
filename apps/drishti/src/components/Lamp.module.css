@@ -11,18 +11,25 @@
   gap: var(--s2);
 }
 
-/* Hollow when not yet run, filled --ok when verified. Shape carries state, not just hue. */
+/* Hollow when not yet run (pending), filled --ok when verified, filled --alert when it ran
+   and did not hold (fail). Shape + colour + label all carry state, never hue alone. */
 .square {
   width: 8px;
   height: 8px;
   flex: 0 0 auto;
   border: 1px solid var(--ink-mute);
   background: transparent;
+  transition: border-color var(--t-state), background var(--t-state);
 }
 
-.lamp[data-on="true"] .square {
+.lamp[data-state="ok"] .square {
   border-color: var(--ok);
   background: var(--ok);
+}
+
+.lamp[data-state="fail"] .square {
+  border-color: var(--alert);
+  background: var(--alert);
 }
 
 .label {
@@ -32,13 +39,17 @@
   color: var(--ink-mute);
 }
 
-.lamp[data-on="true"] .label {
+.lamp[data-state="ok"] .label {
   color: var(--ok);
+}
+
+.lamp[data-state="fail"] .label {
+  color: var(--alert);
 }
 
 .detail {
   font-size: var(--fs-micro);
   color: var(--ink-mute);
-  padding-left: 16px;
+  padding-left: var(--s4);
   word-break: break-all;
 }

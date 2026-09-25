@@ -74,7 +74,7 @@ describe("GRAPH screen", () => {
   it("renders the fused graph, lets the layer toggle switch, and labels the origin path", async () => {
     render(<Graph />);
     // the origin peer is on the path, so its label renders without hovering
-    expect(await screen.findByText("103.x.x.x")).toBeInTheDocument();
+    expect(await screen.findByText("103.21.244.17")).toBeInTheDocument();
     // the three layer modes are present; BOTH starts active
     expect(screen.getByRole("button", { name: "CHAIN" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "BOTH" })).toHaveAttribute("data-active");
@@ -84,7 +84,7 @@ describe("GRAPH screen", () => {
 
   it("opens the selected node in the aside and never invents a metric", async () => {
     render(<Graph />);
-    fireEvent.click(await screen.findByText("103.x.x.x"));
+    fireEvent.click(await screen.findByText("103.21.244.17"));
     const aside = screen.getByRole("complementary");
     await waitFor(() => expect(aside.textContent).toMatch(/peer/i)); // KIND_WORD, uppercased to match the canvas caption
     expect(aside.textContent).toMatch(/on estimated-origin path/);

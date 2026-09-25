@@ -10,7 +10,7 @@ describe("ORIGIN screen", () => {
     const { container } = render(<Origin />);
 
     // The first qualifying transaction loads its lanes: the rank-1 peer's lane is present.
-    expect(await screen.findByText(/103\.x\.x\.x:8333/)).toBeInTheDocument();
+    expect(await screen.findByText(/103\.21\.244\.17:8333/)).toBeInTheDocument();
 
     // Pre-reveal: no probability is shown anywhere.
     expect(screen.queryByText(/p = /)).toBeNull();

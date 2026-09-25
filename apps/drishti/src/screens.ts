@@ -1,8 +1,8 @@
-/** The seven screens, in order. Each is one beat of the demo and one verdict line from
+/** The eight screens, in order. Each is one beat of the demo and one verdict line from
  *  the deck. The key is the digit that jumps to it; `shortcuts` are the per-screen keys
  *  printed at the foot of the rail. Owned here so the Rail and the router never disagree. */
 export interface Screen {
-  key: string; // "1".."7"
+  key: string; // "1".."8"
   id: string; // short name shown in the rail
   verdict: string; // the one-line claim from DRISHTI-SPEC
   shortcuts: { keys: string; does: string }[];
@@ -67,6 +67,15 @@ export const SCREENS: Screen[] = [
       { keys: "↑ / ↓", does: "move record" },
       { keys: "enter", does: "drill in" },
       { keys: "space", does: "collapse" },
+    ],
+  },
+  {
+    key: "8",
+    id: "DATA",
+    verdict: "the sealed rows, exactly as the pipeline read them",
+    shortcuts: [
+      { keys: "click", does: "sort column" },
+      { keys: "scroll", does: "page rows" },
     ],
   },
 ];
