@@ -1,0 +1,98 @@
+{
+  "abstain": true,
+  "abstain_reason": "margin_below_floor",
+  "first_seen_us": 1767330241732570,
+  "lanes": [
+    {
+      "announcements_ms": [
+        0
+      ],
+      "as_org": "",
+      "asn": 64496,
+      "geo_country": "IN",
+      "net_class": "",
+      "p_origin": 0.009900973218826504,
+      "peer_ip": "100.64.0.18",
+      "peer_ip_display": "100.64.x.x",
+      "peer_port": 42435,
+      "rank": 3
+    },
+    {
+      "announcements_ms": [
+        466077
+      ],
+      "as_org": "",
+      "asn": 64510,
+      "geo_country": "IN",
+      "net_class": "",
+      "p_origin": 0.010517807709209957,
+      "peer_ip": "192.0.2.23",
+      "peer_ip_display": "192.0.x.x",
+      "peer_port": 57190,
+      "rank": 2
+    },
+    {
+      "announcements_ms": [
+        505326
+      ],
+      "as_org": "",
+      "asn": 64501,
+      "geo_country": "US",
+      "net_class": "",
+      "p_origin": 0.0025078170864034376,
+      "peer_ip": "198.19.110.65",
+      "peer_ip_display": "198.19.x.x",
+      "peer_port": 44605,
+      "rank": 7
+    },
+    {
+      "announcements_ms": [
+        1141706
+      ],
+      "as_org": "",
+      "asn": 64500,
+      "geo_country": "NL",
+      "net_class": "",
+      "p_origin": 0.0032030142103286864,
+      "peer_ip": "198.19.40.230",
+      "peer_ip_display": "198.19.x.x",
+      "peer_port": 58775,
+      "rank": 6
+    },
+    {
+      "announcements_ms": [
+        1913343
+      ],
+      "as_org": "",
+      "asn": 64499,
+      "geo_country": "DE",
+      "net_class": "",
+      "p_origin": 0.0036828880386614014,
+      "peer_ip": "198.18.200.172",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 48360,
+      "rank": 5
+    },
+    {
+      "announcements_ms": [
+        2075470
+      ],
+      "as_org": "",
+      "asn": 64502,
+      "geo_country": "US",
+      "net_class": "",
+      "p_origin": 0.007748482613894124,
+      "peer_ip": "100.112.0.59",
+      "peer_ip_display": "100.112.x.x",
+      "peer_port": 57987,
+      "rank": 4
+    }
+  ],
+  "margin": 0.0,
+  "origin_peer_display": "",
+  "p_origin": 0.0,
+  "runner_up_display": "",
+  "runner_up_p": 0.0,
+  "txid": "00d3cc2e57262778b0c5f74edc6a02977d280012ec148e96f3648ed314e80074",
+  "txid_display": "00d3cc2e\u20260074"
+}

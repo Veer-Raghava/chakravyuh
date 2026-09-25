@@ -432,3 +432,40 @@ def test_no_observable_artifact_names_the_quarantine(roots: writers.Roots) -> No
             assert token not in payload, f"{path.relative_to(generated)} names the quarantine"
     assert checked >= 5, f"only {checked} observable files scanned, so this proved nothing"
     assert (roots.observable / "chain" / "_meta.json").is_file()
+
+
+def test_a_rerun_of_the_same_run_skips_what_already_matches(cfg: config.Config) -> None:
+    """S10 resume: a deterministic run rewritten in place rewrites nothing.
+
+    The writer compares bytes before writing, so an interrupted 1M export can be resumed by
+    rerunning the same command: completed shards cost a hash, damaged or missing ones are
+    rebuilt from the same seed. The rerun must also leave the tree byte-identical to a clean
+    write, which compare_runs already knows how to check.
+    """
+    place = writers.run_roots(REPO / "data" / "generated" / "_test-resume")
+    _wipe(place)
+
+    def stamps() -> dict[str, tuple[int, int]]:
+        """Everything except `chain/_meta.json`, whose wall clocks differ by definition.
+
+        The manifest is the one file a rerun always rewrites, because its timestamps are the
+        run's own clock; compare_runs masks exactly those fields for the same reason.
+        """
+        return {
+            p.relative_to(place.observable).as_posix(): (p.stat().st_mtime_ns, p.stat().st_size)
+            for p in sorted(place.observable.rglob("*"))
+            if p.is_file() and p.name != "_meta.json"
+        }
+
+    try:
+        assert main(["--config", str(CONFIG), "--out", str(place.observable), "--chain-only"]) == 0
+        before = stamps()
+        assert main(["--config", str(CONFIG), "--out", str(place.observable), "--chain-only"]) == 0
+        meta = json.loads((place.observable / "chain" / "_meta.json").read_text(encoding="utf-8"))
+        resumed = meta["resumed"]
+        total = resumed["skipped"] + resumed["written"]
+        assert total > 0, "the manifest recorded no files at all"
+        assert resumed["skipped"] == total, f"rerun rewrote {resumed['written']} files: {resumed}"
+        assert stamps() == before, "a full-skip rerun changed bytes or timestamps on disk"
+    finally:
+        _wipe(place)

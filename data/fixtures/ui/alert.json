@@ -1,0 +1,172 @@
+{
+  "alert_id": "alw-63329995d8e6",
+  "attribution_ready": true,
+  "conf_high": 1.0,
+  "conf_low": 1.0,
+  "counters": [
+    {
+      "kind": "insufficient_observation",
+      "statement": "all observed announcing peers together account for only 5% of the estimated origin probability, so the true originator may not have been observed at all",
+      "strength": 0.9528,
+      "would_clear": false
+    },
+    {
+      "kind": "low_origin_margin",
+      "statement": "the leading origin candidate is only narrowly ahead of the runner-up, which is too thin a margin to act on",
+      "strength": 0.9376,
+      "would_clear": false
+    },
+    {
+      "kind": "shared_ip",
+      "statement": "the same network address announces traffic for 31 distinct subjects, so it may be a shared relay rather than an owner",
+      "strength": 0.9677,
+      "would_clear": false
+    }
+  ],
+  "counters_ok": true,
+  "evidence": [
+    {
+      "kind": "origin_estimate",
+      "source_ref": "signals/origin_estimates.parquet#tx_prefix=da4daa38",
+      "statement": "transaction da4daa38\u20268b27 is estimated to have originated from network address 198.19.x.x with probability 0.018"
+    },
+    {
+      "kind": "network_context",
+      "source_ref": "normalised/announcements.parquet#row_id=3381",
+      "statement": "the network address was first observed announcing that transaction at 2026-01-01 02:48:20Z, observation row 3381"
+    },
+    {
+      "kind": "cluster_edge",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "statement": "the subject is a single address that no clustering heuristic linked to anything else"
+    }
+  ],
+  "features": [
+    {
+      "name": "model_feature",
+      "statement": "this wallet's average fee per vbyte its sends paid raised its risk score substantially",
+      "weight": 1.486501
+    },
+    {
+      "name": "model_feature",
+      "statement": "this wallet's satoshis it sent in its window raised its risk score substantially",
+      "weight": 1.332355
+    },
+    {
+      "name": "model_feature",
+      "statement": "this wallet's how far ahead the top origin candidate usually was raised its risk score substantially",
+      "weight": 1.141628
+    },
+    {
+      "name": "model_feature",
+      "statement": "this wallet's average origin confidence on the transactions it sent raised its risk score substantially",
+      "weight": 0.896127
+    },
+    {
+      "name": "model_feature",
+      "statement": "this wallet's distinct wallets it transacted with raised its risk score substantially",
+      "weight": 0.786552
+    }
+  ],
+  "headline": "illicit: high average fee per vbyte its sends paid; high satoshis it sent in its window",
+  "origin": {
+    "abstain": false,
+    "abstain_reason": "",
+    "first_seen_us": 1767235700630977,
+    "lanes": [
+      {
+        "announcements_ms": [
+          0
+        ],
+        "as_org": "",
+        "asn": 64503,
+        "geo_country": "BR",
+        "net_class": "",
+        "p_origin": 0.01785257921281476,
+        "peer_ip": "198.19.221.238",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 54099,
+        "rank": 1
+      },
+      {
+        "announcements_ms": [
+          12541
+        ],
+        "as_org": "",
+        "asn": 64499,
+        "geo_country": "DE",
+        "net_class": "",
+        "p_origin": 0.0017725689504466213,
+        "peer_ip": "100.88.0.37",
+        "peer_ip_display": "100.88.x.x",
+        "peer_port": 41236,
+        "rank": 6
+      },
+      {
+        "announcements_ms": [
+          480000
+        ],
+        "as_org": "",
+        "asn": 64499,
+        "geo_country": "DE",
+        "net_class": "",
+        "p_origin": 0.012862050880463712,
+        "peer_ip": "198.18.222.58",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 59652,
+        "rank": 2
+      },
+      {
+        "announcements_ms": [
+          837327
+        ],
+        "as_org": "",
+        "asn": 64499,
+        "geo_country": "DE",
+        "net_class": "",
+        "p_origin": 0.006205727572911222,
+        "peer_ip": "198.18.209.118",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 43980,
+        "rank": 4
+      },
+      {
+        "announcements_ms": [
+          1554747
+        ],
+        "as_org": "",
+        "asn": 64500,
+        "geo_country": "NL",
+        "net_class": "",
+        "p_origin": 0.0017764568028497952,
+        "peer_ip": "198.19.7.134",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 35503,
+        "rank": 5
+      },
+      {
+        "announcements_ms": [
+          3229313
+        ],
+        "as_org": "",
+        "asn": 64502,
+        "geo_country": "US",
+        "net_class": "",
+        "p_origin": 0.006763110849305439,
+        "peer_ip": "198.19.152.155",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 43043,
+        "rank": 3
+      }
+    ],
+    "margin": 0.004990528332351047,
+    "origin_peer_display": "198.19.x.x",
+    "p_origin": 0.01785257921281476,
+    "runner_up_display": "100.88.x.x",
+    "runner_up_p": 0.0017725689504466213,
+    "txid": "da4daa3815eafa9e87fe4bbcb147cb7be9cae289020d2936db2f2a75e82c8b27",
+    "txid_display": "da4daa38\u20268b27"
+  },
+  "severity": "high",
+  "subject_display": "bc1qge\u20263182"
+}

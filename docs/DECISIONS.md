@@ -1469,3 +1469,30 @@ investigator sees at case-open time. Rejected a wall clock on the packet ("gener
 when the packet was written") — it would make replay false, and a replay claim that
 cannot hold comes out of the packet. Revisit the log layout only if a real case
 management workflow needs per-case chains that diverge from the shared one.
+
+## 2026-09-16 · S10 · the canonical 1M run is retuned with `--txs`, not a config rewrite
+
+Chose to size the canonical run to 958,994 capture rows by passing `--txs 23500` on the
+MAYAJAAL command line, and to record the realized announcements-per-transaction ratio
+(42.217, from `scripts/announcements_per_tx.py` reading the run's own manifests) in
+`docs/PERF.md`. Rejected editing `run_config.json`'s `mean_announcements_per_tx` to make
+the number come out round, and rejected hardcoding the prompt's estimated 66–68k
+transaction count: the estimate assumed ~14.7 announcements/tx, but at
+observer_fraction 0.7 with 16 observers the measured ratio is 42.2, so 1M rows is ~23.5k
+transactions. The first attempt at the default `--txs` produced 2.74M rows and KAVACH's
+seal was OOM-killed at 10.6 GB on the 16 GB machine (exit 137); retuning the run size is
+the measurement-driven fix, not a code change to seal's memory behaviour. Revisit if a
+machine with more memory runs the default: the 1M-row target then needs no retune.
+
+## 2026-09-16 · S10 · VAANI's counter-evidence starvation was a join on the wrong end of SPENDS
+
+Chose to fix `vaani/stage.py`'s `sent_pairs` to strip `addr:` off `src` and `tx:` off
+`dst` of SPENDS edges (a SPENDS edge runs addr→tx), rather than relaxing counters.build's
+mandatory counter-evidence assertion. The old code keyed txids against cluster addresses
+and produced zero rows, which emptied `abstain_frac` and `peer_subjects` and silenced two
+counter branches; at reference scale the remaining branches happened to cover every
+alert, so 5,472 of 68,204 alerts at 1M scale were the first symptom. The contract check
+stood and the generator was fixed — the same discipline as a validator band. The fixture
+exporter and `_sweep-0.10` were re-run after the fix so the API's committed fixtures and
+the live serializers agree by construction. Revisit never: the fix is the correct join,
+and the contract test now covers it at scale by construction of every verify-s10 run.

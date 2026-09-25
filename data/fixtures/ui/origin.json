@@ -1,0 +1,126 @@
+{
+  "abstain": false,
+  "abstain_reason": "",
+  "first_seen_us": 1767241346162397,
+  "lanes": [
+    {
+      "announcements_ms": [
+        0
+      ],
+      "as_org": "",
+      "asn": 64496,
+      "geo_country": "IN",
+      "net_class": "",
+      "p_origin": 0.15335508618663563,
+      "peer_ip": "198.18.63.159",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 41392,
+      "rank": 1
+    },
+    {
+      "announcements_ms": [
+        501980
+      ],
+      "as_org": "",
+      "asn": 64496,
+      "geo_country": "IN",
+      "net_class": "",
+      "p_origin": 0.004404674136996859,
+      "peer_ip": "198.18.7.160",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 53392,
+      "rank": 5
+    },
+    {
+      "announcements_ms": [
+        731028
+      ],
+      "as_org": "",
+      "asn": 64511,
+      "geo_country": "JP",
+      "net_class": "",
+      "p_origin": 0.00691549337013979,
+      "peer_ip": "203.0.113.93",
+      "peer_ip_display": "203.0.x.x",
+      "peer_port": 50944,
+      "rank": 4
+    },
+    {
+      "announcements_ms": [
+        1572178
+      ],
+      "as_org": "",
+      "asn": 64499,
+      "geo_country": "DE",
+      "net_class": "",
+      "p_origin": 0.008670722812811872,
+      "peer_ip": "198.18.218.48",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 39727,
+      "rank": 3
+    },
+    {
+      "announcements_ms": [
+        2283348
+      ],
+      "as_org": "",
+      "asn": 64501,
+      "geo_country": "US",
+      "net_class": "",
+      "p_origin": 0.03342602691386781,
+      "peer_ip": "198.19.83.69",
+      "peer_ip_display": "198.19.x.x",
+      "peer_port": 49776,
+      "rank": 2
+    },
+    {
+      "announcements_ms": [
+        2710694
+      ],
+      "as_org": "",
+      "asn": 64500,
+      "geo_country": "NL",
+      "net_class": "",
+      "p_origin": 0.0008996775822098158,
+      "peer_ip": "198.19.7.134",
+      "peer_ip_display": "198.19.x.x",
+      "peer_port": 35503,
+      "rank": 8
+    },
+    {
+      "announcements_ms": [
+        3237114
+      ],
+      "as_org": "",
+      "asn": 64496,
+      "geo_country": "IN",
+      "net_class": "",
+      "p_origin": 0.002282032305429132,
+      "peer_ip": "198.18.63.203",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 58164,
+      "rank": 7
+    },
+    {
+      "announcements_ms": [
+        4841579
+      ],
+      "as_org": "",
+      "asn": 64496,
+      "geo_country": "IN",
+      "net_class": "",
+      "p_origin": 0.002478753579452318,
+      "peer_ip": "198.18.29.200",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 56701,
+      "rank": 6
+    }
+  ],
+  "margin": 0.11992905927276781,
+  "origin_peer_display": "198.18.x.x",
+  "p_origin": 0.15335508618663563,
+  "runner_up_display": "198.18.x.x",
+  "runner_up_p": 0.004404674136996859,
+  "txid": "000153a2da1b11ec38c8cd395b50dd9c137e4058cb748be58a11e28c08770044",
+  "txid_display": "000153a2\u20260044"
+}

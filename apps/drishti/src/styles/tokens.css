@@ -1,0 +1,202 @@
+/* DRISHTI design tokens — the single source of every colour and size literal.
+   Nothing visual is allowed outside this file and echarts-theme.ts.
+
+   Structure:
+     :root                 structural tokens (type scale, spacing, motion, faces)
+                           + the DEFAULT theme colours (sage), so a document with
+                           no data-theme attribute renders as Pale Sage.
+     [data-theme="…"]      seven switchable colour sets. Only colours change.
+     [data-font="…"]       eight switchable UI faces. Only --font-ui changes.
+
+   Locked 2026-09-25. Colour values are copied verbatim from docs/DRISHTI-SPEC.md;
+   do not invent replacements. Numerals stay IBM Plex Mono in every theme and face. */
+
+:root {
+  /* ---- Faces. UI face is swapped by [data-font]; mono is fixed forever. ---- */
+  --font-ui: "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* ---- Six-step type scale. One size per job; differentiate by weight/tracking/colour. ---- */
+  --fs-micro: 11px;
+  --fs-small: 12px;
+  --fs-body: 13px;
+  --fs-lead: 16px;
+  --fs-big: 22px;
+  --fs-hero: 34px;
+
+  --w-regular: 400;
+  --w-medium: 500;
+  --w-semi: 600;
+
+  /* ---- Spacing, radius, hairline, motion — theme-independent. ---- */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+
+  --radius: 2px;
+  --hair: 1px solid var(--line);
+
+  --t-state: 120ms cubic-bezier(0.2, 0, 0.3, 1);
+  --t-reveal: 420ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---- Default theme: sage (Pale Sage). Mirrored in [data-theme="sage"] below. ---- */
+  --bg: #edefe7;
+  --bg-panel: #fafbf6;
+  --bg-raise: #ffffff;
+  --line: #e1e4d8;
+  --line-hi: #cdd2c2;
+  --ink: #1b1f18;
+  --ink-dim: #616a5a;
+  --ink-mute: #9aa28f;
+  --ink-faint: #bec5b2;
+  --signal: #3b6e43;
+  --signal-dim: #294e30;
+  --sig-soft: #cbddc4;
+  --cool: #5e7687;
+  --alert: #b24a3f;
+  --ok: #2f7d6e;
+}
+
+/* ============================ THEMES ============================ */
+
+[data-theme="sage"] {
+  --bg: #edefe7;
+  --bg-panel: #fafbf6;
+  --bg-raise: #ffffff;
+  --line: #e1e4d8;
+  --line-hi: #cdd2c2;
+  --ink: #1b1f18;
+  --ink-dim: #616a5a;
+  --ink-mute: #9aa28f;
+  --ink-faint: #bec5b2;
+  --signal: #3b6e43;
+  --signal-dim: #294e30;
+  --sig-soft: #cbddc4;
+  --cool: #5e7687;
+  --alert: #b24a3f;
+  --ok: #2f7d6e;
+}
+
+[data-theme="paper"] {
+  --bg: #f3efe7;
+  --bg-panel: #fcfbf8;
+  --bg-raise: #ffffff;
+  --line: #ebe5da;
+  --line-hi: #d8d1c2;
+  --ink: #1f1c17;
+  --ink-dim: #726b60;
+  --ink-mute: #ada595;
+  --ink-faint: #c9c2b4;
+  --signal: #b4550e;
+  --signal-dim: #7a3a0a;
+  --sig-soft: #e4c9ae;
+  --cool: #5e7687;
+  --alert: #b24a3f;
+  --ok: #3c8b61;
+}
+
+[data-theme="ivory"] {
+  --bg: #f4f2ec;
+  --bg-panel: #fcfbf7;
+  --bg-raise: #ffffff;
+  --line: #e8e4da;
+  --line-hi: #d5d0c4;
+  --ink: #1e1d1a;
+  --ink-dim: #6c6960;
+  --ink-mute: #a8a498;
+  --ink-faint: #c6c2b4;
+  --signal: #3e6e8e;
+  --signal-dim: #2a4e64;
+  --sig-soft: #cbdce6;
+  --cool: #4f8a7a;
+  --alert: #b24a3f;
+  --ok: #3c8b61;
+}
+
+[data-theme="cool"] {
+  --bg: #eef1ee;
+  --bg-panel: #fbfcfb;
+  --bg-raise: #ffffff;
+  --line: #e0e5e1;
+  --line-hi: #cdd4ce;
+  --ink: #182020;
+  --ink-dim: #5f6b67;
+  --ink-mute: #9aa6a0;
+  --ink-faint: #bcc6c0;
+  --signal: #1f7a6d;
+  --signal-dim: #14544a;
+  --sig-soft: #c4ded8;
+  --cool: #5e7687;
+  --alert: #b24a3f;
+  --ok: #3c8b61;
+}
+
+[data-theme="violet"] {
+  --bg: #f2f1f3;
+  --bg-panel: #fcfbfd;
+  --bg-raise: #ffffff;
+  --line: #e6e4e9;
+  --line-hi: #d3d0da;
+  --ink: #1c1b1f;
+  --ink-dim: #67646e;
+  --ink-mute: #a3a0ab;
+  --ink-faint: #c4c1cc;
+  --signal: #6a5a9e;
+  --signal-dim: #473c6b;
+  --sig-soft: #d8d2e8;
+  --cool: #5e7687;
+  --alert: #b24a3f;
+  --ok: #3c8b61;
+}
+
+[data-theme="white"] {
+  --bg: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-raise: #ffffff;
+  --line: #ececec;
+  --line-hi: #dbdbdb;
+  --ink: #101010;
+  --ink-dim: #5e5e5e;
+  --ink-mute: #969696;
+  --ink-faint: #c4c4c4;
+  --signal: #101010;
+  --signal-dim: #4a4a4a;
+  --sig-soft: #e4e4e4;
+  --cool: #5e7687;
+  --alert: #b24a3f;
+  --ok: #3c8b61;
+}
+
+[data-theme="dark"] {
+  --bg: #0e0e10;
+  --bg-panel: #161619;
+  --bg-raise: #1c1c21;
+  --line: #242429;
+  --line-hi: #33333a;
+  --ink: #eceae6;
+  --ink-dim: #9a9aa2;
+  --ink-mute: #6c6c74;
+  --ink-faint: #45454d;
+  --signal: #d07b33;
+  --signal-dim: #8a4e1e;
+  --sig-soft: #3a2a1b;
+  --cool: #6e8894;
+  --alert: #d0554c;
+  --ok: #4fa875;
+}
+
+/* ============================ UI FACES ============================ */
+/* Only --font-ui changes. Numerals stay IBM Plex Mono via .mono / --font-mono. */
+
+[data-font="hanken"] { --font-ui: "Hanken Grotesk", system-ui, sans-serif; }
+[data-font="plex-sans"] { --font-ui: "IBM Plex Sans", system-ui, sans-serif; }
+[data-font="instrument"] { --font-ui: "Instrument Sans", system-ui, sans-serif; }
+[data-font="fira"] { --font-ui: "Fira Sans", system-ui, sans-serif; }
+[data-font="work"] { --font-ui: "Work Sans", system-ui, sans-serif; }
+[data-font="space-grotesk"] { --font-ui: "Space Grotesk", system-ui, sans-serif; }
+[data-font="geist"] { --font-ui: "Geist", system-ui, sans-serif; }
+[data-font="archivo"] { --font-ui: "Archivo", system-ui, sans-serif; }

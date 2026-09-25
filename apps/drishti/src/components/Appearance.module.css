@@ -1,0 +1,47 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s3);
+  border-top: var(--hair);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.head {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+/* Native select, stripped to a hairline control so it reads as an instrument, not a
+   default OS widget. Keyboard and a11y behaviour stay native. */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding: var(--s1) var(--s2);
+  font-family: var(--font-ui);
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+  background: var(--bg-raise);
+  border: var(--hair);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color var(--t-state), color var(--t-state);
+}
+
+.select:hover {
+  color: var(--ink);
+  border-color: var(--line-hi);
+}
+
+.select:focus-visible {
+  color: var(--ink);
+  border-color: var(--signal);
+}

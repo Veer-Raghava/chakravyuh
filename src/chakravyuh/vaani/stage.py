@@ -177,8 +177,11 @@ def build_run(run_dir: Path, out: Path) -> Path:
     sent_pairs = (
         edges.filter(pl.col("kind") == "SPENDS")
         .select(
-            pl.col("dst").str.strip_prefix("addr:").alias("address"),
-            pl.col("src").str.strip_prefix("tx:").alias("txid"),
+            # A SPENDS edge runs addr -> tx, so the spender is `src`; stripping the prefix
+            # off `dst` here joined txids against cluster addresses and silently emptied
+            # sent_pairs, which starved both the abstain and shared-ip counters.
+            pl.col("src").str.strip_prefix("addr:").alias("address"),
+            pl.col("dst").str.strip_prefix("tx:").alias("txid"),
         )
         .join(
             clusters.select("cluster_id", "addresses").explode("addresses"),

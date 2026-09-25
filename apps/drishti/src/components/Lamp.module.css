@@ -1,0 +1,44 @@
+.lamp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  min-width: 0;
+}
+
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+/* Hollow when not yet run, filled --ok when verified. Shape carries state, not just hue. */
+.square {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border: 1px solid var(--ink-mute);
+  background: transparent;
+}
+
+.lamp[data-on="true"] .square {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+
+.label {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.lamp[data-on="true"] .label {
+  color: var(--ok);
+}
+
+.detail {
+  font-size: var(--fs-micro);
+  color: var(--ink-mute);
+  padding-left: 16px;
+  word-break: break-all;
+}

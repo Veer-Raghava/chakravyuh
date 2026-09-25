@@ -1,0 +1,41 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.bound {
+  font-size: var(--fs-micro);
+  color: var(--ink-dim);
+  flex: 0 0 auto;
+}
+
+.track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 6px;
+  min-width: 60px;
+  background: var(--bg-raise);
+  border: var(--hair);
+  border-radius: var(--radius);
+}
+
+/* The interval span. --signal-dim, not --cool: --cool is reserved for
+   counter-evidence, abstention and cleared, so it must not carry an interval. */
+.fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--signal-dim);
+}
+
+/* The point estimate, drawn on the signal accent so the eye lands on it. */
+.point {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--signal);
+  transform: translateX(-1px);
+}

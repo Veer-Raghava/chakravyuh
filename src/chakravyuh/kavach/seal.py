@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -501,6 +502,24 @@ def seal(target: Path, out: Path) -> Path:
         reason = str(bad["reject_reason"])
         books.reject_reasons[reason] = books.reject_reasons.get(reason, 0) + 1
     seen: set[tuple[object, ...]] = set()
+
+    # The circuit breaker (S10): a seal that rejects more than one row in a hundred is not a
+    # seal, it is a mangling, and downstream stages must not consume it. Stop before writing
+    # anything and put the reason distribution in the error so the fix starts from evidence.
+    # `hash_inputs` already wrote `INPUT.sha256` into `sealed/`, so a fired breaker removes the
+    # directory it created: a half-sealed output is exactly what the breaker exists to prevent.
+    if books.rows_rejected * 100 > books.rows_read:
+        distribution = ", ".join(
+            f"{reason}={count}" for reason, count in sorted(books.reject_reasons.items())
+        )
+        shutil.rmtree(sealed_dir, ignore_errors=True)
+        raise CaptureFormatError(
+            f"rejected {books.rows_rejected} of {books.rows_read} rows "
+            f"({books.rows_rejected / max(books.rows_read, 1):.1%}), above the 1% circuit "
+            f"breaker. Reasons: {distribution or 'none recorded'}. Fix the capture or the "
+            "schema mapping before sealing; no rows or manifest were written."
+        )
+
     for kept_row in sealed_rows:
         key = tuple(
             tuple(value) if isinstance(value, list) else value

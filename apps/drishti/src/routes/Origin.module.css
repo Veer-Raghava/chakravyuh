@@ -1,0 +1,259 @@
+/* ORIGIN — the timeline fan is the hero; the aside is the one card the eye lands on.
+   Instrument face: hairlines and whitespace, one accent (signal), cool only for abstain.
+   Every colour/size literal lives in tokens.css. No page scroll: the frame is fixed. */
+
+.page {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.loading {
+  font-size: var(--fs-small);
+  color: var(--ink-mute);
+  padding: var(--s5);
+}
+
+/* ---- header: crumb + the three-transaction selector ---- */
+.head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s5);
+  padding: var(--s4) var(--s6);
+  border-bottom: var(--hair);
+}
+
+.crumb {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.crumb .mono {
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+}
+
+.cases {
+  display: flex;
+  align-items: stretch;
+  gap: var(--s2);
+}
+
+.casesLabel {
+  align-self: center;
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-right: var(--s2);
+}
+
+.case {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  align-items: flex-start;
+  padding: var(--s2) var(--s3);
+  background: var(--bg-panel);
+  border: var(--hair);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+  transition: border-color var(--t-state), color var(--t-state);
+}
+.case:hover {
+  border-color: var(--line-hi);
+}
+.case[data-active] {
+  border-color: var(--signal);
+  color: var(--ink);
+}
+
+.caseTag {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.caseTag[data-abstain] {
+  color: var(--cool);
+}
+
+/* ---- body: fan (fluid) + aside (fixed) ---- */
+.body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--s4) var(--s6);
+}
+
+.fanTitle {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--s4);
+}
+.fanLabel {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.hint {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.hint[data-done] {
+  color: var(--ink-faint);
+}
+
+.fanWrap {
+  flex: 1;
+  min-height: 0;
+}
+
+/* the three feature readouts, evenly spaced under the fan on a ruled seam */
+.readouts {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s5);
+  padding: var(--s4) 0;
+  margin-top: var(--s4);
+  border-top: var(--hair);
+}
+
+.note {
+  flex: none;
+  max-width: 78ch;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+/* ---- aside: the estimate card / the abstain state / the pre-reveal prompt ---- */
+.aside {
+  min-height: 0;
+  padding: var(--s5);
+  border-left: var(--hair);
+  background: var(--bg-panel);
+  overflow: auto;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.cardLabel {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.cardPeer {
+  font-size: var(--fs-lead);
+  font-weight: var(--w-semi);
+  color: var(--signal);
+}
+.cardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+.cardDivider {
+  height: 1px;
+  background: var(--line);
+  margin: var(--s3) 0;
+}
+.cardPLabel {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.cardP {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+}
+.cardPBig {
+  font-size: var(--fs-big);
+  font-weight: var(--w-medium);
+  color: var(--signal);
+  line-height: 1;
+}
+.cardPInt {
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+.cardMargin {
+  font-size: var(--fs-micro);
+  color: var(--ink-mute);
+}
+
+/* abstain state — cool, and a real statement, not a disabled button */
+.abstain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.abstainMark {
+  font-size: var(--fs-big);
+  font-weight: var(--w-semi);
+  letter-spacing: 0.08em;
+  color: var(--cool);
+}
+.abstainSentence {
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--cool);
+}
+.abstainWhy {
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+/* pre-reveal prompt — invites the keypress without spoiling the answer */
+.prompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+.promptKey {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  padding: var(--s1) var(--s2);
+  border: var(--hair);
+  border-radius: var(--radius);
+}
+.promptText {
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--ink-dim);
+}

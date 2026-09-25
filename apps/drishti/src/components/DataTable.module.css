@@ -1,0 +1,85 @@
+.table {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: var(--hair);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+}
+
+.header {
+  display: grid;
+  align-items: stretch;
+  border-bottom: var(--hair);
+  /* Match the row's reserved accent edge so columns align. */
+  border-left: 2px solid transparent;
+  background: var(--bg-raise);
+  flex: 0 0 auto;
+}
+
+.th {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  height: 28px;
+  padding: 0 var(--s3);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border-right: var(--hair);
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.th:last-child { border-right: none; }
+.th[data-sortable] { cursor: pointer; }
+.th[data-sortable]:hover { color: var(--ink); }
+.th[data-active] { color: var(--ink); }
+.th[data-numeric] { justify-content: flex-end; }
+
+.caret {
+  font-size: var(--fs-micro);
+  line-height: 1;
+  color: var(--signal);
+}
+
+.body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.row {
+  display: grid;
+  align-items: center;
+  border-bottom: var(--hair);
+  /* Reserved so the selected accent does not shift the row. No shadow anywhere. */
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: background var(--t-state), border-color var(--t-state);
+}
+
+.row:hover { background: var(--bg-raise); }
+
+/* Selection is the one place --signal touches a row, and only its left edge. */
+.row[data-selected] {
+  background: var(--bg-raise);
+  border-left-color: var(--signal);
+}
+
+.cell {
+  padding: 0 var(--s3);
+  font-size: var(--fs-small);
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.numeric {
+  text-align: right;
+  color: var(--ink);
+}

@@ -1,0 +1,144 @@
+{
+  "baselines": [
+    "first_seen",
+    "payer_linkage"
+  ],
+  "metric": "top-1 and top-3 over all broadcast transactions",
+  "metric_note": "The denominator is every transaction put on the wire, not the transactions an observer recorded. recoverable_ceiling is the most any estimator here can score. top1 scores the ranking and ignores abstention, so it means the same thing for an estimator that refuses and for a trivial rule that cannot; top1_acted, coverage and precision_when_acted are what the estimator actually claimed.",
+  "observer_fraction": 0.1,
+  "params": {
+    "train_fraction": 0.7
+  },
+  "recoverable_ceiling": 0.091806,
+  "recoverable_ceiling_by_window": {
+    "holdout": {
+      "ceiling": 0.09529,
+      "n_recoverable": 263,
+      "n_transactions": 2760
+    },
+    "train": {
+      "ceiling": 0.092066,
+      "n_recoverable": 528,
+      "n_transactions": 5735
+    }
+  },
+  "run_id": "_pramaan-replay",
+  "scores": {
+    "ensemble": {
+      "by_traffic": {
+        "clear": 0.073996,
+        "tor": 0.102167,
+        "vpn": 0.061103
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 169,
+          "n_transactions": 2760,
+          "top1": 0.061232
+        },
+        "train": {
+          "n_correct": 469,
+          "n_transactions": 5735,
+          "top1": 0.081779
+        }
+      },
+      "coverage": 0.911676,
+      "n_abstained": 640,
+      "n_correct": 638,
+      "n_ranked": 8495,
+      "precision_when_acted": 0.079058,
+      "top1": 0.074048,
+      "top1_acted": 0.072075,
+      "top3": 0.086119
+    },
+    "first_seen": {
+      "by_traffic": {
+        "clear": 0.047625,
+        "tor": 0.068111,
+        "vpn": 0.032787
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 123,
+          "n_transactions": 2760,
+          "top1": 0.044565
+        },
+        "train": {
+          "n_correct": 284,
+          "n_transactions": 5735,
+          "top1": 0.04952
+        }
+      },
+      "coverage": 0.985956,
+      "n_abstained": 0,
+      "n_correct": 407,
+      "n_ranked": 8495,
+      "precision_when_acted": 0.047911,
+      "top1": 0.047238,
+      "top1_acted": 0.047238,
+      "top3": 0.07045
+    },
+    "first_spy": {
+      "by_traffic": {
+        "clear": 0.047625,
+        "tor": 0.068111,
+        "vpn": 0.032787
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 123,
+          "n_transactions": 2760,
+          "top1": 0.044565
+        },
+        "train": {
+          "n_correct": 284,
+          "n_transactions": 5735,
+          "top1": 0.04952
+        }
+      },
+      "coverage": 0.969708,
+      "n_abstained": 140,
+      "n_correct": 407,
+      "n_ranked": 8495,
+      "precision_when_acted": 0.047995,
+      "top1": 0.047238,
+      "top1_acted": 0.046541,
+      "top3": 0.07045
+    },
+    "payer_linkage": {
+      "by_traffic": {
+        "clear": 0.061795,
+        "tor": 0.074303,
+        "vpn": 0.029806
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 158,
+          "n_transactions": 2760,
+          "top1": 0.057246
+        },
+        "train": {
+          "n_correct": 357,
+          "n_transactions": 5735,
+          "top1": 0.062249
+        }
+      },
+      "coverage": 0.985956,
+      "n_abstained": 0,
+      "n_correct": 515,
+      "n_ranked": 8495,
+      "precision_when_acted": 0.060624,
+      "top1": 0.059773,
+      "top1_acted": 0.059773,
+      "top3": 0.077066
+    }
+  },
+  "split": {
+    "boundary_us": 1767336501947808,
+    "by_window_note": "by_window denominators count only transactions an observer heard, so they do not sum to transactions_broadcast.",
+    "policy": "first_seen_us < boundary trains",
+    "train_fraction": 0.7
+  },
+  "transactions_broadcast": 8616,
+  "transactions_with_a_candidate": 8495
+}

@@ -1,0 +1,136 @@
+{
+  "amount_unit_detected": "sats",
+  "arithmetic_ok": true,
+  "code_version": "0.1.0",
+  "columns": [
+    {
+      "column": "timestamp",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "src_ip",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "dst_ip",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "src_port",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "dst_port",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "txid",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "input_addresses",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "output_addresses",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "input_amounts",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "sats"
+    },
+    {
+      "column": "output_amounts",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "sats"
+    },
+    {
+      "column": "geo_country",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "asn",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "fee_sats",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "sats"
+    },
+    {
+      "column": "vsize",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "script_types",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "block_height",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "msg_type",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    },
+    {
+      "column": "observer_id",
+      "null_count": 0,
+      "status": "MAPPED",
+      "type": "text"
+    }
+  ],
+  "files": [
+    {
+      "name": "part-0000.csv",
+      "sha256": "f3977f4c5859d1f0ffe02216ccda8319d2e6fc4be4ebcb0c0534eff00eaba206"
+    },
+    {
+      "bytes": 20388827,
+      "name": "part-0000.csv",
+      "sha256": "f3977f4c5859d1f0ffe02216ccda8319d2e6fc4be4ebcb0c0534eff00eaba206"
+    }
+  ],
+  "input_sha256": "f3977f4c5859d1f0ffe02216ccda8319d2e6fc4be4ebcb0c0534eff00eaba206",
+  "reject_reasons": {},
+  "rejects": [],
+  "rows_read": 41594,
+  "rows_rejected": 0,
+  "rows_sealed": 41594,
+  "run_id": "_sweep-0.10",
+  "seed": 42,
+  "timestamp_format_detected": "iso8601",
+  "warnings": []
+}

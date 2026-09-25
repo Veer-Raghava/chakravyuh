@@ -72,3 +72,98 @@ the data it ran on, and what it does not cover.
 **What it cannot do.** It cannot tell who originated a transaction, and it deliberately refuses to try. The change output heuristic, which guesses which output returns money to the sender, is kept weak on purpose, leaving 88.998 percent of transactions undetermined on the demo run, because a nearly perfect structural guess would hand the next stage a free answer and make its measured precision meaningless. Geography is also not measured on any real run yet, because the vendor directory is empty and every such column is null until someone puts the offline files there.
 
 **If a judge asks "why not just enrich at capture time".** The capture belongs to whoever recorded it, and its values are kept where it has them, since an ASN resolved at recording time is closer to the truth of that moment than a lookup done months later. Enriching here instead also means the enrichment is reproducible, offline, and recorded in the stage metadata with a hash of the input it read, so the whole operation can be re-run and checked rather than trusted.
+
+## S09 · PRAMAAN, the signed evidence packet
+
+**In one sentence.** S09 turns one alert into the thing an investigator can actually serve: a case file, a formal notice to an ISP, a digital signature over the packet, and an entry in a log that detects any later rewrite.
+
+**Why it exists.** An alert is a row in a file, and a row convinces nobody. The packet has to carry its own integrity: exactly which inputs produced it, proof that nothing was altered since, and the property that anyone can rebuild it from the same inputs and get the same bytes. Without this stage the whole pipeline ends in a claim on a screen.
+
+**How it works, in three steps.** One, one alert is resolved into a case and the packet is assembled from the upstream stages' outputs, with the attribution, its confidence interval and the counter-evidence included. The hash of each of the six upstream manifests, meaning each stage's own record of its inputs and outputs, goes in as the chain of custody. Two, two documents are rendered, the case file and a notice an investigator can serve on an ISP to demand records, under section 94 of BNSS 2023, and every identifier is truncated before it reaches a page. Three, the packet is signed with Ed25519, a signature scheme, meaning a short mathematical proof that the holder of one private key produced exactly these bytes, and the case is appended to a Merkle log, an append-only list where every entry hashes the previous one, so rewriting an old entry breaks every newer one.
+
+**The one interesting choice.** The packet's timestamp is not read from the clock. It is taken from the alert stage's own recorded finish time, so rebuilding the same case always produces the same bytes, signature included. The obvious alternative, stamping the moment of generation like any ordinary document tool, was rejected because it turns every replay, meaning every rebuild from the same inputs, into a different packet that no second analyst could verify. The gate builds one case twice in two separate processes and byte-compares the packet, both documents and the signature, and they are identical.
+
+**What it cannot do.** The key ceremony is none. One seed file is auto-created on this laptop, with no backup and no rotation, which proves the design and not an operational deployment. The reference run holds 8857 alerts, each needing a signature and two documents at roughly 0.1 seconds per signature, and no full-queue packeting has been run end to end yet. The packet also carries no accuracy figure on purpose, so a benchmark score can never be presented as a property of the evidence.
+
+**If a judge asks "why not just use a cryptography library and a PDF library".** Nothing can be installed on the offline machine this builds on, and the stage was not allowed to block on that. The hand-written signature code is checked byte for byte against the five official test vectors published in the standard that defines Ed25519, so its correctness is pinned by that standard rather than by trust in our code. The hand-written document writer produces identical bytes on every call, which general PDF libraries do not promise, and that guarantee is what makes the rebuild check mean anything.
+
+## S06 · SHASTRA, the origin estimator
+
+**In one sentence.** S06 estimates, for every transaction an observer heard, which announcing peer most likely created it rather than relayed it, and refuses to answer when the evidence is too weak to act on.
+
+**Why it exists.** When a transaction spreads across the peer-to-peer network, an observer sees only relays, and the first peer to arrive is usually just the one nearest to the sensor. Without this stage the tool can say who talked but never who paid. The stage also has to be honest about a hard structural fact: each observer records only the earliest arrival per transaction, so on the gate run the true originator is present in the candidate set for at most 0.091806 of broadcast transactions, a number called the ceiling, and any accuracy above it would mean a leak rather than skill.
+
+**How it works, in three steps.** One, every announcement is grouped to one row per transaction and peer pair, and fourteen observable features are attached, including how early the peer was, its history of being early, how many observers heard it, its graph degree, whether it is a known Tor exit or hosting provider, and how many of this payer's other transactions the same peer announced, which is the strongest single signal the capture leaks. Two, a baseline that ranks purely by first arrival is scored first, then a gradient-boosted tree, meaning a machine-learning model built from many small decision rules, is trained on labelled transactions from the first seventy percent of the capture and turns the features into a calibrated probability per candidate. Three, abstention rules run inside the estimator: a Tor exit among the candidates, a single observer, too few announcements, or a top-two gap below the configured floor all produce an explicit refusal, and a refused transaction is written with no rank-one row so it can never be misread as an accusation.
+
+**The one interesting choice.** The probabilities per transaction are capped at one but never rescaled to sum to exactly one. The alternative, forcing them to sum to one, was rejected because it deletes the most important state of the world here: for most transactions none of the observed peers is the originator, and the shortfall below one is the file saying so. On the gate run, 0.074048 top-one accuracy against a payer-linkage trivial rule at 0.059773 and a ceiling of 0.091806, so the model recovers 0.643 of the holdout ceiling after recovering 0.888 of the training one.
+
+**What it cannot do.** It cannot beat the ceiling, and it does not close the gap between the training and holdout share of that ceiling. Two attempts were made and both failed: a search over model capacity moved nothing, and a ranking-specific objective scored strictly worse. The gap is recorded as an open problem rather than tuned away. Typology detection and entity typing ship as empty files with the exact schema, because populating them with placeholders would write rows an auditor must reject.
+
+**If a judge asks "why not just take the first peer seen".** That rule is built, scored, and printed beside the model on every run: it scores 0.047238 against the model's 0.074048 on the gate run, and the gate fails if the model ever drops to it. The fair comparison is against the stronger free rule, payer linkage at 0.059773, and the model clears that too, on the holdout window as well as overall, because the first version of this stage won overall while quietly losing the holdout by memorising its own training window, and the gate was hardened specifically so that can never pass again.
+
+## S07 · BUDDHI, the wallet risk model
+
+**In one sentence.** S07 ranks every wallet cluster in the capture by laundering risk and attaches to each one a confidence interval that is honest about how rare illicit activity is.
+
+**Why it exists.** The origin estimator says which peer sent a transaction; it does not say which wallets are laundering. An investigator needs a queue ordered by risk, and a number on each row saying how sure the tool is, because a ranking with no stated uncertainty invites over-trust in exactly the cases that end up before a court. Without this stage the pipeline ends at network facts with no subject-level conclusion.
+
+**How it works, in three steps.** One, addresses are grouped into subjects, meaning wallet clusters produced by the graph stage, and twenty-one features are attached per subject from the normalised tables and the origin estimates, including received and spent value, fee behaviour, and how often the subject's transactions were attributed to their own announcing peers. Two, a gradient-boosted tree, meaning a model built from many small decision rules, is trained only on wallets labelled illicit in the first seventy percent of the capture, and the rest of the capture is held out and never touched during training. Three, the raw score is wrapped in a Mondrian conformal interval, meaning a calibrated band computed separately for the illicit and the licit class, so a subject can be labelled likely illicit, likely licit, or unclear, and the unclear option is a real output rather than a failure.
+
+**The one interesting choice.** The interval is class-conditional rather than shared. With illicit wallets near five percent of subjects, one shared calibrator takes its width from the majority class and its guarantee collapses on the minority, which is the only class the tool exists for. On the reference run the plain method covers zero of the illicit calibration rows and the class-conditional method covers 0.927536, against a target of 0.9. The rejected alternative, one interval for everyone, is written into the calibration table beside the chosen one so the comparison is measured, not asserted.
+
+**What it cannot do.** The absolute ranking power is weak at this scale: 0.1 precision at twenty against the trivial rule's 0.0 over 4025 labelled holdout subjects, and a ROC-AUC of 0.513663, barely above chance. The gate asserts only that the trivial rule is beaten, and the honest reading is that the model clears a low bar at eight thousand transactions. Improvement is deferred to the full-scale run, and no tuning was attempted here.
+
+**If a judge asks "why not just rank by total value received".** That rule is built, scored on the same run and the same holdout window through the same arithmetic, and recorded beside the model's own report: 0.0 precision at twenty against the model's 0.1. The gate fails if the model ever drops to the trivial rule. Ranking by value is also exactly what a laundering wallet wants you to do, since large flows are a property of every big operator, licit or not.
+
+## S10 · the full-scale run
+
+**In one sentence.** S10 ran the whole pipeline end to end on one million capture rows in
+one resumable run, measured how long and how much memory each stage takes on one laptop,
+and re-read every absolute number the earlier stages had only asserted at gate scale.
+
+**Why it exists.** A pipeline that is only ever checked at eight thousand transactions has
+numbers that mean nothing at a million: memory limits only appear on real data, and
+distribution checks fail differently at scale. It also has to be resumable, because a
+run that takes an hour must not turn a single failure into a full restart — rerunning the
+generator with the same seed and configuration reproduces the same bytes, so a rerun
+skips every file that already matches and the run continues where it stopped.
+
+**How it was produced.** One command per stage on the canonical run `s10-canonical`
+(958,994 capture rows, 22,716 gossiped transactions, seed 42, observer_fraction 0.7),
+each wrapped by a measuring script that records wall clock and peak resident memory. The
+full table is `docs/PERF.md`; headline figures: the whole pipeline through explanation
+runs in under eight minutes, the intake seal is the memory high point at 8.9 GB, and the
+signing stage is deliberately excluded from bulk use because it writes one signed PDF
+packet per alert.
+
+**The one interesting choice.** The prompt's own sizing estimate — about 14.7
+announcements per transaction, so 66–68k transactions for a million rows — was wrong for
+this configuration, and the brief said never to hardcode the figure. The generator was
+run, the realized ratio was measured from the run's own manifests (42.2: each of the 16
+observers records what it hears, and observer_fraction 0.7 means most of the network is
+listened to), and the transaction count was retuned to hit a million rows. Measuring
+before sizing is also what caught the one real failure: the explanation stage rejected
+5,472 of 68,204 alerts as having no counter-evidence, which is a contract violation the
+pipeline must refuse rather than paper over, and the root cause was a join keyed on the
+wrong end of an edge that had silently produced empty inputs at every scale — smaller
+runs masked it because other counter branches happened to cover the gap.
+
+**What the numbers say now.** The origin estimator's train-versus-holdout gap, an open
+problem since S06, closed by itself at scale: it recovers 0.625 of the training ceiling
+and 0.630 of the holdout ceiling, so the model generalises. The wallet model's weak
+absolute ranking was also a scale artifact: precision at twenty went from 0.1 to 0.55,
+so eleven of the top twenty wallets really are illicit at one-in-twenty-seven base rate.
+No tuning was performed anywhere; the measured numbers did not ask for it.
+
+**What it cannot do.** The signing stage is not run in bulk at this scale — one packet
+per alert would mean 68,204 signed PDFs and hours of pure-Python Ed25519, so packets are
+produced per case on demand, which is also how an investigator works. The machine has
+16 GB of memory, and the seal stage peaks at 8.9 GB on a million rows; a capture several
+times larger would need sharding at the seal, which is future work and recorded as such.
+
+**If a judge asks "why generate traffic instead of capturing real traffic".** The answer
+is unchanged from S01 and the scale run strengthens it: attribution accuracy can only be
+scored where the true originator is known, and the scale run is where the generated
+world's honesty bands were re-checked — the first-seen peer names the originator on
+0.212 of transactions, squarely inside the 0.15–0.60 band that fails if the generator
+ever leaks the answer.

@@ -65,9 +65,15 @@ class Counters:
     """Run bookkeeping. `attempts`/`built`/`dropped` feed section 10's counts, which must
     satisfy `in == out + dropped`, so every attempt lands in exactly one of the last two."""
 
+    ordinal: int = 0
     attempts: int = 0
     built: int = 0
     drops: dict[str, int] = field(default_factory=dict)
+
+    def next_txid(self) -> str:
+        txid = ledger.txid_for(self.ordinal)
+        self.ordinal += 1
+        return txid
 
     def drop(self, reason: str) -> None:
         self.drops[reason] = self.drops.get(reason, 0) + 1
@@ -143,17 +149,11 @@ def endow(cfg: Config, pop: Population, book: Ledger, rng: random.Random) -> lis
     low, high = chain.endow_utxos
     seeds: list[Seed] = []
     for index, entity in enumerate(pop.entities):
-        spec = cfg.type_of(entity.entity_type)
-        # Outputs are drawn before the txid exists, because the txid is a hash of them. The
-        # entity index is the nonce: an endowment has no inputs, so nothing else separates two
-        # entities that happen to draw one output of the same size to the same script type.
-        drawn: list[tuple[str, str, int]] = []
-        for _ in range(rng.randint(low, high)):
+        spechttps://github.com/Veer-Raghava/chakravyuh = cfg.type_of(entity.entity_type)
+        txid = ledger.txid_for(-1 - index)
+        for vout in range(rng.randint(low, high)):
             address, kind = entity.receive_address(rng, pop.factory)
             sats = _draw_sats(rng, spec.value_mu + chain.endow_mu_offset, chain.endow_sigma, 1)
-            drawn.append((address, kind, sats))
-        txid = ledger.txid_for((), drawn, nonce=f"endowment:{index}")
-        for vout, (address, kind, sats) in enumerate(drawn):
             book.create(
                 (txid, vout),
                 Utxo(
@@ -271,6 +271,7 @@ def payment(
     sender_index: int,
     height: int,
     time_us: int,
+    txid: str,
     control: MultiInput,
     intent: Intent | None = None,
 ) -> Tx | None:
@@ -379,11 +380,6 @@ def payment(
 
     for outpoint, _ in chosen:
         book.spend(outpoint)
-    # The txid is derived here rather than handed in, because it is a hash of exactly these
-    # inputs and outputs and they are only final now. No nonce: an outpoint can be spent once,
-    # so the input set already separates this transaction from every other one in the run.
-    inputs = tuple(outpoint for outpoint, _ in chosen)
-    txid = ledger.txid_for(inputs, list(zip(addresses, kinds, amounts, strict=True)))
     for vout, sats in enumerate(amounts):
         book.create(
             (txid, vout),
@@ -403,7 +399,7 @@ def payment(
         height=height,
         time_us=time_us,
         is_coinbase=False,
-        inputs=inputs,
+        inputs=tuple(outpoint for outpoint, _ in chosen),
         input_addresses=tuple(utxo.address for _, utxo in chosen),
         input_sats=tuple(utxo.sats for _, utxo in chosen),
         output_addresses=tuple(addresses),
@@ -427,16 +423,13 @@ def _coinbase(
     *,
     height: int,
     time_us: int,
+    txid: str,
     fees: int,
 ) -> Tx:
     """The block reward, paid to one pool chosen in proportion to its hashrate."""
     pool = pop.hashrate.pick(rng)
-    address, kind = pop.entities[pool].payout_address(rng, pop.factory)
+    address, kind = pop.entities[pool].receive_address(rng, pop.factory)
     sats = cfg.chain.coinbase_subsidy_sats + fees
-    # BIP34 puts the block height in the coinbase, and this is why: a coinbase has no inputs,
-    # so without the height two blocks paying the same pool the same subsidy would serialise
-    # identically and share a txid.
-    txid = ledger.txid_for((), [(address, kind, sats)], nonce=f"height:{height}")
     book.create(
         (txid, 0),
         Utxo(address=address, kind=kind, sats=sats, height=height, owner=pool, coinbase=True),
@@ -563,6 +556,7 @@ def generate(cfg: Config, rng: random.Random, plan: ActorPlan | None = None) -> 
                     sender_index=pool,
                     height=height,
                     time_us=time_us,
+                    txid=counters.next_txid(),
                     control=control,
                     intent=Intent(outputs=chain.pool_payout_outputs),
                 )
@@ -584,6 +578,7 @@ def generate(cfg: Config, rng: random.Random, plan: ActorPlan | None = None) -> 
                     sender_index=senders.pick(rng),
                     height=height,
                     time_us=time_us,
+                    txid=counters.next_txid(),
                     control=control,
                 )
                 if built is not None:
@@ -618,6 +613,7 @@ def generate(cfg: Config, rng: random.Random, plan: ActorPlan | None = None) -> 
             rng,
             height=height,
             time_us=time_us,
+            txid=counters.next_txid(),
             fees=fees,
         )
         txs.append(coinbase)

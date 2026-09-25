@@ -1,0 +1,693 @@
+/* LINEAGE — editorial transform-flow. Low-contrast, generous, curved connectors.
+   Every colour/type literal lives in tokens.css; only structure lives here. */
+
+.page {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background: var(--bg);
+  padding: var(--s5) var(--s7) var(--s7);
+  display: flex;
+  flex-direction: column;
+}
+
+.loading {
+  font-size: var(--fs-small);
+  color: var(--ink-mute);
+  padding: var(--s5);
+}
+
+/* Numerals: tabular + a plain (unslashed) zero reads softer than Plex Mono's default. */
+.fn,
+.fv,
+.nIn,
+.nOut,
+.rid,
+.cmk {
+  font-feature-settings: "tnum" 1, "zero" 0;
+}
+
+/* ---- editorial header ---- */
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s5);
+  margin-top: var(--s4);
+}
+
+.h1 {
+  font-size: var(--fs-hero);
+  font-weight: var(--w-semi);
+  letter-spacing: -0.015em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.sub {
+  font-size: var(--fs-body);
+  color: var(--ink-dim);
+  margin-top: var(--s2);
+  max-width: 52ch;
+  line-height: 1.5;
+}
+
+.rec {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s1);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  text-align: right;
+}
+
+.recRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.rid {
+  font-size: var(--fs-small);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+}
+
+.recNav {
+  font-size: var(--fs-lead);
+  line-height: 1;
+  color: var(--ink-faint);
+  padding: 0 var(--s1);
+  border-radius: var(--radius);
+}
+
+.recNav:hover {
+  color: var(--signal);
+}
+
+/* ---- the eight-stage spine: one hairline through round lamps ---- */
+.spineWrap {
+  margin: var(--s7) 0 var(--s2);
+}
+
+.spine {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  position: relative;
+}
+
+.node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s1) var(--s1) 0;
+  color: var(--ink-mute);
+  position: relative;
+}
+
+.nIn,
+.nOut {
+  font-size: var(--fs-micro);
+  color: var(--ink-mute);
+  height: 14px;
+  line-height: 14px;
+}
+
+.nOut {
+  color: var(--ink-dim);
+}
+
+.lampRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 16px;
+}
+
+.lampRow::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--line-hi);
+}
+
+.node:first-child .lampRow::before {
+  left: 50%;
+}
+
+.node:last-child .lampRow::before {
+  right: 50%;
+}
+
+.lamp {
+  position: relative;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid var(--ink-faint);
+}
+
+.nName {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: var(--w-semi);
+}
+
+/* Selected stage: a filled soft-signal disc inside a sig-soft halo (a ring, not a
+ *  shadow), the stage name in ink, and a short signal underline. */
+.node[data-selected] {
+  color: var(--ink);
+}
+
+.node[data-selected] .lamp {
+  width: 13px;
+  height: 13px;
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.node[data-selected] .lamp::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--sig-soft);
+  z-index: -1;
+}
+
+.node[data-selected] .nName {
+  color: var(--ink);
+}
+
+.node[data-selected] .nOut {
+  color: var(--ink);
+  font-weight: var(--w-medium);
+}
+
+.node[data-selected] .nIn {
+  color: var(--ink-dim);
+}
+
+.node[data-selected]::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  width: 20px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--signal);
+}
+
+/* The one count that changed grain, sat under the stage it happened at. */
+.fork {
+  justify-self: center;
+  margin-top: var(--s3);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.02em;
+  color: var(--signal);
+}
+
+/* ---- transition heading: what this stage does, in one line ---- */
+.trans {
+  margin: var(--s7) 0 var(--s5);
+}
+
+.seam {
+  font-size: var(--fs-lead);
+  font-weight: var(--w-semi);
+  color: var(--ink);
+}
+
+.ar {
+  color: var(--signal);
+  margin: 0 var(--s2);
+}
+
+.say {
+  font-size: var(--fs-body);
+  color: var(--ink-dim);
+  margin-top: var(--s2);
+  max-width: 62ch;
+  line-height: 1.55;
+}
+
+/* ---- mirrored transform map: before | connector | after ---- */
+.mhead {
+  display: grid;
+  grid-template-columns: 1fr 140px 1fr;
+  margin-bottom: var(--s3);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: var(--w-semi);
+}
+
+.mheadL {
+  text-align: right;
+}
+
+.mheadR {
+  text-align: left;
+}
+
+.map {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.mrow {
+  display: grid;
+  grid-template-columns: 1fr 140px 1fr;
+  align-items: center;
+  padding: var(--s2) 0;
+}
+
+.mb {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 0.6ch;
+  min-width: 0;
+  text-align: right;
+}
+
+.ma {
+  display: flex;
+  justify-content: flex-start;
+  align-items: baseline;
+  gap: 0.6ch;
+  min-width: 0;
+  text-align: left;
+}
+
+.fn {
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+
+.fv {
+  font-size: var(--fs-small);
+  color: var(--ink);
+}
+
+.fv[data-dim] {
+  color: var(--ink-mute);
+}
+
+.fv[data-strike] {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.ma .fn[data-sig] {
+  color: var(--signal);
+  font-weight: var(--w-semi);
+}
+
+.ma .fv[data-sig] {
+  color: var(--signal);
+}
+
+/* center gutter: a curved connector under an operator chip */
+.mc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 20px;
+}
+
+.cline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.clinePath {
+  fill: none;
+  stroke: var(--line-hi);
+  stroke-width: 1;
+}
+
+.mrow[data-kind="rename"] .clinePath,
+.mrow[data-kind="born"] .clinePath {
+  stroke: var(--sig-soft);
+}
+
+.cmk {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  padding: 0 var(--s2);
+  font-size: var(--fs-small);
+  color: var(--signal);
+}
+
+.mrow[data-kind="kept"] .fn {
+  color: var(--ink-mute);
+}
+
+.mrow[data-kind="dropped"] .cmk {
+  color: var(--alert);
+}
+
+.reason {
+  font-size: var(--fs-micro);
+  color: var(--alert);
+  margin-left: 0.6ch;
+}
+
+/* The single focal transform of each stage reads one size up; nothing else does. */
+.mrow[data-hero] {
+  padding: var(--s3) 0;
+}
+
+.mrow[data-hero] .fn,
+.mrow[data-hero] .fv,
+.mrow[data-hero] .cmk {
+  font-size: var(--fs-big);
+}
+
+.mrow[data-hero] .mb .fn {
+  color: var(--ink-dim);
+}
+
+.mrow[data-hero] .ma .fn {
+  color: var(--signal);
+  font-weight: var(--w-semi);
+}
+
+.mrow[data-hero] .ma .fv {
+  color: var(--ink);
+  font-weight: var(--w-medium);
+}
+
+/* The one set-piece: the focal transform tints once on user navigation, never on mount. */
+@keyframes flowPulse {
+  0% { background: transparent; }
+  25% { background: var(--sig-soft); }
+  100% { background: transparent; }
+}
+
+.map[data-armed] .mrow[data-hero] {
+  animation: flowPulse var(--t-reveal) 1;
+  border-radius: var(--radius);
+}
+
+/* ---- source stage (MAYAJAAL): the raw captured record everything starts from ---- */
+.origin {
+  display: flex;
+  flex-direction: column;
+  max-width: 64ch;
+}
+
+.originHead {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: var(--w-semi);
+  margin-bottom: var(--s3);
+}
+
+.originRow {
+  display: grid;
+  grid-template-columns: 20ch 1fr;
+  gap: var(--s3);
+  align-items: baseline;
+  padding: var(--s2) 0;
+  border-bottom: var(--hair);
+}
+
+.originRow .fn {
+  color: var(--ink-mute);
+}
+
+.originRow .fv {
+  color: var(--ink-dim);
+  text-align: left;
+}
+
+/* ---- accountability line: in == out + dropped ---- */
+.balance {
+  margin-top: var(--s7);
+  padding-top: var(--s4);
+  border-top: var(--hair);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+
+.eq {
+  color: var(--ink);
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.cap {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-left: auto;
+}
+
+.balance[data-fail] {
+  color: var(--alert);
+}
+
+.balance[data-fail] .eq,
+.balance[data-fail] .cap {
+  color: var(--alert);
+}
+
+/* ---- drill-ins (expand below the flow; Enter opens, Esc collapses) ---- */
+.drillBar {
+  display: flex;
+  gap: var(--s2);
+  margin-top: var(--s5);
+}
+
+.drillToggle {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  background: var(--bg-panel);
+  border: var(--hair);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s3);
+}
+
+.drillToggle:hover {
+  border-color: var(--line-hi);
+  color: var(--ink);
+}
+
+.drill {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  margin-top: var(--s4);
+  padding: var(--s5);
+  background: var(--bg-panel);
+  border: var(--hair);
+  border-radius: var(--radius);
+}
+
+.drillHead {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.kavachGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s5);
+  align-items: start;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  min-width: 0;
+}
+
+.subHead {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.file {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.fileRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+
+.fileName {
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+
+.fileBytes {
+  font-size: var(--fs-small);
+  color: var(--ink-mute);
+}
+
+.schema {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.schemaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: var(--s1) var(--s2);
+  border: var(--hair);
+  border-radius: var(--radius);
+  font-size: var(--fs-small);
+  color: var(--ink-dim);
+}
+
+.schemaTag {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.schemaChip[data-tag="SYNTHESISED"] .schemaTag {
+  color: var(--signal);
+}
+
+.schemaChip[data-tag="MISSING"] {
+  border-style: dashed;
+}
+
+.schemaChip[data-tag="MISSING"] .schemaTag {
+  color: var(--alert);
+}
+
+.collapseFig {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.collapseStat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+}
+
+.collapseCount {
+  font-size: var(--fs-big);
+  color: var(--ink);
+}
+
+.collapseUnit {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.bar {
+  position: relative;
+  height: var(--s5);
+  border: var(--hair);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-raise);
+}
+
+.barTx {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--sig-soft);
+  transition: width var(--t-reveal);
+}
+
+.barEcho {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity var(--t-reveal);
+  background: repeating-linear-gradient(45deg, var(--ink-mute) 0 2px, transparent 2px 6px);
+}
+
+.barEcho[data-shown] {
+  opacity: 1;
+}
+
+.collapseMeta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s4);
+  font-size: var(--fs-small);
+  color: var(--ink-mute);
+}
+
+.meanFig {
+  color: var(--ink-dim);
+  margin-left: auto;
+}
+
+.sparks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s5);
+}
+
+.merkle {
+  margin-top: var(--s5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map[data-armed] .mrow[data-hero],
+  .barTx,
+  .barEcho {
+    animation: none;
+    transition: none;
+  }
+}
+

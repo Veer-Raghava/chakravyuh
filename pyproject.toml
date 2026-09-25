@@ -13,6 +13,7 @@ dependencies = [
   "shap==0.46.0",
   "fastapi==0.115.6",
   "uvicorn==0.32.1",
+  "httpx==0.28.1",
 ]
 
 [dependency-groups]
@@ -43,6 +44,10 @@ select = ["E", "F", "I", "UP", "B", "SIM", "ANN", "T20"]
 "scripts/peek.py" = ["T20"]
 "scripts/make_fixtures.py" = ["T20"]
 "scripts/compare_runs.py" = ["T20"]
+"scripts/announcements_per_tx.py" = ["T20"]
+# stage_time.py prints its one STAGE_RESULT measurement line to stderr (T201's print
+# calls there carry file=sys.stderr); it measures other commands and writes no data.
+"scripts/stage_time.py" = ["T20"]
 "tests/*" = ["T20"]
 
 [tool.mypy]

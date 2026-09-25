@@ -11,11 +11,12 @@ SHELL := /bin/bash
 # peek.py's CSV path and the fixture builder are stdlib-only, so they work either way.
 PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
-.PHONY: help setup fixtures verify verify-contracts verify-quarantine verify-determinism \
+.PHONY: help setup fixtures fixtures-ui verify verify-contracts verify-quarantine verify-determinism \
         verify-replay validate-data peek api demo demo-full demo-reset clean guard-uv \
         sweep-observer-fraction \
         verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
-        verify-s07 verify-s08 verify-s09 verify-s10 verify-s11
+        verify-s07 verify-s08 verify-s09 verify-s10 verify-s11 \
+        verify-drishti
 
 help:
 	@echo "CHAKRAVYUH targets"
@@ -47,6 +48,12 @@ setup: guard-uv
 fixtures:
 	python3 scripts/make_fixtures.py --seed 42 --out data/fixtures/capture
 
+# The eight adapter payloads as committed JSON, from the reference run. The API's serializers
+# produce these, so fixtures and live responses match by construction. Track B was absent at
+# S10; shapes were authored from docs/DATA-CONTRACTS.md (see docs/DECISIONS.md).
+fixtures-ui:
+	uv run python scripts/export_ui_fixtures.py --run _sweep-0.10
+
 verify-s00: guard-uv
 	uv run ruff check .
 	uv run ruff format --check .
@@ -62,7 +69,7 @@ verify-contracts: guard-uv
 # stage that calls it would inherit the free pass.
 # `-o addopts=` in the counting pass only: pyproject already puts -q in addopts, and a second
 # -q makes pytest print per-file totals instead of one test id per line, which the count needs.
-QUARANTINE_MIN := 18
+QUARANTINE_MIN := 20
 
 verify-quarantine: guard-uv
 	@count=$$(uv run pytest -o addopts= --collect-only -q --strict-markers -m quarantine \
@@ -412,17 +419,55 @@ sweep-observer-fraction: guard-uv
 	@echo "sweep-observer-fraction: curve written to measurements/_sweep/origin_curve.md"
 
 verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
-        verify-s07 verify-s08 verify-s09
-	@echo "verify: S00 through S09. Later stages append themselves as they land."
+        verify-s07 verify-s08 verify-s09 verify-s10
+	@echo "verify: S00 through S10. Later stages append themselves as they land."
 
-# One rule for the two unbuilt stages. The brief path is globbed rather than
+# One rule for the one unbuilt stage. The brief path is globbed rather than
 # hardcoded so renaming a brief cannot rot the message.
-verify-s10 verify-s11:
+verify-s11:
 	@n=$(patsubst verify-s%,%,$@); \
 	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \
 	 echo "FAIL $@: stage S$$n is not implemented yet."; \
 	 echo "  Brief: $${b:-docs/stages/ (missing)}"; \
 	 exit 1
+
+# S10's gate. Lint and the API tests (shape parity with the committed fixtures, the bind
+# law, clean 404s), then a full pipeline over the reference config, then the three
+# properties scale is about: a rerun of the generator rewrites nothing (resumability), the
+# realized announcements-per-transaction ratio is recorded rather than assumed (the 0a
+# rider), and validate-data runs over the full tree. The canonical measured run itself is
+# NOT regenerated here; see canonical-1m.
+S10_RUN := _verify-s10
+S10_A := data/generated/$(S10_RUN)
+S10_T := ground_truth/$(S10_RUN)
+S10_M := measurements/$(S10_RUN)
+
+verify-s10: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_api.py
+	uv run pytest -q tests/test_kavach.py tests/test_chain.py
+	@rm -rf $(S10_A) $(S10_T) $(S10_M)
+	uv run python -m chakravyuh.mayajaal --txs 1200 --entities 300 --out $(S10_A)
+	uv run python -m chakravyuh.mayajaal --txs 1200 --entities 300 --out $(S10_A)
+	uv run python -m chakravyuh.kavach --in $(S10_A)/capture --out $(S10_A)
+	uv run python -m chakravyuh.setu --in $(S10_A)/sealed --out $(S10_A)
+	uv run python -m chakravyuh.jaal --in $(S10_A)/normalised --out $(S10_A)
+	uv run python -m chakravyuh.shastra --in $(S10_A)/normalised --out $(S10_A) --score
+	uv run python -m chakravyuh.buddhi --in $(S10_A) --out $(S10_A) --score
+	uv run python -m chakravyuh.vaani --in $(S10_A) --out $(S10_A)
+	@# The resumed manifest must record a full-skip: same seed, same bytes, nothing rewritten.
+	@$(PY) -c 'import json,sys; m=json.load(open("$(S10_A)/chain/_meta.json")); r=m["resumed"]; \
+	  sys.exit(0 if r["skipped"]>0 and r["written"]==0 else 1)' \
+	  || { echo "FAIL verify-s10: the rerun rewrote files; resumability is broken."; exit 1; }
+	@# Rider 0a: the realized announcements-per-transaction ratio, printed and checked.
+	@$(PY) scripts/announcements_per_tx.py $(S10_A) \
+	  || { echo "FAIL verify-s10: the realized ratio check failed."; exit 1; }
+	uv run python -m chakravyuh.eval.validate --run $(S10_RUN)
+	@rm -rf $(S10_A) $(S10_T) $(S10_M)
+	@echo "verify-s10: API shape parity, bind law, resumable rerun, breaker, ratio, validator OK."
+
 
 S07_RUN := _verify-s07
 S07_A := data/generated/$(S07_RUN)
@@ -641,10 +686,34 @@ validate-data: guard-uv
 	uv run python -m chakravyuh.eval.validate --run $(RUN)
 	@echo "validate-data: measurements/$(RUN)/validation/report.md"
 
-demo demo-full demo-reset:
-	@echo "FAIL $@: needs precomputed artifacts. Arrives with S10 and S11."
-	@echo "  Briefs: docs/stages/S10-scale.md, docs/stages/S11-demo.md"
-	@exit 1
+# The demo artifact: s10-demo only. The canonical measured run s10-canonical is never
+# touched here — regenerating the demo must not silently rewrite the measured run.
+DEMO_RUN := s10-demo
+
+demo-full: guard-uv
+	@rm -rf data/generated/$(DEMO_RUN) ground_truth/$(DEMO_RUN) measurements/$(DEMO_RUN)
+	uv run python scripts/make_vendor_lists.py --out vendor/
+	uv run python -m chakravyuh.mayajaal --txs 4000 --out data/generated/$(DEMO_RUN)
+	uv run python -m chakravyuh.kavach --in data/generated/$(DEMO_RUN)/capture --out data/generated/$(DEMO_RUN)
+	uv run python -m chakravyuh.setu --in data/generated/$(DEMO_RUN)/sealed --out data/generated/$(DEMO_RUN)
+	uv run python -m chakravyuh.jaal --in data/generated/$(DEMO_RUN)/normalised --out data/generated/$(DEMO_RUN)
+	uv run python -m chakravyuh.shastra --in data/generated/$(DEMO_RUN)/normalised --out data/generated/$(DEMO_RUN) --score
+	uv run python -m chakravyuh.buddhi --in data/generated/$(DEMO_RUN) --out data/generated/$(DEMO_RUN) --score
+	uv run python -m chakravyuh.vaani --in data/generated/$(DEMO_RUN) --out data/generated/$(DEMO_RUN)
+	@set -e; \
+	 for c in alw-02ea801ee567 alw-d2b22e049560 alw-e53cbcbf18dc; do \
+	   alert=$$(uv run python -c "import polars as pl; a=pl.read_parquet('data/generated/$(DEMO_RUN)/alerts/alerts.parquet', columns=['alert_id']); print(a.filter(pl.col('alert_id')=='$$c').height > 0)" | tail -1); \
+	   [ "$$alert" = "True" ] || { echo "FAIL demo-full: DEMO-CASE $$c missing from the run."; exit 1; }; \
+	   uv run python -m chakravyuh.pramaan --in data/generated/$(DEMO_RUN) --out data/generated/$(DEMO_RUN) --case $$c; \
+	 done; \
+	 echo "demo-full: s10-demo built, three cases packeted."
+
+demo-reset: demo-full
+	@echo "demo-reset: s10-demo rebuilt from scratch."
+
+demo: demo-full
+	@echo "demo: artifact ready. Serve with: CHAKRAVYUH_RUN=s10-demo make api"
+	@echo "  Cases and beats: docs/DEMO-CASES.md, docs/DEMO-RUN.md"
 
 peek:
 	@test -n "$(P)" || { echo "usage: make peek P=<path.csv|path.parquet>"; exit 1; }
@@ -662,3 +731,9 @@ clean:
 	@mkdir -p data/generated
 	@find . -name __pycache__ -type d -prune -exec rm -rf {} +
 	@echo "clean: data/generated/ and tool caches removed."
+
+# Track B console. Definition of done for the drishti shell: typecheck, tests and a
+# production build all pass. npm ci also vendors the IBM Plex woff2 via postinstall.
+verify-drishti:
+	cd apps/drishti && npm ci && npx tsc --noEmit && npx vitest run && npm run build
+	@echo "verify-drishti: typecheck, tests and build all passed."

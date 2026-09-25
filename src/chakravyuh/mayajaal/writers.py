@@ -30,7 +30,7 @@ from pathlib import Path
 
 import polars as pl
 
-from chakravyuh import __version__
+from chakravyuh import buildinfo
 from chakravyuh.mayajaal import export, preflight
 from chakravyuh.mayajaal.adversary import Campaign
 from chakravyuh.mayajaal.chain import Run
@@ -67,6 +67,7 @@ class Written:
     path: str
     sha256: str
     rows: int
+    skipped: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,9 +109,24 @@ def _put(payload: bytes, base: Path, rel: str, rows: int) -> Written:
 
     An absolute path in a manifest is a path on one machine, and S09 replays a packet on a
     different one.
+
+    Bytes that already match are left alone, which is what makes a rerun resumable: a run is
+    deterministic, so an interrupted export costs only the shards that were missing or damaged,
+    and the ones it skips keep the mtime that proves they were skipped. The comparison reopens
+    the file in append-plus mode (`a+b`, a write mode that also reads) and reads through the
+    same handle — the writer keeps the read-free property
+    `test_the_ground_truth_writer_never_reads` enforces, and it only ever inspects bytes this
+    module itself wrote, never anything quarantined.
     """
     path = base / rel
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_file() and path.stat().st_size == len(payload):
+        with path.open("a+b") as handle:
+            handle.seek(0)
+            if handle.read(len(payload)) == payload:
+                return Written(rel, hashlib.sha256(payload).hexdigest(), rows, skipped=True)
+            handle.seek(0)
+            handle.truncate()
     path.write_bytes(payload)
     return Written(rel, hashlib.sha256(payload).hexdigest(), rows)
 
@@ -398,7 +414,7 @@ def _write_capture(
                     "run_id": roots.run_id,
                     "started_at_us": started_at_us,
                     "finished_at_us": finished_at_us,
-                    "code_version": __version__,
+                    "code_version": buildinfo.code_version(),
                     "seed": cfg.seed,
                     "config_sha256": config_sha256,
                     "params": {
@@ -499,7 +515,7 @@ def write_run(
         "run_id": roots.run_id,
         "started_at_us": started_at_us,
         "finished_at_us": finished_at_us,
-        "code_version": __version__,
+        "code_version": buildinfo.code_version(),
         "seed": cfg.seed,
         "config_sha256": config_sha256,
         "params": {
@@ -508,6 +524,12 @@ def write_run(
             "n_entities": cfg.world.n_entities,
             "multi_input_rate_target": cfg.chain.multi_input_rate,
             "multi_input_rate_measured": run.multi_input_rate,
+        },
+        # S10's resume evidence: a rerun of the same seed and config skips every byte that
+        # already matched, and the count is what distinguishes a resume from a clean write.
+        "resumed": {
+            "skipped": sum(1 for w in [*observable, *quarantined] if w.skipped),
+            "written": sum(1 for w in [*observable, *quarantined] if not w.skipped),
         },
         # The parameters that produced this run, including the CLI overrides, recorded as the
         # stage's input because that is what it consumed. The template at the repository root
@@ -536,7 +558,7 @@ def write_run(
             {
                 "stage": "mayajaal",
                 "run_id": roots.run_id,
-                "code_version": __version__,
+                "code_version": buildinfo.code_version(),
                 "seed": cfg.seed,
                 "config_sha256": config_sha256,
                 "outputs": [_entry(w) for w in quarantined],

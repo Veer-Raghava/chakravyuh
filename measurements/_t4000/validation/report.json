@@ -1,0 +1,286 @@
+{
+  "verdict": "PASS",
+  "checks_run": 36,
+  "checks_failed": 0,
+  "summary": {
+    "capture_rows": 63868,
+    "transactions": 4270,
+    "transactions_announced": 4270,
+    "transactions_no_observer_saw": 0,
+    "blocks": 144,
+    "announcing_peers": 641,
+    "observers": 16,
+    "tor_share": 0.035129,
+    "vpn_share": 0.078689,
+    "unresolved_asn_share": 0.014248,
+    "unresolved_geo_share": 0.009989,
+    "entities": 800,
+    "illicit_entities": 24,
+    "entities_in_a_campaign": 8,
+    "campaigns": 1
+  },
+  "checks": {
+    "invariants": [
+      {
+        "name": "txid is 64 lowercase hex",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "timestamp is ISO 8601 with six fractional digits and an explicit offset",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "input addresses and input amounts are the same length",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "output addresses and output amounts are the same length",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "script types name every output",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "every announced transaction has an output",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "inputs cover outputs on a payment",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "vsize is positive and fee is not negative",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "ports are inside the 16-bit range",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "msg_type is inv or tx",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "the capture never goes backwards in time",
+        "ok": true,
+        "value": "0 rows",
+        "bound": "0 rows",
+        "note": ""
+      },
+      {
+        "name": "rows sharing a txid agree on the chain columns",
+        "ok": true,
+        "value": "0 txids",
+        "bound": "0 txids",
+        "note": ""
+      },
+      {
+        "name": "every announced txid exists on the chain",
+        "ok": true,
+        "value": "0 txids",
+        "bound": "0 txids",
+        "note": ""
+      },
+      {
+        "name": "every transaction has exactly one true originator",
+        "ok": true,
+        "value": "0 txids",
+        "bound": "0 txids",
+        "note": ""
+      },
+      {
+        "name": "observed_by_n equals the observers that recorded the transaction",
+        "ok": true,
+        "value": "0 txids",
+        "bound": "0 txids",
+        "note": ""
+      }
+    ],
+    "manifests": [
+      {
+        "name": "capture: counts.in == counts.out + counts.dropped",
+        "ok": true,
+        "value": "63868 == 63868 + 0",
+        "bound": "equal",
+        "note": ""
+      },
+      {
+        "name": "capture: names its outputs",
+        "ok": true,
+        "value": "1",
+        "bound": ">= 1",
+        "note": ""
+      },
+      {
+        "name": "capture_json: counts.in == counts.out + counts.dropped",
+        "ok": true,
+        "value": "63868 == 63868 + 0",
+        "bound": "equal",
+        "note": ""
+      },
+      {
+        "name": "capture_json: names its outputs",
+        "ok": true,
+        "value": "1",
+        "bound": ">= 1",
+        "note": ""
+      },
+      {
+        "name": "capture_xml: counts.in == counts.out + counts.dropped",
+        "ok": true,
+        "value": "63868 == 500 + 63368",
+        "bound": "equal",
+        "note": ""
+      },
+      {
+        "name": "capture_xml: names its outputs",
+        "ok": true,
+        "value": "1",
+        "bound": ">= 1",
+        "note": ""
+      },
+      {
+        "name": "chain: counts.in == counts.out + counts.dropped",
+        "ok": true,
+        "value": "4000 == 3999 + 1",
+        "bound": "equal",
+        "note": ""
+      },
+      {
+        "name": "chain: names its outputs",
+        "ok": true,
+        "value": "3",
+        "bound": ">= 1",
+        "note": ""
+      }
+    ],
+    "quarantine": [
+      {
+        "name": "no ground-truth column name appears in an observable header",
+        "ok": true,
+        "value": "none",
+        "bound": "none",
+        "note": "6 files checked"
+      }
+    ],
+    "distributions": [
+      {
+        "name": "value p99 / p50",
+        "ok": true,
+        "value": "123.726803",
+        "bound": ">= 8.000000",
+        "note": ""
+      },
+      {
+        "name": "value p999 / p50",
+        "ok": true,
+        "value": "516.164239",
+        "bound": ">= 25.000000",
+        "note": ""
+      },
+      {
+        "name": "multi-input rate",
+        "ok": true,
+        "value": "0.376878",
+        "bound": "0.280000 to 0.420000",
+        "note": ""
+      },
+      {
+        "name": "announcements per transaction",
+        "ok": true,
+        "value": "14.957377",
+        "bound": "9.750000 to 20.250000",
+        "note": ""
+      },
+      {
+        "name": "relay delay coefficient of variation",
+        "ok": true,
+        "value": "0.616985",
+        "bound": ">= 0.500000",
+        "note": ""
+      },
+      {
+        "name": "block interval coefficient of variation",
+        "ok": true,
+        "value": "1.053810",
+        "bound": "0.700000 to 1.300000",
+        "note": ""
+      }
+    ],
+    "leakage": [
+      {
+        "name": "first announcement seen names the originator",
+        "ok": true,
+        "value": "0.225293",
+        "bound": "0.150000 to 0.600000",
+        "note": ""
+      },
+      {
+        "name": "trivial rule: the peer announcing it most often",
+        "ok": true,
+        "value": "0.220843",
+        "bound": "<= 0.350000",
+        "note": ""
+      },
+      {
+        "name": "trivial rule: the first full tx message rather than an inv",
+        "ok": true,
+        "value": "0.080562",
+        "bound": "<= 0.350000",
+        "note": ""
+      },
+      {
+        "name": "trivial rule: the lowest source port",
+        "ok": true,
+        "value": "0.028806",
+        "bound": "<= 0.350000",
+        "note": ""
+      },
+      {
+        "name": "trivial rule: the busiest peer in the whole capture",
+        "ok": true,
+        "value": "0.000234",
+        "bound": "<= 0.350000",
+        "note": ""
+      },
+      {
+        "name": "depth-2 decision tree over the observable columns",
+        "ok": true,
+        "value": "0.225293",
+        "bound": "<= 0.700000",
+        "note": ""
+      }
+    ]
+  }
+}

@@ -122,17 +122,37 @@ def _measure_baseline(run_id: str) -> None:
 
     # The baseline's own windowing: subjects ranked by whole-capture received value, scored on
     # the same holdout subjects the model is scored on. Whole-capture value is deliberate — the
-    # baseline is what a no-model investigator has, and they have the whole capture. Cluster
-    # subjects only: a singleton address is one row of the same table, and the rule does not
-    # change for it, but the baseline needs a subject grain, so the same membership table
-    # features.subjects builds is rebuilt here on the eval side of the door.
+    # baseline is what a no-model investigator has, and they have the whole capture. The subject
+    # universe is features.subjects — clusters plus singleton addresses — the same one the model
+    # scores, so `baseline_beaten` compares two rankings of one population rather than two
+    # different denominators.
+    from chakravyuh.buddhi import features as _features
+
     received = pl.read_parquet(
         observable / "normalised" / "addresses.parquet", columns=["address", "total_received_sats"]
     )
     clusters = pl.read_parquet(observable / "graph" / "clusters.parquet")
-    subject_addresses = clusters.select(
-        pl.col("cluster_id").alias("subject_id"), pl.col("addresses")
+    addresses = pl.read_parquet(
+        observable / "normalised" / "addresses.parquet",
+        columns=["address", "first_seen_us"],
     )
+    members = _features.subjects(clusters, addresses)
+    subject_addresses = members.group_by("subject_id", maintain_order=True).agg(
+        pl.col("address").sort().alias("addresses")
+    )
+    # The model's own holdout window is `subject_first_us >= boundary` (stage.py filters
+    # `is_train` before eval sees a row); the baseline has to rank in that same window or
+    # `baseline_beaten` compares two different denominators.
+    window = subject_addresses.explode("address").join(
+        addresses, on="address", how="inner"
+    )
+    holdout = (
+        window.group_by("subject_id", maintain_order=True)
+        .agg(pl.col("first_seen_us").min().alias("subject_first_us"))
+        .filter(pl.col("subject_first_us") >= boundary_us)
+        .select("subject_id")
+    )
+    subject_addresses = subject_addresses.join(holdout, on="subject_id", how="semi")
     value_by_address = dict(
         zip(received["address"].to_list(), received["total_received_sats"].to_list(), strict=True)
     )

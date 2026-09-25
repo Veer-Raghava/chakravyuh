@@ -1,0 +1,38 @@
+.block {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--fs-micro);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  flex: 0 0 auto;
+}
+
+.value {
+  font-size: var(--fs-small);
+  color: var(--ink);
+  word-break: break-all;
+  min-width: 0;
+}
+
+.copy {
+  flex: 0 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  padding: var(--s1) var(--s2);
+  border: var(--hair);
+  border-radius: var(--radius);
+  transition: color var(--t-state), border-color var(--t-state);
+}
+
+.copy:hover {
+  color: var(--ink);
+  border-color: var(--line-hi);
+}

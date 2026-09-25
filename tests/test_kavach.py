@@ -445,12 +445,19 @@ def test_rows_disagreeing_about_one_txid_are_all_quarantined(workspace: Path) ->
         "input_addresses,output_addresses,input_amounts,output_amounts\n"
     )
     row = "2026-01-01T00:00:0{n}Z,10.0.0.{n},10.9.9.9,8333,8333,{txid},A1,B1,1000,{out}\n"
-    payload = header + "".join(
-        (
-            row.format(n=0, txid=txid, out=900),
-            row.format(n=1, txid=txid, out=900),
-            row.format(n=2, txid=txid, out=800),  # the disagreement
-            row.format(n=3, txid=other, out=900),
+    # 397 clean rows plus the disagreeing group keeps the capture under the 1% circuit
+    # breaker (3/401 ≈ 0.75%), which is a seal-level gate and not what this test is about.
+    filler = [row.format(n=f"{i:03d}"[-1], txid=f"{i:064x}", out=900) for i in range(397)]
+    payload = (
+        header
+        + "".join(filler)
+        + "".join(
+            (
+                row.format(n=0, txid=txid, out=900),
+                row.format(n=1, txid=txid, out=900),
+                row.format(n=2, txid=txid, out=800),  # the disagreement
+                row.format(n=3, txid=other, out=900),
+            )
         )
     )
 
@@ -462,15 +469,17 @@ def test_rows_disagreeing_about_one_txid_are_all_quarantined(workspace: Path) ->
     rejected = pl.read_parquet(sealed / "rejected.parquet")
     assert rejected.height == 3
     assert set(rejected["reject_reason"].to_list()) == {"chain_columns_disagree"}
-    assert rejected["row_id"].to_list() == [0, 1, 2]
+    # The filler rows shifted row_id: the disagreeing group is its last four rows.
+    base = 397
+    assert rejected["row_id"].to_list() == [base + 0, base + 1, base + 2]
 
     rows = pl.read_parquet(sealed / "rows.parquet")
-    assert rows.height == 1
-    assert rows["row_id"].to_list() == [3]
+    assert rows.height == 398
+    assert rows["row_id"].to_list() == [*range(base)] + [base + 3]
 
     manifest = _manifest(sealed)
-    assert _int(manifest, "rows_read") == 4
-    assert _int(manifest, "rows_sealed") + _int(manifest, "rows_rejected") == 4
+    assert _int(manifest, "rows_read") == 401
+    assert _int(manifest, "rows_sealed") + _int(manifest, "rows_rejected") == 401
 
 
 def test_each_reject_reason_is_reachable(workspace: Path) -> None:
@@ -506,13 +515,17 @@ def test_each_reject_reason_is_reachable(workspace: Path) -> None:
         ),
     }
 
-    placed = _place(workspace, "reasons.csv", header + "".join(cases.values()))
+    # 900 clean rows ahead of the nine reasons keeps the file under the 1% circuit breaker
+    # (9/909 ≈ 0.99%), which is a seal-level gate and not what this test is about.
+    filler = [good.format(txid=f"{0x900 + i:064x}") for i in range(900)]
+
+    placed = _place(workspace, "reasons.csv", header + "".join([*filler, *cases.values()]))
     out = workspace / "data" / "generated" / "reasons"
     seal(placed, resolve_out(out))
     sealed = out / "sealed"
 
     manifest = _manifest(sealed)
-    assert _int(manifest, "rows_sealed") == 0
+    assert _int(manifest, "rows_sealed") == 900
     reasons = manifest["reject_reasons"]
     assert isinstance(reasons, dict)
     assert set(reasons) == set(cases)
@@ -657,3 +670,40 @@ def test_no_sealed_artifact_names_the_quarantine(workspace: Path) -> None:
         blob = path.read_bytes().lower()
         for name in forbidden:
             assert name.encode("ascii") not in blob, f"{path.name} names {name}"
+
+
+def test_rejections_over_one_percent_trip_the_circuit_breaker(workspace: Path) -> None:
+    """S10: a seal that rejects more than one row in a hundred stops before writing.
+
+    At fixture scale a bad capture rejects a handful of rows and everyone shrugs; at a million
+    rows the same defect rate is ten thousand rows of silently mangled evidence. The breaker
+    puts the reason distribution in the error so the fix starts from evidence, and nothing
+    lands in `sealed/` for a later stage to consume.
+    """
+    header = (
+        "timestamp,src_ip,dst_ip,src_port,dst_port,txid,"
+        "input_addresses,output_addresses,input_amounts,output_amounts\n"
+    )
+    good = "2026-01-01T00:00:00.{n}Z,10.0.0.{n},10.9.9.9,8333,8333,{txid},A1,B1,1000,900\n"
+    # 99 good rows and 2 broken ones: 2.0% of rows_read, over the 1% line.
+    rows = [good.format(n=f"{i:02d}", txid=f"{'a' * 62}{i:02d}") for i in range(99)]
+    rows.append("2026-01-01T01:00:00Z,10.0.0.99,10.9.9.9,8333,8333,bad-txid,A1,B1,1000,900\n")
+    rows.append(f"2026-01-01T02:00:00Z,10.0.0.99,10.9.9.9,8333,8333,{'c' * 64},A1,B1,ten,900\n")
+
+    placed = _place(workspace, "hostile.csv", header + "".join(rows))
+    out = workspace / "data" / "generated" / "hostile"
+
+    with pytest.raises(CaptureFormatError) as raised:
+        seal(placed, resolve_out(out))
+    message = str(raised.value)
+    assert "2.0%" in message
+    assert "txid_malformed" in message and "amount_unparseable" in message
+    assert not (out / "sealed").exists(), "the breaker fired but sealed/ was written anyway"
+
+    # Just under the line, the same seal passes: the breaker is a ratio, not a mood.
+    rows[-1] = good.format(n="98", txid="d" * 64)
+    rows[-2] = good.format(n="99", txid="e" * 64)
+    placed = _place(workspace, "benign.csv", header + "".join(rows))
+    out = workspace / "data" / "generated" / "benign"
+    seal(placed, resolve_out(out))
+    assert _int(_manifest(out / "sealed"), "rows_sealed") == 101

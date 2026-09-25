@@ -1,0 +1,1607 @@
+{
+  "limit": 200,
+  "offset": 0,
+  "total": 8495,
+  "transactions": [
+    {
+      "fee_sats": 2448,
+      "first_seen_us": 1767241346162397,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "000153a2da1b11ec38c8cd395b50dd9c137e4058cb748be58a11e28c08770044",
+      "txid_display": "000153a2\u20260044"
+    },
+    {
+      "fee_sats": 301,
+      "first_seen_us": 1767375452704122,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "000175092201f0cccbc0e4661a87a8e56a6b7e403e5ddecb132af9cc272446ba",
+      "txid_display": "00017509\u202646ba"
+    },
+    {
+      "fee_sats": 1480,
+      "first_seen_us": 1767346859481813,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "00034ac4ade76ea419f7e257679ee4beaab619d00dfceb6abdc16306266ca774",
+      "txid_display": "00034ac4\u2026a774"
+    },
+    {
+      "fee_sats": 712,
+      "first_seen_us": 1767293342648463,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "0010369a5ed6c5f92697fe4b5b14c0b26b8364152ee4287f4540cca6d0a9776d",
+      "txid_display": "0010369a\u2026776d"
+    },
+    {
+      "fee_sats": 990,
+      "first_seen_us": 1767251159421955,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "00110add4be8477581c8419f48c47ad7e1eab1bcc629006b1c1383f31b5a82e0",
+      "txid_display": "00110add\u202682e0"
+    },
+    {
+      "fee_sats": 8964,
+      "first_seen_us": 1767225239497196,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "00181f81004faeb0ac49718d4ff8d67fb305e039d044745cd9073ddcbddb0a04",
+      "txid_display": "00181f81\u20260a04"
+    },
+    {
+      "fee_sats": 3672,
+      "first_seen_us": 1767341359528144,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "0018b3990b614598f95f199c47a1cf34cd64c18021b39f5b019bca89260d10d4",
+      "txid_display": "0018b399\u202610d4"
+    },
+    {
+      "fee_sats": 1008,
+      "first_seen_us": 1767357026510931,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "00231a04fbbf3e7113cc02e08362a4894c1a5ee584fb4ba48200f378b687cad2",
+      "txid_display": "00231a04\u2026cad2"
+    },
+    {
+      "fee_sats": 708,
+      "first_seen_us": 1767311439241039,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0025245cb484bdcea38c5da92906d6ccb232baea0b3f87791dfd06bd4c003dbd",
+      "txid_display": "0025245c\u20263dbd"
+    },
+    {
+      "fee_sats": 4956,
+      "first_seen_us": 1767307081896026,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "002588ab07b6f90c4ac36ee2f44d917300a81318bfcdc1ca0e94bb32d22371f9",
+      "txid_display": "002588ab\u202671f9"
+    },
+    {
+      "fee_sats": 966,
+      "first_seen_us": 1767311208505518,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "0029307b05dc7d1c927b3e89bde0d8f4b25e46ccbf6c6229c59918719515184f",
+      "txid_display": "0029307b\u2026184f"
+    },
+    {
+      "fee_sats": 552,
+      "first_seen_us": 1767349366340358,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "0031eabe0398ee9c84a9a30a93b6098a190c203340b3909367a356c1df2ce866",
+      "txid_display": "0031eabe\u2026e866"
+    },
+    {
+      "fee_sats": 11094,
+      "first_seen_us": 1767259725121763,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0043a5c67a5f28eceb6e47f09ca6cfa34f6cf0091186f59d75b573e7c5aadca5",
+      "txid_display": "0043a5c6\u2026dca5"
+    },
+    {
+      "fee_sats": 5589,
+      "first_seen_us": 1767316156113082,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "004a7b5947078355bedfcacf739795bb6cd8fa9b7551daddaf50f20d2bb5cfd1",
+      "txid_display": "004a7b59\u2026cfd1"
+    },
+    {
+      "fee_sats": 13720,
+      "first_seen_us": 1767344349988935,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0055b90186470e5d1ea119bcb27e41284f3b7ba8c95ebfebce271ea847376773",
+      "txid_display": "0055b901\u20266773"
+    },
+    {
+      "fee_sats": 2820,
+      "first_seen_us": 1767285446984572,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "005dc3f612c80186e5e3890edfe22b2a75eacb955ec19e7edd3ddd8d0f281f72",
+      "txid_display": "005dc3f6\u20261f72"
+    },
+    {
+      "fee_sats": 1704,
+      "first_seen_us": 1767351902804814,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "006801c73a26b8d2da49b51ae14dbf18aa9c1c43fac6edb83a65c2852032b5cc",
+      "txid_display": "006801c7\u2026b5cc"
+    },
+    {
+      "fee_sats": 3328,
+      "first_seen_us": 1767248419806291,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "00963c430fb664c63a34b0b10fc4aa3eb161cea71e0d4495f01ff2a1c4907a87",
+      "txid_display": "00963c43\u20267a87"
+    },
+    {
+      "fee_sats": 490,
+      "first_seen_us": 1767285077385580,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "009e2087596a6e851961e8fb187f8286bef400fe86024956861c84533a530fe8",
+      "txid_display": "009e2087\u20260fe8"
+    },
+    {
+      "fee_sats": 1662,
+      "first_seen_us": 1767241255144173,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "009f91c7deb2bf293b4a7eb74cb62ce7101f419510c8fab39419476230b3f702",
+      "txid_display": "009f91c7\u2026f702"
+    },
+    {
+      "fee_sats": 1568,
+      "first_seen_us": 1767348370146609,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "00bf6171f5a1c41b6976df51aa28c09a41ac2f62e2ea176dace5a11292ec9f08",
+      "txid_display": "00bf6171\u20269f08"
+    },
+    {
+      "fee_sats": 1820,
+      "first_seen_us": 1767378070526700,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "00c0e9c0a494698b36471435be0b2502475d9f00ee0d3666adf88a8ab0a11e2e",
+      "txid_display": "00c0e9c0\u20261e2e"
+    },
+    {
+      "fee_sats": 22656,
+      "first_seen_us": 1767364400752295,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "00d18ff65436e4c8f6d1fab8ca8431e26679d168e4e5285876ea7e3f5b12a99a",
+      "txid_display": "00d18ff6\u2026a99a"
+    },
+    {
+      "fee_sats": 7308,
+      "first_seen_us": 1767330241732570,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "00d3cc2e57262778b0c5f74edc6a02977d280012ec148e96f3648ed314e80074",
+      "txid_display": "00d3cc2e\u20260074"
+    },
+    {
+      "fee_sats": 4480,
+      "first_seen_us": 1767374286380087,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "00dbe2a7e391357e212caac914d621bb7c2e1a653e59448defbb911ba945dc4d",
+      "txid_display": "00dbe2a7\u2026dc4d"
+    },
+    {
+      "fee_sats": 568,
+      "first_seen_us": 1767317689472277,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "00e030d9d16a431fdc0a29daca64dd26cf18edb29e9c11a3264fdbbd284cb08c",
+      "txid_display": "00e030d9\u2026b08c"
+    },
+    {
+      "fee_sats": 995,
+      "first_seen_us": 1767344355747230,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "00e1d24f251ab527ffa9e58133ba9a3586ac4f574cfd4b8fbeea94cda5ee2af6",
+      "txid_display": "00e1d24f\u20262af6"
+    },
+    {
+      "fee_sats": 1562,
+      "first_seen_us": 1767365516946706,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "00e52cde33c1570675418593af12d127b375c76b4b2700c9fe14efc73e42e4a2",
+      "txid_display": "00e52cde\u2026e4a2"
+    },
+    {
+      "fee_sats": 444,
+      "first_seen_us": 1767226112420080,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "00e78880db9af5da34fc124815762d4927ccb87d2d2d89c94e1f6983f570b6a8",
+      "txid_display": "00e78880\u2026b6a8"
+    },
+    {
+      "fee_sats": 17886,
+      "first_seen_us": 1767305799295088,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "00e798b22224a60026c362667f446d4dda8f0fc40081fbb38312e435a06cc9f5",
+      "txid_display": "00e798b2\u2026c9f5"
+    },
+    {
+      "fee_sats": 31648,
+      "first_seen_us": 1767330268854479,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "00f78f0a5faf799c30fda4934522250e018dd00e1800f35f0b7bbf031f77d212",
+      "txid_display": "00f78f0a\u2026d212"
+    },
+    {
+      "fee_sats": 5280,
+      "first_seen_us": 1767258017033139,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "00f84f26242d69486113ddbd9b4277c0b7ca2b9b5ff7dc2ba3e5e5ff43a3f7a9",
+      "txid_display": "00f84f26\u2026f7a9"
+    },
+    {
+      "fee_sats": 2448,
+      "first_seen_us": 1767316101976975,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "00ffe48d7147b6918d934c3b500ae7eaca9358cfdaebfb6bd04b0fb917a297fb",
+      "txid_display": "00ffe48d\u202697fb"
+    },
+    {
+      "fee_sats": 2880,
+      "first_seen_us": 1767271117130204,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "01066392fcffae85c67d8221701fe41858aa100fc13585ffd329ba9cbfc8906a",
+      "txid_display": "01066392\u2026906a"
+    },
+    {
+      "fee_sats": 1410,
+      "first_seen_us": 1767355186698993,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "0109ec77cace5ae317eb5e5cf057122b447af704bdae0fb0cc759ed6ce74ad87",
+      "txid_display": "0109ec77\u2026ad87"
+    },
+    {
+      "fee_sats": 30880,
+      "first_seen_us": 1767297252392498,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "010c2281f7ca42f068e6b3e8784394728920cf0f0951798a857b259376e59e4a",
+      "txid_display": "010c2281\u20269e4a"
+    },
+    {
+      "fee_sats": 8120,
+      "first_seen_us": 1767252617744565,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "0112f83a21c80dfb5be1b1d4a2ee57f89e9305d9472a9477c71a269b8419ea5c",
+      "txid_display": "0112f83a\u2026ea5c"
+    },
+    {
+      "fee_sats": 924,
+      "first_seen_us": 1767285496524896,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "0113beeb13e3ad61c780ee4ad6bf72df29f87706bf4ed2bfdbcf2a0f9aaa4cf2",
+      "txid_display": "0113beeb\u20264cf2"
+    },
+    {
+      "fee_sats": 1120,
+      "first_seen_us": 1767249672523774,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0115e2eca7904b29b85239bf34498656c7dd3c6931f57ac249d8e77ab0ca977d",
+      "txid_display": "0115e2ec\u2026977d"
+    },
+    {
+      "fee_sats": 6034,
+      "first_seen_us": 1767295476026633,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "011a54e10bbbca06639d5c88ba53a3728f4f122e61629c2ab2edaeaae44eb896",
+      "txid_display": "011a54e1\u2026b896"
+    },
+    {
+      "fee_sats": 3408,
+      "first_seen_us": 1767230114609988,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "012f7ec75da9d2fcc731a31926dae0fe30021ae7f5d05471fdf6e38e5616ba3d",
+      "txid_display": "012f7ec7\u2026ba3d"
+    },
+    {
+      "fee_sats": 4144,
+      "first_seen_us": 1767287654340485,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "01395bcd025783ce95707f3a5cab77d7f68f73220f1ab61c435ff55139ae1ae8",
+      "txid_display": "01395bcd\u20261ae8"
+    },
+    {
+      "fee_sats": 14770,
+      "first_seen_us": 1767281004619994,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "014be1d8bfe09dbcaa6203e5b78da6003b6826e6adef1fc47a8f82e81629ca4a",
+      "txid_display": "014be1d8\u2026ca4a"
+    },
+    {
+      "fee_sats": 7488,
+      "first_seen_us": 1767371928320780,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "014daef5a11788f8491133cb841fb3d813a505004fbca515c95e71dbdc8b76d7",
+      "txid_display": "014daef5\u202676d7"
+    },
+    {
+      "fee_sats": 2596,
+      "first_seen_us": 1767365601198912,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0161656db146976f7db5eb62e881db5471e2e438a6669df561a30d30581df72b",
+      "txid_display": "0161656d\u2026f72b"
+    },
+    {
+      "fee_sats": 1665,
+      "first_seen_us": 1767375843258640,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "01689ceda121918cf9820bc31a5da194e7f7ffed056eb3139b9e49b8b133362e",
+      "txid_display": "01689ced\u2026362e"
+    },
+    {
+      "fee_sats": 572,
+      "first_seen_us": 1767372398264374,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "016f04524efb913162a7b5c1a792d4ab69b2c13df5115cca21d3ea77e3597222",
+      "txid_display": "016f0452\u20267222"
+    },
+    {
+      "fee_sats": 1275,
+      "first_seen_us": 1767267280216047,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "017421a9b544f2042f9e86f96d19f7ec3c790823a716462b4b8ffab6134a2ab0",
+      "txid_display": "017421a9\u20262ab0"
+    },
+    {
+      "fee_sats": 1068,
+      "first_seen_us": 1767235661129797,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "017d5bb4d117324672f264238a0f49c243a112e0621937010e55e8b66e16d97a",
+      "txid_display": "017d5bb4\u2026d97a"
+    },
+    {
+      "fee_sats": 27981,
+      "first_seen_us": 1767342666718987,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "017f75c9a075474cc515da07b3cdfa9528e30b0ec4fbb5ba5e6e99101e783a6e",
+      "txid_display": "017f75c9\u20263a6e"
+    },
+    {
+      "fee_sats": 406,
+      "first_seen_us": 1767260108887905,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "0180efad17b7ece8640c67917290ba0e6a15777018a1fd7264c3358a1f6d235a",
+      "txid_display": "0180efad\u2026235a"
+    },
+    {
+      "fee_sats": 348,
+      "first_seen_us": 1767252643761810,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0188e38611488b0abf860e702000409cc675409b70cf459ead5dc622618b408e",
+      "txid_display": "0188e386\u2026408e"
+    },
+    {
+      "fee_sats": 705,
+      "first_seen_us": 1767248428611153,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "019b74a278c0a286c4e77fce673895f4376f97946076e950f1b7a6c4df1e9345",
+      "txid_display": "019b74a2\u20269345"
+    },
+    {
+      "fee_sats": 4648,
+      "first_seen_us": 1767247756027272,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "019e3d705098d0c99c1349af77c5629601d9a55adf961829c2e2f94c58d41477",
+      "txid_display": "019e3d70\u20261477"
+    },
+    {
+      "fee_sats": 4014,
+      "first_seen_us": 1767240780484591,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "01a4f8a822684eaa43326b3e3066cec235aa1d6e1e144cf4f67462489c25c559",
+      "txid_display": "01a4f8a8\u2026c559"
+    },
+    {
+      "fee_sats": 1455,
+      "first_seen_us": 1767340147514901,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "01be43ef6db1f3997edb67e16eaaea91a5be70b9c3efd0d3ef931216eef27043",
+      "txid_display": "01be43ef\u20267043"
+    },
+    {
+      "fee_sats": 1218,
+      "first_seen_us": 1767325350355392,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "01c2d5436f5a846c8b35e3c99cd6acfe4f433d08a085eafe1b93d35ab2234baf",
+      "txid_display": "01c2d543\u20264baf"
+    },
+    {
+      "fee_sats": 284,
+      "first_seen_us": 1767309260371147,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "01dc04c38c56e5c3dec1ecc62a0d6571fb93b34eb209beabcd7afb2d6f19eb7e",
+      "txid_display": "01dc04c3\u2026eb7e"
+    },
+    {
+      "fee_sats": 2016,
+      "first_seen_us": 1767264621557018,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "01e5e6c212221ed2f32c06ae88f619e5ab8fa2bfb5f95af33a99ef2241c9ae52",
+      "txid_display": "01e5e6c2\u2026ae52"
+    },
+    {
+      "fee_sats": 1672,
+      "first_seen_us": 1767236008924107,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "01eb6e53043ad046edf51baeb8b7791e66774c849f653288732ce0a772deb08f",
+      "txid_display": "01eb6e53\u2026b08f"
+    },
+    {
+      "fee_sats": 3565,
+      "first_seen_us": 1767350239890272,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "01ee0b8e8de8d57abdddb4a80d04366ad43f16d4e2af2cee0b19668b86e36000",
+      "txid_display": "01ee0b8e\u20266000"
+    },
+    {
+      "fee_sats": 2920,
+      "first_seen_us": 1767360863852862,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "01f464676005dd84b7fff6f8f52931badc901af7c939c8a7e61c7b575d309c63",
+      "txid_display": "01f46467\u20269c63"
+    },
+    {
+      "fee_sats": 5202,
+      "first_seen_us": 1767346225817614,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "0201bfb1b601934a2f0bdcad3a3c7d855401afb9af676805e5ab99379f9e8fdb",
+      "txid_display": "0201bfb1\u20268fdb"
+    },
+    {
+      "fee_sats": 6784,
+      "first_seen_us": 1767347622141328,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "0205ceb0c30ce379bdb9ad34b659e990277dc3c352d10723fd98e274c89ce65e",
+      "txid_display": "0205ceb0\u2026e65e"
+    },
+    {
+      "fee_sats": 3735,
+      "first_seen_us": 1767322241906465,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "020bf3a02fb3ca1f33379a07a457d64dadcd1e0b56e07482945af28d3e483999",
+      "txid_display": "020bf3a0\u20263999"
+    },
+    {
+      "fee_sats": 987,
+      "first_seen_us": 1767252039269378,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "02100a5e15d2b551b194672454e64cb06d8d8e12352414f8241402450913da3b",
+      "txid_display": "02100a5e\u2026da3b"
+    },
+    {
+      "fee_sats": 3486,
+      "first_seen_us": 1767234725552543,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0218ab5cb3e34933b5f63828aaea350bd2c081fa11e9b47a4e0056152c041bbd",
+      "txid_display": "0218ab5c\u20261bbd"
+    },
+    {
+      "fee_sats": 4541,
+      "first_seen_us": 1767363076330005,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "02200a1da1fd6c0b19c0583d1bbb50f6f6dd828d8ccea296db072f69c27b4cb0",
+      "txid_display": "02200a1d\u20264cb0"
+    },
+    {
+      "fee_sats": 648,
+      "first_seen_us": 1767230823087957,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "02202aabbb6ce79fbb0f9fd60be8d83674f32a0d9741b7967e07d32920e92dab",
+      "txid_display": "02202aab\u20262dab"
+    },
+    {
+      "fee_sats": 12700,
+      "first_seen_us": 1767264542889264,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "02410fac2f656cb8e4515e372f55d4df29f9460f74b37941716a626f1e63085c",
+      "txid_display": "02410fac\u2026085c"
+    },
+    {
+      "fee_sats": 1485,
+      "first_seen_us": 1767251299614673,
+      "n_announcements": 10,
+      "n_distinct_peers": 10,
+      "txid": "02447426725c788e3e2e6ae1756ca098d077adea6c991d99c8f06501c2d917fb",
+      "txid_display": "02447426\u202617fb"
+    },
+    {
+      "fee_sats": 6880,
+      "first_seen_us": 1767348667010354,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "0245458887fbb817efb16b86b1aa58632ad1911efc9475c9df1790c61f106c91",
+      "txid_display": "02454588\u20266c91"
+    },
+    {
+      "fee_sats": 1287,
+      "first_seen_us": 1767296441862244,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0248af8a0e146965a2006c3bb9950b5c91896695756040ea65a9c2452d2541fe",
+      "txid_display": "0248af8a\u202641fe"
+    },
+    {
+      "fee_sats": 3311,
+      "first_seen_us": 1767230901506408,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "025bfb790c446e6b5344c76e7c9cb2a657af30b645b843419a54b7f911142d11",
+      "txid_display": "025bfb79\u20262d11"
+    },
+    {
+      "fee_sats": 3906,
+      "first_seen_us": 1767290846308586,
+      "n_announcements": 10,
+      "n_distinct_peers": 10,
+      "txid": "026300864f7e1ddfff6c1d61b474e8021142044d1ac5f162141600a6ee4bd184",
+      "txid_display": "02630086\u2026d184"
+    },
+    {
+      "fee_sats": 1440,
+      "first_seen_us": 1767331559970010,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "027047d7a46554347a0aded0f31889892a021caa310e3b9584f26b6e553c45c3",
+      "txid_display": "027047d7\u202645c3"
+    },
+    {
+      "fee_sats": 7633,
+      "first_seen_us": 1767354934920007,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "027421d559b27c83d0b77cb0a9f0d62b142c335162a3e340e97f3beb29d28ba0",
+      "txid_display": "027421d5\u20268ba0"
+    },
+    {
+      "fee_sats": 1720,
+      "first_seen_us": 1767338465904179,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "027997f8effb2f2229550b8f9ba1f78dc7b99d53d9adc2157eb10c33bdfc766c",
+      "txid_display": "027997f8\u2026766c"
+    },
+    {
+      "fee_sats": 4956,
+      "first_seen_us": 1767250085156323,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0279e4f7f3745a03f8ca83cb3d3881a10a06cdf5a80f5d89f800207d296fbb14",
+      "txid_display": "0279e4f7\u2026bb14"
+    },
+    {
+      "fee_sats": 25080,
+      "first_seen_us": 1767286204624357,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "027cdb4f9eb60d9e33fb6eea8f49ac7a1315d4ae5dcfd1ddb1a1b3e5f66ab8cb",
+      "txid_display": "027cdb4f\u2026b8cb"
+    },
+    {
+      "fee_sats": 920,
+      "first_seen_us": 1767296537258257,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "0280bda9563b0542be7da2421cba437ee857f8d9ce14b813f5cbc269bf4dd20d",
+      "txid_display": "0280bda9\u2026d20d"
+    },
+    {
+      "fee_sats": 1792,
+      "first_seen_us": 1767357303861159,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "028d33a6b91a2254c5709f89113f0ab24b2fcc82b80cfb410447dc4925c3c310",
+      "txid_display": "028d33a6\u2026c310"
+    },
+    {
+      "fee_sats": 6930,
+      "first_seen_us": 1767237312580325,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "029af89e8ac02d3191f32727be3ee953dcbb58e9c7bc1f66dbecb37e034d7a18",
+      "txid_display": "029af89e\u20267a18"
+    },
+    {
+      "fee_sats": 6422,
+      "first_seen_us": 1767236859967055,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "02a32202f0f002e426e096c23c8b05819c7366246ec8696b31512fbafc666603",
+      "txid_display": "02a32202\u20266603"
+    },
+    {
+      "fee_sats": 9456,
+      "first_seen_us": 1767249043176143,
+      "n_announcements": 12,
+      "n_distinct_peers": 12,
+      "txid": "02a916f68c4709da22caf55be97dd59ed96a9b10a5d8dcbc0216d6a9ecadf1bc",
+      "txid_display": "02a916f6\u2026f1bc"
+    },
+    {
+      "fee_sats": 1325,
+      "first_seen_us": 1767248894636288,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "02adf2193990ec944fd7aa20c83847fd3c52282f2cb037b7ce88dd3ff479a27a",
+      "txid_display": "02adf219\u2026a27a"
+    },
+    {
+      "fee_sats": 3636,
+      "first_seen_us": 1767290793185094,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "02b6d3a6a336a0b8e2014d3e657ff258b1f195c06d87a1104af0740e462a3364",
+      "txid_display": "02b6d3a6\u20263364"
+    },
+    {
+      "fee_sats": 1890,
+      "first_seen_us": 1767367993158791,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "02bd596e7d3d3ae29b5333b0a526c4e3db24ee02f41c909d8ec4e6b1c97492b9",
+      "txid_display": "02bd596e\u202692b9"
+    },
+    {
+      "fee_sats": 4368,
+      "first_seen_us": 1767231108364175,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "02c0c35c7dfe4e92d65c395c95806e8c8132c930e9215dc470ee9fe70fd7737a",
+      "txid_display": "02c0c35c\u2026737a"
+    },
+    {
+      "fee_sats": 1974,
+      "first_seen_us": 1767298376809509,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "02c5ab35f41586fd99c1f90f5414a30c9353cf8d8dba38ed721aa59c59736bbf",
+      "txid_display": "02c5ab35\u20266bbf"
+    },
+    {
+      "fee_sats": 705,
+      "first_seen_us": 1767351155638894,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "02cbdd5a09425e3e3757ec5171b1f58231d7c0ddc3dc231c7931e86c0e42f6cf",
+      "txid_display": "02cbdd5a\u2026f6cf"
+    },
+    {
+      "fee_sats": 812,
+      "first_seen_us": 1767323961764560,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "02cc80ef543044672887a5dae2bafb619c444f97f8b37ce9decdb76ab7b512b2",
+      "txid_display": "02cc80ef\u202612b2"
+    },
+    {
+      "fee_sats": 2504,
+      "first_seen_us": 1767384126858500,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "02d0169c8dcab8d0aeb8f636c454afef258b61ef63f8caf58df54ea482602ba3",
+      "txid_display": "02d0169c\u20262ba3"
+    },
+    {
+      "fee_sats": 8729,
+      "first_seen_us": 1767230800486710,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "02d4dbe4177d4b81b83a975fc78f86dd511a4332c10f69607aeb8a8b5e749bf7",
+      "txid_display": "02d4dbe4\u20269bf7"
+    },
+    {
+      "fee_sats": 1008,
+      "first_seen_us": 1767273993456875,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "030ebf82197620e42714564b5ee8b1d9aac8809c2d4d524b1f16fec22647482f",
+      "txid_display": "030ebf82\u2026482f"
+    },
+    {
+      "fee_sats": 3632,
+      "first_seen_us": 1767365633373291,
+      "n_announcements": 1,
+      "n_distinct_peers": 1,
+      "txid": "03182d975028ed5af649fe8bcdca854977fd5427f72b566465a31dab2d5a507c",
+      "txid_display": "03182d97\u2026507c"
+    },
+    {
+      "fee_sats": 852,
+      "first_seen_us": 1767237806559446,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "031ca6d94e93a4b7eeb477ce2315d5aecea8e931ab2ea3f4554ec7f544299165",
+      "txid_display": "031ca6d9\u20269165"
+    },
+    {
+      "fee_sats": 564,
+      "first_seen_us": 1767267991677212,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "031e913e18db26ca255380a7b5ebf9d9a7cac065915671a196f432b755023552",
+      "txid_display": "031e913e\u20263552"
+    },
+    {
+      "fee_sats": 846,
+      "first_seen_us": 1767239933260219,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "032197de7667e1f0df8b85d2d88a91799eacdaf13ce8b0af55ca43a2702a80ce",
+      "txid_display": "032197de\u202680ce"
+    },
+    {
+      "fee_sats": 3956,
+      "first_seen_us": 1767263613826094,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "032ab867f53af790635313e00774576564027facca945b5a3d82bc2016644789",
+      "txid_display": "032ab867\u20264789"
+    },
+    {
+      "fee_sats": 4609,
+      "first_seen_us": 1767357928036577,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0339894a8149a86a92b8418b648129ae52f893b77da3c9d3c78f928e2e82f3e3",
+      "txid_display": "0339894a\u2026f3e3"
+    },
+    {
+      "fee_sats": 861,
+      "first_seen_us": 1767264620373769,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "033ffb6ab20f2e04d4817414cae3b85d0c8d99b7dd37ba29b9a2dd9b3b0cbbe4",
+      "txid_display": "033ffb6a\u2026bbe4"
+    },
+    {
+      "fee_sats": 3102,
+      "first_seen_us": 1767283494871548,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "03404dbe32427ca464bcc053267922c34f55245d9866dcb4cb7978a64fa17f9f",
+      "txid_display": "03404dbe\u20267f9f"
+    },
+    {
+      "fee_sats": 3510,
+      "first_seen_us": 1767293506445398,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "0341b517a855c8c908a00d7bc2771543a33d1283d7ba7a27b3f090cd5639636e",
+      "txid_display": "0341b517\u2026636e"
+    },
+    {
+      "fee_sats": 3100,
+      "first_seen_us": 1767230817750386,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0341ce4fcb2a4d1c297a96e00a31f4731b4baeba6e96bcbe8fb524d2b9ca2e13",
+      "txid_display": "0341ce4f\u20262e13"
+    },
+    {
+      "fee_sats": 1568,
+      "first_seen_us": 1767283529618307,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "034e6e17b76c5bde65d8bb421108844910ce78f0dcb075bf1c19abfe01f10f6a",
+      "txid_display": "034e6e17\u20260f6a"
+    },
+    {
+      "fee_sats": 1032,
+      "first_seen_us": 1767267123840916,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "034f7d5e8d4b62fc16301b80e5b6fb2f958d1d962fbb57e0ad323320b75d318e",
+      "txid_display": "034f7d5e\u2026318e"
+    },
+    {
+      "fee_sats": 987,
+      "first_seen_us": 1767241647315361,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "03552a853b8253df50252fcfd1c67c3ce747828d904a7fe3b265ac2fc2e3c979",
+      "txid_display": "03552a85\u2026c979"
+    },
+    {
+      "fee_sats": 3776,
+      "first_seen_us": 1767308253903387,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "036c4357d4e19d2c7e3cb8ace8f8e244974648290040af4d8a833adefe61eea0",
+      "txid_display": "036c4357\u2026eea0"
+    },
+    {
+      "fee_sats": 3020,
+      "first_seen_us": 1767308634954654,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0370e273b87799df25a0f8b7c22dea51ccbac780b8c3f0d3b91407d33f39988d",
+      "txid_display": "0370e273\u2026988d"
+    },
+    {
+      "fee_sats": 1180,
+      "first_seen_us": 1767338129426085,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "03735467e5e51e78ed39cc176d91f549640946b017206994b3048506dd98cd6c",
+      "txid_display": "03735467\u2026cd6c"
+    },
+    {
+      "fee_sats": 756,
+      "first_seen_us": 1767287762821079,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "037889b50f323b30108443c59bd1ca96009a04308b3f6aa5e5a5f9c8abda1204",
+      "txid_display": "037889b5\u20261204"
+    },
+    {
+      "fee_sats": 14732,
+      "first_seen_us": 1767225780687227,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "0383bc1a30db207116af53a9709fc837166ab8ae929d433ff942269d0315e87a",
+      "txid_display": "0383bc1a\u2026e87a"
+    },
+    {
+      "fee_sats": 1392,
+      "first_seen_us": 1767350293064354,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "038d95a2439c9be3a24bae3ff340530173cb54a888396d17d043227ad802c2c0",
+      "txid_display": "038d95a2\u2026c2c0"
+    },
+    {
+      "fee_sats": 1935,
+      "first_seen_us": 1767349874592209,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0394d48508ced4747683565a87d29a4759e6b9b07b32435b82affdb00fc6369f",
+      "txid_display": "0394d485\u2026369f"
+    },
+    {
+      "fee_sats": 3696,
+      "first_seen_us": 1767372786651385,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "0395dd34bef1a7f2f89f724cc7a554e265f7f941da501cac1e09dbdc95248e0a",
+      "txid_display": "0395dd34\u20268e0a"
+    },
+    {
+      "fee_sats": 9024,
+      "first_seen_us": 1767326921257007,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "03a169f891334f35d2fefc2d4d9aeddf6c89fdb9ca138d49d460cd0b8038bd5c",
+      "txid_display": "03a169f8\u2026bd5c"
+    },
+    {
+      "fee_sats": 429,
+      "first_seen_us": 1767245978857800,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "03a96d87740b4c70ec7590620963bb84df8d1020b7ef715d04ce1637192c3d73",
+      "txid_display": "03a96d87\u20263d73"
+    },
+    {
+      "fee_sats": 4004,
+      "first_seen_us": 1767319966526913,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "03a9d8fca6dee08fe63f0990676ac16a953527fa16daaf6b14bda412f023471c",
+      "txid_display": "03a9d8fc\u2026471c"
+    },
+    {
+      "fee_sats": 1964,
+      "first_seen_us": 1767356838077443,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "03aa8da50776c1dbc12a527eead21ab7f323d3bf8d8ce4f9cf83de792d80471c",
+      "txid_display": "03aa8da5\u2026471c"
+    },
+    {
+      "fee_sats": 1328,
+      "first_seen_us": 1767373387252030,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "03bca5a36f78eee671ada0758c454d9937548334e7c1010c228f6a107e493c81",
+      "txid_display": "03bca5a3\u20263c81"
+    },
+    {
+      "fee_sats": 1296,
+      "first_seen_us": 1767316977706542,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "03c34ffd8e23914e5f8e73336d8a9ac02649ec3aaff88e0ea9460d446f09fee7",
+      "txid_display": "03c34ffd\u2026fee7"
+    },
+    {
+      "fee_sats": 3913,
+      "first_seen_us": 1767335522819185,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "03d3dc638a88abe5555fca804b506ee10a6ab634c7eef41ffd31738477776fe1",
+      "txid_display": "03d3dc63\u20266fe1"
+    },
+    {
+      "fee_sats": 175,
+      "first_seen_us": 1767230491726457,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "03dc0ee55e9af9fa55fc2621f89ae6c5d08b870bb37aeac820ecc9a67ad4c910",
+      "txid_display": "03dc0ee5\u2026c910"
+    },
+    {
+      "fee_sats": 1548,
+      "first_seen_us": 1767296192810089,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "03f03c808e4ea5cf01c338d58657866ac6d031744ed52caacc39c41ad752ce43",
+      "txid_display": "03f03c80\u2026ce43"
+    },
+    {
+      "fee_sats": 1668,
+      "first_seen_us": 1767273160703976,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "03f42d8302046a042c6ff8ad999c8088ae1b5d4c28abb072c9a6adf108e1e469",
+      "txid_display": "03f42d83\u2026e469"
+    },
+    {
+      "fee_sats": 2580,
+      "first_seen_us": 1767371402837564,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "03f8bc33818be0ac1d7f705dbb044dfbaa8183dc8a084fe37120a146456394a2",
+      "txid_display": "03f8bc33\u202694a2"
+    },
+    {
+      "fee_sats": 705,
+      "first_seen_us": 1767349480559113,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "040b7a8e67e45f032e1aa24a4dbc5e5b0b880bafb6d64c76818577b6046087db",
+      "txid_display": "040b7a8e\u202687db"
+    },
+    {
+      "fee_sats": 2832,
+      "first_seen_us": 1767271981005563,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "04157b75618d3770a79f74d7924bd066c35b24bc27da070cf5fbac4e75423eff",
+      "txid_display": "04157b75\u20263eff"
+    },
+    {
+      "fee_sats": 3135,
+      "first_seen_us": 1767250212828495,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "041f491469daeaedbd1d5845ed11e184551c266add79f996e1da22ad0a30eebf",
+      "txid_display": "041f4914\u2026eebf"
+    },
+    {
+      "fee_sats": 1052,
+      "first_seen_us": 1767235215458642,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0420e30b704bd66dc4b711dcbc348e42ac1d25b2986283af61bbca6f78905909",
+      "txid_display": "0420e30b\u20265909"
+    },
+    {
+      "fee_sats": 1656,
+      "first_seen_us": 1767354457373811,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "042103927ec823490bb33af1522fed4654ac466115866f1b9f4d21b57760579e",
+      "txid_display": "04210392\u2026579e"
+    },
+    {
+      "fee_sats": 2415,
+      "first_seen_us": 1767262125683134,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0424f4145dc2a1c5e3799bfa958bb7b3c23dccc7f2b5b5959922a9f803404c94",
+      "txid_display": "0424f414\u20264c94"
+    },
+    {
+      "fee_sats": 352,
+      "first_seen_us": 1767243734523754,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "042be2714544f2951809d163a2411e292f2d58f38a5e2d843a4d18b59e7603de",
+      "txid_display": "042be271\u202603de"
+    },
+    {
+      "fee_sats": 669,
+      "first_seen_us": 1767304041248639,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "042e667bcfdeadb4fe740e733ad01eb6c57096d28e920f2237f034f679012611",
+      "txid_display": "042e667b\u20262611"
+    },
+    {
+      "fee_sats": 1180,
+      "first_seen_us": 1767312405622286,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0437bd121c09bf51f787bfaf0a1ff8f6ce906639747c7756df7fbe8cbc93b7f6",
+      "txid_display": "0437bd12\u2026b7f6"
+    },
+    {
+      "fee_sats": 396,
+      "first_seen_us": 1767363342366702,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "043d1f8f0da6f82d653968bdd7cfe86fa8ab74e2b0f3094814494ee6c3bbdaa8",
+      "txid_display": "043d1f8f\u2026daa8"
+    },
+    {
+      "fee_sats": 4807,
+      "first_seen_us": 1767249373328168,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "043e9644146ed5d50b1c032c681ae4554b02a994f6339d758ce789b36db8fe92",
+      "txid_display": "043e9644\u2026fe92"
+    },
+    {
+      "fee_sats": 4720,
+      "first_seen_us": 1767359165636719,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "043fe15ca007f7e3d0beae2217133eba4a53a590dd3c96027278105a43e948df",
+      "txid_display": "043fe15c\u202648df"
+    },
+    {
+      "fee_sats": 852,
+      "first_seen_us": 1767366538458482,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0444398255177e7088a594cc682b9effbe75c04731ad74c3dffd9194a13fae97",
+      "txid_display": "04443982\u2026ae97"
+    },
+    {
+      "fee_sats": 2856,
+      "first_seen_us": 1767295906421092,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "044803434256103b07744df5015d8874700a8c7a911ae74822a01c5bada007e4",
+      "txid_display": "04480343\u202607e4"
+    },
+    {
+      "fee_sats": 282,
+      "first_seen_us": 1767348365579342,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "04481a2ba681757c0222f4e5bbf3fbae9fb1427819ac1058294603e1eb2b1e3b",
+      "txid_display": "04481a2b\u20261e3b"
+    },
+    {
+      "fee_sats": 7314,
+      "first_seen_us": 1767338464007152,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "04489a1e80b65646b87e0528a55ade1ef4a918e3328e1acfbaa87e39be31f0a0",
+      "txid_display": "04489a1e\u2026f0a0"
+    },
+    {
+      "fee_sats": 1430,
+      "first_seen_us": 1767273124781177,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "0457459c045ac9ba495112a3b0b40a8e9375ad3c681496aefaffb139fdefda00",
+      "txid_display": "0457459c\u2026da00"
+    },
+    {
+      "fee_sats": 3150,
+      "first_seen_us": 1767372253639155,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0457461a603277fa84eaa5451d974ce3228bf350cee2e60b9c6626f27b5b2fa7",
+      "txid_display": "0457461a\u20262fa7"
+    },
+    {
+      "fee_sats": 3432,
+      "first_seen_us": 1767230718754815,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "046e0ede78623f8b6dd6b9a34c4e247fffd4ed7fc0c4d77ad3c0b3ebd3eaba56",
+      "txid_display": "046e0ede\u2026ba56"
+    },
+    {
+      "fee_sats": 642,
+      "first_seen_us": 1767376159252951,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "046ec415191541852eafa0b1f62badfae51942cea2d4a5222017acffa2598288",
+      "txid_display": "046ec415\u20268288"
+    },
+    {
+      "fee_sats": 7884,
+      "first_seen_us": 1767314005838282,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "046f5e9010c6452a34137b88c61749583ac0335113ef993bebc6a75ab943604d",
+      "txid_display": "046f5e90\u2026604d"
+    },
+    {
+      "fee_sats": 3876,
+      "first_seen_us": 1767314027769937,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "04707a72036112c062e77fee8f455de75bc43f095a418044eedf02201452e9c3",
+      "txid_display": "04707a72\u2026e9c3"
+    },
+    {
+      "fee_sats": 38688,
+      "first_seen_us": 1767380008204230,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "047415f7bd915d52e4f61216e42c0dadf84c10892eca2278228e843715432e3f",
+      "txid_display": "047415f7\u20262e3f"
+    },
+    {
+      "fee_sats": 203,
+      "first_seen_us": 1767284777590348,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "047b9a0d69a9aa8ed24a0f7188b540339a9590e3e7424b71873245bea2e2453e",
+      "txid_display": "047b9a0d\u2026453e"
+    },
+    {
+      "fee_sats": 2016,
+      "first_seen_us": 1767352703351959,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "047d5ea298b92d9c457e58fdad03f037291fb3c5712b604eacb860ebf977e52f",
+      "txid_display": "047d5ea2\u2026e52f"
+    },
+    {
+      "fee_sats": 3872,
+      "first_seen_us": 1767291442749529,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "04841ca09645320332e7158083561486df2044c9c5b4e3b9db4468235881118a",
+      "txid_display": "04841ca0\u2026118a"
+    },
+    {
+      "fee_sats": 692,
+      "first_seen_us": 1767319645211069,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "048d6225cc4909f34d2b1c09e168a92c1788d8307ccfb64bc9c060d54948c0c7",
+      "txid_display": "048d6225\u2026c0c7"
+    },
+    {
+      "fee_sats": 429,
+      "first_seen_us": 1767279463314880,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "04902b01108b2aa291425dd4e27f528dc8f53c17aee01749570e7413a0640c1f",
+      "txid_display": "04902b01\u20260c1f"
+    },
+    {
+      "fee_sats": 5900,
+      "first_seen_us": 1767274713803750,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "0492c26008a320d038cc5c4093642ece5d0c79889808627a27038fd0f98dea11",
+      "txid_display": "0492c260\u2026ea11"
+    },
+    {
+      "fee_sats": 874,
+      "first_seen_us": 1767358440276947,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "04931cdc8b2f016c5cf60bdd595e7ddfbc5045d553fcceeaddafd55596e53bb0",
+      "txid_display": "04931cdc\u20263bb0"
+    },
+    {
+      "fee_sats": 1705,
+      "first_seen_us": 1767296963494662,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "04931de5178190f3def4f00ac2a22fe640902589107b0089d70cda22ba3e0861",
+      "txid_display": "04931de5\u20260861"
+    },
+    {
+      "fee_sats": 1010,
+      "first_seen_us": 1767322932358236,
+      "n_announcements": 8,
+      "n_distinct_peers": 8,
+      "txid": "049982477d1c03ca8244db7b380ac46c6222a7b612887e069eb399f86ac0614a",
+      "txid_display": "04998247\u2026614a"
+    },
+    {
+      "fee_sats": 13050,
+      "first_seen_us": 1767243242162900,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "04a1e14c4d48f4ede1670dac4bb4f32d7ae5c1fcca99f81c860604a379692c09",
+      "txid_display": "04a1e14c\u20262c09"
+    },
+    {
+      "fee_sats": 675,
+      "first_seen_us": 1767261913775311,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "04a472fd3786a112f524eb0d0bd0653df796d8c3cd65295ea3df73bc1e748ee1",
+      "txid_display": "04a472fd\u20268ee1"
+    },
+    {
+      "fee_sats": 7840,
+      "first_seen_us": 1767308386182986,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "04ac9be01838bfb3112060f21e430f9cd1158ca7186734f99f9855ae2c0a4633",
+      "txid_display": "04ac9be0\u20264633"
+    },
+    {
+      "fee_sats": 1269,
+      "first_seen_us": 1767317438408066,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "04ce443258d8a59de3dc1ada4ed896d5ac84ec6e462b703741300425c3b91cf2",
+      "txid_display": "04ce4432\u20261cf2"
+    },
+    {
+      "fee_sats": 1683,
+      "first_seen_us": 1767276693828445,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "04d8f4d48a20caedcbca3a1684c8deccb9b215d6b4c7be21e8d87637f8bee7e2",
+      "txid_display": "04d8f4d4\u2026e7e2"
+    },
+    {
+      "fee_sats": 6024,
+      "first_seen_us": 1767367137817042,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "04e3e93606f6a76870a11bec2ef15f946a0b0ea24f302f162e3768d15d697c9a",
+      "txid_display": "04e3e936\u20267c9a"
+    },
+    {
+      "fee_sats": 1416,
+      "first_seen_us": 1767340736130795,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "04e6a119c25323acb6177bc78cd84ee643f2d8c37eb097913b36141d659905a8",
+      "txid_display": "04e6a119\u202605a8"
+    },
+    {
+      "fee_sats": 3186,
+      "first_seen_us": 1767316677942220,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "04f33a29cb8f006622214476ca6584327b212f321242cfdb74d0460ffac7220b",
+      "txid_display": "04f33a29\u2026220b"
+    },
+    {
+      "fee_sats": 10528,
+      "first_seen_us": 1767256302770209,
+      "n_announcements": 10,
+      "n_distinct_peers": 10,
+      "txid": "0502bf79ef895e7555eee49b6f5c1acd55afa0434ed6bb2ccc7b27bd770ffcf3",
+      "txid_display": "0502bf79\u2026fcf3"
+    },
+    {
+      "fee_sats": 1884,
+      "first_seen_us": 1767357126613856,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "051439bf6cab00264c3d0c8a9ad4d44861ab540bdd5404c0c9937dca17aa2689",
+      "txid_display": "051439bf\u20262689"
+    },
+    {
+      "fee_sats": 1302,
+      "first_seen_us": 1767249403585711,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "051c4ebdd8982705a38f3fc5da1e8d2b54a1b683c0e9371f207c4086063b45c7",
+      "txid_display": "051c4ebd\u202645c7"
+    },
+    {
+      "fee_sats": 7020,
+      "first_seen_us": 1767245074688654,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "051fe10c095c087ed3334381d1762185c5aa09fc834fcf05e0ab9a0a5c1ca173",
+      "txid_display": "051fe10c\u2026a173"
+    },
+    {
+      "fee_sats": 3225,
+      "first_seen_us": 1767229189213704,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "053156efed6e7e709ffc363abd9f34b7c5681364ed5adaef3845d2254adc7350",
+      "txid_display": "053156ef\u20267350"
+    },
+    {
+      "fee_sats": 1728,
+      "first_seen_us": 1767266584924375,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "05316dbeb3c39aca7fc01755fb0dfcdf18ba98d7360db442b049b4bf3b1e7339",
+      "txid_display": "05316dbe\u20267339"
+    },
+    {
+      "fee_sats": 5336,
+      "first_seen_us": 1767340027551076,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0533a1c3fc1aad6cb15341096b7745cea46774e55f3ac2b12e9f3e970594bb8a",
+      "txid_display": "0533a1c3\u2026bb8a"
+    },
+    {
+      "fee_sats": 2968,
+      "first_seen_us": 1767280246347718,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "0538631b05de449a2516e3a5fc541f6d8a9ee0b17d90e629959d01d4d0c29a18",
+      "txid_display": "0538631b\u20269a18"
+    },
+    {
+      "fee_sats": 5676,
+      "first_seen_us": 1767307945352152,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "053c57ba1460106ba61f0309d9b58c32cfa5f3d5a6470e7548c6dad80a329b84",
+      "txid_display": "053c57ba\u20269b84"
+    },
+    {
+      "fee_sats": 6786,
+      "first_seen_us": 1767287063664636,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "054bdf02a4e2dd0a9edba090f26a512d2009ef54444d3d85000f76b3a25af9c1",
+      "txid_display": "054bdf02\u2026f9c1"
+    },
+    {
+      "fee_sats": 330,
+      "first_seen_us": 1767317306709259,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "054e1052427db730cb41a35b29c31601ef0de4d3210c0f003cc7fe2fd85dcf05",
+      "txid_display": "054e1052\u2026cf05"
+    },
+    {
+      "fee_sats": 720,
+      "first_seen_us": 1767264843488141,
+      "n_announcements": 7,
+      "n_distinct_peers": 7,
+      "txid": "05690861d7a09069107d23593409dd1c935d64e54eb5fee96d7111d73bb44a2a",
+      "txid_display": "05690861\u20264a2a"
+    },
+    {
+      "fee_sats": 9589,
+      "first_seen_us": 1767339300330353,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0572273a2cd6ec020332816c9c21f5e93a51344db9390954b963bc8ad7a4fa70",
+      "txid_display": "0572273a\u2026fa70"
+    },
+    {
+      "fee_sats": 606,
+      "first_seen_us": 1767363483632881,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "05785ce56ad1353144d7fcd2f1904bce438a5ecb4038641710228da97ce970c2",
+      "txid_display": "05785ce5\u202670c2"
+    },
+    {
+      "fee_sats": 3627,
+      "first_seen_us": 1767349658603503,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "05874d5d6e5e00f8ccef446c9d11a562bd76fc7de48b320bb7860628e38c544c",
+      "txid_display": "05874d5d\u2026544c"
+    },
+    {
+      "fee_sats": 2651,
+      "first_seen_us": 1767316979053910,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "059149fe124d9d4dba592d00969b0132cd9749b7eee6ccfbbe054b1d795efe05",
+      "txid_display": "059149fe\u2026fe05"
+    },
+    {
+      "fee_sats": 3172,
+      "first_seen_us": 1767228892669064,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "05a17781f9ca9637b959f1654fa7bb0a6723b67a134a8ab4dad3bb67321e4e0c",
+      "txid_display": "05a17781\u20264e0c"
+    },
+    {
+      "fee_sats": 875,
+      "first_seen_us": 1767376209497102,
+      "n_announcements": 4,
+      "n_distinct_peers": 4,
+      "txid": "05a455f47ae568960a7fc16c2fd5dc1e081dbb086e1c2a7d4934f70af89f0a2b",
+      "txid_display": "05a455f4\u20260a2b"
+    },
+    {
+      "fee_sats": 8550,
+      "first_seen_us": 1767265908545199,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "05c126772c4570d92aab9907ec9730cec90750bd5d12ae870a224c5b30076179",
+      "txid_display": "05c12677\u20266179"
+    },
+    {
+      "fee_sats": 5310,
+      "first_seen_us": 1767306923208561,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "05c26fb504692d3606131ba87db8556b6e3d9c7328f55d9dee93274dcd759828",
+      "txid_display": "05c26fb5\u20269828"
+    },
+    {
+      "fee_sats": 6944,
+      "first_seen_us": 1767316796896989,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "05e2631ee97475948fe01a9053fe59c560d77faeb31e751cf3d5e3eb5a30a9fd",
+      "txid_display": "05e2631e\u2026a9fd"
+    },
+    {
+      "fee_sats": 298,
+      "first_seen_us": 1767241537504691,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "05e323468c69a8b4092508f137c9bd6587addcae4d1d8dac18a381e4a6fd59b8",
+      "txid_display": "05e32346\u202659b8"
+    },
+    {
+      "fee_sats": 177,
+      "first_seen_us": 1767266998888866,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "05e9c5b80f0dd223db415af7ac5dee9a2ac677f25c6b2fcd335d507c9891693d",
+      "txid_display": "05e9c5b8\u2026693d"
+    },
+    {
+      "fee_sats": 2717,
+      "first_seen_us": 1767226067715448,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "05ed383b404d89f9c45b5ea098224afdfbf9570b8f6d1c576815806174eb1fdf",
+      "txid_display": "05ed383b\u20261fdf"
+    },
+    {
+      "fee_sats": 3437,
+      "first_seen_us": 1767352300828575,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "05ef978f108037e0645cc8c650dc4f7d5cb7ce674c5ecfbcca4e3484e93cdae1",
+      "txid_display": "05ef978f\u2026dae1"
+    },
+    {
+      "fee_sats": 820,
+      "first_seen_us": 1767306157883739,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "05f2cda135b469b6fec85af886c9a81144da38f8fe7a45523e2e645405db4ca4",
+      "txid_display": "05f2cda1\u20264ca4"
+    },
+    {
+      "fee_sats": 1150,
+      "first_seen_us": 1767240353993750,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "05fab1e5fab3364756f5df9a2ec82c646e14d6a2d93d28dc11adcda560636c03",
+      "txid_display": "05fab1e5\u20266c03"
+    },
+    {
+      "fee_sats": 1833,
+      "first_seen_us": 1767252449633970,
+      "n_announcements": 3,
+      "n_distinct_peers": 3,
+      "txid": "05ff5877f7bdd659f3dfa5ded87b185fcb16c478c0665c96d402cdd42f260761",
+      "txid_display": "05ff5877\u20260761"
+    },
+    {
+      "fee_sats": 4560,
+      "first_seen_us": 1767231273786344,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0613f02c70da0031d8c41412594437643896a71829e0d4a93fe4a8b3075e652a",
+      "txid_display": "0613f02c\u2026652a"
+    },
+    {
+      "fee_sats": 1840,
+      "first_seen_us": 1767274771137866,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "061868f641647fd0f3602b94cb6d59b909f51c6ec1d77849b01a0426d02f8ce5",
+      "txid_display": "061868f6\u20268ce5"
+    },
+    {
+      "fee_sats": 720,
+      "first_seen_us": 1767369210995435,
+      "n_announcements": 5,
+      "n_distinct_peers": 5,
+      "txid": "0621fc6c47504eebd1356941a2a7f99bfa74a66ef22f33aa731b6436318cb0ff",
+      "txid_display": "0621fc6c\u2026b0ff"
+    },
+    {
+      "fee_sats": 5852,
+      "first_seen_us": 1767251067429442,
+      "n_announcements": 2,
+      "n_distinct_peers": 2,
+      "txid": "0623c4cf08d3e6de790bf621767c6fb8809696e626116c094ec8c03455835a4f",
+      "txid_display": "0623c4cf\u20265a4f"
+    },
+    {
+      "fee_sats": 1290,
+      "first_seen_us": 1767341547290757,
+      "n_announcements": 6,
+      "n_distinct_peers": 6,
+      "txid": "0625991ee15478460278e2a04f01f170840272665f6dbce148497692d76b8309",
+      "txid_display": "0625991e\u20268309"
+    }
+  ]
+}
