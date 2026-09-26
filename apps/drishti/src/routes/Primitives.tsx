@@ -70,7 +70,7 @@ export function Primitives() {
                   <RangeBar low={alert.confidence.low} high={alert.confidence.high} point={alert.confidence.score} />
                 </div>
                 <span className={styles.foot}>
-                  coverage {dec(alert.confidence.empirical_coverage)} against a {dec(alert.confidence.coverage_target)} target
+                  coverage {alert.confidence.empirical_coverage === null ? "—" : dec(alert.confidence.empirical_coverage)} against a {dec(alert.confidence.coverage_target)} target
                 </span>
               </>
             ) : (

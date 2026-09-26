@@ -188,7 +188,7 @@ export interface AlertDetail {
   severity: "high" | "medium" | "low";
   headline: string;
   status: "OPEN" | "CLEARED";
-  why: { base_rate: number; contributions: ShapContribution[] };
+  why: { base_rate: number | null; contributions: ShapContribution[] };
   evidence: EvidenceItem[];
   counter: CounterItem[]; // mandatory, never empty
   confidence: {
@@ -196,7 +196,7 @@ export interface AlertDetail {
     low: number;
     high: number;
     coverage_target: number;
-    empirical_coverage: number;
+    empirical_coverage: number | null; // null on an air-gapped serve (eval side stripped)
     label: string; // "LIKELY_ILLICIT" | ... | "ABSTAIN · insufficient evidence"
   };
 }

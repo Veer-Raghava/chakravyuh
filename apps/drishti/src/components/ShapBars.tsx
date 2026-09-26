@@ -5,8 +5,9 @@ import styles from "./ShapBars.module.css";
 interface Props {
   /** Signed contributions, already ordered by absolute value (largest first). */
   contributions: ShapContribution[];
-  /** Model base rate the contributions push away from. Marked, not hidden. */
-  baseRate: number;
+  /** Model base rate the contributions push away from. Marked, not hidden. Null when the
+   *  eval side is stripped (air-gapped serve): shown as "—", never faked to 0. */
+  baseRate: number | null;
 }
 
 /** WHY, as a diverging bar chart. Each feature pushes the score right (raises risk,
@@ -49,7 +50,7 @@ export function ShapBars({ contributions, baseRate }: Props) {
 
       <div className={styles.base}>
         <span className={styles.baseLabel}>BASE RATE</span>
-        <span className={`${styles.baseValue} mono`}>{dec(baseRate)}</span>
+        <span className={`${styles.baseValue} mono`}>{baseRate === null ? "—" : dec(baseRate)}</span>
         <span className={styles.baseGloss}>the model's prior before any of this evidence</span>
       </div>
     </div>

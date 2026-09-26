@@ -130,7 +130,10 @@ export function QueueInspector({ detail, onClear, onNavigate }: InspectorProps) 
             </div>
             <RangeBar low={conf.low} high={conf.high} point={abstain ? undefined : conf.score} />
             <span className={`${styles.confCoverage} mono`}>
-              interval at {dec(conf.coverage_target)} target · {dec(conf.empirical_coverage)} empirical coverage
+              interval at {dec(conf.coverage_target)} target ·{" "}
+              {conf.empirical_coverage === null
+                ? "empirical coverage not measured in this copy"
+                : `${dec(conf.empirical_coverage)} empirical coverage`}
             </span>
           </div>
         )}
