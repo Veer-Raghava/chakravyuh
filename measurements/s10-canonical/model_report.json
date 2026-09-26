@@ -1,8 +1,8 @@
 {
   "baseline": {
-    "n_scored": 31238,
-    "precision_at_20": 0.0,
-    "recall_at_20": 0.0,
+    "n_scored": 29561,
+    "precision_at_20": 0.05,
+    "recall_at_20": 0.000959,
     "rule": "rank_by_total_value_received",
     "split": {
       "boundary_us": 1767572645951947,
@@ -37,6 +37,6 @@
     "pr_auc": 0.053811,
     "precision_at_20": 0.55,
     "recall_at_20": 0.010547,
-    "roc_auc": 0.475455
+    "roc_auc": 0.526912
   }
 }

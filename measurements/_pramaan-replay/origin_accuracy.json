@@ -9,136 +9,136 @@
   "params": {
     "train_fraction": 0.7
   },
-  "recoverable_ceiling": 0.091806,
+  "recoverable_ceiling": 0.093418,
   "recoverable_ceiling_by_window": {
     "holdout": {
-      "ceiling": 0.09529,
-      "n_recoverable": 263,
-      "n_transactions": 2760
+      "ceiling": 0.084758,
+      "n_recoverable": 233,
+      "n_transactions": 2749
     },
     "train": {
-      "ceiling": 0.092066,
-      "n_recoverable": 528,
-      "n_transactions": 5735
+      "ceiling": 0.099465,
+      "n_recoverable": 576,
+      "n_transactions": 5791
     }
   },
   "run_id": "_pramaan-replay",
   "scores": {
     "ensemble": {
       "by_traffic": {
-        "clear": 0.073996,
-        "tor": 0.102167,
-        "vpn": 0.061103
+        "clear": 0.077858,
+        "tor": 0.044643,
+        "vpn": 0.076233
       },
       "by_window": {
         "holdout": {
-          "n_correct": 169,
-          "n_transactions": 2760,
-          "top1": 0.061232
+          "n_correct": 165,
+          "n_transactions": 2749,
+          "top1": 0.060022
         },
         "train": {
-          "n_correct": 469,
-          "n_transactions": 5735,
-          "top1": 0.081779
+          "n_correct": 497,
+          "n_transactions": 5791,
+          "top1": 0.085823
         }
       },
-      "coverage": 0.911676,
-      "n_abstained": 640,
-      "n_correct": 638,
-      "n_ranked": 8495,
-      "precision_when_acted": 0.079058,
-      "top1": 0.074048,
-      "top1_acted": 0.072075,
-      "top3": 0.086119
+      "coverage": 0.750808,
+      "n_abstained": 2038,
+      "n_correct": 662,
+      "n_ranked": 8540,
+      "precision_when_acted": 0.084128,
+      "top1": 0.076443,
+      "top1_acted": 0.063164,
+      "top3": 0.088222
     },
     "first_seen": {
       "by_traffic": {
-        "clear": 0.047625,
-        "tor": 0.068111,
-        "vpn": 0.032787
+        "clear": 0.050163,
+        "tor": 0.047619,
+        "vpn": 0.052317
       },
       "by_window": {
         "holdout": {
-          "n_correct": 123,
-          "n_transactions": 2760,
-          "top1": 0.044565
+          "n_correct": 138,
+          "n_transactions": 2749,
+          "top1": 0.0502
         },
         "train": {
-          "n_correct": 284,
-          "n_transactions": 5735,
-          "top1": 0.04952
+          "n_correct": 297,
+          "n_transactions": 5791,
+          "top1": 0.051286
         }
       },
-      "coverage": 0.985956,
+      "coverage": 0.986143,
       "n_abstained": 0,
-      "n_correct": 407,
-      "n_ranked": 8495,
-      "precision_when_acted": 0.047911,
-      "top1": 0.047238,
-      "top1_acted": 0.047238,
-      "top3": 0.07045
+      "n_correct": 435,
+      "n_ranked": 8540,
+      "precision_when_acted": 0.050937,
+      "top1": 0.050231,
+      "top1_acted": 0.050231,
+      "top3": 0.071478
     },
     "first_spy": {
       "by_traffic": {
-        "clear": 0.047625,
-        "tor": 0.068111,
-        "vpn": 0.032787
+        "clear": 0.050163,
+        "tor": 0.047619,
+        "vpn": 0.052317
       },
       "by_window": {
         "holdout": {
-          "n_correct": 123,
-          "n_transactions": 2760,
-          "top1": 0.044565
+          "n_correct": 138,
+          "n_transactions": 2749,
+          "top1": 0.0502
         },
         "train": {
-          "n_correct": 284,
-          "n_transactions": 5735,
-          "top1": 0.04952
+          "n_correct": 297,
+          "n_transactions": 5791,
+          "top1": 0.051286
         }
       },
-      "coverage": 0.969708,
-      "n_abstained": 140,
-      "n_correct": 407,
-      "n_ranked": 8495,
-      "precision_when_acted": 0.047995,
-      "top1": 0.047238,
-      "top1_acted": 0.046541,
-      "top3": 0.07045
+      "coverage": 0.807159,
+      "n_abstained": 1550,
+      "n_correct": 435,
+      "n_ranked": 8540,
+      "precision_when_acted": 0.052361,
+      "top1": 0.050231,
+      "top1_acted": 0.042263,
+      "top3": 0.071478
     },
     "payer_linkage": {
       "by_traffic": {
-        "clear": 0.061795,
-        "tor": 0.074303,
-        "vpn": 0.029806
+        "clear": 0.06192,
+        "tor": 0.047619,
+        "vpn": 0.049327
       },
       "by_window": {
         "holdout": {
-          "n_correct": 158,
-          "n_transactions": 2760,
-          "top1": 0.057246
+          "n_correct": 159,
+          "n_transactions": 2749,
+          "top1": 0.057839
         },
         "train": {
-          "n_correct": 357,
-          "n_transactions": 5735,
-          "top1": 0.062249
+          "n_correct": 364,
+          "n_transactions": 5791,
+          "top1": 0.062856
         }
       },
-      "coverage": 0.985956,
+      "coverage": 0.986143,
       "n_abstained": 0,
-      "n_correct": 515,
-      "n_ranked": 8495,
-      "precision_when_acted": 0.060624,
-      "top1": 0.059773,
-      "top1_acted": 0.059773,
-      "top3": 0.077066
+      "n_correct": 523,
+      "n_ranked": 8540,
+      "precision_when_acted": 0.061241,
+      "top1": 0.060393,
+      "top1_acted": 0.060393,
+      "top3": 0.078291
     }
   },
   "split": {
-    "boundary_us": 1767336501947808,
+    "boundary_us": 1767336502521935,
     "by_window_note": "by_window denominators count only transactions an observer heard, so they do not sum to transactions_broadcast.",
     "policy": "first_seen_us < boundary trains",
     "train_fraction": 0.7
   },
-  "transactions_broadcast": 8616,
-  "transactions_with_a_candidate": 8495
+  "transactions_broadcast": 8660,
+  "transactions_with_a_candidate": 8540
 }

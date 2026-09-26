@@ -419,17 +419,30 @@ sweep-observer-fraction: guard-uv
 	@echo "sweep-observer-fraction: curve written to measurements/_sweep/origin_curve.md"
 
 verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
-        verify-s07 verify-s08 verify-s09 verify-s10
-	@echo "verify: S00 through S10. Later stages append themselves as they land."
+        verify-s07 verify-s08 verify-s09 verify-s10 verify-s11
+	@echo "verify: S00 through S11. Later stages append themselves as they land."
 
-# One rule for the one unbuilt stage. The brief path is globbed rather than
-# hardcoded so renaming a brief cannot rot the message.
-verify-s11:
-	@n=$(patsubst verify-s%,%,$@); \
-	 b=$$(ls docs/stages/S$$n-*.md 2>/dev/null | head -1); \
-	 echo "FAIL $@: stage S$$n is not implemented yet."; \
-	 echo "  Brief: $${b:-docs/stages/ (missing)}"; \
-	 exit 1
+# S11's gate. The demo must serve the precomputed run cold, offline, and from a stripped
+# copy — never regenerating. Lint (the whole tree must still parse and type-check), the
+# cross-stage fallback contract, then the demo served three ways: with networking cut
+# (unshare -rn, loopback only), and from a copy with ground_truth/ and measurements/ absent.
+# verify-quarantine (a prerequisite) already re-proves every stage's answer-key-absent path.
+verify-s11: guard-uv verify-quarantine
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy
+	uv run pytest -q tests/test_demo_fallbacks.py
+	@if unshare -rn true >/dev/null 2>&1; then \
+	  echo "verify-s11: airplane mode — serving with networking disabled (unshare -rn)."; \
+	  unshare -rn bash -c 'ip link set lo up 2>/dev/null; exec $(PY) scripts/demo_smoke.py --port 8011' \
+	    || { echo "FAIL verify-s11: demo did not serve offline."; exit 1; }; \
+	else \
+	  echo "verify-s11: WARN unshare unavailable; running the loopback smoke without a netns."; \
+	  $(PY) scripts/demo_smoke.py --port 8011 \
+	    || { echo "FAIL verify-s11: demo did not serve on loopback."; exit 1; }; \
+	fi
+	bash scripts/shipping_check.sh --port 8012
+	@echo "verify-s11: offline cold-start, fallbacks, and stripped-copy shipping all pass."
 
 # S10's gate. Lint and the API tests (shape parity with the committed fixtures, the bind
 # law, clean 404s), then a full pipeline over the reference config, then the three
@@ -686,14 +699,15 @@ validate-data: guard-uv
 	uv run python -m chakravyuh.eval.validate --run $(RUN)
 	@echo "validate-data: measurements/$(RUN)/validation/report.md"
 
-# The demo artifact: s10-demo only. The canonical measured run s10-canonical is never
-# touched here — regenerating the demo must not silently rewrite the measured run.
+# The demo artifact: s10-demo only. The measured canonical run is never touched here —
+# regenerating the demo must not silently rewrite a measured run. Built at the canonical
+# scale (--txs 24000) so the demo shows the real model, holdout and all, not a toy cut-down.
 DEMO_RUN := s10-demo
 
 demo-full: guard-uv
 	@rm -rf data/generated/$(DEMO_RUN) ground_truth/$(DEMO_RUN) measurements/$(DEMO_RUN)
 	uv run python scripts/make_vendor_lists.py --out vendor/
-	uv run python -m chakravyuh.mayajaal --txs 4000 --out data/generated/$(DEMO_RUN)
+	uv run python -m chakravyuh.mayajaal --txs 24000 --out data/generated/$(DEMO_RUN)
 	uv run python -m chakravyuh.kavach --in data/generated/$(DEMO_RUN)/capture --out data/generated/$(DEMO_RUN)
 	uv run python -m chakravyuh.setu --in data/generated/$(DEMO_RUN)/sealed --out data/generated/$(DEMO_RUN)
 	uv run python -m chakravyuh.jaal --in data/generated/$(DEMO_RUN)/normalised --out data/generated/$(DEMO_RUN)
@@ -701,19 +715,48 @@ demo-full: guard-uv
 	uv run python -m chakravyuh.buddhi --in data/generated/$(DEMO_RUN) --out data/generated/$(DEMO_RUN) --score
 	uv run python -m chakravyuh.vaani --in data/generated/$(DEMO_RUN) --out data/generated/$(DEMO_RUN)
 	@set -e; \
-	 for c in alw-02ea801ee567 alw-d2b22e049560 alw-e53cbcbf18dc; do \
-	   alert=$$(uv run python -c "import polars as pl; a=pl.read_parquet('data/generated/$(DEMO_RUN)/alerts/alerts.parquet', columns=['alert_id']); print(a.filter(pl.col('alert_id')=='$$c').height > 0)" | tail -1); \
-	   [ "$$alert" = "True" ] || { echo "FAIL demo-full: DEMO-CASE $$c missing from the run."; exit 1; }; \
+	 cases=$$(uv run python -c "import polars as pl; \
+a=pl.read_parquet('data/generated/$(DEMO_RUN)/alerts/alerts.parquet', columns=['alert_id','rank','attribution_ready']).sort('rank'); \
+ids=a['alert_id'].head(3).to_list(); \
+nr=a.filter(~a['attribution_ready']); \
+ids += [nr['alert_id'][0]] if nr.height else []; \
+print(' '.join(dict.fromkeys(ids)))"); \
+	 [ -n "$$cases" ] || { echo "FAIL demo-full: the run produced no alerts to packet."; exit 1; }; \
+	 for c in $$cases; do \
 	   uv run python -m chakravyuh.pramaan --in data/generated/$(DEMO_RUN) --out data/generated/$(DEMO_RUN) --case $$c; \
 	 done; \
-	 echo "demo-full: s10-demo built, three cases packeted."
+	 echo "demo-full: $(DEMO_RUN) built, demo cases packeted ($$cases)."
 
-demo-reset: demo-full
-	@echo "demo-reset: s10-demo rebuilt from scratch."
+# The demo the projector runs. It SERVES the precomputed s10-demo and regenerates nothing:
+# regenerating data while an audience waits is the failure mode S11 exists to prevent. Both
+# servers bind loopback (the API by contract, the console by vite.config). Ctrl-C tears both
+# down via the trap so the next `make demo` starts clean.
+demo:
+	@test -d data/generated/$(DEMO_RUN) || { \
+	  echo "FAIL demo: data/generated/$(DEMO_RUN) is absent."; \
+	  echo "  Build it once with 'make demo-full'. The demo never regenerates live."; exit 1; }
+	@echo "demo: serving precomputed $(DEMO_RUN) — no regeneration."
+	@CHAKRAVYUH_RUN=$(DEMO_RUN) $(PY) -m uvicorn chakravyuh.api.app:app \
+	   --host 127.0.0.1 --port 8000 --log-level warning & api=$$!; \
+	 ( cd apps/drishti && VITE_SOURCE=api npm run dev ) & ui=$$!; \
+	 trap 'kill $$api $$ui 2>/dev/null' INT TERM EXIT; \
+	 $(PY) scripts/demo_smoke.py --attach --port 8000 || { \
+	   echo "FAIL demo: API did not become ready on 127.0.0.1:8000"; exit 1; }; \
+	 echo "demo: API   http://127.0.0.1:8000"; \
+	 echo "demo: console http://127.0.0.1:5173  (VITE_SOURCE=api)"; \
+	 echo "demo: beat one — open http://127.0.0.1:5173/ . Script: docs/DEMO-SCRIPT.md"; \
+	 wait
 
-demo: demo-full
-	@echo "demo: artifact ready. Serve with: CHAKRAVYUH_RUN=s10-demo make api"
-	@echo "  Cases and beats: docs/DEMO-CASES.md, docs/DEMO-RUN.md"
+# Return to beat one for a second run-through. The API is read-only and the console loads
+# fresh from it on every route, so there is no server-side state to reset and nothing to
+# restart — reset is reopening the landing route. This target confirms the servers are still
+# serving so the operator knows a restart is unnecessary.
+demo-reset:
+	@$(PY) scripts/demo_smoke.py --attach --port 8000 >/dev/null 2>&1 && { \
+	  echo "demo-reset: servers still up. Reopen http://127.0.0.1:5173/ for beat one."; \
+	} || { \
+	  echo "demo-reset: no server on 127.0.0.1:8000. Start the demo with 'make demo'."; \
+	}
 
 peek:
 	@test -n "$(P)" || { echo "usage: make peek P=<path.csv|path.parquet>"; exit 1; }

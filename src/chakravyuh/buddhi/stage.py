@@ -259,6 +259,10 @@ def build_run(
         run_dir / SIGNALS_DIR / SIGNALS_TABLE,
         columns=list(features.ORIGIN_ESTIMATE_COLUMNS) + ["estimator"],
     )
+    typology_hits = pl.read_parquet(
+        run_dir / SIGNALS_DIR / "typology_hits.parquet",
+        columns=["subject_id", "typology", "txids"],
+    )
     rows = {
         "transactions.parquet": transactions.height,
         "addresses.parquet": addresses.height,
@@ -270,7 +274,13 @@ def build_run(
     # No boundary means no window can be called train, which cannot leak because nothing trains.
     resolved_boundary = boundary_us if boundary_us is not None else 0
     subject_table = features.build(
-        transactions, clusters, addresses, edges, origin_estimates, resolved_boundary
+        transactions,
+        clusters,
+        addresses,
+        edges,
+        origin_estimates,
+        resolved_boundary,
+        typology_hits=typology_hits,
     )
     members = features.subjects(clusters, addresses)
     subject_addresses = members.group_by("subject_id", maintain_order=True).agg(

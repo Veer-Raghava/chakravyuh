@@ -34,7 +34,7 @@ from chakravyuh.kavach.seal import seal
 from chakravyuh.setu.stage import normalise_run
 from chakravyuh.setu.stage import resolve_in as setu_in
 from chakravyuh.setu.stage import resolve_out as setu_out
-from chakravyuh.shastra import estimate, features
+from chakravyuh.shastra import estimate, features, typology
 from chakravyuh.shastra.stage import build_run, resolve_in, resolve_out, settings
 
 REPO = Path(__file__).resolve().parent.parent
@@ -260,6 +260,73 @@ def test_the_hand_built_features_are_computed_by_eye() -> None:
     assert cc["n_observers_seen"] == 2
     assert cc["n_observers_blind"] == 0
     assert cc["announce_spread_us"] == 4
+
+
+def test_the_four_typologies_fire_on_their_hand_built_shapes() -> None:
+    """One transaction (or run) of each morphology, checked by eye against the thresholds.
+
+    Every address is its own singleton subject (no clusters), so a hit names `addr:<address>`.
+    A fills fan-out with six outputs; B fills coinjoin-like with four equal outputs; C peels
+    twice, each a two-output send whose small slice is under a third of the total; D structures
+    with three near-identical single-output sends. E sends one ordinary two-output payment whose
+    outputs are an even split, and must produce no hit.
+    """
+    txns = pl.DataFrame(
+        {
+            "txid": ["fan", "cj", "pl1", "pl2", "st1", "st2", "st3", "ok"],
+            "input_addresses": [["A"], ["B"], ["C"], ["C"], ["D"], ["D"], ["D"], ["E"]],
+            "output_amounts": [
+                [10] * 6,
+                [25, 25, 25, 25],
+                [10, 90],
+                [5, 95],
+                [1000, 0],
+                [1010, 0],
+                [990, 0],
+                [50, 50],
+            ],
+            "total_out_sats": [60, 100, 100, 100, 1000, 1010, 990, 100],
+            "n_out": [6, 4, 2, 2, 1, 1, 1, 2],
+            "is_coinbase": [False] * 8,
+            "has_equal_outputs": [False, True, False, False, False, False, False, True],
+        }
+    )
+    addrs = pl.DataFrame({"address": ["A", "B", "C", "D", "E"]})
+    empty_clusters = pl.DataFrame(
+        schema={"cluster_id": pl.String(), "addresses": pl.List(pl.String())}
+    )
+    hits = typology.detect(txns, empty_clusters, addrs)
+    by_subject = {(row["subject_id"], row["typology"]): row for row in hits.iter_rows(named=True)}
+    assert ("addr:A", "fan_out") in by_subject
+    assert ("addr:B", "coinjoin_like") in by_subject
+    assert ("addr:C", "peel_chain") in by_subject
+    assert ("addr:D", "structuring") in by_subject
+    # E's ordinary payment is no typology, and no subject is hit twice for one shape.
+    assert not any(sid == "addr:E" for sid, _ in by_subject)
+    assert hits["hit_id"].n_unique() == hits.height
+    # The peel hit carries both of C's peels, so the console can show the chain behind it.
+    assert sorted(by_subject[("addr:C", "peel_chain")]["txids"]) == ["pl1", "pl2"]
+
+
+def test_a_single_peel_is_not_a_chain() -> None:
+    """One two-output slice is an ordinary payment; the typology needs the repetition."""
+    txns = pl.DataFrame(
+        {
+            "txid": ["one"],
+            "input_addresses": [["C"]],
+            "output_amounts": [[10, 90]],
+            "total_out_sats": [100],
+            "n_out": [2],
+            "is_coinbase": [False],
+            "has_equal_outputs": [False],
+        }
+    )
+    addrs = pl.DataFrame({"address": ["C"]})
+    empty_clusters = pl.DataFrame(
+        schema={"cluster_id": pl.String(), "addresses": pl.List(pl.String())}
+    )
+    hits = typology.detect(txns, empty_clusters, addrs)
+    assert hits.filter(pl.col("typology") == "peel_chain").height == 0
 
 
 def test_first_spy_ranks_by_first_seen_and_breaks_ties_on_row_id() -> None:
@@ -737,7 +804,10 @@ def test_the_stage_accounts_for_every_announcement_row(workspace: Path) -> None:
 
     by_name = {entry["path"]: entry["rows"] for entry in meta["outputs"]}
     assert by_name["signals/origin_estimates.parquet"] == frame.height
-    assert by_name["signals/typology_hits.parquet"] == 0
+    # typology_hits is live; meta must report the file's real row count, not a stale zero.
+    hits = pl.read_parquet(run / "signals" / "typology_hits.parquet")
+    assert by_name["signals/typology_hits.parquet"] == hits.height
+    # entity_types stays deferred: predicting a subject's kind is a separate model.
     assert by_name["signals/entity_types.parquet"] == 0
 
 

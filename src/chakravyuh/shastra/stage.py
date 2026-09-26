@@ -23,7 +23,7 @@ from typing import Any, Final
 import polars as pl
 
 from chakravyuh import buildinfo
-from chakravyuh.shastra import estimate, features, schema
+from chakravyuh.shastra import estimate, features, schema, typology
 
 INPUT_ROOT: Final[str] = "data"
 OUTPUT_ROOT: Final[str] = "data/generated"
@@ -197,6 +197,13 @@ def build_run(
         normalised / "transactions.parquet", columns=list(features.TRANSACTION_COLUMNS)
     )
     edges = pl.read_parquet(run_dir / GRAPH_DIR / GRAPH_TABLE, columns=["src", "dst"])
+    clusters = pl.read_parquet(
+        run_dir / GRAPH_DIR / "clusters.parquet", columns=["cluster_id", "addresses"]
+    )
+    addresses = pl.read_parquet(normalised / "addresses.parquet", columns=["address"])
+    morphology = pl.read_parquet(
+        normalised / "transactions.parquet", columns=list(typology.TRANSACTION_COLUMNS)
+    )
     # A column subset does not change the row count, so these are the input row counts section 10
     # asks for without reading any table twice.
     rows = {
@@ -224,13 +231,14 @@ def build_run(
         schema.ORIGIN_ESTIMATES_SCHEMA,
     )
 
-    # Deferred, not forgotten. Contract section 6 states no nullability for either table, so a row
-    # with placeholder columns would be a row an auditor must reject; a zero-row file with the exact
-    # schema is the honest shape of "this stage does not do typologies yet" and is what the console
-    # can read without special-casing an absent file. The deferral is recorded in STATE.md.
+    # Typology hits are read straight off the transaction morphology, no labels: a hit is a shape
+    # (fan-out, coinjoin-like, peel chain, structuring) an analyst can point at in the capture. The
+    # `entity_types.parquet` classifier stays deferred — predicting a subject's *kind* is a separate
+    # model, and an empty file with the exact schema is the honest shape of "not built yet".
+    hits = typology.detect(morphology, clusters, addresses)
     outputs = {
         "origin_estimates.parquet": estimates,
-        "typology_hits.parquet": schema.empty(schema.TYPOLOGY_HITS_SCHEMA),
+        "typology_hits.parquet": hits,
         "entity_types.parquet": schema.empty(schema.ENTITY_TYPES_SCHEMA),
     }
     out_dir = out / OUT_DIR
@@ -302,8 +310,9 @@ def build_run(
             ),
             "abstain_policy": "an abstaining txid has no rank 1 row; ranks start at 2",
             "deferred_outputs": {
-                "typology_hits.parquet": "empty, S06 ships the origin estimator only",
-                "entity_types.parquet": "empty, S06 ships the origin estimator only",
+                "entity_types.parquet": (
+                    "empty, subject-type classifier not built; typology_hits is live"
+                ),
             },
             "counts_grain": "announcement rows, grouped to candidate (txid, peer_ip) pairs",
         },

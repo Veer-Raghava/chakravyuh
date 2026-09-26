@@ -303,11 +303,17 @@ def build(cfg: Config, rng: random.Random) -> Population:
                 entity._mint(rng, factory, None)
             entities.append(entity)
 
+    # The pool a laundering campaign may recruit from: entities whose type is capable of illicit
+    # activity, sampled down to the configured share. This is the criminal *disposition*, not the
+    # ground-truth label. `is_illicit` is set later, by the adversary, on the entities a campaign
+    # actually routed value through — so the label means "was observed laundering", not "was
+    # rolled illicit at build". An eligible entity a campaign never touched stays licit-labelled:
+    # it has a criminal type but left no behaviour behind in this capture, so nothing separates it
+    # from an ordinary wallet of the same type, and calling it a positive would be a label with no
+    # evidence — exactly the unscoreable case S01 refused to write.
     illicit_pool = [i for i, e in enumerate(entities) if cfg.type_of(e.entity_type).illicit_capable]
     want = round(cfg.world.illicit_entity_share * len(entities))
     illicit = tuple(sorted(rng.sample(illicit_pool, min(want, len(illicit_pool)))))
-    for index in illicit:
-        entities[index].is_illicit = True
 
     senders = tuple(
         weighted.build(

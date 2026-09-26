@@ -518,9 +518,21 @@ def _auc(y_true: Sequence[int], scores: Sequence[float], pr: bool) -> float:
             ap += (recall - prev_recall) * precision
             prev_recall = recall
         return ap
-    ranks = [i + 1 for i, (_, label) in enumerate(pairs) if label]
+    # ROC-AUC = Mann-Whitney U, so ranks run low-score-first (rank 1 = lowest score) and
+    # tied scores share the midrank. `pairs` above is sorted high-score-first for PR; ranking
+    # off it directly would compute 1 - AUC (a perfect model would score 0.0), so re-sort here.
+    asc = sorted(zip(scores, y_true, strict=True), key=lambda p: p[0])
     n_neg = len(y_true) - n_pos
-    return (sum(ranks) - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg)
+    rank_sum_pos = 0.0
+    i = 0
+    while i < len(asc):
+        j = i
+        while j < len(asc) and asc[j][0] == asc[i][0]:
+            j += 1
+        midrank = (i + 1 + j) / 2  # average of the 1-based ranks i+1..j in this tie block
+        rank_sum_pos += midrank * sum(label for _, label in asc[i:j])
+        i = j
+    return (rank_sum_pos - n_pos * (n_pos + 1) / 2) / (n_pos * n_neg)
 
 
 def _true_label_of_subject(addresses: Sequence[str], truth: pl.DataFrame) -> tuple[int, int]:

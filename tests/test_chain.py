@@ -348,7 +348,13 @@ def test_the_truth_tree_carries_its_own_manifest(roots: writers.Roots) -> None:
     # The three artifacts the chain layer owns. A subset, so a later stage adding a fourth is
     # not a failure, while one of these three disappearing still is.
     assert {"entities.parquet", "campaigns.parquet", "chain_txs.parquet"} <= set(listed)
-    assert listed["campaigns.parquet"]["rows"] == 0
+    # The manifest's row count must be the file's actual row count, not a stale literal: a
+    # campaign injected at this scale (or none) is fine, a manifest that miscounts its own
+    # answer-key file is not.
+    assert (
+        listed["campaigns.parquet"]["rows"]
+        == pl.read_parquet(roots.truth / "campaigns.parquet").height
+    )
     assert meta["run_id"] == RUN_ID
     observable = json.loads((roots.observable / "chain" / "_meta.json").read_text(encoding="utf-8"))
     # The same config produced both trees, and the shared hash is what the clobber guard

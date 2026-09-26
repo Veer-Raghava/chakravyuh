@@ -178,10 +178,14 @@ class Adversary:
         want = min(adv.n_campaigns, self.budget // mean_moves)
         if not sources or want < 1:
             return []
-        # Starts are spread over the first three quarters of the run so a campaign planned near
-        # the end still has blocks left to move in, and so campaigns overlap: a run in which
-        # only one campaign is ever live would let a downstream model separate them by time.
-        horizon = max(1, self.cfg.n_blocks * 3 // 4)
+        # Starts are spread over almost the whole run, not just its front. Laundering does not
+        # stop three quarters of the way through a capture, and a start distribution that did
+        # would put every illicit subject in the training window and leave the holdout with no
+        # positives to rank — the evaluation, not the world, would be the thing shaped by the
+        # cutoff. The last tenth is still reserved so a late campaign has blocks left to move in;
+        # campaigns that start late simply complete fewer moves, which is what truncation looks
+        # like in a real capture and is honest signal rather than a defect.
+        horizon = max(1, self.cfg.n_blocks * 9 // 10)
         out: list[Campaign] = []
         for index in range(want):
             appetite = self.rng.random()
@@ -336,8 +340,9 @@ class Adversary:
         for campaign in self.records():
             name = campaign.typology()
             for index in campaign.participants:
-                labels = pop.entities[index].typologies
-                if name not in labels:
-                    labels.append(name)
+                entity = pop.entities[index]
+                entity.is_illicit = True
+                if name not in entity.typologies:
+                    entity.typologies.append(name)
         for entity in pop.entities:
             entity.typologies.sort()

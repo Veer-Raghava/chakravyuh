@@ -71,6 +71,8 @@ MODEL_FEATURES: tuple[str, ...] = (
     "frac_origin_abstained",
     "frac_top1_tor",
     "mean_n_announcements",
+    "n_typologies",
+    "n_typology_txns",
 )
 
 # The vocabulary `top_features` names and `docs/FEATURES.md` glosses, one entry per model feature.
@@ -97,6 +99,8 @@ FEATURE_GLOSSES: tuple[tuple[str, str], ...] = (
     ("frac_origin_abstained", "share of its sends the origin estimator refused to answer"),
     ("frac_top1_tor", "share of its sends whose top origin candidate is a Tor exit"),
     ("mean_n_announcements", "average propagation breadth of its sends"),
+    ("n_typologies", "distinct laundering morphologies SHASTRA flagged on its sends in its window"),
+    ("n_typology_txns", "transactions it sent in its window that fed a SHASTRA typology hit"),
 )
 
 AGGREGATE_SCHEMA: Final[dict[str, pl.DataType]] = {
@@ -404,6 +408,35 @@ def origin_fusion(origin_estimates: pl.DataFrame, sent: pl.DataFrame) -> pl.Data
     )
 
 
+def typology_load(hits: pl.DataFrame, sent_pairs: pl.DataFrame) -> pl.DataFrame:
+    """Per subject: distinct typologies and hit-bearing transactions, counted inside its window.
+
+    SHASTRA writes one hit per (subject, typology) over the whole capture; joining its txids back
+    to `sent_pairs` — which is already restricted to each subject's train-or-holdout window — keeps
+    only the flagged transactions that fall in the window this subject is measured over. A hit
+    whose transactions all sit on the wrong side of the boundary contributes nothing, so the
+    feature cannot smuggle future behaviour into a training row.
+    """
+    if hits.is_empty():
+        return pl.DataFrame(
+            schema={
+                "subject_id": pl.String(),
+                "n_typologies": pl.Int32(),
+                "n_typology_txns": pl.Int32(),
+            }
+        )
+    exploded = (
+        hits.select("subject_id", "typology", "txids")
+        .explode("txids")
+        .rename({"txids": "txid"})
+        .join(sent_pairs, on=["subject_id", "txid"], how="inner")
+    )
+    return exploded.group_by("subject_id").agg(
+        pl.col("typology").n_unique().cast(pl.Int32()).alias("n_typologies"),
+        pl.col("txid").n_unique().cast(pl.Int32()).alias("n_typology_txns"),
+    )
+
+
 def build(
     transactions: pl.DataFrame,
     clusters: pl.DataFrame,
@@ -411,6 +444,7 @@ def build(
     edges: pl.DataFrame,
     origin_estimates: pl.DataFrame,
     boundary_us: int,
+    typology_hits: pl.DataFrame | None = None,
 ) -> pl.DataFrame:
     """The subject table: one row per wallet subject, windowed features, no future data.
 
@@ -501,12 +535,20 @@ def build(
         ]
     )
 
+    typ = typology_load(typology_hits if typology_hits is not None else pl.DataFrame(), sent_pairs)
+
     out = (
         subject_first.select("subject_id", "is_train")
         .join(activity, on="subject_id", how="left")
         .join(shape, on="subject_id", how="left")
         .join(scripts, on="subject_id", how="left")
         .join(fusion, on="subject_id", how="left")
+        .join(typ, on="subject_id", how="left")
+    )
+    # A subject with no typology hit in its window has zero, not null: the detector ran and found
+    # nothing, which is a real observation the tree can split on, unlike a genuinely absent feature.
+    out = out.with_columns(
+        pl.col("n_typologies").fill_null(0), pl.col("n_typology_txns").fill_null(0)
     )
     for name in MODEL_FEATURES:
         if name not in out.columns:

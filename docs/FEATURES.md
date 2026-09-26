@@ -34,6 +34,8 @@ feature; this file is what the name means.
 | `frac_origin_abstained` | share of its sends the origin estimator refused to answer |
 | `frac_top1_tor` | share of its sends whose top origin candidate is a Tor exit |
 | `mean_n_announcements` | average propagation breadth of its sends |
+| `n_typologies` | distinct laundering morphologies SHASTRA flagged on its sends in its window |
+| `n_typology_txns` | transactions it sent in its window that fed a SHASTRA typology hit |
 
 The trivial baseline the model has to beat ranks subjects by `total_received_sats` alone and is
 measured through `chakravyuh.eval.metrics`; its precision-at-20 is recorded in

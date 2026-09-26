@@ -120,6 +120,8 @@ def _measure_baseline(run_id: str) -> None:
         )
         return
 
+    boundary_us = _boundary_of(run_id)
+
     # The baseline's own windowing: subjects ranked by whole-capture received value, scored on
     # the same holdout subjects the model is scored on. Whole-capture value is deliberate — the
     # baseline is what a no-model investigator has, and they have the whole capture. The subject
@@ -143,8 +145,10 @@ def _measure_baseline(run_id: str) -> None:
     # The model's own holdout window is `subject_first_us >= boundary` (stage.py filters
     # `is_train` before eval sees a row); the baseline has to rank in that same window or
     # `baseline_beaten` compares two different denominators.
-    window = subject_addresses.explode("address").join(
-        addresses, on="address", how="inner"
+    window = (
+        subject_addresses.explode("addresses")
+        .rename({"addresses": "address"})
+        .join(addresses, on="address", how="inner")
     )
     holdout = (
         window.group_by("subject_id", maintain_order=True)
@@ -157,16 +161,16 @@ def _measure_baseline(run_id: str) -> None:
         zip(received["address"].to_list(), received["total_received_sats"].to_list(), strict=True)
     )
     rows: list[dict[str, object]] = []
-    for subject, addresses in zip(
+    for subject, member_addrs in zip(
         subject_addresses["subject_id"].to_list(),
         subject_addresses["addresses"].to_list(),
         strict=True,
     ):
-        total = sum(value_by_address.get(a, 0) for a in addresses)
+        total = sum(value_by_address.get(a, 0) for a in member_addrs)
         rows.append(
             {
                 "subject_id": subject,
-                "addresses": sorted(addresses),
+                "addresses": sorted(member_addrs),
                 "risk_score": float(total),
             }
         )

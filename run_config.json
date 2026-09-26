@@ -4,8 +4,8 @@
   "mean_announcements_per_tx": 15,
   "world": {
     "n_entities": 20000,
-    "illicit_entity_share": 0.03,
-    "illicit_tx_share": 0.006,
+    "illicit_entity_share": 0.05,
+    "illicit_tx_share": 0.03,
     "cgnat_share_individuals": 0.35,
     "cgnat_share_mules": 0.3,
     "cgnat_addresses_per_region": 64,
