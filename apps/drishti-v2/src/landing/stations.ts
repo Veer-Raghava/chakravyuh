@@ -1,10 +1,9 @@
 // The landing funnel, as data (§7). One source of truth for slices, the
 // descending counter, and per-station copy — the director, counter, and copy
-// blocks all read from here so M2b just extends STATIONS + regrows the spacer.
+// blocks all read from here.
 //
-// Slices are the §7 fractions (hero+st.0–3 span 0.00–0.52 of the full 8-station
-// page) rescaled by /0.52 so JAAL fills to the current page bottom with no dead
-// scroll. // ponytail: drop the /0.52 rescale when st.4–7 land.
+// Slices are the raw §7 fractions: all eight stations now span the full page
+// (0.00–1.00), so each owns its literal scroll range with no rescale.
 
 export type Slice = [start: number, end: number];
 
@@ -23,17 +22,13 @@ export type Station = {
   diya: string;
 };
 
-/** Raw §7 boundaries before rescale — kept for readability. */
-const FULL_END = 0.52;
-const s = (a: number, b: number): Slice => [a / FULL_END, b / FULL_END];
-
 export const STATIONS: Station[] = [
   {
     id: "mayajaal",
     layer: "MAYAJAAL",
     gloss: "the world we built",
     count: 1_000_000,
-    slice: s(0.0, 0.12),
+    slice: [0.0, 0.12],
     title: "A world we built to test this.",
     body:
       "Every signal here has a true origin we secretly know, so we can grade " +
@@ -47,7 +42,7 @@ export const STATIONS: Station[] = [
     layer: "KAVACH",
     gloss: "the sealed intake",
     count: 999_847,
-    slice: s(0.12, 0.24),
+    slice: [0.12, 0.24],
     title: "We seal the bytes before we read them.",
     body:
       "We hash the raw bytes BEFORE anything touches them, so a court can prove " +
@@ -60,7 +55,7 @@ export const STATIONS: Station[] = [
     layer: "SETU",
     gloss: "network, untangled from money",
     count: 111_043,
-    slice: s(0.24, 0.36),
+    slice: [0.24, 0.36],
     title: "We renamed one column. It defuses the whole trap.",
     body:
       "src_ip became “the IP that told us.” Now nobody downstream can " +
@@ -73,7 +68,7 @@ export const STATIONS: Station[] = [
     layer: "JAAL",
     gloss: "the connection map",
     count: 24_626,
-    slice: s(0.36, 0.52),
+    slice: [0.36, 0.52],
     title: "This edge is the entire project.",
     body:
       "IPs, wallets and transactions in one web. The pink lines are the only " +
@@ -81,6 +76,63 @@ export const STATIONS: Station[] = [
       "moved. Addresses that likely share an owner glow together — but “likely” " +
       "is a number you can tune, never a claim we force.",
     diya: "Pink lines = “this IP told us about this money.” That link is why DRISHTI exists.",
+  },
+  {
+    id: "shastra",
+    layer: "SHASTRA",
+    gloss: "who sent it — or honestly, we don't know",
+    count: 10_220,
+    slice: [0.52, 0.66],
+    title: "Only 41.5% of these can be traced to a sender.",
+    body:
+      "For each transaction we estimate how likely every candidate IP is to be " +
+      "the true origin — and abstain when the evidence can't carry any answer. " +
+      "You get a name when the math earns one, a shortlist when it's unsure, and " +
+      "an honest “no answer” when the sender never showed up in the capture. A " +
+      "confident wrong name destroys an investigation; we refuse to give you one.",
+    diya: "The grey cards aren't failures. Knowing when to stay silent is the whole skill.",
+  },
+  {
+    id: "buddhi",
+    layer: "BUDDHI",
+    gloss: "how risky is this",
+    count: 1_287,
+    slice: [0.66, 0.76],
+    title: "Every flag arrives with the reasons it might be wrong.",
+    body:
+      "We weigh each wallet for risk and show the handful of factors that raised " +
+      "the score — in plain words, not a model report. Beside every “why flagged” " +
+      "sits a muted “why it might be innocent,” shown at the same moment. The same " +
+      "pattern that looks like laundering also fits a merchant settling daily.",
+    diya: "An honest tool shows the exculpatory evidence at the same moment as the damning — not in cross-examination.",
+  },
+  {
+    id: "vaani",
+    layer: "VAANI",
+    gloss: "the plain-English lead",
+    count: 20,
+    slice: [0.76, 0.87],
+    title: "A score means nothing to an officer. A sentence does.",
+    body:
+      "The risk number unfolds into a ranked, plain-English lead that carries its " +
+      "own evidence and its own doubts — what happened, the network detail, why " +
+      "it's flagged, and where the origin abstained. Twenty leads, ranked. Not a " +
+      "thousand maybes.",
+    diya: "Twenty leads, ranked. Not a thousand maybes. Triage is a race against hours.",
+  },
+  {
+    id: "pramaan",
+    layer: "PRAMAAN",
+    gloss: "the court-ready proof",
+    count: 1,
+    slice: [0.87, 1.0],
+    title: "Not a guess. A document.",
+    body:
+      "One lead pressed into a signed file whose every pipeline stage is " +
+      "hash-chained and re-runs to byte-identical output. We don't hand you a " +
+      "wallet address — we hand you an IP, a source port and an exact timestamp: " +
+      "the three values an ISP needs to name one subscriber, under BNSS 2023 §94.",
+    diya: "This is the finish line: not a guess, a document. Ready when you are.",
   },
 ];
 

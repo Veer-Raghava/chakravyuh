@@ -18,6 +18,10 @@ const UNIT: Record<string, string> = {
   kavach: "sealed",
   setu: "untangled",
   jaal: "real transactions",
+  shastra: "attributable",
+  buddhi: "flagged",
+  vaani: "leads",
+  pramaan: "proof",
 };
 
 const fmt = new Intl.NumberFormat("en-US");

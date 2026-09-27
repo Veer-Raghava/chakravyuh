@@ -5,10 +5,14 @@ import { Mayajaal } from "./stations/Mayajaal";
 import { Kavach } from "./stations/Kavach";
 import { Setu } from "./stations/Setu";
 import { Jaal } from "./stations/Jaal";
+import { Shastra } from "./stations/Shastra";
+import { Buddhi } from "./stations/Buddhi";
+import { Vaani } from "./stations/Vaani";
+import { Pramaan } from "./stations/Pramaan";
 
 /**
  * The landing director (§7). One continuous fixed-stage space: the hero hands
- * off to the four pipeline stations, each owning a scroll slice (see
+ * off to the eight pipeline stations, each owning a scroll slice (see
  * stations.ts) and rising into focus / resolving / dissolving as the next
  * rises — no hard cuts. Lights, background and shadows are shared here so every
  * station is lit the same "warm paper diorama" way (§4.3); no HDRI (offline).
@@ -32,6 +36,10 @@ export function LandingScenes({
       <Kavach reduced={reduced} />
       <Setu reduced={reduced} />
       <Jaal reduced={reduced} />
+      <Shastra reduced={reduced} />
+      <Buddhi reduced={reduced} />
+      <Vaani reduced={reduced} />
+      <Pramaan reduced={reduced} />
 
       <ContactShadows
         position={[0, -1.9, 0]}
