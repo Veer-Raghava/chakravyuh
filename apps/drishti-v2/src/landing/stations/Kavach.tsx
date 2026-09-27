@@ -82,8 +82,8 @@ export function Kavach({ reduced }: { reduced: boolean }) {
     // the seal thunk — one accent pulse as the station resolves (~t 0.3)
     if (seal.current) {
       const k = THREE.MathUtils.clamp((t - 0.28) / 0.12, 0, 1);
-      const pop = reduced ? 1 : 1 + Math.sin(k * Math.PI) * 0.18;
-      seal.current.scale.setScalar(0.42 * pop);
+      const pop = reduced ? 1 : 1 + Math.sin(k * Math.PI) * 0.22;
+      seal.current.scale.setScalar(pop);
     }
   });
 
@@ -99,10 +99,11 @@ export function Kavach({ reduced }: { reduced: boolean }) {
         <boxGeometry args={[2.4, 0.55, 0.35]} />
         <meshStandardMaterial color={C.paperDeep} roughness={0.9} metalness={0} />
       </mesh>
-      {/* coral wax-seal */}
-      <mesh ref={seal} position={[0, 0, 0.12]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[1, 1, 0.14, 40]} />
-        <meshStandardMaterial color={C.coral} roughness={0.6} />
+      {/* coral wax-seal — a small stamp pressed on the right end of the gate,
+          clear of the falling rows (never a giant disc over the animation) */}
+      <mesh ref={seal} position={[0.92, 0, 0.16]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.2, 0.22, 0.1, 40]} />
+        <meshStandardMaterial color={C.coral} roughness={0.5} />
       </mesh>
 
       <instancedMesh ref={good} args={[undefined, undefined, ROWS]} material={mats.good}>

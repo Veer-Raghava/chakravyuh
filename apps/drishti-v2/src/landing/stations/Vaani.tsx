@@ -96,7 +96,7 @@ export function Vaani({ reduced }: { reduced: boolean }) {
               </span>
             </div>
             {/* ★ the sentence, typed on */}
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "13px", lineHeight: 1.5, minHeight: "2.6em", color: "var(--ink)" }}>
+            <div style={{ fontFamily: "var(--font-text)", fontSize: "15px", fontWeight: 500, lineHeight: 1.45, minHeight: "2.6em", color: "var(--ink)" }}>
               <span ref={headlineRef} />
               <span ref={caretRef} style={{ color: "var(--coral)" }}>▍</span>
             </div>

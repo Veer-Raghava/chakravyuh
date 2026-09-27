@@ -1,0 +1,83 @@
+.screen {
+  padding: 2.5rem 2.5rem 3rem;
+  max-width: 60rem;
+}
+
+.header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 7vw, 4.5rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  margin: 0;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: var(--riso-blue);
+}
+.gloss {
+  font-family: var(--font-text);
+  font-size: var(--t-sub);
+  color: var(--ink-soft);
+  margin: 0.75rem 0 0;
+}
+.count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+}
+.countNum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--riso-blue);
+}
+.countLabel {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.content {
+  max-width: 42rem;
+}
+.note {
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 1.5rem;
+}
+
+.leadList {
+  margin-top: 0.5rem;
+}
+.propBtn {
+  font-family: var(--font-text);
+  font-size: 0.9rem;
+  color: var(--riso-blue);
+  background: none;
+  border: 1px solid var(--riso-blue);
+  border-radius: 3px;
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+.propBtn:hover {
+  background: color-mix(in srgb, var(--riso-blue) 8%, var(--paper));
+}

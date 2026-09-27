@@ -1,0 +1,120 @@
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.canvasWrap {
+  position: absolute;
+  inset: 0;
+}
+
+/* overlay — pinned DOM over the canvas; only interactive bits catch the pointer */
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  padding: 2rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.head {
+  max-width: 34rem;
+}
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+}
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  margin: 0;
+}
+.count {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--riso-blue);
+}
+.gloss {
+  font-family: var(--font-text);
+  font-size: var(--t-sub);
+  color: var(--ink-soft);
+  margin: 0.5rem 0 0;
+}
+
+.footRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 0.6rem 0.8rem;
+  backdrop-filter: blur(2px);
+}
+.key {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+.swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+.note {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  margin: 0.3rem 0 0;
+  max-width: 15rem;
+  line-height: 1.4;
+}
+.diya {
+  font-family: var(--font-text);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  max-width: 22rem;
+  text-align: right;
+  margin: 0;
+}
+
+/* screen-reader / no-WebGL data path — every point reachable in the DOM (§5.5) */
+.srList {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.fallback {
+  padding: 2.5rem;
+  font-family: var(--font-text);
+  color: var(--ink);
+}
+.fallback ul {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}

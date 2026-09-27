@@ -151,7 +151,7 @@ const smoothstep = (x: number) => {
  *  - `vis` 0→1→0 bell (opacity/scale): rises over the first `edge`, holds, dissolves
  *          over the last `edge` — "rises into focus, resolves, dissolves" (§7.0).
  */
-export function local(p: number, [a, b]: Slice, edge = 0.22) {
+export function local(p: number, [a, b]: Slice, edge = 0.27) {
   const span = b - a;
   const t = clamp01((p - a) / span);
   const vis = smoothstep(t / edge) * smoothstep((1 - t) / edge);

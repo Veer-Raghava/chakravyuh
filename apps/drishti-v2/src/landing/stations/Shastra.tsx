@@ -6,6 +6,7 @@ import { C } from "../../styles/palette";
 import { useScroll } from "../../scroll/ScrollContext";
 import { STATIONS, local } from "../stations";
 import { fixtures } from "../../data/loader";
+import { panel, prose, kicker, datum } from "./panelStyle";
 
 /**
  * ST.4 SHASTRA ★ THE HONESTY FLEX (§7). One transaction is pulled to the centre;
@@ -174,39 +175,39 @@ export function Shastra({ reduced }: { reduced: boolean }) {
         <>
           {/* leading candidate readout */}
           <Html position={[0, 1.55, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", whiteSpace: "nowrap", textAlign: "center", color: "var(--coral)", letterSpacing: "0.03em" }}>
+            <div style={{ ...datum, whiteSpace: "nowrap", textAlign: "center", color: "var(--coral)", letterSpacing: "0.03em" }}>
               leading candidate · {top.ip} · p={top.p.toFixed(3)} · rank {top.rank}
             </div>
           </Html>
           {/* shortlist — a set you can act on, not one name */}
-          <Html position={[2.15, 0.5, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", width: 156, textAlign: "left", color: "var(--riso-blue)", lineHeight: 1.5 }}>
-              shortlist · 90% conf
-              <br />
-              sender ∈ {`{ ${runnerUp.ip} · ${top.ip} }`}
-              <br />
-              a set you can act on — not one name
+          <Html position={[2.25, 0.5, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ ...panel, width: 168 }}>
+              <div style={{ ...kicker, color: "var(--riso-blue)" }}>SHORTLIST · 90% CONF</div>
+              <div style={{ ...datum, color: "var(--riso-blue)", lineHeight: 1.5 }}>
+                sender ∈ {`{ ${runnerUp.ip} · ${top.ip} }`}
+              </div>
+              <div style={{ ...prose, fontSize: "11px", color: "var(--ink-soft)", marginTop: 4 }}>
+                a set you can act on — not one name
+              </div>
             </div>
           </Html>
           {/* ceiling-bar labels */}
           <Html position={[-0.995, -2.4, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>
+            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>
               41.5% possible
             </div>
           </Html>
           <Html position={[0.705, -2.4, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", whiteSpace: "nowrap", color: "var(--ink-soft)" }}>
+            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>
               58.5% unknowable
             </div>
           </Html>
           {/* the dignified grey "no answer" card — abstention as a correct output */}
-          <Html position={[-2.2, -0.4, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", width: 150, textAlign: "left", color: "var(--ink-soft)", border: "1px solid var(--line)", borderRadius: 6, padding: "8px 10px", background: "rgba(236,227,208,0.55)", lineHeight: 1.5 }}>
-              no answer available
-              <br />
-              reason · margin below floor
-              <br />
-              this is a correct output
+          <Html position={[-2.3, -0.4, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ ...panel, width: 158, color: "var(--ink-soft)" }}>
+              <div style={{ ...kicker, color: "var(--ink-soft)" }}>NO ANSWER AVAILABLE</div>
+              <div style={{ ...datum, color: "var(--ink-soft)", lineHeight: 1.5 }}>reason · margin below floor</div>
+              <div style={{ ...prose, fontSize: "11px", color: "var(--ink)", marginTop: 4 }}>this is a correct output</div>
             </div>
           </Html>
         </>

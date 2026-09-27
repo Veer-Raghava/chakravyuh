@@ -1,0 +1,90 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 50%, rgba(27, 23, 18, 0.42), rgba(27, 23, 18, 0.72));
+  animation: fade 0.25s var(--ease-in-confident);
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.iris {
+  position: relative;
+  width: 34rem;
+  height: 34rem;
+  display: grid;
+  place-items: center;
+  /* the iris bloom — opens from the pupil outward (§11.0) */
+  animation: bloom 0.42s var(--ease-in-confident);
+  transform-origin: center;
+}
+@keyframes bloom {
+  from { clip-path: circle(0% at 50% 50%); transform: scale(0.7); }
+  to { clip-path: circle(75% at 50% 50%); transform: scale(1); }
+}
+
+.ring {
+  position: absolute;
+  border: 1px solid color-mix(in srgb, var(--butter) 40%, transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dest {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s, border-color 0.2s, transform 0.2s;
+  box-shadow: 0 6px 18px -8px rgba(27, 23, 18, 0.6);
+}
+.dest:hover {
+  border-color: var(--riso-blue);
+}
+.destName {
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.destTag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+.dim {
+  opacity: 0.25;
+}
+
+.pupil {
+  position: relative;
+  z-index: 2;
+}
+.search {
+  width: 12rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--riso-blue);
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--riso-blue) 14%, transparent);
+}
+.search::placeholder {
+  color: var(--ink-soft);
+}

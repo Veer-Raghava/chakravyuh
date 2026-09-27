@@ -6,6 +6,7 @@ import { C } from "../../styles/palette";
 import { useScroll } from "../../scroll/ScrollContext";
 import { STATIONS, local } from "../stations";
 import { fixtures } from "../../data/loader";
+import { panel, kicker, datum } from "./panelStyle";
 
 /**
  * ST.5 BUDDHI — how risky is this (§7). Clusters from the graph float up and are
@@ -77,10 +78,12 @@ export function Buddhi({ reduced }: { reduced: boolean }) {
       for (let i = 0; i < NC; i++) {
         const rx = -1.15 + (i % 2) * 0.3;
         const ry = -0.1 + Math.floor(i / 2) * 0.3;
-        const drop = (1 - a) * 2.2;
+        // settle gently onto the pan (small drop, not a fall from off-screen) and
+        // scale up in place — no clusters "popping out of nowhere" above the frame
+        const drop = (1 - a) * 0.45;
         const bob = reduced ? 0 : Math.sin(time * 1.2 + i) * 0.04;
         dummy.position.set(rx, ry + drop + bob, (i % 3) * 0.12 - 0.1);
-        dummy.scale.setScalar((0.16 + (i === 0 ? 0.05 : 0)) * (0.3 + 0.7 * a));
+        dummy.scale.setScalar((0.16 + (i === 0 ? 0.05 : 0)) * (0.12 + 0.88 * a));
         dummy.updateMatrix();
         clusters.current.setMatrixAt(i, dummy.matrix);
       }
@@ -121,29 +124,23 @@ export function Buddhi({ reduced }: { reduced: boolean }) {
       {active && (
         <>
           {/* ★ why flagged — real weights, plain words (coral pan) */}
-          <Html position={[-1.7, 1.15, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", width: 172, textAlign: "left", lineHeight: 1.6 }}>
-              <div style={{ color: "var(--coral)", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 3 }}>
-                WHY FLAGGED
-              </div>
+          <Html position={[-1.85, 1.2, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ ...panel, width: 178 }}>
+              <div style={{ ...kicker, color: "var(--coral)" }}>WHY FLAGGED</div>
               {FLAGGED.map((f) => (
-                <div key={f.label} style={{ color: "var(--ink)", display: "flex", justifyContent: "space-between", gap: 8 }}>
-                  <span>{f.label}</span>
+                <div key={f.label} style={{ ...datum, display: "flex", justifyContent: "space-between", gap: 8, lineHeight: 1.7 }}>
+                  <span style={{ color: "var(--ink)" }}>{f.label}</span>
                   <span style={{ color: "var(--coral)" }}>+{f.weight.toFixed(2)}</span>
                 </div>
               ))}
             </div>
           </Html>
           {/* ★ why it might be innocent — shown at the same moment (teal pan) */}
-          <Html position={[1.7, 1.15, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", width: 172, textAlign: "left", lineHeight: 1.6 }}>
-              <div style={{ color: "var(--teal)", fontWeight: 600, letterSpacing: "0.06em", marginBottom: 3 }}>
-                WHY IT MIGHT BE INNOCENT
-              </div>
+          <Html position={[1.85, 1.2, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ ...panel, width: 178 }}>
+              <div style={{ ...kicker, color: "var(--teal)" }}>WHY IT MIGHT BE INNOCENT</div>
               {INNOCENT.map((c) => (
-                <div key={c} style={{ color: "var(--teal)" }}>
-                  · {c}
-                </div>
+                <div key={c} style={{ ...datum, color: "var(--teal)", lineHeight: 1.7 }}>· {c}</div>
               ))}
             </div>
           </Html>

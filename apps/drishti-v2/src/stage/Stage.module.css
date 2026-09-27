@@ -17,6 +17,21 @@
   z-index: 1;
 }
 
+/* Paper grain (§4 material: "beautifully lit paper diorama"). A tiny tiled
+   fractal-noise SVG, multiplied over the warm paper so the whole landing reads
+   as printed stock, not flat screen. Pure data-URI — no asset, no CDN, offline.
+   Fixed + pointer-events:none so it never touches scroll or clicks. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 /* DOM overlays pinned to the fixed viewport, above the canvas. */
 .overlay {
   position: fixed;

@@ -1,0 +1,163 @@
+.sutra {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.thread {
+  position: relative;
+  flex: 1;
+  padding-top: 2rem;
+}
+/* the sightline the stops sit on */
+.line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1.6rem;
+  height: 1px;
+  background: var(--line);
+}
+
+.stops {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+}
+
+.stop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.35rem 0.4rem 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex: 1;
+}
+/* the stop's node on the line */
+.stop::before {
+  content: "";
+  position: absolute;
+  top: -0.55rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.3s var(--ease-in-confident), transform 0.3s var(--ease-in-confident);
+}
+
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-text);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  opacity: 0.6;
+}
+
+/* ahead — reachable but visibly not-yet-run */
+.ahead .name { color: var(--ink-soft); }
+
+/* done — sealed with a wax tick */
+.done .name { color: var(--ink); }
+.done::before { background: var(--riso-blue); }
+.seal {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--coral) 70%, var(--butter)), var(--coral));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent);
+  position: relative;
+}
+.seal::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 6px;
+  color: var(--paper);
+  font-weight: 700;
+}
+
+/* current — enlarged + lit (the wide type-scale, craft-move #4) */
+.current .name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--riso-blue);
+}
+.current .tag {
+  color: var(--riso-blue);
+  opacity: 0.9;
+}
+.current::before {
+  background: var(--riso-blue);
+  transform: scale(1.7);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--riso-blue) 20%, transparent);
+}
+
+/* the funnel bead riding the thread — floats in the band above the sightline */
+.bead {
+  position: absolute;
+  top: 0.1rem;
+  transform: translateX(-50%);
+  transition: left 0.55s var(--ease-in-confident);
+  z-index: 2;
+  pointer-events: none;
+}
+.beadCount {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-mono-label);
+  color: var(--paper);
+  background: var(--ink);
+  padding: 1px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px -4px rgba(27, 23, 18, 0.5);
+}
+
+.world {
+  display: flex;
+  align-items: flex-start;
+  padding-left: 1rem;
+  padding-top: 2rem;
+  border-left: 1px solid var(--line);
+}
+.world .stop { flex: 0 0 auto; }
+.world .stop::before { display: none; }
+
+/* narrow screens — the thread scrolls rather than squishing; strip wraps */
+@media (max-width: 680px) {
+  .sutra {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .thread {
+    overflow-x: auto;
+    padding-bottom: 0.4rem;
+  }
+  .stops {
+    min-width: 34rem;
+  }
+  .world {
+    border-left: none;
+    padding-left: 0;
+    padding-top: 0;
+  }
+}

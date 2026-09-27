@@ -38,6 +38,7 @@ export function Stage({
         </Canvas>
       </div>
       <div className={styles.spacer} aria-hidden="true" />
+      <div className={styles.grain} aria-hidden="true" />
       {overlay ? <div className={styles.overlay}>{overlay}</div> : null}
     </>
   );
