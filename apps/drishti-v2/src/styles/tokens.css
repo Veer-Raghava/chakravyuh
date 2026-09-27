@@ -1,0 +1,29 @@
+/* DRISHTI design tokens — §4. Reference token names after this, never raw hex. */
+:root {
+  /* Palette — "Riso Paper Pop" (§4.1) */
+  --paper: #f6efe0; /* bg */
+  --paper-deep: #ece3d0; /* raised surfaces */
+  --ink: #1b1712; /* text — never #000 */
+  --ink-soft: #5a5048; /* secondary text, labels, abstain */
+  --line: #d8cdb8; /* hairlines, dividers */
+  --coral: #ff6b4a; /* maze, energy, risk high */
+  --riso-blue: #2e5eaa; /* data, trust, authority, confidence */
+  --butter: #f5c542; /* highlight, the diya glow, risk med */
+  --fluoro-pink: #ff48b0; /* <5% — the "look here" / announce color */
+  --teal: #3e7c77; /* counter-evidence */
+
+  /* Type families (§4.2) — all vendored woff2, no CDN */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-text: "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Type scale — wide on purpose (§4.2, craft-move #4): tiny mono → huge display */
+  --t-mono-label: 0.6875rem; /* 11px, uppercase, letter-spaced */
+  --t-body: 1.0625rem; /* 17px */
+  --t-sub: 1.375rem; /* 22px */
+  --t-display: clamp(3.5rem, 11vw, 8.75rem); /* up to ~140px */
+
+  /* Motion (§4.4) — one entrance ease, one exit ease */
+  --ease-in-confident: cubic-bezier(0.16, 1, 0.3, 1); /* expo.out-ish */
+  --ease-out: cubic-bezier(0.7, 0, 0.84, 0);
+}

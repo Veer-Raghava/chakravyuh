@@ -1,0 +1,41 @@
+/* The funnel counter — top-right sightline, always visible (§7). Mono tabular
+   figures so the digits don't jitter as they count down. */
+.funnel {
+  position: fixed;
+  top: clamp(1rem, 2.4vw, 2.2rem);
+  right: clamp(1rem, 2.4vw, 2.2rem);
+  display: grid;
+  justify-items: end;
+  gap: 0.15rem;
+  text-align: right;
+  user-select: none;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  font-size: clamp(1.6rem, 3.4vw, 2.9rem);
+  line-height: 1;
+  color: var(--riso-blue);
+  font-weight: 600;
+}
+
+.unit {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* value still updates on scroll position; nothing time-based here to disable */
+}

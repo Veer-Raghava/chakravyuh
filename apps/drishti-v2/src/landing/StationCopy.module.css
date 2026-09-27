@@ -1,0 +1,73 @@
+/* Per-station copy — pinned lower-left of the fixed stage, asymmetric against
+   the top-right funnel (craft-move #4). All blocks stack in one slot and
+   cross-fade. */
+.slot {
+  position: fixed;
+  left: clamp(1.2rem, 4vw, 4rem);
+  bottom: clamp(1.5rem, 6vh, 5rem);
+  width: min(38rem, 42vw);
+  pointer-events: none;
+}
+
+.block {
+  grid-area: 1 / 1;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  will-change: opacity, transform;
+}
+
+.layer {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.16em;
+  margin: 0 0 0.75rem;
+}
+.layerName {
+  color: var(--coral);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+}
+.gloss {
+  color: var(--ink-soft);
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0 0 0.9rem;
+}
+
+.body {
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--ink);
+  margin: 0 0 1rem;
+  max-width: 34rem;
+}
+
+.diya {
+  font-family: var(--font-text);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  margin: 0;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--butter);
+}
+
+@media (max-width: 720px) {
+  .slot {
+    width: auto;
+    right: clamp(1.2rem, 4vw, 4rem);
+  }
+}

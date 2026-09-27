@@ -1,0 +1,61 @@
+/* Vendored, offline. No CDN, no Google Fonts. Three families only:
+   Fraunces = display, Hanken Grotesk = text/UI, IBM Plex Mono = all data.
+   Import once from the app entry (or link in index.html). */
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/Fraunces-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: block;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/Fraunces-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/fonts/Hanken-400.woff2") format("woff2");
+  font-weight: 400;
+  font-display: block;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/fonts/Hanken-500.woff2") format("woff2");
+  font-weight: 500;
+  font-display: block;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("/fonts/Hanken-600.woff2") format("woff2");
+  font-weight: 600;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: block;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: block;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/fonts/IBMPlexMono-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: block;
+}
+
+/* All data renders mono with tabular figures on. */
+.mono,
+[data-mono] {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}

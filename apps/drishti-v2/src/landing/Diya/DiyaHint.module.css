@@ -1,0 +1,59 @@
+.hint {
+  position: absolute;
+  right: clamp(1.5rem, 6vw, 6rem);
+  bottom: clamp(4rem, 22vh, 14rem);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  max-width: 18rem;
+  transition: opacity 0.6s var(--ease-in-confident);
+}
+.silent {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.line {
+  font-family: var(--font-text);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: var(--ink);
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  margin: 0;
+  /* the diya's glow, hinted */
+  box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.12);
+}
+
+.dismiss {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink-soft);
+  font-family: var(--font-text);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.dismiss:hover {
+  color: var(--ink);
+  border-color: var(--ink-soft);
+}
+
+/* On portrait phones the headline fills the lower third — the hint would
+   crash into it. Float it up top by the diya instead. */
+@media (max-width: 640px) {
+  .hint {
+    top: clamp(4.5rem, 12vh, 8rem);
+    bottom: auto;
+    right: 1.25rem;
+    max-width: 15rem;
+  }
+}

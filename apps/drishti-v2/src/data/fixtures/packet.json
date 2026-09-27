@@ -1,0 +1,201 @@
+{
+  "attribution": {
+    "as_org": "",
+    "asn": 64503,
+    "geo_country": "BR",
+    "margin": 0.004990528332351047,
+    "net_class": "",
+    "observed_at_utc": "2026-01-01T02:48:20.630977+00:00",
+    "p_origin": 0.01785257921281476,
+    "peer_ip": "198.19.221.238",
+    "peer_port": 54099,
+    "runner_up_peer_ip": "198.18.x.x"
+  },
+  "case_id": "alw-63329995d8e6",
+  "chain_of_custody": [
+    {
+      "at_us": 1789457002731619,
+      "inputs": [
+        "data/generated/_sweep-0.10/capture/part-0000.csv"
+      ],
+      "outputs": [
+        "sealed/rows.parquet",
+        "sealed/rejected.parquet",
+        "sealed/INPUT.sha256"
+      ],
+      "sha256": "aa198787d76bb350823381c483d2155dff9bcef4e58e221f6f4fc3e11dfb0c89",
+      "stage": "kavach"
+    },
+    {
+      "at_us": 1789457003082959,
+      "inputs": [
+        "data/generated/_sweep-0.10/sealed/rows.parquet"
+      ],
+      "outputs": [
+        "normalised/addresses.parquet",
+        "normalised/announcements.parquet",
+        "normalised/peers.parquet",
+        "normalised/transactions.parquet"
+      ],
+      "sha256": "4bba0a8f4fa9006e706110a5d46f47df43e59de893df0942451b57b920baf71d",
+      "stage": "setu"
+    },
+    {
+      "at_us": 1789457003681398,
+      "inputs": [
+        "data/generated/_sweep-0.10/normalised/announcements.parquet",
+        "data/generated/_sweep-0.10/normalised/transactions.parquet",
+        "data/generated/_sweep-0.10/normalised/addresses.parquet",
+        "data/generated/_sweep-0.10/normalised/peers.parquet"
+      ],
+      "outputs": [
+        "graph/clusters.parquet",
+        "graph/edges.parquet",
+        "graph/nodes.parquet"
+      ],
+      "sha256": "14d871653bfce4b71e43ca209fae6f8a464b1ea3fdfa60b7898f0c3085fd425b",
+      "stage": "jaal"
+    },
+    {
+      "at_us": 1789457005125039,
+      "inputs": [
+        "data/generated/_sweep-0.10/normalised/announcements.parquet",
+        "data/generated/_sweep-0.10/normalised/transactions.parquet",
+        "data/generated/_sweep-0.10/normalised/peers.parquet",
+        "data/generated/_sweep-0.10/graph/edges.parquet"
+      ],
+      "outputs": [
+        "signals/entity_types.parquet",
+        "signals/origin_estimates.parquet",
+        "signals/typology_hits.parquet"
+      ],
+      "sha256": "d74b10525236f86ff489bfaa586846d217d93f4dcb9738af318c14c9ff144b78",
+      "stage": "shastra"
+    },
+    {
+      "at_us": 1789494494363030,
+      "inputs": [
+        "data/generated/_sweep-0.10/normalised/addresses.parquet",
+        "data/generated/_sweep-0.10/normalised/transactions.parquet",
+        "data/generated/_sweep-0.10/graph/clusters.parquet",
+        "data/generated/_sweep-0.10/graph/edges.parquet",
+        "data/generated/_sweep-0.10/signals/origin_estimates.parquet"
+      ],
+      "outputs": [
+        "scores/calibration.parquet",
+        "scores/wallet_scores.parquet"
+      ],
+      "sha256": "5221e264270d2076fd6c708743e3bce7c7eababd6019407628ebeb947986a6d1",
+      "stage": "buddhi"
+    },
+    {
+      "at_us": 1789504617630581,
+      "inputs": [
+        "data/generated/_sweep-0.10/graph/clusters.parquet",
+        "data/generated/_sweep-0.10/graph/edges.parquet",
+        "data/generated/_sweep-0.10/normalised/announcements.parquet",
+        "data/generated/_sweep-0.10/scores/wallet_scores.parquet",
+        "data/generated/_sweep-0.10/signals/entity_types.parquet",
+        "data/generated/_sweep-0.10/signals/origin_estimates.parquet",
+        "data/generated/_sweep-0.10/signals/typology_hits.parquet"
+      ],
+      "outputs": [
+        "alerts/alerts.parquet",
+        "alerts/counter.parquet",
+        "alerts/evidence.parquet"
+      ],
+      "sha256": "ae48d2ff2ff6a404f91faf166bd1b4cabd689bd4efcaf9e48f3ae88bb617d7b9",
+      "stage": "vaani"
+    }
+  ],
+  "code_version": "f70e4515a027-dirty",
+  "confidence": {
+    "coverage_target": 0.9,
+    "high": 1.0,
+    "low": 1.0,
+    "method": "plain_conformal"
+  },
+  "counter_findings": [
+    {
+      "kind": "insufficient_observation",
+      "statement": "all observed announcing peers together account for only 5% of the estimated origin probability, so the true originator may not have been observed at all",
+      "would_clear": false
+    },
+    {
+      "kind": "low_origin_margin",
+      "statement": "the leading origin candidate is only narrowly ahead of the runner-up, which is too thin a margin to act on",
+      "would_clear": false
+    }
+  ],
+  "findings": [
+    {
+      "kind": "model_feature",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "statement": "this wallet's average fee per vbyte its sends paid raised its risk score substantially"
+    },
+    {
+      "kind": "model_feature",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "statement": "this wallet's satoshis it sent in its window raised its risk score substantially"
+    },
+    {
+      "kind": "model_feature",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "statement": "this wallet's how far ahead the top origin candidate usually was raised its risk score substantially"
+    },
+    {
+      "kind": "model_feature",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "statement": "this wallet's average origin confidence on the transactions it sent raised its risk score substantially"
+    },
+    {
+      "kind": "model_feature",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "statement": "this wallet's distinct wallets it transacted with raised its risk score substantially"
+    },
+    {
+      "kind": "origin_estimate",
+      "source_ref": "signals/origin_estimates.parquet#tx_prefix=da4daa38",
+      "statement": "transaction da4daa38\u20268b27 is estimated to have originated from network address 198.19.x.x with probability 0.018"
+    },
+    {
+      "kind": "network_context",
+      "source_ref": "normalised/announcements.parquet#row_id=3381",
+      "statement": "the network address was first observed announcing that transaction at 2026-01-01 02:48:20Z, observation row 3381"
+    },
+    {
+      "kind": "cluster_edge",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "statement": "the subject is a single address that no clustering heuristic linked to anything else"
+    }
+  ],
+  "generated_at_us": 1789504617630581,
+  "input": {
+    "files": [
+      {
+        "path": "data/generated/_sweep-0.10/capture/part-0000.csv",
+        "sha256": "f3977f4c5859d1f0ffe02216ccda8319d2e6fc4be4ebcb0c0534eff00eaba206"
+      }
+    ],
+    "rows_sealed": 41594
+  },
+  "legal": {
+    "basis": "BNSS 2023 s.94",
+    "hash_disclosure": "BSA 2023 s.63(4), Schedule Part A"
+  },
+  "merkle_head": "0000000000000000000000000000000000000000000000000000000000000000",
+  "replay": {
+    "command": "uv run python -m chakravyuh.pramaan --in data/generated/_sweep-0.10 --out data/generated/_sweep-0.10 --case alw-63329995d8e6 --verify-replay",
+    "expected_packet_sha256": "4c059acb6cd9ff7616e81b1f4b73d6df8a712fc63f51e2d757b25f91dbcf7c46",
+    "seed": 42
+  },
+  "replay_command": "uv run python -m chakravyuh.pramaan --in data/generated/_sweep-0.10 --out data/generated/_sweep-0.10 --case alw-63329995d8e6 --verify-replay",
+  "subject": {
+    "addresses_redacted": [
+      "addr:bc1qge\u20263182"
+    ],
+    "cluster_id": "",
+    "subject_id": "addr:bc1qge\u20263182"
+  },
+  "tool_version": "0.1.0"
+}

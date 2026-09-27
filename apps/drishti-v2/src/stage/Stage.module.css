@@ -1,0 +1,29 @@
+.stage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+}
+
+/* Tall empty scroll spacer that provides the scroll distance (§5.2).
+   M2a = hero + stations 0–3; ~480vh gives each station a full viewport to
+   breathe (JAAL, the centrepiece, gets the extra). Grows as st.4–7 land. */
+.spacer {
+  position: relative;
+  width: 100%;
+  height: 480vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* DOM overlays pinned to the fixed viewport, above the canvas. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.overlay > * {
+  pointer-events: auto;
+}
