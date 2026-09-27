@@ -136,44 +136,72 @@ export type LandSampler = (dir: THREE.Vector3) => boolean;
 
 // Approximate continent lobes (center lat/lon in degrees; rlat/rlon are angular
 // half-extents). Not survey-accurate — a *stylized* Earth (the locked "Stylized
-// Earth" decision), recognizable by where the landmasses sit: Americas left,
-// Africa/Europe center, Asia right, Australia low-right, Antarctica capping the
-// south. Committing src/assets/land-mask.png swaps this for the real thing.
+// Earth" decision), but with enough lobes + carved seas to read as the real map:
+// Americas left, Africa/Europe center, Asia right, Australia low-right, poles
+// capped. Committing src/assets/land-mask.png swaps this for the real thing.
 type Lobe = { lat: number; lon: number; rlat: number; rlon: number };
 const LOBES: Lobe[] = [
-  { lat: 46, lon: -100, rlat: 26, rlon: 32 }, // North America
-  { lat: 63, lon: -95, rlat: 15, rlon: 42 }, //  northern Canada spread
-  { lat: -20, lon: -60, rlat: 30, rlon: 15 }, // South America
-  { lat: 10, lon: 18, rlat: 22, rlon: 19 }, //   Africa (north)
-  { lat: -18, lon: 25, rlat: 20, rlon: 16 }, //  Africa (south)
-  { lat: 52, lon: 22, rlat: 12, rlon: 27 }, //   Europe
-  { lat: 52, lon: 95, rlat: 28, rlon: 47 }, //   Asia
-  { lat: 22, lon: 80, rlat: 14, rlon: 12 }, //   India
-  { lat: -25, lon: 134, rlat: 12, rlon: 18 }, // Australia
-  { lat: 72, lon: -42, rlat: 11, rlon: 19 }, //  Greenland
+  { lat: 50, lon: -102, rlat: 22, rlon: 25 }, // North America (main)
+  { lat: 54, lon: -74, rlat: 18, rlon: 20 }, //  eastern Canada
+  { lat: 64, lon: -150, rlat: 9, rlon: 15 }, //  Alaska
+  { lat: 16, lon: -90, rlat: 9, rlon: 8 }, //    Central America
+  { lat: 72, lon: -42, rlat: 11, rlon: 18 }, //  Greenland
+  { lat: 4, lon: -62, rlat: 14, rlon: 13 }, //   South America (north bulge)
+  { lat: -28, lon: -64, rlat: 22, rlon: 11 }, // South America (south taper)
+  { lat: 20, lon: 15, rlat: 15, rlon: 22 }, //   Africa (north/Sahara)
+  { lat: 2, lon: 22, rlat: 13, rlon: 15 }, //    Africa (equatorial)
+  { lat: -22, lon: 26, rlat: 15, rlon: 12 }, //  Africa (south)
+  { lat: 51, lon: 12, rlat: 11, rlon: 22 }, //   Europe
+  { lat: 63, lon: 20, rlat: 9, rlon: 13 }, //    Scandinavia
+  { lat: 25, lon: 45, rlat: 12, rlon: 13 }, //   Arabia / Middle East
+  { lat: 56, lon: 88, rlat: 18, rlon: 43 }, //   Asia / Siberia (huge)
+  { lat: 60, lon: 140, rlat: 12, rlon: 28 }, //  NE Siberia
+  { lat: 20, lon: 78, rlat: 13, rlon: 10 }, //   India
+  { lat: 33, lon: 110, rlat: 13, rlon: 15 }, //  China
+  { lat: 12, lon: 104, rlat: 9, rlon: 9 }, //    SE Asia
+  { lat: -3, lon: 120, rlat: 8, rlon: 20 }, //   Indonesia (noise → islands)
+  { lat: -25, lon: 134, rlat: 11, rlon: 17 }, // Australia
+];
+// Subtractive seas — carve gulfs/inland seas so the coasts read right.
+const SEAS: Lobe[] = [
+  { lat: 37, lon: 18, rlat: 5, rlon: 20 }, //  Mediterranean (splits Africa/Europe)
+  { lat: 59, lon: -85, rlat: 8, rlon: 10 }, // Hudson Bay
+  { lat: 24, lon: -90, rlat: 6, rlon: 8 }, //  Gulf of Mexico
+  { lat: 20, lon: 38, rlat: 12, rlon: 4 }, //  Red Sea
+  { lat: 15, lon: 88, rlat: 10, rlon: 7 }, //  Bay of Bengal
+  { lat: 15, lon: -76, rlat: 5, rlon: 7 }, //  Caribbean
+  { lat: 45, lon: 60, rlat: 8, rlon: 12 }, //  Caspian/Aral belt
 ];
 
+function lobeDist(lat: number, lon: number, L: Lobe): number {
+  let dlon = lon - L.lon;
+  dlon = ((dlon + 540) % 360) - 180; // wrap to -180..180
+  const nx = dlon / L.rlon;
+  const ny = (lat - L.lat) / L.rlat;
+  return nx * nx + ny * ny;
+}
+
 /**
- * Stylized continents: union of elliptical lobes with noise-roughened coasts, so
- * the globe reads as Earth (right landmasses, ragged shores, a few islands) with
- * no binary asset. ~30% coverage. Antarctica is a solid southern cap.
+ * Stylized continents: union of elliptical land lobes minus carved seas, with
+ * noise-roughened coasts, so the globe reads as Earth (right landmasses, ragged
+ * shores, a few islands) with no binary asset. Antarctica is a solid cap.
  */
 export const proceduralIsLand: LandSampler = (dir) => {
   const len = Math.hypot(dir.x, dir.y, dir.z) || 1;
   const lat = (Math.asin(THREE.MathUtils.clamp(dir.y / len, -1, 1)) * 180) / Math.PI;
-  if (lat < -72) return true; // Antarctica cap
+  if (lat < -70) return true; // Antarctica cap
   const lon = (Math.atan2(dir.z, dir.x) * 180) / Math.PI;
+  const wob = (fbm(dir.x * 2.6 + 5, dir.y * 2.6 + 9, dir.z * 2.6 + 2) - 0.47) * 1.1;
   let best = Infinity;
   for (const L of LOBES) {
-    let dlon = lon - L.lon;
-    dlon = ((dlon + 540) % 360) - 180; // wrap to -180..180
-    const nx = dlon / L.rlon;
-    const ny = (lat - L.lat) / L.rlat;
-    const d = nx * nx + ny * ny;
+    const d = lobeDist(lat, lon, L);
     if (d < best) best = d;
   }
-  const wob = (fbm(dir.x * 2.4 + 5, dir.y * 2.4 + 9, dir.z * 2.4 + 2) - 0.47) * 1.25;
-  return best < 1 + wob;
+  if (best >= 1 + wob) return false; // ocean
+  for (const S of SEAS) {
+    if (lobeDist(lat, lon, S) < 1 - wob * 0.5) return false; // carved sea
+  }
+  return true;
 };
 
 /** Equirectangular UV for a direction — the land canvas and the sphere share this
@@ -280,4 +308,44 @@ export function loadLandMaskSampler(url: string): Promise<LandSampler | null> {
     img.onerror = () => resolve(null);
     img.src = url;
   });
+}
+
+/**
+ * Small "cute" computer/monitor silhouette on a transparent canvas — a bezelled
+ * screen, a neck, and a rounded base bar — drawn white so a `SpriteMaterial.color`
+ * tints it to coral (the system making the transaction), butter (a receiver), or
+ * teal (an echoing peer). These are the transaction icons that float over the
+ * globe. No asset required; mirrors `makeDotTexture`'s procedural spirit.
+ */
+export function makeSystemIcon(size = 64): THREE.CanvasTexture {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d")!;
+  const s = size / 64; // geometry authored against a 64px reference
+  const rr = (x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  };
+  ctx.fillStyle = "rgba(255,255,255,1)";
+  rr(10 * s, 12 * s, 44 * s, 30 * s, 5 * s); // monitor body
+  ctx.fill();
+  ctx.globalCompositeOperation = "destination-out"; // punch the screen out → bezel
+  rr(15 * s, 17 * s, 34 * s, 20 * s, 3 * s);
+  ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = "rgba(255,255,255,0.55)"; // soft-lit screen fill (legible when tiny)
+  rr(18 * s, 20 * s, 28 * s, 14 * s, 2 * s);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,1)";
+  ctx.fillRect(29 * s, 42 * s, 6 * s, 6 * s); // neck
+  rr(20 * s, 47 * s, 24 * s, 6 * s, 3 * s); // base bar
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(c);
+  tex.needsUpdate = true;
+  return tex;
 }

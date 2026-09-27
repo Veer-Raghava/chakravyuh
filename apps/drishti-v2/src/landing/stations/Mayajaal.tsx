@@ -11,6 +11,7 @@ import {
   greatCircleArc,
   loadLandMaskSampler,
   makeDotTexture,
+  makeSystemIcon,
   mulberry32,
   proceduralIsLand,
   type LandSampler,
@@ -34,7 +35,14 @@ import {
  * stylized continents for the real ones — same code path, never hard-fails.
  */
 const SLICE = STATIONS[0].slice;
-const R = 1.8; // globe radius (camera stays z=5 / fov45, untouched)
+const R = 1.35; // globe radius — compact (camera stays z=5 / fov45, untouched)
+// Everything sizes off R so the whole globe scales as one unit.
+const DOT_SIZE = R * 0.018; // peer-system dot size
+const LIFT_GOSSIP = R * 0.19; // gossip arc bow height above the surface
+const LIFT_ECHO = R * 0.09; // echo arc bow height (flatter than gossip)
+const RING_IN = R * 0.028; // transmit ring inner radius
+const RING_OUT = R * 0.042; // transmit ring outer radius
+const ICON = R * 0.075; // transaction (computer) icon world size
 const COUNT = 2000; // peer systems placed on land
 const CANDIDATES = 12000; // fibonacci candidates filtered down to land
 const K = 34; // arc pool (one flood's ~14 + echoes + overlap)
@@ -42,7 +50,14 @@ const ARC_SEG = 24; // points per great-circle arc
 const FLOOD = 14; // "one tx, seen ~14 times"
 const FLOOD_EVERY = 2.4; // seconds between gossip floods
 const PULSE = 0.85; // seconds a pulse takes to travel source→dest
+const ICON_LIFE = 1.3; // seconds a transaction icon lives (pop-in → hold → fade)
 const TILT = 0.41; // ~23° axial tilt
+// Rotation feel — all frame-rate independent (velocities in rad/s, exp-decay).
+const AUTO_SPIN = 0.12; // idle yaw drift (rad/s)
+const DRAG_SENS = 0.01; // radians turned per pixel dragged (raised → rotate more)
+const PITCH_MAX = 1.45; // vertical tilt range (raised from 1.15 → rotate more)
+const SPIN_FRICTION = 2.2; // fling glide (lower = longer, smoother coast)
+const FLING_MAX = 9; // cap on fling velocity (rad/s) so a fast flick can't blur
 const TEXW = 768; // land texture size (painted once, offline)
 const TEXH = 384;
 
@@ -62,7 +77,7 @@ const maskMods = import.meta.glob("../../assets/land-mask.png", {
 const MASK_URL: string | undefined = Object.values(maskMods)[0];
 
 type Kind = "gossip" | "echo";
-type Pulse = { slot: number; src: number; dst: number; life: number; kind: Kind; echoed: boolean };
+type Pulse = { slot: number; src: number; dst: number; life: number; kind: Kind; echoed: boolean; iconed: boolean };
 
 export function Mayajaal({ reduced }: { reduced: boolean }) {
   const group = useRef<THREE.Group>(null);
@@ -128,7 +143,7 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
   const pointsMat = useMemo(
     () =>
       new THREE.PointsMaterial({
-        size: 0.032,
+        size: DOT_SIZE,
         map: dotTex,
         alphaTest: 0.02,
         transparent: true,
@@ -172,6 +187,22 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
     [],
   );
 
+  // cute computer icons that pop up at systems taking part in a transaction:
+  // coral = the one broadcasting, butter = a receiver, teal = an echoing peer.
+  const iconTex = useMemo(() => makeSystemIcon(), []);
+  const icons = useMemo(
+    () =>
+      Array.from({ length: 18 }, () => {
+        const material = new THREE.SpriteMaterial({ map: iconTex, transparent: true, opacity: 0, depthWrite: false });
+        const sprite = new THREE.Sprite(material);
+        sprite.visible = false;
+        sprite.renderOrder = 4;
+        sprite.scale.set(0.001, 0.001, 1);
+        return { sprite, material, life: 0, active: false };
+      }),
+    [iconTex],
+  );
+
   // gossip + heat state (refs — never trigger renders from useFrame).
   // heatSrc → coral (broadcaster), heatRcv → butter (receivers + echoers).
   const heatSrc = useMemo(() => new Float32Array(built.n), [built]);
@@ -197,6 +228,7 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
   const parPitch = useRef(0);
   const lastX = useRef(0);
   const lastY = useRef(0);
+  const lastT = useRef(0);
 
   // transmit ring state (positioned/oriented to the active source each flood).
   const srcDir = useRef(new THREE.Vector3(1, 0, 0));
@@ -230,11 +262,16 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
       ar.material.opacity = 0;
       ar.geometry.setDrawRange(0, 0);
     });
+    icons.forEach((ic) => {
+      ic.active = false;
+      ic.sprite.visible = false;
+      ic.material.opacity = 0;
+    });
     floodTimer.current = 0.6;
     assembled.current = false;
     staticDone.current = false;
     srcLife.current = 2;
-  }, [built, arcs, heatSrc, heatRcv, heatPrev]);
+  }, [built, arcs, icons, heatSrc, heatRcv, heatPrev]);
 
   // small point-pick threshold so hover targets a single node (§10 fallback).
   useEffect(() => {
@@ -253,12 +290,14 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
       pointsMat.dispose();
       rimMat.dispose();
       ringMat.dispose();
+      iconTex.dispose();
+      icons.forEach((ic) => ic.material.dispose());
       arcs.forEach((ar) => {
         ar.geometry.dispose();
         ar.material.dispose();
       });
     },
-    [dotTex, pointsMat, rimMat, ringMat, arcs],
+    [dotTex, pointsMat, rimMat, ringMat, iconTex, icons, arcs],
   );
   // per-build resources — dispose on rebuild (mask upgrade) and on unmount.
   useEffect(
@@ -271,16 +310,43 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
     [geo, globeMat, built],
   );
 
+  // pop a computer icon up at a system (coral = sender, butter = receiver,
+  // teal = echoer). Reuses the oldest icon if the small pool is exhausted.
+  function spawnIcon(dir: THREE.Vector3, color: string) {
+    let slot = -1;
+    let oldest = -1;
+    let oldestLife = -1;
+    for (let i = 0; i < icons.length; i++) {
+      if (!icons[i].active) {
+        slot = i;
+        break;
+      }
+      if (icons[i].life > oldestLife) {
+        oldestLife = icons[i].life;
+        oldest = i;
+      }
+    }
+    if (slot === -1) slot = oldest;
+    if (slot === -1) return;
+    const ic = icons[slot];
+    ic.active = true;
+    ic.life = 0;
+    ic.material.color.set(color);
+    ic.material.opacity = 0;
+    ic.sprite.visible = true;
+    ic.sprite.position.copy(dir).multiplyScalar(R * 1.04);
+  }
+
   // fire one arc src→dst into the pool (coral gossip, teal echo).
   function fireArc(src: number, dst: number, kind: Kind, presetLife: number) {
     const slot = freeSlots.current.pop();
     if (slot === undefined) return;
     const ar = arcs[slot];
     ar.material.color.set(kind === "echo" ? C.teal : C.coral);
-    greatCircleArc(built.dirs[src], built.dirs[dst], ARC_SEG, R, kind === "echo" ? 0.16 : 0.34, ar.positions);
+    greatCircleArc(built.dirs[src], built.dirs[dst], ARC_SEG, R, kind === "echo" ? LIFT_ECHO : LIFT_GOSSIP, ar.positions);
     ar.geometry.attributes.position.needsUpdate = true;
     ar.geometry.computeBoundingSphere();
-    pulses.current.push({ slot, src, dst, life: presetLife, kind, echoed: false });
+    pulses.current.push({ slot, src, dst, life: presetLife, kind, echoed: false, iconed: false });
   }
 
   // one system broadcasts a transaction to `count` random peers + lights the ring.
@@ -290,6 +356,7 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
     heatSrc[src] = 1;
     srcDir.current.copy(built.dirs[src]);
     srcLife.current = 0;
+    spawnIcon(built.dirs[src], C.coral); // the system making the transaction
     for (let k = 0; k < count; k++) {
       let dst = (Math.random() * n) | 0;
       if (dst === src) dst = (dst + 1) % n;
@@ -332,10 +399,13 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
       parYaw.current = 0;
       parPitch.current = 0;
     } else if (!dragging.current) {
-      spinYaw.current += 0.12 * dt + spinVel.current;
-      spinVel.current *= 0.9; // fling inertia decays back to the auto-spin
-      pitch.current = THREE.MathUtils.clamp(pitch.current + pitchVel.current, -1.15, 1.15);
-      pitchVel.current *= 0.9;
+      // integrate angular velocity by real time, decay it with an exponential —
+      // identical glide at any frame rate, and a longer, smoother coast.
+      spinYaw.current += (AUTO_SPIN + spinVel.current) * dt;
+      pitch.current = THREE.MathUtils.clamp(pitch.current + pitchVel.current * dt, -PITCH_MAX, PITCH_MAX);
+      const decay = Math.exp(-SPIN_FRICTION * dt);
+      spinVel.current *= decay;
+      pitchVel.current *= decay;
       const tx = active ? state.pointer.x * 0.12 : 0;
       const ty = active ? state.pointer.y * 0.1 : 0;
       parYaw.current = THREE.MathUtils.damp(parYaw.current, tx, 4, dt);
@@ -374,6 +444,14 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
       else heatRcv[pu.src] = Math.max(heatRcv[pu.src], 0.7);
       if (l > 0.6) {
         heatRcv[pu.dst] = Math.max(heatRcv[pu.dst], pu.kind === "echo" ? 0.6 : 0.9);
+        if (!pu.iconed) {
+          pu.iconed = true; // one icon decision per pulse, at arrival
+          if (pu.kind === "echo") {
+            if (Math.random() < 0.5) spawnIcon(built.dirs[pu.dst], C.teal); // a peer echoing it on
+          } else if (Math.random() < 0.3) {
+            spawnIcon(built.dirs[pu.dst], C.butter); // a system receiving the transaction
+          }
+        }
         if (pu.kind === "gossip" && !pu.echoed && !reduced && Math.random() < 0.4 && freeSlots.current.length > 2) {
           pu.echoed = true;
           let e = (Math.random() * built.n) | 0;
@@ -429,6 +507,31 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
       }
     }
 
+    // transaction icons — pop in, hold, fade over ICON_LIFE (frozen + held when
+    // reduced), scaled in world units and occluded behind the globe by depth.
+    for (let i = 0; i < icons.length; i++) {
+      const ic = icons[i];
+      if (!ic.active) continue;
+      if (reduced) {
+        ic.sprite.scale.set(ICON, ICON, 1);
+        ic.material.opacity = vis;
+        continue;
+      }
+      ic.life += dt;
+      const l = ic.life / ICON_LIFE;
+      if (l >= 1) {
+        ic.active = false;
+        ic.sprite.visible = false;
+        ic.material.opacity = 0;
+        continue;
+      }
+      const pop = THREE.MathUtils.smoothstep(ic.life, 0, 0.18);
+      const fade = 1 - THREE.MathUtils.smoothstep(l, 0.72, 1);
+      const sc = ICON * (0.55 + 0.45 * pop);
+      ic.sprite.scale.set(sc, sc, 1);
+      ic.material.opacity = pop * fade * vis;
+    }
+
     // everything rides `vis` (§5).
     pointsMat.opacity = vis;
     globeMat.opacity = vis;
@@ -461,16 +564,21 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
     pitchVel.current = 0;
     lastX.current = ne.clientX;
     lastY.current = ne.clientY;
+    lastT.current = performance.now();
     const move = (mv: PointerEvent) => {
       if (!dragging.current) return;
+      const now = performance.now();
+      const mdt = Math.max((now - lastT.current) / 1000, 1 / 120); // guard div-by-tiny
       const dx = mv.clientX - lastX.current;
       const dy = mv.clientY - lastY.current;
       lastX.current = mv.clientX;
       lastY.current = mv.clientY;
-      spinYaw.current += dx * 0.006;
-      spinVel.current = dx * 0.006;
-      pitch.current = THREE.MathUtils.clamp(pitch.current - dy * 0.006, -1.15, 1.15);
-      pitchVel.current = -dy * 0.006;
+      lastT.current = now;
+      spinYaw.current += dx * DRAG_SENS;
+      pitch.current = THREE.MathUtils.clamp(pitch.current - dy * DRAG_SENS, -PITCH_MAX, PITCH_MAX);
+      // carry the flick as an angular velocity (rad/s), so release keeps gliding.
+      spinVel.current = THREE.MathUtils.clamp((dx * DRAG_SENS) / mdt, -FLING_MAX, FLING_MAX);
+      pitchVel.current = THREE.MathUtils.clamp((-dy * DRAG_SENS) / mdt, -FLING_MAX, FLING_MAX);
     };
     const up = () => {
       dragging.current = false;
@@ -497,11 +605,15 @@ export function Mayajaal({ reduced }: { reduced: boolean }) {
             <points key={rev} geometry={geo} material={pointsMat} renderOrder={1} onPointerMove={onMove} onPointerDown={onDown} />
             {/* transmit ring at the broadcasting system */}
             <mesh ref={ringRef} material={ringMat} renderOrder={2} visible={false}>
-              <ringGeometry args={[0.05, 0.075, 40]} />
+              <ringGeometry args={[RING_IN, RING_OUT, 40]} />
             </mesh>
             {/* pooled gossip (coral) + echo (teal) arcs */}
             {arcs.map((ar, i) => (
               <primitive key={i} object={ar.line} />
+            ))}
+            {/* cute computer icons over systems in a transaction */}
+            {icons.map((ic, i) => (
+              <primitive key={`ic${i}`} object={ic.sprite} />
             ))}
           </group>
         </group>
