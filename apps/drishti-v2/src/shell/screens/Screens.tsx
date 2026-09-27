@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { STAGES, type StageId } from "../../nav/stages";
 import { AlertCard } from "../../components/AlertCard";
 import { GlobeScreen } from "./GlobeScreen";
+import { MapScreen } from "./MapScreen";
 import { useShell } from "../ShellContext";
 import styles from "./Screens.module.css";
 
@@ -52,6 +53,10 @@ export function StageScreen({ id }: { id: StageId }) {
 
   if (id === "globe") {
     return <GlobeScreen />;
+  }
+
+  if (id === "map") {
+    return <MapScreen />;
   }
 
   if (id === "leads") {

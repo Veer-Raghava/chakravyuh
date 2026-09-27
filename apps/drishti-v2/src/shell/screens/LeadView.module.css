@@ -1,0 +1,184 @@
+/* LEAD diorama — in-scene label chips (drei <Html>) + the Properties-drawer body.
+ * Chips are solid paper, hairline border, ≤4px radius, mono ≥11px — no glass, no
+ * gradient, no sub-floor type. Role words carry colour so they read without a key. */
+
+/* the idle, decluttered chip: just the amount, so coins stay readable without a
+ * wall of address text. Full detail reveals on hover / select (.coinTag). */
+.miniTag {
+  padding: 0.1rem 0.32rem;
+  background: color-mix(in srgb, var(--paper) 78%, transparent);
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.miniAmt {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.02em;
+}
+
+/* idle count centred inside a wallet bubble — the whole field says "same owner" once,
+ * so each bubble needs only its size. */
+.bubbleCount {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--paper);
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* a wallet coin's stacked tag: address · amount · role */
+.coinTag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  padding: 0.28rem 0.5rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  white-space: nowrap;
+  user-select: none;
+}
+.addr {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.amt {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-mono-label);
+  color: var(--riso-blue);
+}
+.role {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* the transaction block's tag */
+.txTag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.3rem 0.55rem;
+  background: var(--paper);
+  border: 1px solid var(--coral);
+  border-radius: 4px;
+  white-space: nowrap;
+  user-select: none;
+}
+.txWord {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+
+/* an announcing IP pin's tag */
+.pinTag {
+  padding: 0.22rem 0.45rem;
+  background: var(--paper);
+  border: 1px solid var(--fluoro-pink);
+  border-radius: 4px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* the two floor reference labels, and the change-loop caption */
+.floorTag {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+.ownerTag {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teal);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Properties-drawer body */
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.dLabel {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--riso-blue);
+}
+.rows {
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.35rem;
+}
+.row dt {
+  font-family: var(--font-text);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  color: var(--ink);
+  text-align: right;
+}
+.honest {
+  font-family: var(--font-text);
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+.warn {
+  font-family: var(--font-text);
+  font-size: 0.82rem;
+  color: var(--coral);
+  margin: 0;
+}
+.walletList {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+.walletList li {
+  font-size: 0.78rem;
+  color: var(--ink);
+}

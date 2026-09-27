@@ -80,7 +80,9 @@ function Landing({ onEnter }: { onEnter: () => void }) {
 }
 
 export default function App() {
-  const [phase, setPhase] = useState<Phase>("landing");
+  // VERIFY-TEMP: default "app" (other session's post-login work); open
+  // localhost:5173/#landing to preview the landing stations.
+  const [phase, setPhase] = useState<Phase>(window.location.hash === "#landing" ? "landing" : "app");
 
   if (phase === "login") return <Login onSuccess={() => setPhase("app")} />;
   if (phase === "app")
