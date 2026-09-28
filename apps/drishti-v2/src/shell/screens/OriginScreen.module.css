@@ -1,0 +1,105 @@
+.screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 2rem;
+  padding: 2rem 2.5rem 3rem;
+  max-width: 74rem;
+  margin: 0 auto;
+  align-items: start;
+}
+
+/* ── the 3D maze ───────────────────────────────────────── */
+.canvasWrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-height: 22rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: radial-gradient(circle at 50% 45%, var(--paper) 0%, var(--paper-deep) 100%);
+  overflow: hidden;
+  position: sticky;
+  top: 1.5rem;
+}
+.legend {
+  position: absolute;
+  left: 0.9rem;
+  bottom: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  pointer-events: none;
+}
+.key { display: flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: var(--t-mono-label); color: var(--ink-soft); }
+.sw { width: 0.6rem; height: 0.6rem; border-radius: 50%; }
+.legNote { font-family: var(--font-mono); font-size: var(--t-mono-label); color: var(--ink-soft); max-width: 15rem; margin: 0.25rem 0 0; line-height: 1.4; opacity: 0.85; }
+.fallback { list-style: none; margin: 0; padding: 1rem; font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink); }
+
+/* ── the reading panel ─────────────────────────────────── */
+.panel { display: flex; flex-direction: column; gap: 1.4rem; min-width: 0; }
+.header { border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+.titleRow { display: flex; align-items: baseline; gap: 0.9rem; }
+.title { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 600; line-height: 1; color: var(--ink); margin: 0; }
+.tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--riso-blue); }
+.gloss { font-family: var(--font-text); font-size: var(--t-sub); line-height: 1.55; color: var(--ink-soft); margin: 0.7rem 0 0; }
+
+.toggle {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.06em;
+  color: var(--riso-blue);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-out), background 0.2s var(--ease-out);
+}
+.toggle:hover { border-color: var(--riso-blue); background: color-mix(in srgb, var(--riso-blue) 8%, var(--paper)); }
+
+/* ── verdict ───────────────────────────────────────────── */
+.verdict { border-radius: 12px; padding: 1.1rem 1.2rem; border: 1px solid var(--line); }
+.vName { border-left: 4px solid var(--coral); background: color-mix(in srgb, var(--coral) 5%, var(--paper)); }
+.vAbstain { border-left: 4px solid var(--ink-soft); background: color-mix(in srgb, var(--ink-soft) 6%, var(--paper)); }
+.vLabel { display: block; font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.vBody { font-family: var(--font-text); font-size: 0.95rem; line-height: 1.5; color: var(--ink); margin: 0; }
+.vIp { font-family: var(--font-mono); color: var(--coral); font-weight: 600; }
+
+.trap { border: 1px dashed var(--line); border-radius: 10px; padding: 0.9rem 1rem; }
+.trapLabel { display: block; font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--butter); margin-bottom: 0.35rem; }
+.trap p { font-family: var(--font-text); font-size: 0.9rem; line-height: 1.5; color: var(--ink-soft); margin: 0; }
+.trap strong { color: var(--ink); }
+
+/* ── ceiling gauge ─────────────────────────────────────── */
+.gauge { display: flex; flex-direction: column; gap: 0.4rem; }
+.gaugeHead { display: flex; align-items: baseline; justify-content: space-between; }
+.gaugeLabel { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+.gaugeVal { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.4rem; font-weight: 700; color: var(--riso-blue); }
+.gaugeTrack { height: 8px; border-radius: 4px; background: var(--paper-deep); overflow: hidden; }
+.gaugeFill { height: 100%; background: var(--riso-blue); border-radius: 4px; }
+.gaugeNote { font-family: var(--font-text); font-size: 0.82rem; line-height: 1.45; color: var(--ink-soft); margin: 0; }
+
+/* ── dial ──────────────────────────────────────────────── */
+.dial { display: flex; gap: 1.4rem; margin: 0; padding: 0.9rem 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+.dialRow { display: flex; flex-direction: column; gap: 0.15rem; }
+.dialRow dt { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.dialRow dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.15rem; font-weight: 700; color: var(--ink); }
+
+/* ── candidate table ───────────────────────────────────── */
+.table { width: 100%; border-collapse: collapse; }
+.table th { text-align: left; font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--line); font-weight: 500; }
+.table td { padding: 0.45rem 0.5rem; border-bottom: 1px solid color-mix(in srgb, var(--line) 55%, transparent); font-size: 0.8rem; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+.dim { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft); }
+.leadRow { background: color-mix(in srgb, var(--coral) 6%, transparent); }
+.pill { font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; margin-left: 0.4rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle { transition: none; }
+}
+
+@media (max-width: 860px) {
+  .screen { grid-template-columns: 1fr; padding: 1.75rem 1.25rem 2.5rem; }
+  .canvasWrap { position: relative; top: 0; }
+  .dial { flex-wrap: wrap; gap: 1rem; }
+}

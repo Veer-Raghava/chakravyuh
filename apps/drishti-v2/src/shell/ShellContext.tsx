@@ -29,7 +29,7 @@ type ShellState = {
 const ShellCtx = createContext<ShellState | null>(null);
 
 export function ShellProvider({ children }: { children: ReactNode }) {
-  const [stage, setStage] = useState<StageId>("map"); // VERIFY-TEMP
+  const [stage, setStage] = useState<StageId>("globe");
   const [apertureOpen, setApertureOpen] = useState(false);
   const [drawer, setDrawer] = useState<Drawer>({ open: false, title: "", content: null });
 

@@ -1,9 +1,13 @@
 import type { ReactNode } from "react";
 import { STAGES, type StageId } from "../../nav/stages";
-import { AlertCard } from "../../components/AlertCard";
 import { GlobeScreen } from "./GlobeScreen";
 import { MapScreen } from "./MapScreen";
-import { useShell } from "../ShellContext";
+import { IntakeScreen } from "./IntakeScreen";
+import { UntangleScreen } from "./UntangleScreen";
+import { LeadsScreen } from "./LeadsScreen";
+import { OriginScreen } from "./OriginScreen";
+import { ProofScreen } from "./ProofScreen";
+import { WorldScreen } from "./WorldScreen";
 import styles from "./Screens.module.css";
 
 /**
@@ -49,8 +53,6 @@ const COPY: Record<StageId, string> = {
 };
 
 export function StageScreen({ id }: { id: StageId }) {
-  const { openDrawer } = useShell();
-
   if (id === "globe") {
     return <GlobeScreen />;
   }
@@ -59,25 +61,28 @@ export function StageScreen({ id }: { id: StageId }) {
     return <MapScreen />;
   }
 
+  if (id === "intake") {
+    return <IntakeScreen />;
+  }
+
+  if (id === "untangle") {
+    return <UntangleScreen />;
+  }
+
   if (id === "leads") {
-    return (
-      <StageHeader id="leads">
-        <p className={styles.note}>{COPY.leads}</p>
-        <div className={styles.leadList}>
-          <AlertCard
-            footer={
-              <button
-                className={styles.propBtn}
-                type="button"
-                onClick={() => openDrawer("Lead — properties", <AlertCard />)}
-              >
-                Open properties →
-              </button>
-            }
-          />
-        </div>
-      </StageHeader>
-    );
+    return <LeadsScreen />;
+  }
+
+  if (id === "origin") {
+    return <OriginScreen />;
+  }
+
+  if (id === "proof") {
+    return <ProofScreen />;
+  }
+
+  if (id === "world") {
+    return <WorldScreen />;
   }
 
   return (

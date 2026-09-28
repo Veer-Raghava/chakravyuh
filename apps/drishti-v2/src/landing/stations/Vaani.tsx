@@ -6,36 +6,51 @@ import { C } from "../../styles/palette";
 import { useScroll } from "../../scroll/ScrollContext";
 import { STATIONS, local } from "../stations";
 import { fixtures } from "../../data/loader";
+import { panel, prose, kicker } from "./panelStyle";
 
 /**
- * ST.6 VAANI — the plain-English lead (§7). A bare risk score floats up and
- * unfolds into the alert card an investigating officer actually reads — the same
- * component the tool's lead queue uses, previewed here. A subtle type-on makes
- * the diya seem to read it aloud.
- *
- * The card carries its own evidence AND its own doubts: what happened, the
- * network detail (earliest announce, source port, AS operator), why it's
- * flagged, a teal counter-line, and an origin line that openly admits where the
- * estimator abstained. The counter drops toward 20 ranked leads (§6).
+ * ST.6 VAANI (वाणी · "voice") — the plain-English lead (§7). The station is the
+ * MACHINE SPEAKING: a bare risk score 0.87 is uttered into a sentence an officer
+ * can act on. A flat baseline ERUPTS into a crisp equalizer of vertical bars —
+ * the voice — coral and kinetic; the headline types on in sync, as if read
+ * aloud. When the utterance lands the bars settle to a calm blue baseline (the
+ * record is now trustworthy, not alarming) and the evidence AND the doubts fade
+ * in together: what happened, the network detail, why flagged (coral), a teal
+ * counter-line, and an origin line that openly admits where it abstained (§6).
  */
 const SLICE = STATIONS[6].slice;
 const A = fixtures.packet.attribution;
 const WHEN = A.observed_at_utc.slice(0, 19).replace("T", " ") + "Z";
 const HEADLINE = "High-risk lead — outsized fees and large outflows in a short window.";
+const BARS = 27;
+const SPAN = 3.0;
+
+// deterministic per-bar magnitude — a fixed vocal envelope, no frame jitter
+const MAG = Array.from({ length: BARS }, (_, i) => {
+  const s = Math.sin(i * 12.9898) * 43758.5453;
+  const r = s - Math.floor(s);
+  // taller in the middle of the utterance, tapering at the ends — reads as speech
+  const env = Math.sin((i / (BARS - 1)) * Math.PI);
+  return 0.35 + 0.65 * r * (0.4 + 0.6 * env);
+});
+
+const coral = new THREE.Color(C.coral);
+const blue = new THREE.Color(C.risoBlue);
+const _c = new THREE.Color();
 
 export function Vaani({ reduced }: { reduced: boolean }) {
   const group = useRef<THREE.Group>(null);
-  const card = useRef<THREE.Group>(null);
+  const bars = useRef<THREE.InstancedMesh>(null);
   const headlineRef = useRef<HTMLSpanElement>(null);
   const caretRef = useRef<HTMLSpanElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const { progress } = useScroll();
   const [active, setActive] = useState(false);
   const activeRef = useRef(false);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
   const mats = useMemo(
     () => ({
-      slab: new THREE.MeshStandardMaterial({ color: C.paperDeep, roughness: 0.9, transparent: true }),
-      strip: new THREE.MeshStandardMaterial({ color: C.coral, roughness: 0.6, transparent: true }),
+      bar: new THREE.MeshStandardMaterial({ roughness: 0.5, transparent: true, vertexColors: false }),
     }),
     [],
   );
@@ -46,7 +61,7 @@ export function Vaani({ reduced }: { reduced: boolean }) {
     const p = progress.current ?? 0;
     const { t, vis } = local(p, SLICE);
     g.visible = vis > 0.01;
-    const on = vis > 0.02; // gate the DOM (Html) with the slice — see Setu note
+    const on = vis > 0.02;
     if (on !== activeRef.current) {
       activeRef.current = on;
       setActive(on);
@@ -54,64 +69,90 @@ export function Vaani({ reduced }: { reduced: boolean }) {
     if (!g.visible) return;
     const time = reduced ? 3 : state.clock.elapsedTime;
 
-    // the card unfolds from a small token as the score resolves
-    const a = reduced ? 1 : THREE.MathUtils.smoothstep(t, 0, 0.5);
-    if (card.current) card.current.scale.set(0.4 + 0.6 * a, 0.4 + 0.6 * a, 1);
-    mats.slab.opacity = vis * 0.92;
-    mats.strip.opacity = vis;
+    // speaking rises t 0.12→0.5; the utterance lands (bars calm) t 0.58→0.74
+    const speakK = reduced ? 1 : THREE.MathUtils.clamp((t - 0.12) / 0.38, 0, 1);
+    const doneK = reduced ? 1 : THREE.MathUtils.smoothstep(t, 0.58, 0.74);
+    const live = speakK * (1 - doneK); // vocal energy — present only while speaking
 
-    // ★ the type-on — a bare 0.87 becomes a sentence an officer can act on
-    const typeK = reduced ? 1 : THREE.MathUtils.clamp((t - 0.15) / 0.4, 0, 1);
-    const n = Math.floor(typeK * HEADLINE.length);
+    if (bars.current) {
+      for (let i = 0; i < BARS; i++) {
+        // live oscillation while speaking; settles to a low flat baseline after
+        const osc = reduced ? 0.6 : 0.5 + 0.5 * Math.sin(time * 6 + i * 0.7);
+        const h = 0.05 + live * MAG[i] * (0.35 + 0.85 * osc) + doneK * 0.06;
+        const x = (i / (BARS - 1) - 0.5) * SPAN;
+        dummy.position.set(x, h / 2, 0);
+        dummy.scale.set(0.055, h, 0.055);
+        dummy.rotation.set(0, 0, 0);
+        dummy.updateMatrix();
+        bars.current.setMatrixAt(i, dummy.matrix);
+        // coral energy while speaking → calm blue trust once the record lands
+        _c.copy(coral).lerp(blue, doneK);
+        bars.current.setColorAt(i, _c);
+      }
+      bars.current.instanceMatrix.needsUpdate = true;
+      if (bars.current.instanceColor) bars.current.instanceColor.needsUpdate = true;
+    }
+    mats.bar.opacity = vis;
+
+    // ★ the type-on — a bare 0.87 becomes a sentence, in step with the voice
+    const n = Math.floor(speakK * HEADLINE.length);
     if (headlineRef.current) headlineRef.current.textContent = HEADLINE.slice(0, n);
-    if (caretRef.current) caretRef.current.style.opacity = typeK < 1 && Math.sin(time * 6) > 0 ? "1" : "0";
-    // the evidence + doubts fade in once the sentence has landed
-    const bodyK = reduced ? 1 : THREE.MathUtils.clamp((t - 0.5) / 0.25, 0, 1);
-    if (bodyRef.current) bodyRef.current.style.opacity = String(bodyK * vis);
+    if (caretRef.current) caretRef.current.style.opacity = speakK < 1 && Math.sin(time * 6) > 0 ? "1" : "0";
+    // evidence + doubts fade in once the sentence has been spoken
+    if (bodyRef.current) bodyRef.current.style.opacity = String(doneK * vis);
   });
 
   return (
-    <group ref={group} visible={false} position={[0, 0.35, 0]}>
-      {/* the card as a physical object — unfolds as the score resolves */}
-      <group ref={card}>
-        <mesh material={mats.slab}>
-          <boxGeometry args={[3.0, 2.0, 0.08]} />
-        </mesh>
-        {/* coral severity edge */}
-        <mesh position={[-1.4, 0, 0.05]} material={mats.strip}>
-          <boxGeometry args={[0.1, 2.0, 0.06]} />
-        </mesh>
-      </group>
+    <group ref={group} visible={false} position={[0.2, 0.5, 0]}>
+      {/* the voice — a crisp equalizer that IS the risk being spoken */}
+      <instancedMesh ref={bars} args={[undefined, undefined, BARS]} material={mats.bar}>
+        <boxGeometry args={[1, 1, 1]} />
+      </instancedMesh>
+
       {active && (
-        <Html position={[0, 0, 0.12]} center distanceFactor={6} pointerEvents="none">
-          <div style={{ width: 300, textAlign: "left" }}>
-            {/* score → severity → subject */}
-            <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6 }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "22px", fontWeight: 700, color: "var(--coral)" }}>0.87</span>
+        <>
+          {/* the bare score → severity → subject, above the voice */}
+          <Html position={[0, 1.15, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10, whiteSpace: "nowrap" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "30px", fontWeight: 700, color: "var(--coral)", lineHeight: 1 }}>0.87</span>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "0.12em", color: "var(--coral)", border: "1px solid var(--coral)", borderRadius: 3, padding: "1px 5px" }}>
                 {fixtures.alert.severity.toUpperCase()}
               </span>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--ink-soft)" }}>
-                {fixtures.alert.subject_display}
-              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--ink-soft)" }}>{fixtures.alert.subject_display}</span>
             </div>
-            {/* ★ the sentence, typed on */}
-            <div style={{ fontFamily: "var(--font-text)", fontSize: "15px", fontWeight: 500, lineHeight: 1.45, minHeight: "2.6em", color: "var(--ink)" }}>
+          </Html>
+
+          {/* ★ the sentence, typed on in step with the voice */}
+          <Html position={[0, 0.62, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ fontFamily: "var(--font-text)", fontSize: "16px", fontWeight: 500, lineHeight: 1.4, width: 360, textAlign: "center", color: "var(--ink)", minHeight: "2.2em" }}>
               <span ref={headlineRef} />
               <span ref={caretRef} style={{ color: "var(--coral)" }}>▍</span>
             </div>
-            {/* evidence AND doubts — the same card the lead queue shows */}
-            <div ref={bodyRef} style={{ fontFamily: "var(--font-mono)", fontSize: "10px", lineHeight: 1.7, marginTop: 6, opacity: 0 }}>
-              <div style={{ color: "var(--ink-soft)" }}>
-                network · {fixtures.alert.origin.origin_peer_display} · src port {A.peer_port} · AS{A.asn} ({A.geo_country})
+          </Html>
+
+          {/* evidence AND doubts — the same lead the officer's queue shows (§6) */}
+          <Html position={[0, -0.95, 0]} center distanceFactor={6} pointerEvents="none">
+            <div ref={bodyRef} style={{ opacity: 0, display: "flex", gap: 12, alignItems: "flex-start" }}>
+              {/* what happened + network detail */}
+              <div style={{ ...panel, width: 210 }}>
+                <div style={kicker}>THE LEAD</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", lineHeight: 1.7, color: "var(--ink-soft)" }}>
+                  <div>network · {fixtures.alert.origin.origin_peer_display} · src port {A.peer_port}</div>
+                  <div>operator · AS{A.asn} ({A.geo_country})</div>
+                  <div>first announced · {WHEN}</div>
+                </div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--coral)", marginTop: 5 }}>why flagged · high fee per vByte · large amount sent</div>
               </div>
-              <div style={{ color: "var(--ink-soft)" }}>first announced · {WHEN}</div>
-              <div style={{ color: "var(--coral)" }}>why flagged · high fee per vByte · large amount sent</div>
-              <div style={{ color: "var(--teal)" }}>counter · the same shape fits a merchant settling daily</div>
-              <div style={{ color: "var(--riso-blue)" }}>origin · abstained on 11 of 14 hops</div>
+              {/* the honest counter + abstention */}
+              <div style={{ ...panel, width: 210 }}>
+                <div style={{ ...kicker, color: "var(--teal)" }}>AND YET</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--teal)", lineHeight: 1.6 }}>counter · the same shape fits a merchant settling daily</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--riso-blue)", lineHeight: 1.6, marginTop: 4 }}>origin · abstained on 11 of 14 hops</div>
+                <div style={{ ...prose, fontSize: "10px", color: "var(--ink-soft)", marginTop: 5 }}>1 of ~20 ranked leads — spoken, not shouted</div>
+              </div>
             </div>
-          </div>
-        </Html>
+          </Html>
+        </>
       )}
     </group>
   );

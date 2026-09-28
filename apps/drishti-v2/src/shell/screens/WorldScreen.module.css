@@ -1,0 +1,70 @@
+.screen {
+  padding: 2rem 2.5rem 3rem;
+  max-width: 60rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.header { border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+.titleRow { display: flex; align-items: baseline; gap: 0.9rem; }
+.title { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 600; line-height: 1; color: var(--ink); margin: 0; }
+.tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--riso-blue); }
+.gloss { font-family: var(--font-text); font-size: var(--t-sub); line-height: 1.55; color: var(--ink-soft); margin: 0.7rem 0 0; max-width: 40rem; }
+
+/* ── funnel ────────────────────────────────────────────── */
+.funnel { display: flex; align-items: stretch; gap: 0.5rem; flex-wrap: wrap; }
+.fStep {
+  flex: 1; min-width: 6.5rem;
+  display: flex; flex-direction: column; gap: 0.2rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: color-mix(in srgb, var(--riso-blue) 4%, var(--paper));
+}
+.fNum { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.25rem; font-weight: 700; color: var(--ink); }
+.fLabel { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.04em; color: var(--ink-soft); }
+
+/* ── curve ─────────────────────────────────────────────── */
+.curveBlock { border: 1px solid var(--line); border-radius: 14px; padding: 1.4rem 1.5rem; background: var(--paper); }
+.curveHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.curveTitle { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; color: var(--ink); }
+.curveGloss { font-family: var(--font-text); font-size: 0.88rem; color: var(--ink-soft); margin: 0.25rem 0 0; }
+.readout { display: flex; gap: 1.4rem; }
+.readout > div { display: flex; flex-direction: column; align-items: flex-end; }
+.roVal { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.6rem; font-weight: 700; color: var(--riso-blue); line-height: 1; }
+.roKey { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-top: 0.2rem; }
+
+.plot { width: 100%; height: auto; display: block; }
+.axis { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-soft); }
+.baselineLabel { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-soft); }
+
+.range { width: 100%; margin-top: 0.6rem; accent-color: var(--coral); cursor: pointer; }
+.curveNote { font-family: var(--font-text); font-size: 0.84rem; line-height: 1.5; color: var(--ink-soft); margin: 0.8rem 0 0; }
+.curveNote strong { color: var(--ink); }
+
+/* ── defences ──────────────────────────────────────────── */
+.defences { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.defence { border: 1px solid var(--line); border-left: 3px solid var(--butter); border-radius: 10px; padding: 0.9rem 1rem; }
+.defKey { display: block; font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--riso-blue); margin-bottom: 0.35rem; }
+.defVal { font-family: var(--font-text); font-size: 0.86rem; line-height: 1.5; color: var(--ink); margin: 0; }
+
+/* ── about ─────────────────────────────────────────────── */
+.about { border-top: 1px solid var(--line); padding-top: 1.2rem; }
+.aboutHead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.9rem; }
+.aboutTitle { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+.offline { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: var(--t-mono-label); color: var(--teal); }
+.dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--teal); }
+.glossary { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 1.4rem; margin: 0; }
+.gRow { display: grid; grid-template-columns: 6.5rem 1fr; gap: 0.6rem; align-items: baseline; }
+.gRow dt { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--riso-blue); }
+.gRow dd { margin: 0; font-family: var(--font-text); font-size: 0.82rem; line-height: 1.4; color: var(--ink-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .range { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .screen { padding: 1.75rem 1.25rem 2.5rem; }
+  .defences, .glossary { grid-template-columns: 1fr; }
+}

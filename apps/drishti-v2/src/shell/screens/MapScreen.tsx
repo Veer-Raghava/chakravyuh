@@ -33,6 +33,14 @@ const PRESETS: Record<"iso" | "side" | "top", [number, number, number]> = {
   top: [0, 8.6, 0.001], // collapses to a clean flow / bird's-eye field
 };
 
+// GRAPH camera — a money-over-time field: "money × time" reads it straight-on, isometric
+// adds the signal/noise depth, top-down separates the money-trail band from the lone marks.
+const GRAPH_PRESETS: Record<"front" | "iso" | "top", { pos: [number, number, number]; targetY: number }> = {
+  front: { pos: [0, 1.35, 9.6], targetY: 1.2 },
+  iso: { pos: [5.8, 4.3, 7.8], targetY: 1.1 },
+  top: { pos: [0, 9.5, 0.001], targetY: 0 },
+};
+
 /** Presets only — no free-fly. GSAP-tweens between fixed viewpoints; reduced motion
  *  jumps straight there. Always looks at the diorama's centre. */
 function CameraRig({
@@ -79,7 +87,7 @@ export function MapScreen() {
   const [view, setView] = useState<View>("graph");
   const [leadPreset, setLeadPreset] = useState<LeadPreset>("iso");
   const [ovMode, setOvMode] = useState<OvMode>("iso");
-  const [graphMode, setGraphMode] = useState<GraphMode>("iso");
+  const [graphMode, setGraphMode] = useState<GraphMode>("front");
   const [leadTxId, setLeadTxId] = useState<string>(leadIds[0]);
   const [leadSel, setLeadSel] = useState<LeadSelection | null>(null);
   const [hovering, setHovering] = useState(false);
@@ -136,11 +144,7 @@ export function MapScreen() {
     view === "lead"
       ? PRESETS[leadPreset]
       : view === "graph"
-        ? graphMode === "iso"
-          ? PRESETS.iso
-          : graphMode === "top"
-            ? PRESETS.top
-            : PRESETS.side // "front" — look along Z at time × height
+        ? GRAPH_PRESETS[graphMode].pos
         : ovMode === "iso"
           ? PRESETS.iso
           : PRESETS.top;
@@ -152,7 +156,7 @@ export function MapScreen() {
           ? 0.2
           : 0
       : view === "graph"
-        ? 0.6
+        ? GRAPH_PRESETS[graphMode].targetY
         : 0;
 
   const headline =
@@ -162,7 +166,7 @@ export function MapScreen() {
         ? `${graph.count} transactions across the run · ${graph.bridged} linked by the money that moved between them`
         : `${overview.count} transactions worth a look · the loudest was seen by ${overview.loudest} IPs on the wire`;
 
-  const title = view === "graph" ? "Graph" : view === "overview" ? "Overview" : "Lead";
+  const title = view === "graph" ? "Graph" : view === "overview" ? "Leads" : "Trace";
 
   return (
     <section className={styles.screen}>
@@ -184,7 +188,7 @@ export function MapScreen() {
             <directionalLight position={[4, 6, 5]} intensity={1.05} castShadow />
             <directionalLight position={[-5, 3, -2]} intensity={0.35} color={C.risoBlue} />
             {view === "graph" ? (
-              <GraphScene data={graph} reduced={reduced} activeId={null} onPick={openTx} onHover={setHovering} />
+              <GraphScene data={graph} reduced={reduced} onPick={openTx} onHover={setHovering} />
             ) : view === "overview" ? (
               <OverviewScene
                 data={overview}
@@ -236,14 +240,14 @@ export function MapScreen() {
             className={`${styles.viewBtn} ${view === "overview" ? styles.viewOn : ""}`}
             onClick={toOverview}
           >
-            ◎ overview
+            ◎ leads
           </button>
           <button
             type="button"
             className={`${styles.viewBtn} ${view === "lead" ? styles.viewOn : ""}`}
             onClick={() => setView("lead")}
           >
-            ◆ lead
+            ◆ trace
           </button>
         </div>
 
@@ -261,14 +265,14 @@ export function MapScreen() {
         {/* camera / dimensionality — graph & overview each read three ways, lead keeps its three shots */}
         <div className={styles.presets} style={{ pointerEvents: "auto" }}>
           {view === "graph"
-            ? (["iso", "top", "front"] as GraphMode[]).map((m) => (
+            ? (["front", "iso", "top"] as GraphMode[]).map((m) => (
                 <button
                   key={m}
                   type="button"
                   className={`${styles.preset} ${graphMode === m ? styles.presetOn : ""}`}
                   onClick={() => setGraphMode(m)}
                 >
-                  {m === "iso" ? "◈ isometric" : m === "top" ? "◈ top-down" : "◈ front"}
+                  {m === "front" ? "◈ money × time" : m === "iso" ? "◈ isometric" : "◈ top-down"}
                 </button>
               ))
             : view === "overview"

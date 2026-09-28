@@ -117,6 +117,42 @@
   user-select: none;
 }
 
+/* GRAPH axis labels — value rungs (left), the "value ↑" cap, and the time baseline. All
+ * faint mono so they orient without competing with the marks. */
+.axisTag {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transform: translateX(-100%);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.75;
+}
+.axisCap {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  transform: translateX(-100%);
+  pointer-events: none;
+  user-select: none;
+}
+.axisTime {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.75;
+}
+
 /* Properties-drawer body */
 .detail {
   display: flex;

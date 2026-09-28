@@ -1,4 +1,60 @@
 # DRISHTI — build progress
+Current milestone: M6b (Origin · Proof · World §11.3/11.5/11.6) — built + typechecked + built + browser-verified + /design-review passed.
+Done:
+  - M6b app screens (§11.3/11.5/11.6 + §12.2):
+    - Origin · SHASTRA (§11.3): FULL 3D candidate-rings — tx octahedron ◆ at the maze centre, candidate
+      IPs on concentric rings where radius = INVERSE likelihood (nearest centre = most likely); confidence
+      shell (riso-blue) holds the shortlist; fluoro-pink announce fan from centre to each candidate (marked
+      ones brighter); leader=coral, first-to-announce=butter, others=riso-blue. In-screen toggle flips to
+      the "No answer available" abstain state → calm grey fog-dome over the centre (dignified, not alarming).
+      DOM panel: plain-English verdict, the FIRST-SEEN TRAP note, 41.5% visibility-ceiling gauge, confidence
+      dial, candidate table (origin likelihood / margin, lead + first pills). Reduced-motion = frozen spin
+      (frameloop demand). All IPs masked (198.18.x.x); radius = inverse likelihood stated on-screen.
+    - Proof · PRAMAAN (§11.5): court-ready SEALED DOSSIER, three-column exhibit. LEFT hash-chain spine —
+      raw-capture sha256 + 6 chain-of-custody stages + merkle head + expected packet sha256, every SHA-256
+      printed IN FULL (64-char, BSA 2023 §63(4)). CENTRE the finding — {announcing IP · source port ·
+      observed UTC} boxed hero ONLY when attribution_ready (derived: peer_ip + peer_port + observed_at_utc
+      all present), else the honest not-ready box; findMeta (operator ASN, origin likelihood, runner-up);
+      findings + counter-findings (any would_clear marked). RIGHT legal — BNSS §94 production notice,
+      BSA §63(4) hash disclosure, tool/code/confidence versions. Wax-seal press → enables "Generate packet
+      (JSON)" (offline Blob download, no network). IP masked; hashes full; renders like the backend packet.
+    - World · MAYAJAAL (§11.6 + §12.2): the synthetic-world grading screen. Canonical funnel
+      (1,000,000→1); ★ interactive observer-fraction curve — native <input type=range> (keyboard + offline)
+      drags f 0.02→0.50, accuracy sweeps the documented 11–60% band, pinned so default 0.10 → 41.5%
+      (COMPUTED, no world fixture exists); naive first-seen baseline (22.1%) dashed for contrast; live
+      observed% / attributable% readout. Four defences + offline/about panel + 8-layer glossary.
+  - Verified: typecheck + vite build clean; no console errors; kill-list clean (Proof scrub()
+    clustering→"same-owner grouping", cluster→"owner group"; World defence "cluster dial"→"same-owner
+    dial"); all 9 Proof hashes = 64-char; IPs masked, subject truncated (addr:bc1qge…3182); curve drag
+    updates readout (10%→41.5%, 30%→53.5%); DOM-checked content present. /design-review pass at mobile
+    (376px: exhibit/defences/glossary collapse to 1-col, funnel wraps, 3D disc fills width) and emulated
+    1440×900 (Proof 3-col exhibit, Origin 2-col canvas+panel, World funnel row) — layouts hold, no overflow.
+    Screenshot lag in the preview pane worked around by DOM/computed-style reads (authoritative).
+
+  - M6a app screens (§11.1/11.2/11.4), all reusing the shared PropertiesDrawer + AlertCard:
+    - Intake · KAVACH (§11.1): calm drop/select zone → seal() → live "sealing" tally count-up
+      (rows in = sealed + set aside), teal balance tick (rows_read == sealed+rejected && arithmetic_ok),
+      set-aside reasons shown proudly (never hidden), full-file SHA-256 printed IN FULL (mono), provenance
+      meta, one primary "Seal & continue" → Untangle. Reduced-motion = final figures immediately.
+    - Untangle · SETU (§11.2): echo band (real fixture numbers — 4.9 announcements/tx, 79.6% echo,
+      "41,594 announcements collapse to 8,495 real transactions"), before/after split with the
+      src_ip → "the IP that told us" rename as the headline transformation, THE WIRE table (6 announcing
+      IPs for one tx) + THE MONEY table, null≠0≠unknown tooltip on operator (ASN), relay lesson.
+    - Leads · VAANI (§11.4): featured full AlertCard ("act on this first") + compact ranked queue
+      (20 shown of 199), sort (act-on-this-first / confidence / group size), filters (attribution ready /
+      grouped), per-lead drawer summary. NO global model report card (§6). would_clear wired-but-dormant
+      (no counter carries it in this fixture; AlertCard renders it only when present).
+  - Verified: typecheck + vite build clean; no console errors; DOM-checked all content present; mobile
+    375 + desktop-pane widths show no horizontal overflow; drawer open/close (esc + ✕) works.
+    /design-review pass: caught + fixed a §3 kill-list leak — the backend `subject_display` "cluster:NNN"
+    rendered verbatim, plus the word "cluster" inside 15 lead headlines and the sort/filter chrome.
+    Display-layer rename (data untouched): subject "cluster:616"→"group 616", headline word
+    "cluster"→"owner group" (\b-guarded, never "clustering"), sort "cluster size"→"group size",
+    filter "clustered"→"grouped". clusterVisible now 0; no full identifier on screen (SHA-256 stays full).
+    NOTE: could not runtime-emulate prefers-reduced-motion or a true 1440 viewport here (preview pane is
+    fixed-width; playwright chrome not installed) — reduced-motion verified by source guards only.
+
+## M4 and earlier
 Current milestone: M4 (globe / app-home §9) — code written + built + verified in browser.
 Done:
   - M0/M1 foundation: Vite+React18+TS scaffold, tokens (§4), fixed-viewport stage (§5.2),

@@ -33,8 +33,8 @@ export function Setu({ reduced }: { reduced: boolean }) {
     () => ({
       money: new THREE.MeshBasicMaterial({ color: C.coral, transparent: true }),
       net: new THREE.MeshBasicMaterial({ color: C.risoBlue, transparent: true }),
-      halfL: new THREE.MeshStandardMaterial({ color: C.coral, roughness: 0.85 }),
-      halfR: new THREE.MeshStandardMaterial({ color: C.risoBlue, roughness: 0.85 }),
+      halfL: new THREE.MeshStandardMaterial({ color: C.coral, roughness: 0.85, transparent: true }),
+      halfR: new THREE.MeshStandardMaterial({ color: C.risoBlue, roughness: 0.85, transparent: true }),
     }),
     [],
   );
@@ -61,8 +61,12 @@ export function Setu({ reduced }: { reduced: boolean }) {
 
     mats.money.opacity = vis * 0.9;
     mats.net.opacity = vis * 0.9;
-    mats.halfL.opacity = vis;
-    mats.halfR.opacity = vis;
+    // the two halves arrive ALREADY SOLID (they are KAVACH's risen blocks handed
+    // straight in) — full opacity from t=0, fading only as the station ends. This
+    // keeps the Kavach→Setu handoff seamless: no cross-fade dip at the boundary.
+    const solid = reduced ? 1 : 1 - THREE.MathUtils.smoothstep(t, 0.86, 1.0);
+    mats.halfL.opacity = solid;
+    mats.halfR.opacity = solid;
 
     // token streams drift outward from the split
     if (money.current) {
