@@ -18,11 +18,41 @@ import styles from "./OriginScreen.module.css";
  * a relay, not the sender — here the earliest peer and the model's top peer happen to
  * be the same, shown honestly, not faked apart. Reduced motion = frozen rings + fan.
  */
-type Lane = (typeof fixtures.origin.lanes)[number];
-type Origin = typeof fixtures.origin;
+type Lane = (typeof fixtures.origin.shortlist)[number];
+// Explicit shape so the confident fixture (attribution.asn: number) and the abstain
+// fixture (attribution.asn: null) share one type without a TS2352 cast error.
+type Origin = Omit<typeof fixtures.origin, "attribution"> & {
+  attribution: {
+    asn: number | null;
+    as_org: string;
+    net_class: string;
+    geo_country: string;
+    p_asn: number;
+    p_country: number;
+    margin: number;
+  };
+};
 
 const DISC_R = 2.35;
-const CEILING = 41.5; // §6 flex: only 41.5% of txs even contain the answer.
+// §2 ladder ceiling — read from world.origin_curve at the canonical observer_fraction,
+// not hand-typed. L1 (network operator) is the hero; L0 (exact host) the honest secondary
+// read. ⚠️ These curves are MODELED placeholders in world.json (see its _provenance) and
+// deliberately sit above the landing's host-level recoverable_ceiling bar.
+const OF = fixtures.world.observer_fraction;
+const interpCurve = (curve: { fraction: number; top1: number }[], f: number): number => {
+  for (let i = 0; i < curve.length - 1; i++) {
+    const a = curve[i], b = curve[i + 1];
+    if (f >= a.fraction && f <= b.fraction)
+      return a.top1 + ((f - a.fraction) / (b.fraction - a.fraction)) * (b.top1 - a.top1);
+  }
+  return f <= curve[0].fraction ? curve[0].top1 : curve[curve.length - 1].top1;
+};
+const OP_CEIL = interpCurve(fixtures.world.origin_curve.l1_asn, OF) * 100; // ~58.8 (operator)
+const HOST_CEIL = interpCurve(fixtures.world.origin_curve.l0_host, OF) * 100; // ~39.1 (host)
+
+// Rings are grouped by network operator (ASN): the leader stays coral, the earliest
+// announcer stays butter, and the remaining operators cycle this small curated palette.
+const OP_PALETTE = [C.risoBlue, C.teal, C.fluoroPink];
 
 /** Backend display format (DATA-CONTRACTS §9): keep first two octets, mask the rest —
  *  matches the fixtures' own peer_ip_display + runner_up_peer_ip. Never a full IP. */
@@ -44,8 +74,8 @@ function place(lanes: Lane[]): Placed[] {
   });
 }
 
-function Rings({ placed, abstain, topIdx, earliestIdx, leaderR, reduced }: {
-  placed: Placed[]; abstain: boolean; topIdx: number; earliestIdx: number; leaderR: number; reduced: boolean;
+function Rings({ placed, abstain, topIdx, earliestIdx, leaderR, asnHue, reduced }: {
+  placed: Placed[]; abstain: boolean; topIdx: number; earliestIdx: number; leaderR: number; asnHue: Map<number, string>; reduced: boolean;
 }) {
   const grp = useRef<THREE.Group>(null);
   const dot = useMemo(() => new THREE.SphereGeometry(1, 20, 20), []);
@@ -99,7 +129,7 @@ function Rings({ placed, abstain, topIdx, earliestIdx, leaderR, reduced }: {
       {/* candidate IPs */}
       {placed.map((p) => {
         const leader = !abstain && p.i === topIdx;
-        const col = abstain ? C.inkSoft : leader ? C.coral : p.i === earliestIdx ? C.butter : C.risoBlue;
+        const col = abstain ? C.inkSoft : leader ? C.coral : p.i === earliestIdx ? C.butter : (asnHue.get(p.lane.asn) ?? C.risoBlue);
         return (
           <mesh key={"dot" + p.i} geometry={dot} position={[p.x, 0.06, p.z]} scale={leader ? 0.12 : 0.075}>
             <meshStandardMaterial color={col} emissive={col} emissiveIntensity={leader ? 0.5 : 0.18} roughness={0.6} />
@@ -134,15 +164,21 @@ export function OriginScreen() {
   const data: Origin = showAbstain ? (fixtures.originAbstain as Origin) : fixtures.origin;
   const abstain = data.abstain;
 
-  const placed = useMemo(() => place(data.lanes), [data]);
+  const placed = useMemo(() => place(data.shortlist), [data]);
   const topIdx = useMemo(
-    () => data.lanes.reduce((b, l, i, a) => (l.p_origin > a[b].p_origin ? i : b), 0),
+    () => data.shortlist.reduce((b, l, i, a) => (l.p_origin > a[b].p_origin ? i : b), 0),
     [data],
   );
   const earliestIdx = useMemo(
-    () => data.lanes.reduce((b, l, i, a) => ((l.announcements_ms[0] ?? 0) < (a[b].announcements_ms[0] ?? 0) ? i : b), 0),
+    () => data.shortlist.reduce((b, l, i, a) => ((l.announcements_ms[0] ?? 0) < (a[b].announcements_ms[0] ?? 0) ? i : b), 0),
     [data],
   );
+  // deterministic operator → hue map (leader/earliest are re-coloured in Rings)
+  const asnHue = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const l of data.shortlist) if (!m.has(l.asn)) m.set(l.asn, OP_PALETTE[m.size % OP_PALETTE.length]);
+    return m;
+  }, [data]);
   const leaderR = placed[topIdx]?.radius ?? 0.4;
   const trapCoincides = topIdx === earliestIdx;
 
@@ -169,6 +205,7 @@ export function OriginScreen() {
               topIdx={topIdx}
               earliestIdx={earliestIdx}
               leaderR={leaderR}
+              asnHue={asnHue}
               reduced={reduced}
             />
             <AdaptiveDpr pixelated />
@@ -180,6 +217,7 @@ export function OriginScreen() {
           <span className={styles.key}><span className={styles.sw} style={{ background: C.butter }} /> first to announce</span>
           <span className={styles.key}><span className={styles.sw} style={{ background: C.risoBlue }} /> other candidate</span>
           <p className={styles.legNote}>radius = inverse likelihood — nearest the centre is most likely.</p>
+          <p className={styles.legNote}>rings grouped by network operator (ASN).</p>
         </div>
       </div>
 
@@ -214,12 +252,12 @@ export function OriginScreen() {
           </div>
         ) : (
           <div className={`${styles.verdict} ${styles.vName}`}>
-            <span className={styles.vLabel}>One clear leader</span>
+            <span className={styles.vLabel}>One clear operator</span>
             <p className={styles.vBody}>
-              <span className={styles.vIp}>{maskIp(data.lanes[topIdx].peer_ip)}</span> leads with origin
-              likelihood <strong>{(data.p_origin * 100).toFixed(2)}%</strong>, a margin of{" "}
-              <strong>{(data.margin * 100).toFixed(2)}%</strong> over the runner-up — above the floor,
-              so we're willing to name it.
+              <span className={styles.vIp}>AS{data.attribution.asn} · {data.attribution.geo_country}</span> leads with
+              operator-origin likelihood <strong>{(data.attribution.p_asn * 100).toFixed(2)}%</strong>, a margin of{" "}
+              <strong>{(data.attribution.margin * 100).toFixed(2)}%</strong> over the runner-up — above the floor,
+              so we're willing to name the operator. The exact host stays in the candidate table below.
             </p>
           </div>
         )}
@@ -235,17 +273,19 @@ export function OriginScreen() {
           </p>
         </div>
 
-        {/* §6 ceiling flex */}
+        {/* §2 ladder ceiling — operator (L1) hero + host (L0) honest secondary */}
         <div className={styles.gauge}>
           <div className={styles.gaugeHead}>
-            <span className={styles.gaugeLabel}>visibility ceiling</span>
-            <span className={styles.gaugeVal}>{CEILING}%</span>
+            <span className={styles.gaugeLabel}>operator visibility ceiling</span>
+            <span className={styles.gaugeVal}>{OP_CEIL.toFixed(1)}%</span>
           </div>
-          <div className={styles.gaugeTrack}><div className={styles.gaugeFill} style={{ width: `${CEILING}%` }} /></div>
+          <div className={styles.gaugeTrack}><div className={styles.gaugeFill} style={{ width: `${OP_CEIL}%` }} /></div>
           <p className={styles.gaugeNote}>
-            Only {CEILING}% of transactions even contain the answer in what we observed
+            At {(OF * 100).toFixed(0)}% of the network observed, we can name the <strong>operator</strong> for
+            ~{OP_CEIL.toFixed(1)}% of transactions, the exact <strong>host</strong> for ~{HOST_CEIL.toFixed(1)}%
             {abstain ? " — and this one, even within reach, was too close to call." : " — this one is within reach."}
           </p>
+          <p className={styles.gaugeNote}>modeled projection — see world.json provenance.</p>
         </div>
 
         {/* confidence dial (display of the tunable numbers) */}

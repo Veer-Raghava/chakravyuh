@@ -1,8 +1,10 @@
 // The Sutra's stops — the app's ONE nav source of truth (§11.0). Workflow-ordered,
 // not alphabetised: Globe (home) → the seven pipeline stops in the order an officer
 // works a case → World (MAYAJAAL) pinned far right as the ambient "about the engine"
-// destination. Funnel counts are the canonical numbers (§ "Canonical numbers"),
-// reused from the landing so the story's spine becomes the tool's navigation.
+// destination. Funnel counts are the canonical numbers, read from the world.json
+// fixture (FRONTEND-HANDOFF-V2 §1) so the nav, WorldScreen and landing share one source.
+
+import { fixtures } from "../data/loader";
 
 export type StageId =
   | "globe"
@@ -26,16 +28,20 @@ export type Stage = {
   count: number | null;
 };
 
+/** Canonical funnel count for a stage, from world.json. null when the stage is off-funnel. */
+const funnelCount = (id: StageId): number | null =>
+  fixtures.world.funnel.find((f) => f.stage === id)?.count ?? null;
+
 // The seven pipeline stops form the funnel spine; Globe + World sit outside it.
 export const STAGES: Stage[] = [
-  { id: "globe", name: "Globe", tag: "", gloss: "the world of transactions", count: 1_000_000 },
-  { id: "intake", name: "Intake", tag: "KAVACH", gloss: "load & seal a dataset", count: 999_847 },
-  { id: "untangle", name: "Untangle", tag: "SETU", gloss: "network vs money", count: 111_043 },
-  { id: "map", name: "Map", tag: "JAAL", gloss: "the connection map", count: 24_626 },
-  { id: "origin", name: "Origin", tag: "SHASTRA", gloss: "who sent it — or honestly, we don't know", count: 10_220 },
-  { id: "leads", name: "Leads", tag: "VAANI", gloss: "the ranked lead queue", count: 20 },
-  { id: "proof", name: "Proof", tag: "PRAMAAN", gloss: "the court-ready proof", count: 1 },
-  { id: "world", name: "World", tag: "MAYAJAAL", gloss: "the synthetic world we built", count: null },
+  { id: "globe", name: "Globe", tag: "", gloss: "the world of transactions", count: funnelCount("globe") },
+  { id: "intake", name: "Intake", tag: "KAVACH", gloss: "load & seal a dataset", count: funnelCount("intake") },
+  { id: "untangle", name: "Untangle", tag: "SETU", gloss: "network vs money", count: funnelCount("untangle") },
+  { id: "map", name: "Map", tag: "JAAL", gloss: "the connection map", count: funnelCount("map") },
+  { id: "origin", name: "Origin", tag: "SHASTRA", gloss: "who sent it — or honestly, we don't know", count: funnelCount("origin") },
+  { id: "leads", name: "Leads", tag: "VAANI", gloss: "the ranked lead queue", count: funnelCount("leads") },
+  { id: "proof", name: "Proof", tag: "PRAMAAN", gloss: "the court-ready proof", count: funnelCount("proof") },
+  { id: "world", name: "World", tag: "MAYAJAAL", gloss: "the synthetic world we built", count: funnelCount("world") },
 ];
 
 /** World is pinned right, outside the funnel order — the thread proper is the first seven. */

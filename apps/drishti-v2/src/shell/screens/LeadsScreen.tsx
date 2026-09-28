@@ -59,9 +59,9 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
       </div>
       <p className={styles.sumHeadline}>{scrub(a.headline)}</p>
       <dl className={styles.sumRows}>
-        <div className={styles.sumRow}><dt>network operator (ASN)</dt><dd>{a.origin_asn ?? "—"} · {a.origin_country ?? "—"}</dd></div>
+        <div className={styles.sumRow}><dt>network operator (ASN)</dt><dd>{a.origin_asn ?? "—"} · {a.origin_country ?? "—"}{a.origin_net_class ? ` · ${a.origin_net_class}` : ""}</dd></div>
         <div className={styles.sumRow}><dt>likely same owner</dt><dd>{a.cluster_size > 1 ? `${a.cluster_size} addresses` : "single address"}</dd></div>
-        <div className={styles.sumRow}><dt>confidence band</dt><dd>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}</dd></div>
+        <div className={styles.sumRow}><dt>confidence band</dt><dd>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}{a.p_asn != null ? ` · operator p ${(a.p_asn * 100).toFixed(1)}%` : ""}</dd></div>
         <div className={styles.sumRow}>
           <dt>attribution</dt>
           <dd className={a.attribution_ready ? styles.ready : styles.notReady}>

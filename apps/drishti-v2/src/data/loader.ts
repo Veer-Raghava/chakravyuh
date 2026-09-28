@@ -21,9 +21,11 @@ import originAbstain from "./fixtures/origin-abstain.json";
 import alerts from "./fixtures/alerts.json";
 import alert from "./fixtures/alert.json";
 import packet from "./fixtures/packet.json";
+import world from "./fixtures/world.json";
 
 export const fixtures = {
   manifest,
+  world, // canonical numbers (funnel, ceiling, observer-fraction curve) — one source
   collapse,
   transactions,
   graph, // fused peer/money graph, aggregated above the node cap

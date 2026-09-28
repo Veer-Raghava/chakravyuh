@@ -194,7 +194,7 @@ export function Pramaan({ reduced }: { reduced: boolean }) {
             <Row k="origin tx" v={ORIGIN_TX} />
             <Row k="announcing IP · port" v={`${PEER} · ${A.peer_port}`} />
             <Row k="network operator" v={`AS${A.asn} · ${A.geo_country}`} />
-            <Row k="origin likelihood" v={A.p_origin.toFixed(4)} accent />
+            <Row k="operator likelihood" v={A.p_asn.toFixed(4)} accent />
             <Row k="subject" v={SUBJECT} />
             <Row k="rows sealed" v={ROWS} />
 

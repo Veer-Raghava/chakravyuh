@@ -4,6 +4,19 @@
 //
 // Slices are the raw §7 fractions: all eight stations now span the full page
 // (0.00–1.00), so each owns its literal scroll range with no rescale.
+//
+// Funnel counts + the SHASTRA ceiling are read from the world.json fixture
+// (FRONTEND-HANDOFF-V2 §1), the same source WorldScreen + nav/stages.ts use —
+// no number is hand-typed. Copy and slices stay here.
+
+import { fixtures } from "../data/loader";
+
+/** Canonical funnel count for a layer, from world.json. */
+const layerCount = (layer: string): number =>
+  fixtures.world.funnel.find((s) => s.layer === layer)?.count ?? 0;
+
+/** Recoverable ceiling as a percent string, e.g. "41.5". */
+const CEIL_PCT = (fixtures.world.recoverable_ceiling * 100).toFixed(1);
 
 export type Slice = [start: number, end: number];
 
@@ -27,7 +40,7 @@ export const STATIONS: Station[] = [
     id: "mayajaal",
     layer: "MAYAJAAL",
     gloss: "the world we built",
-    count: 1_000_000,
+    count: layerCount("MAYAJAAL"),
     slice: [0.0, 0.12],
     title: "A world we built to test this.",
     body:
@@ -41,7 +54,7 @@ export const STATIONS: Station[] = [
     id: "kavach",
     layer: "KAVACH",
     gloss: "the sealed intake",
-    count: 999_847,
+    count: layerCount("KAVACH"),
     slice: [0.12, 0.24],
     title: "We seal the bytes before we read them.",
     body:
@@ -54,7 +67,7 @@ export const STATIONS: Station[] = [
     id: "setu",
     layer: "SETU",
     gloss: "network, untangled from money",
-    count: 111_043,
+    count: layerCount("SETU"),
     slice: [0.24, 0.36],
     title: "We renamed one column. It defuses the whole trap.",
     body:
@@ -67,7 +80,7 @@ export const STATIONS: Station[] = [
     id: "jaal",
     layer: "JAAL",
     gloss: "the connection map",
-    count: 24_626,
+    count: layerCount("JAAL"),
     slice: [0.36, 0.52],
     title: "This edge is the entire project.",
     body:
@@ -81,9 +94,9 @@ export const STATIONS: Station[] = [
     id: "shastra",
     layer: "SHASTRA",
     gloss: "who sent it — or honestly, we don't know",
-    count: 10_220,
+    count: layerCount("SHASTRA"),
     slice: [0.52, 0.66],
-    title: "Only 41.5% of these can be traced to a sender.",
+    title: `Only ${CEIL_PCT}% of these can be traced to a sender.`,
     body:
       "For each transaction we estimate how likely every candidate IP is to be " +
       "the true origin — and abstain when the evidence can't carry any answer. " +
@@ -96,7 +109,7 @@ export const STATIONS: Station[] = [
     id: "buddhi",
     layer: "BUDDHI",
     gloss: "how risky is this",
-    count: 1_287,
+    count: layerCount("BUDDHI"),
     slice: [0.66, 0.76],
     title: "Every flag arrives with the reasons it might be wrong.",
     body:
@@ -110,7 +123,7 @@ export const STATIONS: Station[] = [
     id: "vaani",
     layer: "VAANI",
     gloss: "the plain-English lead",
-    count: 20,
+    count: layerCount("VAANI"),
     slice: [0.76, 0.87],
     title: "A score means nothing to an officer. A sentence does.",
     body:
@@ -124,7 +137,7 @@ export const STATIONS: Station[] = [
     id: "pramaan",
     layer: "PRAMAAN",
     gloss: "the court-ready proof",
-    count: 1,
+    count: layerCount("PRAMAAN"),
     slice: [0.87, 1.0],
     title: "Not a guess. A document.",
     body:
@@ -137,7 +150,7 @@ export const STATIONS: Station[] = [
 ];
 
 /** Origin of the funnel — the counter starts here before st.0 settles it. */
-export const FUNNEL_START = 1_000_000;
+export const FUNNEL_START = fixtures.world.funnel[0].count;
 
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const smoothstep = (x: number) => {

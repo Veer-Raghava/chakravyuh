@@ -11,7 +11,9 @@ import styles from "./AlertCard.module.css";
  *
  * Two backend fields are first-class here, not footnotes (§6):
  *  - would_clear on a counter — "this one doubt is enough to close the lead"
- *  - attribution_ready — gates the {IP · port · UTC} hero; false = honest not-ready.
+ *  - attribution_ready — gates the {operator · region · UTC} hero; false = honest not-ready.
+ * Attribution leads with the network operator (ASN) + region + shortlist size, never the
+ * exact host (§2) — the full IP/port live only in packet.json and are never rendered.
  * All identifiers are the backend's *_display forms (truncated per §9); we never
  * render a full identifier on screen.
  */
@@ -40,18 +42,18 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
 
       <p className={styles.headline}>{a.headline}</p>
 
-      {/* the {IP · port · UTC} hero — gated by attribution_ready (§6) */}
+      {/* the {operator · region · UTC} hero — gated by attribution_ready (§6) */}
       {a.attribution_ready ? (
         <div className={styles.attribution}>
           <span className={styles.attrLabel}>attribution ready</span>
           <span className={styles.attrValue}>
-            {o.origin_peer_display} · port {o.lanes[0]?.peer_port} · {utcMicrosToUTC(o.first_seen_us)}
+            AS{o.attribution.asn} · {o.attribution.geo_country} · {utcMicrosToUTC(o.first_seen_us)}
           </span>
         </div>
       ) : (
         <div className={`${styles.attribution} ${styles.notReady}`}>
           <span className={styles.attrLabel}>attribution not ready</span>
-          <span className={styles.attrValue}>peer IP, source port and precise time not all present</span>
+          <span className={styles.attrValue}>operator, region and precise time not all present</span>
         </div>
       )}
 
@@ -63,7 +65,8 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
               <span className={styles.abstain}>No answer available</span>
             ) : (
               <>
-                {o.origin_peer_display} · likelihood {o.p_origin.toFixed(3)} · runner-up {o.runner_up_display}
+                AS{o.attribution.asn} · {o.attribution.geo_country} · operator likelihood{" "}
+                {(o.attribution.p_asn * 100).toFixed(2)}% · shortlist of {o.shortlist.length}
               </>
             )}
           </dd>

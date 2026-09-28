@@ -6,11 +6,20 @@
     "margin": 0.004990528332351047,
     "net_class": "",
     "observed_at_utc": "2026-01-01T02:48:20.630977+00:00",
-    "p_origin": 0.01785257921281476,
+    "p_asn": 0.01785257921281476,
     "peer_ip": "198.19.221.238",
     "peer_port": 54099,
-    "runner_up_peer_ip": "198.18.x.x"
+    "runner_up_peer_ip": "198.18.x.x",
+    "shortlist": [
+      { "peer_ip_display": "198.19.x.x", "peer_port": 54099, "p_origin": 0.01785257921281476 },
+      { "peer_ip_display": "100.88.x.x", "peer_port": 41236, "p_origin": 0.0017725689504466213 },
+      { "peer_ip_display": "198.18.x.x", "peer_port": 59652, "p_origin": 0.012862050880463712 },
+      { "peer_ip_display": "198.18.x.x", "peer_port": 43980, "p_origin": 0.006205727572911222 },
+      { "peer_ip_display": "198.19.x.x", "peer_port": 35503, "p_origin": 0.0017764568028497952 },
+      { "peer_ip_display": "198.19.x.x", "peer_port": 43043, "p_origin": 0.006763110849305439 }
+    ]
   },
+  "attribution_ready": true,
   "case_id": "alw-63329995d8e6",
   "chain_of_custody": [
     {

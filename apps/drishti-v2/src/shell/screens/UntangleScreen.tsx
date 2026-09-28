@@ -24,7 +24,7 @@ export function UntangleScreen() {
   const meanPerTx = col.mean_announcements_per_tx.toFixed(1);
 
   // the six real announcing peers for this one transaction = echo, made concrete.
-  const lanes = [...o.lanes].sort((a, b) => (a.announcements_ms[0] ?? 0) - (b.announcements_ms[0] ?? 0));
+  const lanes = [...o.shortlist].sort((a, b) => (a.announcements_ms[0] ?? 0) - (b.announcements_ms[0] ?? 0));
   const heardAt = (ms: number) => usToIST(o.first_seen_us + ms * 1000);
 
   useGSAP(

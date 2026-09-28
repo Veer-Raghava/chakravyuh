@@ -64,10 +64,8 @@ type OriginFixture = {
   abstain: boolean;
   abstain_reason: string;
   first_seen_us: number;
-  lanes: Lane[];
-  origin_peer_display: string;
+  shortlist: Lane[];
   p_origin: number;
-  runner_up_display: string;
   txid: string;
   txid_display: string;
 };
@@ -85,7 +83,7 @@ function tierFor(abstain: boolean, lane: Lane, located: boolean): Tier {
 }
 
 function build(o: OriginFixture): GlobeTx {
-  const points: GlobePoint[] = o.lanes.map((lane) => {
+  const points: GlobePoint[] = o.shortlist.map((lane) => {
     const pos = locate(lane.geo_country || null, lane.peer_ip);
     const located = pos != null;
     return {
@@ -111,11 +109,11 @@ function build(o: OriginFixture): GlobeTx {
     abstainReason: o.abstain_reason,
     firstSeenUs: o.first_seen_us,
     feeSats: meta ? meta.fee_sats : null,
-    nAnnouncements: meta ? meta.n_announcements : o.lanes.length,
+    nAnnouncements: meta ? meta.n_announcements : o.shortlist.length,
     pOrigin: o.p_origin,
     marginBelowFloor: o.abstain,
-    originDisplay: o.abstain ? "" : o.origin_peer_display,
-    runnerUpDisplay: o.runner_up_display,
+    originDisplay: o.abstain ? "" : (o.shortlist.find((l) => l.rank === 1)?.peer_ip_display ?? ""),
+    runnerUpDisplay: o.shortlist.find((l) => l.rank === 2)?.peer_ip_display ?? "",
     points,
   };
 }
@@ -151,7 +149,7 @@ for (const a of alertList)
   if (a.origin_asn != null && a.origin_country && !asnCountry.has(a.origin_asn))
     asnCountry.set(a.origin_asn, a.origin_country);
 for (const o of [fixtures.origin, fixtures.originAbstain] as OriginFixture[])
-  for (const ln of o.lanes)
+  for (const ln of o.shortlist)
     if (ln.asn != null && ln.geo_country && !asnCountry.has(ln.asn))
       asnCountry.set(ln.asn, ln.geo_country);
 

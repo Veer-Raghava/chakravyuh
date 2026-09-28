@@ -22,14 +22,18 @@ import { panel, prose, kicker, datum } from "./panelStyle";
  * card beside it — abstention is a correct output, not a failure (§6).
  */
 const SLICE = STATIONS[4].slice;
-const CEIL_POSSIBLE = 0.415;
+// The recoverable ceiling, read from world.json (FRONTEND-HANDOFF-V2 §1) — one source
+// with WorldScreen, OriginScreen + the landing funnel. The bar + labels derive from it.
+const CEIL_POSSIBLE = fixtures.world.recoverable_ceiling;
+const POSSIBLE_PCT = (CEIL_POSSIBLE * 100).toFixed(1); // "41.5"
+const UNKNOWABLE_PCT = ((1 - CEIL_POSSIBLE) * 100).toFixed(1); // "58.5"
 const BAR_W = 3.4;
 const MAXC = 7;
 
 type Cand = { ip: string; p: number; rank: number; asn: number; geo: string; port: number; x: number; lead: boolean };
 
 function buildCands() {
-  const lanes = [...fixtures.origin.lanes].sort((a, b) => a.rank - b.rank).slice(0, MAXC);
+  const lanes = [...fixtures.origin.shortlist].sort((a, b) => a.rank - b.rank).slice(0, MAXC);
   const pmax = Math.max(...lanes.map((l) => l.p_origin));
   const n = lanes.length;
   // order along the bench by rank so the scan reveals a tidy descending row
@@ -50,7 +54,7 @@ function buildCands() {
 
 const BENCH_Y = -0.15;
 const TX = new THREE.Vector3(0, 1.5, 0);
-const LEAD_P = (fixtures.origin.lanes.find((l) => l.rank === 1)?.p_origin ?? 0).toFixed(3);
+const LEAD_P = (fixtures.origin.shortlist.find((l) => l.rank === 1)?.p_origin ?? 0).toFixed(3);
 const dimBlue = new THREE.Color(C.risoBlue).multiplyScalar(0.5);
 const litBlue = new THREE.Color(C.risoBlue);
 const litCoral = new THREE.Color(C.coral);
@@ -233,10 +237,10 @@ export function Shastra({ reduced }: { reduced: boolean }) {
           </Html>
           {/* ceiling-bar labels */}
           <Html position={[-0.995, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>41.5% possible</div>
+            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>{POSSIBLE_PCT}% possible</div>
           </Html>
           <Html position={[0.705, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>58.5% unknowable</div>
+            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>{UNKNOWABLE_PCT}% unknowable</div>
           </Html>
           {/* the dignified grey "no answer" card — abstention as a correct output */}
           <Html position={[-2.55, 0.7, 0]} center distanceFactor={6} pointerEvents="none">

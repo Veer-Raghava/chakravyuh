@@ -2,7 +2,7 @@
   "abstain": true,
   "abstain_reason": "margin_below_floor",
   "first_seen_us": 1767330241732570,
-  "lanes": [
+  "shortlist": [
     {
       "announcements_ms": [
         0
@@ -88,10 +88,20 @@
       "rank": 4
     }
   ],
+  "attribution": {
+    "asn": null,
+    "as_org": "",
+    "net_class": "",
+    "geo_country": "",
+    "p_asn": 0.0,
+    "p_country": 0.0,
+    "margin": 0.0
+  },
+  "estimator": "ensemble",
+  "window_ms": 2075470,
+  "shortlist_k": 5,
   "margin": 0.0,
-  "origin_peer_display": "",
   "p_origin": 0.0,
-  "runner_up_display": "",
   "runner_up_p": 0.0,
   "txid": "00d3cc2e57262778b0c5f74edc6a02977d280012ec148e96f3648ed314e80074",
   "txid_display": "00d3cc2e\u20260074"

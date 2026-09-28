@@ -21,6 +21,12 @@
       "statement": "the same network address announces traffic for 31 distinct subjects, so it may be a shared relay rather than an owner",
       "strength": 0.9677,
       "would_clear": false
+    },
+    {
+      "kind": "cross_asn_ambiguous",
+      "statement": "the origin probability is split across several network operators — the leading candidate's operator holds under 40% of the shortlist's total mass, so naming a single operator would overstate the evidence",
+      "strength": 0.6220276000835575,
+      "would_clear": false
     }
   ],
   "counters_ok": true,
@@ -73,7 +79,7 @@
     "abstain": false,
     "abstain_reason": "",
     "first_seen_us": 1767235700630977,
-    "lanes": [
+    "shortlist": [
       {
         "announcements_ms": [
           0
@@ -159,10 +165,20 @@
         "rank": 3
       }
     ],
+    "attribution": {
+      "asn": 64503,
+      "as_org": "",
+      "net_class": "",
+      "geo_country": "BR",
+      "p_asn": 0.01785257921281476,
+      "p_country": 0.01785257921281476,
+      "margin": 0.004990528332351047
+    },
+    "estimator": "ensemble",
+    "window_ms": 3229313,
+    "shortlist_k": 5,
     "margin": 0.004990528332351047,
-    "origin_peer_display": "198.19.x.x",
     "p_origin": 0.01785257921281476,
-    "runner_up_display": "100.88.x.x",
     "runner_up_p": 0.0017725689504466213,
     "txid": "da4daa3815eafa9e87fe4bbcb147cb7be9cae289020d2936db2f2a75e82c8b27",
     "txid_display": "da4daa38\u20268b27"
