@@ -455,7 +455,7 @@ export function LeadDetail({ lead, sel }: { lead: Lead; sel: LeadSelection }) {
         </dl>
         <p className={styles.honest}>
           {n.role === "change"
-            ? "Flagged change: a likely-same-owner link ties this back to a sender — value looping home, not a payment out."
+            ? "Flagged change: a likely-same-owner link ties this back to a sender. Value looping home, not a payment out."
             : n.role === "sender"
               ? "A wallet that funded this transaction."
               : "A wallet paid by this transaction."}
@@ -484,7 +484,7 @@ export function LeadDetail({ lead, sel }: { lead: Lead; sel: LeadSelection }) {
           <dd className={styles.mono}>{a.tsUs != null ? usToIST(a.tsUs) : "—"}</dd>
         </div>
       </dl>
-      <p className={styles.warn}>An IP that told us — usually a relay, not the sender.</p>
+      <p className={styles.warn}>An IP that told us, usually a relay, not the sender.</p>
     </div>
   );
 }

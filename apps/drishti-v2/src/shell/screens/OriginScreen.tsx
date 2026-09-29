@@ -47,7 +47,7 @@ const DISC_R = 2.35;
 
 /** Plain words for a backend abstain reason — the reason is DATA, so we gloss it, not invent it. */
 const REASON_GLOSS: Record<string, string> = {
-  tor_present: "the sender announced from a Tor exit — the capture saw the relay, never the origin",
+  tor_present: "the sender announced from a Tor exit, so the capture saw the relay, never the origin",
   single_observer: "only one observer heard this transaction, so there is nothing to compare",
   margin_below_floor: "the top two candidates were too close to separate",
   too_few_announcements: "too few announcements to estimate from",
@@ -234,7 +234,7 @@ export function OriginScreen() {
           <span className={styles.key}><span className={styles.sw} style={{ background: C.coral }} /> most likely origin</span>
           <span className={styles.key}><span className={styles.sw} style={{ background: C.butter }} /> first to announce</span>
           <span className={styles.key}><span className={styles.sw} style={{ background: C.risoBlue }} /> other candidate</span>
-          <p className={styles.legNote}>radius = inverse likelihood — nearest the centre is most likely.</p>
+          <p className={styles.legNote}>radius = inverse likelihood; nearest the centre is most likely.</p>
           <p className={styles.legNote}>rings grouped by network operator (ASN).</p>
         </div>
       </div>
@@ -266,7 +266,7 @@ export function OriginScreen() {
             <p className={styles.vBody}>
               We refuse to name this one: {REASON_GLOSS[data.abstain_reason] ?? data.abstain_reason}.
               A confident wrong name destroys an investigation, so when the evidence can't carry an
-              answer we say so plainly — and show you exactly why. This is a correct output, not a
+              answer we say so plainly, and show you exactly why. This is a correct output, not a
               failure.
             </p>
           </div>
@@ -276,11 +276,11 @@ export function OriginScreen() {
             <p className={styles.vBody}>
               <span className={styles.vIp}>AS{data.attribution.asn} · {data.attribution.geo_country}</span> leads with
               operator-origin likelihood <strong>{(data.attribution.p_asn * 100).toFixed(2)}%</strong>, a margin of{" "}
-              <strong>{(data.attribution.margin * 100).toFixed(2)}%</strong> over the runner-up — above the floor,
+              <strong>{(data.attribution.margin * 100).toFixed(2)}%</strong> over the runner-up. That clears the floor,
               so we're willing to name the operator. The exact host stays in the candidate table below.
             </p>
             <p className={styles.vBody}>
-              The leading candidate's own likelihood is <strong>{(data.p_origin * 100).toFixed(2)}%</strong> —{" "}
+              The leading candidate's own likelihood is <strong>{(data.p_origin * 100).toFixed(2)}%</strong>,{" "}
               <strong>{liftVsRandom(data.p_origin, data.shortlist.length).toFixed(1)}× more likely than random</strong>.
               Random here means picking one of the {data.shortlist.length} peers that announced it
               ({(100 / data.shortlist.length).toFixed(2)}% each).
@@ -294,7 +294,7 @@ export function OriginScreen() {
             The earliest IP to announce a transaction is usually a <strong>relay</strong> passing it on,
             not the sender.{" "}
             {trapCoincides
-              ? "Here the earliest announcer and the model's top candidate are the same peer — we show that honestly rather than manufacture a split."
+              ? "Here the earliest announcer and the model's top candidate are the same peer, and we show that honestly rather than manufacture a split."
               : "Here they differ: the first to speak is not the one we name."}
           </p>
         </div>
@@ -314,7 +314,7 @@ export function OriginScreen() {
             We name the <strong>operator</strong> for <strong>{(L1_TOP1 * 100).toFixed(1)}%</strong> of
             transactions at <strong>{(OF * 100).toFixed(0)}%</strong> of the network observed, against
             an operator ceiling of{" "}
-            <strong>{L1_CEIL != null ? `${(L1_CEIL * 100).toFixed(1)}%` : "—"}</strong> — the most any
+            <strong>{L1_CEIL != null ? `${(L1_CEIL * 100).toFixed(1)}%` : "—"}</strong>. That is the most any
             estimator could score at this coverage, because a run whose observers never heard the
             announcer cannot name it however good the model is.
             {CAPTURED != null && (
@@ -326,12 +326,12 @@ export function OriginScreen() {
           </p>
           {L0_CEIL != null && (
             <p className={styles.gaugeNote}>
-              The exact <strong>host</strong> — the officer-only grain, which Indian law bars from
-              display — is {(L0_TOP1 * 100).toFixed(1)}% against a {(L0_CEIL * 100).toFixed(1)}% ceiling.
+              The exact <strong>host</strong> is the officer-only grain, which Indian law bars from
+              display. It scores {(L0_TOP1 * 100).toFixed(1)}% against a {(L0_CEIL * 100).toFixed(1)}% ceiling.
               We report it for completeness; the operator is the product.
             </p>
           )}
-          <p className={styles.gaugeNote}>measured over this run's own observer sweep — not a projection.</p>
+          <p className={styles.gaugeNote}>measured over this run's own observer sweep, not a projection.</p>
         </div>
 
         {/* confidence dial (display of the tunable numbers) */}

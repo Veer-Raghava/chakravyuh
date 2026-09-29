@@ -65,7 +65,7 @@ export function ProofScreen() {
           <span className={styles.tag}>PRAMAAN · प्रमाण</span>
         </div>
         <p className={styles.gloss}>
-          One lead pressed into a signed, hash-chained document — the three values an ISP needs to
+          One lead pressed into a signed, hash-chained document: the three values an ISP needs to
           name a subscriber, and every step that produced them.
         </p>
         <div className={styles.caseRow}>
@@ -123,7 +123,7 @@ export function ProofScreen() {
           ) : (
             <div className={styles.notReady}>
               <span className={styles.nrLabel}>attribution not ready</span>
-              <p>We only print the {`{operator · region · UTC}`} finding when the backend marks it court-ready. It isn't here — so we hold it back rather than hand a court a half-answer.</p>
+              <p>We only print the {`{operator · region · UTC}`} finding when the backend marks it court-ready. It isn't here, so we hold it back rather than hand a court a half-answer.</p>
             </div>
           )}
 
@@ -165,7 +165,7 @@ export function ProofScreen() {
           <div className={styles.legalBox}>
             <span className={styles.legalHead}>Hash disclosure</span>
             <p className={styles.legalBasis}>{p.legal.hash_disclosure}</p>
-            <p className={styles.legalBody}>Every SHA-256 above is printed in full, as the schedule requires — nothing summarised, nothing hidden.</p>
+            <p className={styles.legalBody}>Every SHA-256 above is printed in full, as the schedule requires. Nothing summarised, nothing hidden.</p>
           </div>
           <dl className={styles.verMeta}>
             <div><dt>tool</dt><dd>v{p.tool_version}</dd></div>

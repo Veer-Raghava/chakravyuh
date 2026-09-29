@@ -1,0 +1,220 @@
+{
+  "run_id": "_sweep-0.10",
+  "observer_regime": "sparse",
+  "observer_fraction": 0.1,
+  "protocol": "",
+  "funnel": [
+    {
+      "stage": "globe",
+      "label": "signals",
+      "layer": "MAYAJAAL",
+      "count": 50215
+    },
+    {
+      "stage": "intake",
+      "label": "sealed",
+      "layer": "KAVACH",
+      "count": 50215
+    },
+    {
+      "stage": "untangle",
+      "label": "announcements",
+      "layer": "SETU",
+      "count": 50215
+    },
+    {
+      "stage": "map",
+      "label": "transactions",
+      "layer": "JAAL",
+      "count": 8553
+    },
+    {
+      "stage": "origin",
+      "label": "with a candidate",
+      "layer": "SHASTRA",
+      "count": 8553
+    },
+    {
+      "stage": "buddhi",
+      "label": "owner groups scored",
+      "layer": "BUDDHI",
+      "count": 0
+    },
+    {
+      "stage": "leads",
+      "label": "ranked leads",
+      "layer": "VAANI",
+      "count": 0
+    },
+    {
+      "stage": "proof",
+      "label": "court-ready proofs",
+      "layer": "PRAMAAN",
+      "count": 0
+    }
+  ],
+  "recoverable_ceiling": 0.098961,
+  "ceilings": {
+    "l0_host": 0.098961,
+    "l1_asn": 0.621824,
+    "l2_region": 0.733372,
+    "l3_shortlist_topk": 0.098961
+  },
+  "origin_curve": {
+    "l0_host": [
+      {
+        "fraction": 0.02,
+        "top1": 0.019861,
+        "abstain": 0.547456
+      },
+      {
+        "fraction": 0.05,
+        "top1": 0.031986,
+        "abstain": 0.398584
+      },
+      {
+        "fraction": 0.1,
+        "top1": 0.078753,
+        "abstain": 0.491173
+      },
+      {
+        "fraction": 0.25,
+        "top1": 0.154157,
+        "abstain": 0.537313
+      },
+      {
+        "fraction": 0.5,
+        "top1": 0.260393,
+        "abstain": 0.633883
+      },
+      {
+        "fraction": 0.6,
+        "top1": 0.286836,
+        "abstain": 0.668563
+      },
+      {
+        "fraction": 0.7,
+        "top1": 0.314896,
+        "abstain": 0.642259
+      }
+    ],
+    "l1_asn": [
+      {
+        "fraction": 0.02,
+        "top1": 0.177021,
+        "abstain": 0.547456
+      },
+      {
+        "fraction": 0.05,
+        "top1": 0.201155,
+        "abstain": 0.398584
+      },
+      {
+        "fraction": 0.1,
+        "top1": 0.258199,
+        "abstain": 0.491173
+      },
+      {
+        "fraction": 0.25,
+        "top1": 0.355889,
+        "abstain": 0.537313
+      },
+      {
+        "fraction": 0.5,
+        "top1": 0.457852,
+        "abstain": 0.633883
+      },
+      {
+        "fraction": 0.6,
+        "top1": 0.480831,
+        "abstain": 0.668563
+      },
+      {
+        "fraction": 0.7,
+        "top1": 0.50843,
+        "abstain": 0.642259
+      }
+    ],
+    "l3_shortlist": [
+      {
+        "fraction": 0.02,
+        "topk": 0.021594,
+        "k": 3
+      },
+      {
+        "fraction": 0.05,
+        "topk": 0.036952,
+        "k": 3
+      },
+      {
+        "fraction": 0.1,
+        "topk": 0.091455,
+        "k": 3
+      },
+      {
+        "fraction": 0.25,
+        "topk": 0.197229,
+        "k": 3
+      },
+      {
+        "fraction": 0.5,
+        "topk": 0.342841,
+        "k": 3
+      },
+      {
+        "fraction": 0.6,
+        "topk": 0.384296,
+        "k": 3
+      },
+      {
+        "fraction": 0.7,
+        "topk": 0.421594,
+        "k": 3
+      }
+    ]
+  },
+  "naive_first_seen_top1": 0.046767,
+  "literature_band": [
+    0.11,
+    0.6
+  ],
+  "headline": {
+    "l1_top1": 0.258199,
+    "l0_top1": 0.078753,
+    "campaign_recall": null,
+    "elliptic_f1": null,
+    "elliptic_roc_auc": null,
+    "elliptic_precision": null,
+    "pair_precision": null
+  },
+  "defences": [
+    "observer curve",
+    "elliptic replication",
+    "real-slice",
+    "parameter holdout"
+  ],
+  "model_intelligence": {
+    "ours": {
+      "elliptic_f1": null,
+      "elliptic_pr_auc": null,
+      "elliptic_roc_auc": null,
+      "precision_at_20": null
+    },
+    "shipped_model": "",
+    "rejected_leg": {
+      "with_embeddings_pr_auc": 0.0357,
+      "without_embeddings_pr_auc": 0.0373,
+      "gate": "baseline_not_beaten"
+    },
+    "published_bands": {
+      "gnn_f1": [
+        0.7,
+        0.82
+      ],
+      "rf_f1": [
+        0.6,
+        0.7
+      ]
+    }
+  }
+}

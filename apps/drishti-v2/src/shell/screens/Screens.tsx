@@ -42,14 +42,14 @@ function StageHeader({ id, children }: { id: StageId; children?: ReactNode }) {
 }
 
 const COPY: Record<StageId, string> = {
-  globe: "The establishing shot — a paper-matte planet with announcement points where IPs geolocate. Click a point to see who was talking to whom. The 3D globe lands in a later milestone.",
-  intake: "Pick a capture file and watch it get sealed: rows in, rows sealed, rows set aside with reasons. The file's full SHA-256 is printed here in full — the one identifier the law never lets us hide.",
-  untangle: "The rename that defuses the trap — src_ip becomes the IP that told us. A spatial before/after across a centre seam shows network pulled apart from money.",
-  map: "The centrepiece — two floors in 3D: peers on the wire above, addresses and transactions below, and the fluoro-pink announce threads are the only edges crossing between them. Built in a later milestone.",
-  origin: "Candidate IPs on concentric rings where radius is inverse likelihood — nearest the centre is most likely. A confidence shell holds the shortlist; a calm grey fog-dome means no answer available.",
-  leads: "The ranked queue. Twenty leads, not a thousand maybes. Each is the reusable Alert card — evidence and its own doubts, shown at the same moment.",
-  proof: "One lead pressed into a signed, hash-chained document: an IP, a source port and an exact timestamp — the three values an ISP needs to name one subscriber.",
-  world: "MAYAJAAL — the synthetic world we built so we can grade ourselves honestly. The observer-fraction curve and the measuring-stick flex live here.",
+  globe: "The establishing shot: a paper-matte planet with announcement points where IPs geolocate. Click a point to see who was talking to whom. The 3D globe lands in a later milestone.",
+  intake: "Pick a capture file and watch it get sealed: rows in, rows sealed, rows set aside with reasons. The file's full SHA-256 is printed here in full, the one identifier the law never lets us hide.",
+  untangle: "The rename that defuses the trap: src_ip becomes the IP that told us. A spatial before/after across a centre seam shows network pulled apart from money.",
+  map: "The centrepiece: two floors in 3D. Peers on the wire above, addresses and transactions below, and the fluoro-pink announce threads are the only edges crossing between them. Built in a later milestone.",
+  origin: "Candidate IPs on concentric rings where radius is inverse likelihood, so nearest the centre is most likely. A confidence shell holds the shortlist; a calm grey fog-dome means no answer available.",
+  leads: "The ranked queue. Twenty leads, not a thousand maybes. Each is the reusable Alert card, showing evidence and its own doubts at the same moment.",
+  proof: "One lead pressed into a signed, hash-chained document: an IP, a source port and an exact timestamp, the three values an ISP needs to name one subscriber.",
+  world: "MAYAJAAL, the synthetic world we built so we can grade ourselves honestly. The observer-fraction curve and the measuring-stick flex live here.",
 };
 
 export function StageScreen({ id }: { id: StageId }) {

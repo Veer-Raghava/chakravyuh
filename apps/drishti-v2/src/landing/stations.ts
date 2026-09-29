@@ -92,8 +92,8 @@ export const STATIONS: Station[] = [
       "Every signal here has a true origin we secretly know, so we can grade " +
       "ourselves honestly. No real dataset on earth has that answer key. " +
       "~4,000 nodes · realistic P2P gossip · Bitcoin Core's real relay timing. " +
-      "One transaction, seen ~14 times — 93% of what you capture is echo.",
-    diya: "This whole world is synthetic — and that's the point. Watch what we do with it.",
+      "One transaction, seen ~14 times: 93% of what you capture is echo.",
+    diya: "This whole world is synthetic, and that's the point. Watch what we do with it.",
   },
   {
     id: "kavach",
@@ -106,7 +106,7 @@ export const STATIONS: Station[] = [
       "We hash the raw bytes BEFORE anything touches them, so a court can prove " +
       "this is exactly the file we received. Bad rows are set aside with a reason, " +
       "never quietly dropped.",
-    diya: "Notice the hash is shown in full. That's the one identifier we never hide — the law requires it.",
+    diya: "Notice the hash is shown in full. That's the one identifier we never hide, because the law requires it.",
   },
   {
     id: "setu",
@@ -117,9 +117,9 @@ export const STATIONS: Station[] = [
     title: "We renamed one column. It defuses the whole trap.",
     body:
       "src_ip became “the IP that told us.” Now nobody downstream can " +
-      "mistake a relay for a sender. One transaction ≈ 14 announcements — the " +
+      "mistake a relay for a sender. One transaction ≈ 14 announcements, so the " +
       "first IP you see is almost always an echo, not the source.",
-    diya: "This rename is the whole trap, defused. Remember it — it comes back at the graph.",
+    diya: "This rename is the whole trap, defused. Remember it, because it comes back at the graph.",
   },
   {
     id: "jaal",
@@ -131,14 +131,14 @@ export const STATIONS: Station[] = [
     body:
       "IPs, wallets and transactions in one web. The pink lines are the only " +
       "place a public Bitcoin tool connects the IP that told us to the money it " +
-      "moved. Addresses that likely share an owner glow together — but “likely” " +
+      "moved. Addresses that likely share an owner glow together, though “likely” " +
       "is a number you can tune, never a claim we force.",
     diya: "Pink lines = “this IP told us about this money.” That link is why DRISHTI exists.",
   },
   {
     id: "shastra",
     layer: "SHASTRA",
-    gloss: "who sent it — or honestly, we don't know",
+    gloss: "who sent it, or honestly, we don't know",
     count: layerCount("SHASTRA"),
     slice: [0.5805, 0.698],
     title: `We name the sender's network for ${L1_TOP1_PCT}% of these.`,
@@ -146,7 +146,7 @@ export const STATIONS: Station[] = [
       "That is " +
       (CAPTURED_PCT ? `${CAPTURED_PCT}% of what physics allows. ` : "") +
       "For each transaction we estimate how likely every candidate IP is to be " +
-      "the true origin — and abstain when the evidence can't carry any answer. " +
+      "the true origin, and abstain when the evidence can't carry any answer. " +
       "You get a name when the math earns one, a shortlist when it's unsure, and " +
       "an honest “no answer” when the sender never showed up in the capture. A " +
       "confident wrong name destroys an investigation; we refuse to give you one.",
@@ -161,10 +161,10 @@ export const STATIONS: Station[] = [
     title: "Every flag arrives with the reasons it might be wrong.",
     body:
       "We weigh each wallet for risk and show the handful of factors that raised " +
-      "the score — in plain words, not a model report. Beside every “why flagged” " +
+      "the score, in plain words, not a model report. Beside every “why flagged” " +
       "sits a muted “why it might be innocent,” shown at the same moment. The same " +
       "pattern that looks like laundering also fits a merchant settling daily.",
-    diya: "An honest tool shows the exculpatory evidence at the same moment as the damning — not in cross-examination.",
+    diya: "An honest tool shows the exculpatory evidence at the same moment as the damning, not in cross-examination.",
   },
   {
     id: "vaani",
@@ -175,7 +175,7 @@ export const STATIONS: Station[] = [
     title: "A score means nothing to an officer. A sentence does.",
     body:
       "The risk number unfolds into a ranked, plain-English lead that carries its " +
-      "own evidence and its own doubts — what happened, the network detail, why " +
+      "own evidence and its own doubts: what happened, the network detail, why " +
       "it's flagged, and where the origin abstained. Twenty leads, ranked. Not a " +
       "thousand maybes.",
     diya: "Twenty leads, ranked. Not a thousand maybes. Triage is a race against hours.",
@@ -190,7 +190,7 @@ export const STATIONS: Station[] = [
     body:
       "One lead pressed into a signed file whose every pipeline stage is " +
       "hash-chained and re-runs to byte-identical output. We don't hand you a " +
-      "wallet address — we hand you an IP, a source port and an exact timestamp: " +
+      "wallet address. We hand you an IP, a source port and an exact timestamp: " +
       "the three values an ISP needs to name one subscriber, under BNSS 2023 §94.",
     diya: "This is the finish line: not a guess, a document. Ready when you are.",
   },

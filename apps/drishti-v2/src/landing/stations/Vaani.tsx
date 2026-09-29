@@ -21,7 +21,7 @@ import { panel, prose, kicker } from "./panelStyle";
 const SLICE = STATIONS[6].slice;
 const A = fixtures.packet.attribution;
 const WHEN = A.observed_at_utc.slice(0, 19).replace("T", " ") + "Z";
-const HEADLINE = "High-risk lead — outsized fees and large outflows in a short window.";
+const HEADLINE = "High-risk lead: outsized fees and large outflows in a short window.";
 const BARS = 27;
 const SPAN = 3.0;
 
@@ -148,7 +148,7 @@ export function Vaani({ reduced }: { reduced: boolean }) {
                 <div style={{ ...kicker, color: "var(--teal)" }}>AND YET</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--teal)", lineHeight: 1.6 }}>counter · the same shape fits a merchant settling daily</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--riso-blue)", lineHeight: 1.6, marginTop: 4 }}>origin · abstained on 11 of 14 hops</div>
-                <div style={{ ...prose, fontSize: "10px", color: "var(--ink-soft)", marginTop: 5 }}>1 of ~20 ranked leads — spoken, not shouted</div>
+                <div style={{ ...prose, fontSize: "10px", color: "var(--ink-soft)", marginTop: 5 }}>1 of ~20 ranked leads, spoken not shouted</div>
               </div>
             </div>
           </Html>

@@ -1,0 +1,131 @@
+{
+  "txid": "000c78aeb2a3af0827abe0277f5af50457c9b795d028361e27dac60d7d390c66",
+  "txid_display": "000c78ae…0c66",
+  "estimator": "ensemble",
+  "abstain": true,
+  "abstain_reason": "tor_present",
+  "first_seen_us": 1767351996540438,
+  "window_ms": 3991281,
+  "features": [],
+  "attribution": {
+    "asn": 64496,
+    "as_org": "AS64496 IN documentation network",
+    "net_class": "residential",
+    "geo_country": "IN",
+    "p_asn": 0.18653271763815865,
+    "p_country": 0.18760139600567205,
+    "margin": 0.00010236209504901894
+  },
+  "p_origin": 0.0,
+  "origin_peer_display": "",
+  "runner_up_display": "",
+  "runner_up_p": 0.0,
+  "margin": 0.0,
+  "shortlist": [
+    {
+      "peer_ip": "198.19.160.205",
+      "peer_ip_display": "198.19.x.x",
+      "peer_port": 33143,
+      "asn": 64502,
+      "as_org": "AS64502 US documentation network",
+      "geo_country": "US",
+      "net_class": "residential",
+      "first_seen_us": 1767351996540438,
+      "announcements_ms": [
+        0
+      ],
+      "p_origin": 0.007544817623500503,
+      "rank": 6
+    },
+    {
+      "peer_ip": "100.64.0.33",
+      "peer_ip_display": "100.64.x.x",
+      "peer_port": 40140,
+      "asn": 64496,
+      "as_org": "AS64496 IN mobile carrier (documentation)",
+      "geo_country": "IN",
+      "net_class": "mobile",
+      "first_seen_us": 1767351997099378,
+      "announcements_ms": [
+        558940
+      ],
+      "p_origin": 0.002080659296648553,
+      "rank": 8
+    },
+    {
+      "peer_ip": "198.18.156.19",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 49080,
+      "asn": 64498,
+      "as_org": "AS64498 JP documentation network",
+      "geo_country": "JP",
+      "net_class": "residential",
+      "first_seen_us": 1767351998240171,
+      "announcements_ms": [
+        1699733
+      ],
+      "p_origin": 0.010234863732402956,
+      "rank": 5
+    },
+    {
+      "peer_ip": "198.18.13.200",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 34660,
+      "asn": 64496,
+      "as_org": "AS64496 IN documentation network",
+      "geo_country": "IN",
+      "net_class": "residential",
+      "first_seen_us": 1767351998704811,
+      "announcements_ms": [
+        2164373
+      ],
+      "p_origin": 0.021728856070894535,
+      "rank": 2
+    },
+    {
+      "peer_ip": "198.18.200.172",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 48360,
+      "asn": 64499,
+      "as_org": "AS64499 DE documentation network",
+      "geo_country": "DE",
+      "net_class": "residential",
+      "first_seen_us": 1767351999436763,
+      "announcements_ms": [
+        2896325
+      ],
+      "p_origin": 0.014368499781109979,
+      "rank": 4
+    },
+    {
+      "peer_ip": "192.0.2.252",
+      "peer_ip_display": "192.0.x.x",
+      "peer_port": 41138,
+      "asn": 64510,
+      "as_org": "Tor exit relay hosting (documentation)",
+      "geo_country": "BR",
+      "net_class": "tor_exit",
+      "first_seen_us": 1767351999540500,
+      "announcements_ms": [
+        3000062
+      ],
+      "p_origin": 0.021470735258158888,
+      "rank": 3
+    },
+    {
+      "peer_ip": "198.18.242.205",
+      "peer_ip_display": "198.18.x.x",
+      "peer_port": 56379,
+      "asn": 64499,
+      "as_org": "AS64499 DE documentation network",
+      "geo_country": "DE",
+      "net_class": "residential",
+      "first_seen_us": 1767352000531719,
+      "announcements_ms": [
+        3991281
+      ],
+      "p_origin": 0.0039493826829885255,
+      "rank": 7
+    }
+  ]
+}

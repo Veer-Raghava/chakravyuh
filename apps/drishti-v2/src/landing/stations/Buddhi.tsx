@@ -145,7 +145,7 @@ export function Buddhi({ reduced }: { reduced: boolean }) {
                 </div>
               ))}
               <div style={{ ...prose, fontSize: "10px", color: "var(--ink-soft)", marginTop: 6 }}>
-                no single doubt clears this — but every one is shown
+                no single doubt clears this, but every one is shown
               </div>
             </div>
           </Html>

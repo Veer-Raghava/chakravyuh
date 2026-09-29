@@ -49,7 +49,7 @@ export function UntangleScreen() {
           <span className={styles.tag}>SETU · सेतु</span>
         </div>
         <p className={styles.gloss}>
-          One captured row is two things tangled together — what the network saw, and what the money
+          One captured row holds two things at once: what the network saw, and what the money
           did. SETU pulls them apart.
         </p>
       </header>
@@ -61,7 +61,7 @@ export function UntangleScreen() {
         </div>
         <div className={styles.echoStat}>
           <span className={styles.echoNum}>{echoPct}%</span>
-          <span className={styles.echoLabel}>are echoes — the same tx, re-announced</span>
+          <span className={styles.echoLabel}>are echoes: the same tx, re-announced</span>
         </div>
         <p className={styles.echoLine}>
           {new Intl.NumberFormat("en-US").format(col.announcements)} announcements collapse to{" "}
@@ -108,8 +108,8 @@ export function UntangleScreen() {
                 <span className={styles.tip} tabIndex={0} role="note" aria-label="null is not unknown">
                   ?
                   <span className={styles.tipBody}>
-                    A blank operator means we never resolved it — not zero, not “unknown we looked and
-                    failed.” <strong>null ≠ 0 ≠ unknown.</strong>
+                    A blank operator means we never resolved it. That is not zero, and not an
+                    “unknown” we looked for and failed to find. <strong>null ≠ 0 ≠ unknown.</strong>
                   </span>
                 </span>
               </span>
@@ -143,7 +143,7 @@ export function UntangleScreen() {
 
       <p className={styles.lesson}>
         The earliest IP to announce a transaction is usually a <strong>relay</strong> passing it
-        on — not the sender. That confusion is the trap SETU defuses.
+        on, not the sender. That confusion is the trap SETU defuses.
       </p>
     </section>
   );

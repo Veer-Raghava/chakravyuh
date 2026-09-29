@@ -413,7 +413,7 @@ export function GlobeScreen() {
             <h1 className={styles.title}>Globe</h1>
             <span className={styles.count}>{fixtures.world.funnel[0].count.toLocaleString("en-US")} signals</span>
           </div>
-          <p className={styles.gloss}>the world of transactions — each dot is an IP we heard</p>
+          <p className={styles.gloss}>the world of transactions · each dot is an IP we heard</p>
         </div>
 
         <div className={styles.footRow}>
@@ -432,10 +432,10 @@ export function GlobeScreen() {
             </span>
             <p className={styles.note}>
               positions are country-level only (centroid + jitter). {unlocatedCount} announced from no
-              fixed place — not plotted.
+              fixed place, so they are not plotted.
             </p>
           </div>
-          <p className={styles.diya}>Click a dot — I'll show you who was talking to whom.</p>
+          <p className={styles.diya}>Click a dot and I'll show you who was talking to whom.</p>
         </div>
       </div>
 

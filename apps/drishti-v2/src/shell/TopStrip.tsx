@@ -16,9 +16,6 @@ export function TopStrip() {
       <div className={styles.ids}>
         <span className={styles.wordmark}>DRISHTI</span>
         <span className={styles.sep} />
-        <span className={styles.id}>
-          <span className={styles.idLabel}>case</span> SIH-26146
-        </span>
         <RunSwitcher />
       </div>
 

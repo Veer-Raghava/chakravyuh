@@ -259,16 +259,16 @@ export function MapScreen() {
           </div>
           <p className={styles.why}>{headline}</p>
           {view === "graph" && (
-            <p className={styles.gloss}>the whole run as one graph — blue threads are value moving from one transaction to the next · click any ◆ to open its flow</p>
+            <p className={styles.gloss}>the whole run as one graph · blue threads are value moving from one transaction to the next · click any ◆ to open its flow</p>
           )}
           {view === "actor" && (
             <p className={styles.gloss}>
-              the same run read at owner level — height is how many addresses we can tie to one owner ·
+              the same run read at owner level · height is how many addresses we can tie to one owner ·
               a coral ring is one same-owner claim, drawn only as strong as the claim is · click any ● to read it
             </p>
           )}
           {view === "overview" && (
-            <p className={styles.gloss}>a calm map of the whole run — click any mark to open it in full</p>
+            <p className={styles.gloss}>a calm map of the whole run · click any mark to open it in full</p>
           )}
           {view === "lead" && (
             <p className={styles.gloss}>
@@ -385,8 +385,8 @@ export function MapScreen() {
             <span className={styles.keyPlain}>
               height = how many addresses we tied to one owner · left → right = time ·{" "}
               {actor.sample.addresses.toLocaleString("en-US")} of {actor.sample.totalAddresses.toLocaleString("en-US")} addresses
-              resolve to {actor.sample.groups.toLocaleString("en-US")} of the run's {actor.sample.totalGroups.toLocaleString("en-US")} owner groups — this floor is a capture, not the whole run
-              {actor.both > 0 && ` · ${actor.both} sit on a chain AND passed a mix — greyed, because a mix severs the link`}
+              resolve to {actor.sample.groups.toLocaleString("en-US")} of the run's {actor.sample.totalGroups.toLocaleString("en-US")} owner groups · this floor is a capture, not the whole run
+              {actor.both > 0 && ` · ${actor.both} sit on a chain AND passed a mix, greyed because a mix severs the link`}
             </span>
           </div>
         )}
@@ -426,7 +426,7 @@ export function MapScreen() {
             <li key={n.id}>
               address {n.label.replace(/^addr:/, "")}, {n.groupLabel}, {n.txs} transactions
               {n.chains > 0 ? `, on a peel chain (${n.hops} hops)` : ""}
-              {n.coinjoin > 0 ? `, passed ${n.coinjoin} CoinJoin${n.coinjoin > 1 ? "s" : ""} — the link is not evidence` : ""}
+              {n.coinjoin > 0 ? `, passed ${n.coinjoin} CoinJoin${n.coinjoin > 1 ? "s" : ""}, so the link is not evidence` : ""}
             </li>
           ))}
         {view === "lead" && (

@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { fixtures } from "../../data/loader";
+import { useRun } from "../../data/RunContext";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import { ModelIntelligence } from "./ModelIntelligence";
 import styles from "./WorldScreen.module.css";
@@ -12,11 +12,12 @@ import styles from "./WorldScreen.module.css";
  * Every number here is DATA (FRONTEND-HANDOFF-V2 §1): the pipeline counts, the naive
  * first-seen baseline, the 11–60% literature band, the recoverable ceiling, the
  * held-out campaign recall and the elliptic replication F1 are all read from the
- * `world.json` fixture — nothing is hand-typed. The curve is PLOTTED from
- * `world.origin_curve.l0_host`, one point per measured rung, so another run's fixture
- * swaps in with zero code change. Drag the handle (native range = keyboard + offline).
+ * ACTIVE run's `world.json` (useRun) — nothing is hand-typed, and switching runs
+ * genuinely re-reads them. The curve is PLOTTED from `world.origin_curve.l0_host`,
+ * one point per measured rung. A sparser run (stealth · 10%) honestly reports lower
+ * numbers, and metrics it never scored (campaign recall, elliptic) DROP rather than
+ * show a zero. Drag the handle (native range = keyboard + offline).
  */
-const world = fixtures.world;
 
 /**
  * The train/test split, read from the fixture rather than asserted (§1.1): a run that ever split
@@ -25,42 +26,10 @@ const world = fixtures.world;
 const PROTOCOL_GLOSS: Record<string, string> = {
   inductive_time_ordered: "trained only on the past, tested on what came after",
 };
-const PROTOCOL = world.protocol
-  ? { raw: world.protocol, gloss: PROTOCOL_GLOSS[world.protocol] ?? null }
-  : null;
-
-// The three measured sweeps, all from world.json: operator (the hero), exact host (the
-// honest secondary) and the top-k shortlist. x = observer fraction, y = accuracy.
-const L1 = world.origin_curve.l1_asn;
-const L0 = world.origin_curve.l0_host;
-const L3 = world.origin_curve.l3_shortlist;
-const F_MIN = L1[0].fraction; // domain from the fixture's own sweep
-const F_MAX = L1[L1.length - 1].fraction;
-const NAIVE = world.naive_first_seen_top1 * 100; // naive first-seen baseline (flat, for contrast)
-const BAND_LO = (world.literature_band[0] * 100).toFixed(0); // documented accuracy band, low end
-const BAND_HI = (world.literature_band[1] * 100).toFixed(0); // …high end
-// The measured same-owner pair precision over the addresses JAAL observed. It is NOT the
-// full-cluster 0.36 the contract quotes — cluster_metrics.json says so in its own metric_note
-// — so we name it for what it is and never call it "the dial".
-const CLUSTER_PRECISION = world.headline.pair_precision;
 
 /** A measured fraction as a whole-number percent, or null when not measured (null ≠ 0). */
 const pct = (x: number | null, digits = 1): string | null =>
   x == null ? null : (x * 100).toFixed(digits);
-
-// The honesty ceiling is measured at THIS run's observer fraction — it is not a constant, and a
-// less-observed world honestly reports a lower one. null when the run has no ceiling measured.
-const CEIL_PCT = pct(world.recoverable_ceiling);
-// …and it is measured PER GRAIN. Dividing operator accuracy by the host ceiling (or by an
-// accuracy) would flatter us either way; the gauge only ever divides like by like.
-const L1_CEIL = world.ceilings?.l1_asn ?? null;
-const L1_TOP1 = world.headline.l1_top1;
-// Our operator accuracy as a share of the most any estimator could score at that grain.
-const CAPTURED = L1_CEIL ? (L1_TOP1 / L1_CEIL) * 100 : null;
-const LIFT = world.naive_first_seen_top1 ? L1_TOP1 / world.naive_first_seen_top1 : null;
-const RECALL_PCT = pct(world.headline.campaign_recall);
-const ELLIPTIC = pct(world.headline.elliptic_f1);
-const ELLIPTIC_AUC = pct(world.headline.elliptic_roc_auc);
 
 /** Top-1 accuracy at an arbitrary observer fraction — linear interp over a sweep, clamped. */
 const accAt = (curve: { fraction: number; top1: number }[], f: number) => {
@@ -76,64 +45,21 @@ const accAt = (curve: { fraction: number; top1: number }[], f: number) => {
   return curve[curve.length - 1].top1;
 };
 
-// the pipeline — one source (world.json), shared with nav/stages.ts + the landing. It is NOT
-// a shrinking funnel: it branches at BUDDHI, where one transaction leaves several owner groups,
-// so a later count can honestly exceed an earlier one. The rows say so themselves.
-const PIPELINE = world.funnel.map((s) => ({
-  n: s.count.toLocaleString("en-US"),
-  label: s.label,
-  layer: s.layer,
-}));
-
-/**
- * The defence list. Each entry carries a number this run actually measured; an entry whose
- * measurement is absent is DROPPED, never printed as a zero — an external validation that did
- * not run and one that scored zero are opposite claims (§1). `world.defences` names the checks,
- * so the elliptic entry disappears when its leg did not run.
- */
-const DEFENCES = [
-  CEIL_PCT != null && {
-    k: `${CEIL_PCT}% host ceiling`,
-    v: "The share of transactions whose exact announcing host the capture even contains — measured at this run's observer fraction, and far below the operator ceiling, because most observers never heard the host at all. We print both rather than the flattering one.",
-  },
-  RECALL_PCT != null && {
-    k: `${RECALL_PCT}% campaign recall`,
-    v: "Held-out wallet recall: of the illicit campaigns in the test window, the share the risk model caught. Measured at actor level, separately from the transaction level.",
-  },
-  ELLIPTIC != null && {
-    k: `${ELLIPTIC}% elliptic F1`,
-    v: "The same method, run unchanged on an independent published dataset whose labels are not ours. It replicates there because the method travels, not because we tuned to it.",
-  },
-  CLUSTER_PRECISION != null && {
-    k: "same-owner precision",
-    v: `${CLUSTER_PRECISION.toFixed(3)} measured precision on same-owner address pairs we observed — held to our own metric note, and never dressed up as a different number.`,
-  },
-  {
-    k: "a shortlist, not a name",
-    v: "Origin is a ranked shortlist inside a confidence shell, so a thin margin can't masquerade as certainty.",
-  },
-  {
-    k: "doubt beside every flag",
-    v: "Every “why flagged” carries its counter-evidence at the same moment — the case against, shown next to the case for.",
-  },
-].filter((d): d is { k: string; v: string } => Boolean(d));
-
 const GLOSSARY = [
   ["MAYAJAAL", "the synthetic world we built to grade ourselves"],
-  ["KAVACH", "sealed intake — hash the bytes before we read them"],
+  ["KAVACH", "sealed intake: hash the bytes before we read them"],
   ["SETU", "untangling the network from the money"],
-  ["JAAL", "the connection map — wire above, money below"],
-  ["SHASTRA", "the origin estimate — where a transaction started"],
+  ["JAAL", "the connection map: wire above, money below"],
+  ["SHASTRA", "the origin estimate: where a transaction started"],
   ["BUDDHI", "the risk model"],
   ["VAANI", "the plain-English lead"],
   ["PRAMAAN", "the court-ready proof"],
 ];
 
-// SVG plot geometry
+// SVG plot geometry (run-invariant frame; the x-domain is per-run, so px lives in the body)
 const W = 640;
 const H = 260;
 const PAD = { l: 44, r: 16, t: 18, b: 34 };
-const px = (f: number) => PAD.l + ((f - F_MIN) / (F_MAX - F_MIN)) * (W - PAD.l - PAD.r);
 const py = (a: number) => PAD.t + (1 - a / 65) * (H - PAD.t - PAD.b);
 
 /** Smooth path through plotted points (quadratic joins at midpoints) — reads like a curve,
@@ -150,13 +76,95 @@ const smooth = (pts: { x: number; y: number }[]) => {
   return d + ` L ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
 };
 
-const DEFAULT_OBS = (world.observer_fraction * 100).toFixed(0); // agency default, e.g. "60"
-const DEFAULT_L1 = (accAt(L1, world.observer_fraction) * 100).toFixed(1); // operator top-1 there
-const DEFAULT_L0 = (accAt(L0, world.observer_fraction) * 100).toFixed(1); // host top-1 there
-
 export function WorldScreen() {
   const reduced = usePrefersReducedMotion();
+  const { fixtures } = useRun();
+  const world = fixtures.world;
+
+  const PROTOCOL = world.protocol
+    ? { raw: world.protocol, gloss: PROTOCOL_GLOSS[world.protocol] ?? null }
+    : null;
+
+  // The three measured sweeps, all from world.json: operator (the hero), exact host (the
+  // honest secondary) and the top-k shortlist. x = observer fraction, y = accuracy.
+  const L1 = world.origin_curve.l1_asn;
+  const L0 = world.origin_curve.l0_host;
+  const L3 = world.origin_curve.l3_shortlist;
+  const F_MIN = L1[0].fraction; // domain from the fixture's own sweep
+  const F_MAX = L1[L1.length - 1].fraction;
+  const NAIVE = world.naive_first_seen_top1 * 100; // naive first-seen baseline (flat, for contrast)
+  const BAND_LO = (world.literature_band[0] * 100).toFixed(0); // documented accuracy band, low end
+  const BAND_HI = (world.literature_band[1] * 100).toFixed(0); // …high end
+  // The measured same-owner pair precision over the addresses JAAL observed. It is NOT the
+  // full-cluster 0.36 the contract quotes — cluster_metrics.json says so in its own metric_note
+  // — so we name it for what it is and never call it "the dial".
+  const CLUSTER_PRECISION = world.headline.pair_precision;
+
+  // The honesty ceiling is measured at THIS run's observer fraction — it is not a constant, and a
+  // less-observed world honestly reports a lower one. null when the run has no ceiling measured.
+  const CEIL_PCT = pct(world.recoverable_ceiling);
+  // …and it is measured PER GRAIN. Dividing operator accuracy by the host ceiling (or by an
+  // accuracy) would flatter us either way; the gauge only ever divides like by like.
+  const L1_CEIL = world.ceilings?.l1_asn ?? null;
+  const L1_TOP1 = world.headline.l1_top1;
+  // Our operator accuracy as a share of the most any estimator could score at that grain.
+  const CAPTURED = L1_CEIL ? (L1_TOP1 / L1_CEIL) * 100 : null;
+  const LIFT = world.naive_first_seen_top1 ? L1_TOP1 / world.naive_first_seen_top1 : null;
+  const RECALL_PCT = pct(world.headline.campaign_recall);
+  const ELLIPTIC = pct(world.headline.elliptic_f1);
+  const ELLIPTIC_AUC = pct(world.headline.elliptic_roc_auc);
+
+  // the pipeline — one source (world.json), shared with nav/stages.ts + the landing. It is NOT
+  // a shrinking funnel: it branches at BUDDHI, where one transaction leaves several owner groups,
+  // so a later count can honestly exceed an earlier one. The rows say so themselves.
+  const PIPELINE = world.funnel.map((s) => ({
+    n: s.count.toLocaleString("en-US"),
+    label: s.label,
+    layer: s.layer,
+  }));
+
+  /**
+   * The defence list. Each entry carries a number this run actually measured; an entry whose
+   * measurement is absent is DROPPED, never printed as a zero — an external validation that did
+   * not run and one that scored zero are opposite claims (§1). `world.defences` names the checks,
+   * so the elliptic entry disappears when its leg did not run.
+   */
+  const DEFENCES = [
+    CEIL_PCT != null && {
+      k: `${CEIL_PCT}% host ceiling`,
+      v: "The share of transactions whose exact announcing host the capture even contains, measured at this run's observer fraction and far below the operator ceiling, because most observers never heard the host at all. We print both rather than the flattering one.",
+    },
+    RECALL_PCT != null && {
+      k: `${RECALL_PCT}% campaign recall`,
+      v: "Held-out wallet recall: of the illicit campaigns in the test window, the share the risk model caught. Measured at actor level, separately from the transaction level.",
+    },
+    ELLIPTIC != null && {
+      k: `${ELLIPTIC}% elliptic F1`,
+      v: "The same method, run unchanged on an independent published dataset whose labels are not ours. It replicates there because the method travels, not because we tuned to it.",
+    },
+    CLUSTER_PRECISION != null && {
+      k: "same-owner precision",
+      v: `${CLUSTER_PRECISION.toFixed(3)} measured precision on same-owner address pairs we observed, held to our own metric note and not dressed up as a different number.`,
+    },
+    {
+      k: "a shortlist, not a name",
+      v: "Origin is a ranked shortlist inside a confidence shell, so a thin margin can't masquerade as certainty.",
+    },
+    {
+      k: "doubt beside every flag",
+      v: "Every “why flagged” carries its counter-evidence at the same moment: the case against sits next to the case for.",
+    },
+  ].filter((d): d is { k: string; v: string } => Boolean(d));
+
+  const px = (f: number) => PAD.l + ((f - F_MIN) / (F_MAX - F_MIN)) * (W - PAD.l - PAD.r);
+
+  const DEFAULT_OBS = (world.observer_fraction * 100).toFixed(0); // this run's default, e.g. "60"
+  const DEFAULT_L1 = (accAt(L1, world.observer_fraction) * 100).toFixed(1); // operator top-1 there
+  const DEFAULT_L0 = (accAt(L0, world.observer_fraction) * 100).toFixed(1); // host top-1 there
+
   const [f, setF] = useState(world.observer_fraction);
+  // switching runs resets the drag handle to the new run's own default fraction
+  useEffect(() => setF(world.observer_fraction), [world]);
   const l1 = accAt(L1, f) * 100;
   const l0 = accAt(L0, f) * 100;
 
@@ -166,7 +174,8 @@ export function WorldScreen() {
     smooth(curve.map((p) => ({ x: px(p.fraction), y: py((p.top1 ?? p.topk ?? 0) * 100) })));
   const paths = useMemo(
     () => ({ l1: path(L1), l0: path(L0), l3: path(L3) }),
-    [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [world],
   );
 
   // The pipeline flows in: each count rolls up from zero as its row lands. Reduced motion
@@ -189,7 +198,7 @@ export function WorldScreen() {
         });
       });
     },
-    { dependencies: [reduced] },
+    { dependencies: [reduced, world] },
   );
 
   const ticks = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7].filter((t) => t >= F_MIN && t <= F_MAX);
@@ -202,8 +211,8 @@ export function WorldScreen() {
           <span className={styles.tag}>MAYAJAAL · मायाजाल</span>
         </div>
         <p className={styles.gloss}>
-          The synthetic world we built so we can grade ourselves honestly — every transaction has a
-          known truth, so we can measure exactly how much we see, and how much stays dark.
+          The synthetic world we built so we can grade ourselves honestly. Every transaction has a
+          known truth, so we can measure how much we see and how much stays dark.
         </p>
       </header>
 
@@ -215,8 +224,8 @@ export function WorldScreen() {
           <p className={styles.hNote}>
             {CAPTURED != null && L1_CEIL != null && (
               <>
-                <strong>{(CAPTURED).toFixed(0)}% of the theoretical maximum</strong> — the
-                operator ceiling is {(L1_CEIL * 100).toFixed(1)}%
+                <strong>{(CAPTURED).toFixed(0)}% of the theoretical maximum</strong>, against an
+                operator ceiling of {(L1_CEIL * 100).toFixed(1)}%
               </>
             )}
             {LIFT != null && <> · <strong>{LIFT.toFixed(2)}×</strong> the naive first-seen guess ({NAIVE.toFixed(1)}%)</>}.
@@ -237,8 +246,8 @@ export function WorldScreen() {
             <span className={styles.hVal}>{ELLIPTIC}%</span>
             <span className={styles.hKey}>F1 · tested on real data</span>
             <p className={styles.hNote}>
-              Same model, real data — F1 {ELLIPTIC}%{ELLIPTIC_AUC != null && <> · ROC-AUC {ELLIPTIC_AUC}%</>} on the
-              Elliptic dataset. Published, independently labelled, not ours.
+              Same model, run on real data. F1 {ELLIPTIC}%{ELLIPTIC_AUC != null && <> · ROC-AUC {ELLIPTIC_AUC}%</>} on the
+              Elliptic dataset, which is published and independently labelled, not ours.
             </p>
           </div>
         )}
@@ -260,7 +269,7 @@ export function WorldScreen() {
         ))}
       </div>
       <p className={styles.curveNote}>
-        This is a pipeline, not a shrinking funnel — it <strong>branches at BUDDHI</strong>, where one
+        This is a pipeline, not a shrinking funnel. It <strong>branches at BUDDHI</strong>, where one
         transaction leaves several owner groups scored, so a later count can honestly exceed an earlier
         one. Every count is read from the artifact that proves the stage ran.
       </p>
@@ -305,8 +314,8 @@ export function WorldScreen() {
         </svg>
 
         <div className={styles.legend}>
-          <span className={styles.lgItem}><span className={styles.lgSw} style={{ background: "var(--riso-blue)" }} /> operator (ASN) — the hero</span>
-          <span className={styles.lgItem}><span className={styles.lgSw} style={{ background: "var(--teal)" }} /> exact host — officer-only, and capped far lower</span>
+          <span className={styles.lgItem}><span className={styles.lgSw} style={{ background: "var(--riso-blue)" }} /> operator (ASN), the hero</span>
+          <span className={styles.lgItem}><span className={styles.lgSw} style={{ background: "var(--teal)" }} /> exact host, officer-only and capped far lower</span>
           <span className={styles.lgItem}><span className={styles.lgSw} style={{ background: "var(--butter)" }} /> top-{L3[0].k} shortlist</span>
         </div>
 
@@ -321,16 +330,16 @@ export function WorldScreen() {
           aria-label="Observer fraction"
         />
         <p className={styles.curveNote}>
-          At the agency default we run — <strong>{DEFAULT_OBS}%</strong> of the network observed —
+          At this run's default of <strong>{DEFAULT_OBS}%</strong> of the network observed,
           ~<strong>{DEFAULT_L1}%</strong> of transactions get their operator named and ~
           <strong>{DEFAULT_L0}%</strong> their exact host. Every point is a measured run, not a
           projection.
           {CEIL_PCT != null && (
             <>
-              {" "}At this fraction the honesty ceiling — the share that even contains the answer — is{" "}
+              {" "}At this fraction the honesty ceiling, the share that even contains the answer, is{" "}
               <strong>{CEIL_PCT}%</strong> at host level and{" "}
-              <strong>{L1_CEIL != null ? `${(L1_CEIL * 100).toFixed(1)}%` : "—"}</strong> at operator level;
-              the rest is dark and we say so.
+              <strong>{L1_CEIL != null ? `${(L1_CEIL * 100).toFixed(1)}%` : "—"}</strong> at operator level.
+              The rest is dark, and we say so.
             </>
           )}{" "}
           The literature spans a {BAND_LO}–{BAND_HI}% band; the dashed line is the naive first-seen
@@ -354,7 +363,7 @@ export function WorldScreen() {
         <p className={styles.curveNote}>
           This run's checks: {world.defences.join(" · ")}
           {ELLIPTIC == null &&
-            " — the elliptic replication did not run for this run, so it is absent here rather than shown as a zero"}
+            ", and the elliptic replication did not run for this run, so it is absent here rather than shown as a zero"}
           .
         </p>
         <div className={styles.defences}>

@@ -257,7 +257,7 @@ export function Shastra({ reduced }: { reduced: boolean }) {
                 sender ∈ {`{ ${runnerUp.ip} · ${lead.ip} }`}
               </div>
               <div style={{ ...prose, fontSize: "11px", color: "var(--ink-soft)", marginTop: 4 }}>
-                a set you can act on — not one name
+                a set you can act on, not one name
               </div>
             </div>
           </Html>

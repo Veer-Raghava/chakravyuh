@@ -129,7 +129,7 @@ export function GlobeDetail({ tx, focus }: { tx: GlobeTx; focus?: GlobePoint }) 
           </div>
         </dl>
         <p className={styles.honest}>
-          Receiving addresses are money-side detail — follow this tx into the map to see them.
+          Receiving addresses are money-side detail; follow this tx into the map to see them.
         </p>
       </section>
 

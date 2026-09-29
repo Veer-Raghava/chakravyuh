@@ -1,4 +1,4 @@
-import { useRun } from "../../data/RunContext";
+import { fixtures } from "../../data/loader";
 import styles from "./ModelIntelligence.module.css";
 
 /**
@@ -50,7 +50,7 @@ const ROADMAP = [
   {
     when: "0–3 months",
     what: "Real-time streaming ingestion",
-    why: "Move off batch capture onto a live feed, so a lead lands while the funds are still moving. This is the deployment change, not a research one — the model does not move.",
+    why: "Move off batch capture onto a live feed, so a lead lands while the funds are still moving. This is a deployment change, not a research one, and the model itself does not move.",
   },
   {
     when: "3–6 months",
@@ -70,7 +70,11 @@ const ROADMAP = [
 ];
 
 export function ModelIntelligence() {
-  const { fixtures } = useRun();
+  // Model-level, run-INVARIANT: which model ships, the rejected GNN leg, and the
+  // Elliptic external replication are properties of the shipped model, not of a
+  // capture's observer coverage — so this panel reads the canonical fixtures, not
+  // the active run. (A sparse run like stealth never scores these; reading the run
+  // here would show nulls for a fact the coverage doesn't change.)
   const mi = fixtures.world.model_intelligence;
 
   const MODELS = [
@@ -102,7 +106,7 @@ export function ModelIntelligence() {
       id: "rf",
       tech: "Random Forest",
       name: "the standard alternative",
-      role: "not shipped — no axis that decides a case",
+      role: "not shipped · no axis where it decides a case",
       chip: "not shipped",
       measured: [
         ["published F1", `${mi.published_bands.rf_f1[0].toFixed(2)}–${mi.published_bands.rf_f1[1].toFixed(2)}`],
@@ -118,7 +122,7 @@ export function ModelIntelligence() {
       label: "published GCN range",
       lo: mi.published_bands.gnn_f1[0],
       hi: mi.published_bands.gnn_f1[1],
-      note: "mostly transductive — the test nodes were visible during training",
+      note: "mostly transductive: the test nodes were visible during training",
     },
     {
       key: "rf",
@@ -236,7 +240,7 @@ export function ModelIntelligence() {
         </div>
 
         <p className={styles.rejLine}>
-          <strong>{delta} lower</strong> than the booster it was meant to improve — on the same
+          <strong>{delta} lower</strong> than the booster it was meant to improve, on the same
           holdout, scored over every subject, so the loss is not a coverage artifact. The columns are
           wired off, the row vocabulary records the loss, and a checker turns red if anyone ever
           ships them. The pipeline rejected its own improvement. No human override.
@@ -282,7 +286,7 @@ export function ModelIntelligence() {
 
         <p className={styles.posNote}>
           <strong>{mi.ours.elliptic_f1.toFixed(3)}</strong> is ours
-          {IN_GCN && <> — inside the published GCN band</>}. The protocol underneath is{" "}
+          {IN_GCN && <>, inside the published GCN band</>}. The protocol underneath is{" "}
           <strong>inductive</strong>: trained on the past, tested on the unseen future, with no test
           node ever visible during training. Most published results use the easier transductive
           split, where the test nodes were already in the graph. The same 0.766 under the harder

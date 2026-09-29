@@ -86,7 +86,7 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
         </div>
       </dl>
       <p className={styles.sumNote}>
-        Full evidence — factors, counter-evidence and origin candidates — is exported for the
+        Full evidence, including factors, counter-evidence and origin candidates, is exported for the
         featured lead in this capture.
       </p>
       {actions}
@@ -138,7 +138,7 @@ export function LeadsScreen() {
           <span className={styles.tag}>VAANI · वाणी</span>
         </div>
         <p className={styles.gloss}>
-          {total} ranked leads — not a thousand maybes. Each answers “what do I do next” in a line,
+          {total} ranked leads, not a thousand maybes. Each answers “what do I do next” in a line,
           and shows its own doubts beside the evidence.
         </p>
       </header>
@@ -172,7 +172,7 @@ export function LeadsScreen() {
       </div>
 
       <p className={styles.count}>
-        showing {rows.length} of {total - 1} — plus the featured lead above
+        showing {rows.length} of {total - 1}, plus the featured lead above
       </p>
 
       <ul className={styles.list}>

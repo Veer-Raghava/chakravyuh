@@ -152,7 +152,7 @@ export function ActorDetail({ node }: { node: ActorNode }) {
         {node.coinjoin > 0
           ? "This address passed through a CoinJoin mix. A mix severs the link between inputs and outputs, so we grey it rather than draw a trail through it."
           : node.chains > 0
-            ? "On a peel chain: value stepping through a run of transactions. That is the trail's shape — a shape, not yet a person."
+            ? "On a peel chain: value stepping through a run of transactions. That is the shape of the trail, not yet a person."
             : "An ordinary address in this run. Its owner group is what ties it to others, if anything does."}
       </p>
     </div>

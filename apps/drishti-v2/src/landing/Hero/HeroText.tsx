@@ -11,7 +11,7 @@ export function HeroText({ dimmed }: { dimmed: boolean }) {
       <p className={styles.tag}>two-layer attribution · offline</p>
       <h1 className={styles.headline}>See through the noise.</h1>
       <p className={styles.sub}>
-        DRISHTI reads the wire behind every Bitcoin transaction — and names the
+        DRISHTI reads the wire behind every Bitcoin transaction and names the
         IP that sent it. <b>Or tells you, honestly, when no one can.</b>
       </p>
     </div>

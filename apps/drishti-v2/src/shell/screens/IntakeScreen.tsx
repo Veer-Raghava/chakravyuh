@@ -113,7 +113,7 @@ export function IntakeScreen() {
           {balanced && (
             <p className={styles.balance}>
               <span className={styles.tick} aria-hidden>✓</span>
-              balanced — every row is accounted for, nothing dropped silently.
+              balanced: every row is accounted for, nothing dropped silently.
             </p>
           )}
 
@@ -127,7 +127,7 @@ export function IntakeScreen() {
               ))}
             </ul>
           ) : (
-            <p className={styles.noAside}>No rows set aside in this capture. When some are, each reason is listed here — never hidden.</p>
+            <p className={styles.noAside}>No rows set aside in this capture. When some are, each reason is listed here, never hidden.</p>
           )}
 
           <div className={styles.hashBlock}>
