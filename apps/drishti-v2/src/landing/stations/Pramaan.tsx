@@ -208,12 +208,12 @@ export function Pramaan({ reduced }: { reduced: boolean }) {
 
             {/* the operator IS the finding (§2) — the masked host stays a lower officer line */}
             <Row k="network operator" v={`AS${A.asn} · ${A.geo_country}`} />
-            <Row k="operator likelihood" v={A.p_asn.toFixed(4)} accent />
-            <Row k="observed (UTC)" v={A.observed_at_utc.slice(0, 19).replace("T", " ") + " UTC"} />
+            <Row k="how sure (operator)" v={A.p_asn.toFixed(4)} accent />
+            <Row k="first seen (UTC)" v={A.observed_at_utc.slice(0, 19).replace("T", " ") + " UTC"} />
             <Row k="announcing IP · port (officer only)" v={`${PEER} · ${LEAD.peer_port}`} />
             <Row k="subject" v={SUBJECT} />
-            <Row k="rows sealed" v={ROWS} />
-            <Row k="attribution" v={P.attribution_ready ? "ready · operator + region + UTC" : "not ready"} />
+            <Row k="rows checked" v={ROWS} />
+            <Row k="attribution" v={P.attribution_ready ? "ready · operator + region + time" : "not ready"} />
 
             <div style={{ marginTop: 11 }}>
               <div style={{ fontSize: 8, letterSpacing: "0.14em", color: "var(--ink-soft)", marginBottom: 3 }}>PACKET SHA-256 · IN FULL (BSA 2023 §63(4))</div>

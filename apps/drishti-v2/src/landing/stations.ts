@@ -15,15 +15,6 @@ import { fixtures } from "../data/loader";
 const layerCount = (layer: string): number =>
   fixtures.world.funnel.find((s) => s.layer === layer)?.count ?? 0;
 
-/** Recoverable ceilings, per grain, straight from world.json (FRONTEND-HANDOFF-V2 §1). */
-const L1_CEIL = fixtures.world.ceilings?.l1_asn ?? null;
-/** What the run actually scored at operator level — the hero number. */
-const L1_TOP1 = fixtures.world.headline.l1_top1;
-/** Our accuracy as a share of the most any estimator could score at the same grain. */
-const CAPTURED_PCT =
-  L1_CEIL && L1_CEIL > 0 ? ((L1_TOP1 / L1_CEIL) * 100).toFixed(0) : null;
-const L1_TOP1_PCT = (L1_TOP1 * 100).toFixed(1);
-
 // Slices are laid out in ONE contiguous chain: slice i ends exactly where slice
 // i+1 begins, and that single shared instant is the only place two stations meet.
 // Each scene has fully cleared before the next one starts to arrive, so exactly
@@ -62,24 +53,24 @@ export const HERO_END = 0.142;
 
 export type Station = {
   id: string;
-  /** Layer name shown once, then the plain gloss is used (§3). */
+  /** Layer name — big and bold, the station's headline word. */
   layer: string;
+  /** The category line under the name (e.g. "BITCOIN NETWORK SIMULATION"). */
   gloss: string;
   /** Funnel counter value while this station holds. Canonical (§ "Canonical numbers"). */
   count: number;
   slice: Slice;
-  /** DOM copy block — all §3 vocabulary, no kill-list words. */
-  title: string;
+  /** Optional short punch line; omitted for stations that have none. */
+  title?: string;
+  /** The station's one paragraph. */
   body: string;
-  /** The diya's one calm line for this station (§2). */
-  diya: string;
 };
 
 export const STATIONS: Station[] = [
   {
     id: "mayajaal",
     layer: "MAYAJAAL",
-    gloss: "the world we built",
+    gloss: "BITCOIN NETWORK SIMULATION",
     count: layerCount("MAYAJAAL"),
     // Station zero is the CHAKRAVYUH hero (Hero/Chakravyuh.tsx). It owns the
     // opening beat: the walk, the gate, and the escape all finish, and the walls
@@ -87,112 +78,94 @@ export const STATIONS: Station[] = [
     // the signal has already left. The counter holds the run's first count across
     // the whole hero, then counts down.
     slice: [0.142, 0.247],
-    title: "A world we built to test this.",
+    title: "A simulated world which fuses the cryptography and network data.",
     body:
-      "Every signal here has a true origin we secretly know, so we can grade " +
-      "ourselves honestly. No real dataset on earth has that answer key. " +
-      "~4,000 nodes · realistic P2P gossip · Bitcoin Core's real relay timing. " +
-      "One transaction, seen ~14 times: 93% of what you capture is echo.",
-    diya: "This whole world is synthetic, and that's the point. Watch what we do with it.",
+      "MAYAJAAL simulates the Bitcoin chain and its peer-to-peer network, " +
+      "generating realistic transaction behaviour, network delays, and known " +
+      "origins for testing.",
   },
   {
     id: "kavach",
     layer: "KAVACH",
-    gloss: "the sealed intake",
+    gloss: "THE EVIDENCE SEAL",
     count: layerCount("KAVACH"),
     slice: [0.247, 0.352],
-    title: "We seal the bytes before we read them.",
     body:
-      "We hash the raw bytes BEFORE anything touches them, so a court can prove " +
-      "this is exactly the file we received. Bad rows are set aside with a reason, " +
-      "never quietly dropped.",
-    diya: "Notice the hash is shown in full. That's the one identifier we never hide, because the law requires it.",
+      "KAVACH hashes and records every incoming artifact before processing, " +
+      "creating a tamper-evident record of the evidence from the moment it " +
+      "enters the system.",
   },
   {
     id: "setu",
     layer: "SETU",
-    gloss: "network, untangled from money",
+    gloss: "THE DATA BRIDGE",
     count: layerCount("SETU"),
     slice: [0.352, 0.457],
-    title: "We renamed one column. It defuses the whole trap.",
+    title: "Separate the network from the transaction.",
     body:
-      "src_ip became “the IP that told us.” Now nobody downstream can " +
-      "mistake a relay for a sender. One transaction ≈ 14 announcements, so the " +
-      "first IP you see is almost always an echo, not the source.",
-    diya: "This rename is the whole trap, defused. Remember it, because it comes back at the graph.",
+      "SETU separates transaction data from the network observations around it, " +
+      "removing repeated transaction records while keeping the peer and timing " +
+      "information needed to trace its path.",
   },
   {
     id: "jaal",
     layer: "JAAL",
-    gloss: "the connection map",
+    gloss: "THE FUSION GRAPH",
     count: layerCount("JAAL"),
     slice: [0.457, 0.5805],
-    title: "This edge is the entire project.",
+    title: "Connect the network to the money.",
     body:
-      "IPs, wallets and transactions in one web. The pink lines are the only " +
-      "place a public Bitcoin tool connects the IP that told us to the money it " +
-      "moved. Addresses that likely share an owner glow together, though “likely” " +
-      "is a number you can tune, never a claim we force.",
-    diya: "Pink lines = “this IP told us about this money.” That link is why DRISHTI exists.",
+      "JAAL brings peers, transactions, and addresses into one graph, linking " +
+      "what we observed on the network to the Bitcoin transactions it relates to.",
   },
   {
     id: "shastra",
     layer: "SHASTRA",
-    gloss: "who sent it, or honestly, we don't know",
+    gloss: "TRANSACTION ORIGIN ANALYSIS",
     count: layerCount("SHASTRA"),
     slice: [0.5805, 0.698],
-    title: `We name the sender's network for ${L1_TOP1_PCT}% of these.`,
     body:
-      "That is " +
-      (CAPTURED_PCT ? `${CAPTURED_PCT}% of what physics allows. ` : "") +
-      "For each transaction we estimate how likely every candidate IP is to be " +
-      "the true origin, and abstain when the evidence can't carry any answer. " +
-      "You get a name when the math earns one, a shortlist when it's unsure, and " +
-      "an honest “no answer” when the sender never showed up in the capture. A " +
-      "confident wrong name destroys an investigation; we refuse to give you one.",
-    diya: "The grey cards aren't failures. Knowing when to stay silent is the whole skill.",
+      "For each transaction, SHASTRA estimates which peer was closest to its " +
+      "origin. When the evidence is strong, we give you a likely source. When it " +
+      "isn't, we give you a shortlist. And when the origin was never observed, we " +
+      "say so.",
   },
   {
     id: "buddhi",
     layer: "BUDDHI",
-    gloss: "how risky is this",
+    gloss: "RISK ANALYSIS",
     count: layerCount("BUDDHI"),
     slice: [0.698, 0.7924],
-    title: "Every flag arrives with the reasons it might be wrong.",
+    title: "Every flag comes with a reason it might be wrong.",
     body:
-      "We weigh each wallet for risk and show the handful of factors that raised " +
-      "the score, in plain words, not a model report. Beside every “why flagged” " +
-      "sits a muted “why it might be innocent,” shown at the same moment. The same " +
-      "pattern that looks like laundering also fits a merchant settling daily.",
-    diya: "An honest tool shows the exculpatory evidence at the same moment as the damning, not in cross-examination.",
+      "We give each wallet a risk score and explain what pushed it up. Alongside " +
+      "every reason it looks suspicious, we show why it might be normal too. A " +
+      "pattern that looks like laundering could also be a shop settling its daily " +
+      "payments.",
   },
   {
     id: "vaani",
     layer: "VAANI",
-    gloss: "the plain-English lead",
+    gloss: "KNOW YOUR LEADS",
     count: layerCount("VAANI"),
     slice: [0.7924, 0.8847],
-    title: "A score means nothing to an officer. A sentence does.",
     body:
-      "The risk number unfolds into a ranked, plain-English lead that carries its " +
-      "own evidence and its own doubts: what happened, the network detail, why " +
-      "it's flagged, and where the origin abstained. Twenty leads, ranked. Not a " +
-      "thousand maybes.",
-    diya: "Twenty leads, ranked. Not a thousand maybes. Triage is a race against hours.",
+      "VAANI turns risk scores into plain-English leads, showing why something " +
+      "was flagged, why it might be wrong, and what could change the conclusion.",
   },
   {
     id: "pramaan",
     layer: "PRAMAAN",
-    gloss: "the court-ready proof",
+    gloss: "THE PROOF, READY FOR COURT",
     count: layerCount("PRAMAAN"),
     slice: [0.8847, 1.0],
     title: "Not a guess. A document.",
     body:
-      "One lead pressed into a signed file whose every pipeline stage is " +
-      "hash-chained and re-runs to byte-identical output. We don't hand you a " +
-      "wallet address. We hand you an IP, a source port and an exact timestamp: " +
-      "the three values an ISP needs to name one subscriber, under BNSS 2023 §94.",
-    diya: "This is the finish line: not a guess, a document. Ready when you are.",
+      "We take one lead and turn it into a single signed evidence file. Anyone " +
+      "can run the process again and get the same file back, so the result can be " +
+      "checked and verified. Instead of just a wallet address, it records the " +
+      "network details needed to identify the observed connection: the IP, port, " +
+      "and exact time.",
   },
 ];
 

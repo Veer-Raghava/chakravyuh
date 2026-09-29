@@ -53,9 +53,8 @@ export function StationCopy() {
             <span className={styles.layerName}>{st.layer}</span>
             <span className={styles.gloss}>{st.gloss}</span>
           </p>
-          <h2 className={styles.title}>{st.title}</h2>
+          {st.title && <h2 className={styles.title}>{st.title}</h2>}
           <p className={styles.body}>{st.body}</p>
-          <p className={styles.diya}>{st.diya}</p>
         </article>
       ))}
     </div>

@@ -15,7 +15,17 @@ export function DiyaHint({
 }) {
   return (
     <div className={`${styles.hint} ${silent ? styles.silent : ""}`}>
-      <p className={styles.line}>Scroll. I&rsquo;ll show you the maze.</p>
+      <span className={styles.arrow} role="img" aria-label="Scroll down to begin">
+        <svg width="22" height="30" viewBox="0 0 22 30" fill="none" aria-hidden="true">
+          <path
+            d="M11 2 L11 24 M3 16 L11 24 L19 16"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
       <button
         className={styles.dismiss}
         onClick={onDismiss}

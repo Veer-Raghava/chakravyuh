@@ -21,7 +21,7 @@ import { panel, prose, kicker } from "./panelStyle";
 const SLICE = STATIONS[6].slice;
 const A = fixtures.packet.attribution;
 const WHEN = A.observed_at_utc.slice(0, 19).replace("T", " ") + "Z";
-const HEADLINE = "High-risk lead: outsized fees and large outflows in a short window.";
+const HEADLINE = "High-risk lead: unusually high fees and a lot of money moved out in a short time.";
 const BARS = 27;
 const SPAN = 3.0;
 
@@ -137,18 +137,18 @@ export function Vaani({ reduced }: { reduced: boolean }) {
               <div style={{ ...panel, width: 210 }}>
                 <div style={kicker}>THE LEAD</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", lineHeight: 1.7, color: "var(--ink-soft)" }}>
-                  <div>network · {fixtures.alert.origin.shortlist.find((l) => l.rank === 1)?.peer_ip_display} · src port {A.peer_port}</div>
-                  <div>operator · AS{A.asn} ({A.geo_country})</div>
-                  <div>first announced · {WHEN}</div>
+                  <div>network · {fixtures.alert.origin.shortlist.find((l) => l.rank === 1)?.peer_ip_display} · port {A.peer_port}</div>
+                  <div>network operator · AS{A.asn} ({A.geo_country})</div>
+                  <div>first seen · {WHEN}</div>
                 </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--coral)", marginTop: 5 }}>why flagged · high fee per vByte · large amount sent</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--coral)", marginTop: 5 }}>why flagged · high fees · large amount moved</div>
               </div>
               {/* the honest counter + abstention */}
               <div style={{ ...panel, width: 210 }}>
                 <div style={{ ...kicker, color: "var(--teal)" }}>AND YET</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--teal)", lineHeight: 1.6 }}>counter · the same shape fits a merchant settling daily</div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--riso-blue)", lineHeight: 1.6, marginTop: 4 }}>origin · abstained on 11 of 14 hops</div>
-                <div style={{ ...prose, fontSize: "10px", color: "var(--ink-soft)", marginTop: 5 }}>1 of ~20 ranked leads, spoken not shouted</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--teal)", lineHeight: 1.6 }}>on the other hand · this could be a shop settling daily takings</div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--riso-blue)", lineHeight: 1.6, marginTop: 4 }}>origin · we could not tell for 11 of 14 steps</div>
+                <div style={{ ...prose, fontSize: "10px", color: "var(--ink-soft)", marginTop: 5 }}>1 of about 20 ranked leads</div>
               </div>
             </div>
           </Html>
