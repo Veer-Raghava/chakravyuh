@@ -1,15 +1,17 @@
 import { useRef, useState } from "react";
 import { fixtures } from "../../data/loader";
-import { usToIST } from "../../data/jaal";
+import { usToIST, ownerGroupLabel, scrubOwnerWords } from "../../data/jaal";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import styles from "./ProofScreen.module.css";
 
 /**
  * Proof · PRAMAAN (§11.5) — the court-ready sealed dossier, on paper. Left: the
  * hash-chain spine (every stage's SHA-256 printed IN FULL — BSA 2023 §63(4)).
- * Centre: THE FINDING — the {IP · port · UTC} tuple as a boxed hero, but ONLY when
- * attribution is ready (peer IP + source port + precise time all present); otherwise
- * the honest not-ready state. Right: the pre-filled BNSS 2023 §94 production notice.
+ * Centre: THE FINDING — the {operator · region · UTC} tuple as a boxed hero, but ONLY
+ * when attribution is ready (the backend's attribution_ready flag); otherwise the honest
+ * not-ready state. The exact host is never the hero (§2): we lead with the network
+ * operator (ASN) + region, and the masked announcing IP sits in a small officer note.
+ * Right: the pre-filled BNSS 2023 §94 production notice.
  * Counter-findings live inside the exhibit (a would_clear one, if any, gets marked).
  * Identifiers are truncated to the backend display format; hashes stay whole. The
  * full IPs live only in the downloaded packet.json (the officer's machine artifact).
@@ -24,14 +26,17 @@ const maskIp = (ip: string) =>
 const isoToUTC = (iso: string) => new Date(iso).toISOString().slice(0, 19).replace("T", " ") + " UTC";
 
 /** §3 kill-list scrub for backend-authored prose on this officer/court screen: the word
- *  "cluster"/"clustering" never shows here (Leads uses the same policy). Display-only. */
-const scrub = (s: string) =>
-  s.replace(/clustering/gi, "same-owner grouping").replace(/\bcluster\b/gi, "owner group");
+ *  "cluster"/"clustering" never shows here (shared with Leads, so the two cannot drift). */
+const scrub = scrubOwnerWords;
 
-// attribution_ready is NOT a field in packet.json — derive it per §6: ready only when
-// peer IP + source port + precise timestamp all exist.
+/** The backend's estimator name is a machine token ("plain_conformal") and half of it is
+ *  on the kill-list. This screen says what the interval IS; the token never renders. */
+const METHOD_GLOSS: Record<string, string> = { plain_conformal: "shortlist interval" };
+
+// attribution_ready is a real backend field (§6): the packet is court-ready only when the
+// backend says so — we no longer derive it from the presence of peer IP/port/timestamp.
 const a = p.attribution;
-const READY = !!(a.peer_ip && a.peer_port && a.observed_at_utc);
+const READY = p.attribution_ready;
 
 const clearing = p.counter_findings.find((c) => c.would_clear);
 
@@ -66,7 +71,7 @@ export function ProofScreen() {
         </p>
         <div className={styles.caseRow}>
           <span>case <strong>{p.case_id}</strong></span>
-          <span>subject <strong className={styles.mono}>{p.subject.subject_id}</strong></span>
+          <span>subject <strong className={styles.mono}>{ownerGroupLabel(p.subject.subject_id)}</strong></span>
         </div>
       </header>
 
@@ -102,13 +107,13 @@ export function ProofScreen() {
           {READY ? (
             <div className={styles.tuple}>
               <div className={styles.tCell}>
-                <span className={styles.tKey}>announcing IP</span>
-                <span className={styles.tVal}>{maskIp(a.peer_ip)}</span>
+                <span className={styles.tKey}>network operator</span>
+                <span className={styles.tVal}>AS{a.asn}</span>
               </div>
               <span className={styles.tSep}>·</span>
               <div className={styles.tCell}>
-                <span className={styles.tKey}>source port</span>
-                <span className={styles.tVal}>{a.peer_port}</span>
+                <span className={styles.tKey}>region</span>
+                <span className={styles.tVal}>{a.geo_country}</span>
               </div>
               <span className={styles.tSep}>·</span>
               <div className={styles.tCell}>
@@ -119,14 +124,15 @@ export function ProofScreen() {
           ) : (
             <div className={styles.notReady}>
               <span className={styles.nrLabel}>attribution not ready</span>
-              <p>We only print the {`{IP · port · UTC}`} tuple when all three exist. One is missing here — so we hold it back rather than hand a court a half-answer.</p>
+              <p>We only print the {`{operator · region · UTC}`} finding when the backend marks it court-ready. It isn't here — so we hold it back rather than hand a court a half-answer.</p>
             </div>
           )}
 
           <dl className={styles.findMeta}>
             <div><dt>network operator (ASN)</dt><dd>AS{a.asn} · {a.geo_country}</dd></div>
-            <div><dt>origin likelihood</dt><dd>{(a.p_origin * 100).toFixed(2)}% · margin {(a.margin * 100).toFixed(2)}%</dd></div>
-            <div><dt>runner-up</dt><dd className={styles.mono}>{a.runner_up_peer_ip}</dd></div>
+            <div><dt>operator likelihood</dt><dd>{(a.p_asn * 100).toFixed(2)}% · margin {(a.margin * 100).toFixed(2)}%</dd></div>
+            <div><dt>shortlist</dt><dd>{a.shortlist.length} candidate hosts</dd></div>
+            <div><dt>announcing host (officer only)</dt><dd className={styles.mono}>{maskIp(a.peer_ip)}</dd></div>
           </dl>
 
           <div className={styles.findings}>
@@ -154,7 +160,7 @@ export function ProofScreen() {
             <p className={styles.legalBasis}>{p.legal.basis}</p>
             <p className={styles.legalBody}>
               Directs the disclosure of subscriber records matching the network address, source port
-              and timestamp above, from the operator identified as AS{a.asn}.
+              and timestamp in the sealed packet, from the operator identified as AS{a.asn}.
             </p>
           </div>
           <div className={styles.legalBox}>
@@ -165,7 +171,14 @@ export function ProofScreen() {
           <dl className={styles.verMeta}>
             <div><dt>tool</dt><dd>v{p.tool_version}</dd></div>
             <div><dt>code</dt><dd className={styles.mono}>{p.code_version}</dd></div>
-            <div><dt>confidence</dt><dd>{p.confidence.method} · target {(p.confidence.coverage_target * 100).toFixed(0)}%</dd></div>
+            <div>
+              <dt>confidence</dt>
+              <dd className={styles.mono}>
+                {METHOD_GLOSS[p.confidence.method] ?? p.confidence.method}{" "}
+                {p.confidence.low.toFixed(2)}–{p.confidence.high.toFixed(2)} at{" "}
+                {(p.confidence.coverage_target * 100).toFixed(0)}%
+              </dd>
+            </div>
           </dl>
         </aside>
       </div>

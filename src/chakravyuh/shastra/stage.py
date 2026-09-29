@@ -43,6 +43,14 @@ CONFIG_NAME: Final[str] = "config.effective.json"
 DEFAULT_TRAIN_FRACTION: Final[float] = 0.7
 DEFAULT_MARGIN_FLOOR: Final[float] = 0.04
 DEFAULT_MIN_ANNOUNCEMENTS: Final[int] = 2
+# The outbound relay-delay mean MAYAJAAL propagates under, in microseconds, used only when a
+# hand-built fixture records no config. A real run carries `network.relay_delay_outbound_mean_s`
+# and this default is never consulted; `run_config.json` ships 2.0s.
+DEFAULT_RELAY_DELAY_US: Final[float] = 2_000_000.0
+# Peer columns the L1 roll-up needs beyond the estimator features: the operator label and region
+# each candidate host sits under. Read from `peers.parquet`, not derived, so the attribution is the
+# same operator string SETU wrote and `asn_rollup.parquet` is keyed on.
+L1_PEER_COLUMNS: Final[tuple[str, ...]] = ("peer_ip", "asn", "as_org", "net_class", "geo_country")
 
 
 class InputPathError(ValueError):
@@ -62,6 +70,7 @@ class Settings:
     margin_floor: float
     min_announcements: int
     observer_fraction: float
+    relay_delay_us: float
     seed: int
     from_config: bool
 
@@ -75,16 +84,25 @@ def settings(run_dir: Path) -> Settings:
             DEFAULT_MARGIN_FLOOR,
             DEFAULT_MIN_ANNOUNCEMENTS,
             0.0,
+            DEFAULT_RELAY_DELAY_US,
             0,
             False,
         )
     node = json.loads(path.read_text(encoding="utf-8"))
     block = node.get("eval", {})
+    network = node.get("network", {})
     return Settings(
         train_fraction=float(block.get("train_fraction", DEFAULT_TRAIN_FRACTION)),
         margin_floor=float(block.get("margin_floor", DEFAULT_MARGIN_FLOOR)),
         min_announcements=int(block.get("min_announcements", DEFAULT_MIN_ANNOUNCEMENTS)),
-        observer_fraction=float(node.get("network", {}).get("observer_fraction", 0.0)),
+        observer_fraction=float(network.get("observer_fraction", 0.0)),
+        # The relay-delay model is not altered here; its mean is only read, so `timing_mle`
+        # measures arrivals in the same units MAYAJAAL propagated them in. Seconds in config,
+        # microseconds here.
+        relay_delay_us=float(
+            network.get("relay_delay_outbound_mean_s", DEFAULT_RELAY_DELAY_US / 1_000_000.0)
+        )
+        * 1_000_000.0,
         seed=int(node.get("seed", 0)),
         from_config="eval" in node,
     )
@@ -192,10 +210,22 @@ def build_run(
     announcements = pl.read_parquet(
         normalised / "announcements.parquet", columns=list(features.ANNOUNCEMENT_COLUMNS)
     )
-    peers = pl.read_parquet(normalised / "peers.parquet", columns=list(features.PEER_COLUMNS))
+    # Read wide enough for both consumers in one pass: the estimator features SETU keyed on and the
+    # operator/region columns the L1 roll-up attributes with. `dict.fromkeys` unions the two tuples
+    # without repeating a column.
+    peer_columns = list(dict.fromkeys((*features.PEER_COLUMNS, *L1_PEER_COLUMNS)))
+    peers = pl.read_parquet(normalised / "peers.parquet", columns=peer_columns)
     transactions = pl.read_parquet(
         normalised / "transactions.parquet", columns=list(features.TRANSACTION_COLUMNS)
     )
+    # The arrival matrix and ASN substrate are SETU outputs too, but a run captured before P0-b,
+    # or a hand-built fixture, may not carry them. Absent arrival degrades `mle_logscore` to
+    # first-seen earliness inside `attach_mle`; absent `asn_rollup` leaves the L1 headline empty
+    # and warns.
+    arrival_path = normalised / "arrival.parquet"
+    arrival = pl.read_parquet(arrival_path) if arrival_path.is_file() else None
+    asn_prior_path = normalised / "asn_rollup.parquet"
+    asn_prior = pl.read_parquet(asn_prior_path) if asn_prior_path.is_file() else None
     edges = pl.read_parquet(run_dir / GRAPH_DIR / GRAPH_TABLE, columns=["src", "dst"])
     clusters = pl.read_parquet(
         run_dir / GRAPH_DIR / "clusters.parquet", columns=["cluster_id", "addresses"]
@@ -213,7 +243,16 @@ def build_run(
     }
 
     candidates = features.candidates(announcements, peers, transactions, edges)
+    # Compute the multi-observer source log-likelihood once, so `timing_mle` ranks on it, `ensemble`
+    # blends it as a feature, and it lands in the persisted `features` struct. The relay-delay mean
+    # is read from the run, never altered.
+    candidates = estimate.attach_mle(candidates, arrival, relay_delay_us=config.relay_delay_us)
     baseline = estimate.first_spy(
+        candidates,
+        margin_floor=config.margin_floor,
+        min_announcements=config.min_announcements,
+    )
+    timing = estimate.timing_mle(
         candidates,
         margin_floor=config.margin_floor,
         min_announcements=config.min_announcements,
@@ -227,9 +266,23 @@ def build_run(
         seed=config.seed,
     )
     estimates = schema.conform(
-        estimate.to_contract(pl.concat([baseline, learned])).sort("estimator", "txid", "rank"),
+        estimate.to_contract(pl.concat([baseline, timing, learned])).sort(
+            "estimator", "txid", "rank"
+        ),
         schema.ORIGIN_ESTIMATES_SCHEMA,
     )
+
+    # The L1/L2 headline the reframe makes the hero: the ensemble's candidate mass lifted onto one
+    # operator and region per transaction. Ensemble-only on disk — a by-estimator L1 comparison is
+    # eval's job, computed on the fly rather than stored four times. Empty with the exact schema
+    # when the run predates the ASN substrate, so the file always exists for the contract auditor.
+    if asn_prior is not None:
+        origin_l1 = schema.conform(
+            estimate.asn_rollup(learned, peers, asn_prior, margin_floor=config.margin_floor),
+            schema.ORIGIN_L1_SCHEMA,
+        )
+    else:
+        origin_l1 = schema.empty(schema.ORIGIN_L1_SCHEMA)
 
     # Typology hits are read straight off the transaction morphology, no labels: a hit is a shape
     # (fan-out, coinjoin-like, peel chain, structuring) an analyst can point at in the capture. The
@@ -238,6 +291,7 @@ def build_run(
     hits = typology.detect(morphology, clusters, addresses)
     outputs = {
         "origin_estimates.parquet": estimates,
+        "origin_l1.parquet": origin_l1,
         "typology_hits.parquet": hits,
         "entity_types.parquet": schema.empty(schema.ENTITY_TYPES_SCHEMA),
     }
@@ -264,11 +318,21 @@ def build_run(
         warnings.append("upstream_meta_absent_no_staleness_link")
     if not estimates.height:
         warnings.append("no_candidates_signals_is_empty")
+    if asn_prior is None:
+        # No ASN substrate upstream, so the L1 headline the reframe leads with is empty. Said out
+        # loud: an empty origin_l1 from a missing input reads the same on disk as one where every
+        # transaction abstained, and only the first is a warning.
+        warnings.append("asn_rollup_absent_l1_headline_is_empty")
+    if arrival is None:
+        # No arrival matrix, so `timing_mle` and the `mle_logscore` feature fell back to first-seen
+        # earliness. The two estimators still ran; they just saw less than a real capture offers.
+        warnings.append("arrival_absent_mle_degraded_to_first_seen")
 
     # Section 10's grain is rows, and the equality accounts for every row this stage was handed.
     # announcements/ is the input; the output grain is the candidate (txid, peer_ip) pair, so the
-    # rows a group collapsed are this stage's one real drop, exactly as in JAAL. The two estimators
-    # each write one row per pair, so the file is twice `out` and says so in outputs[].rows.
+    # rows a group collapsed are this stage's one real drop, exactly as in JAAL. The three ranking
+    # estimators each write one row per pair, so the file is three times `out` and says so in
+    # outputs[].rows; origin_l1 is a separate per-transaction file at its own grain.
     rows_in = announcements.height
     rows_out = candidates.height
     collapsed = rows_in - rows_out
@@ -290,6 +354,15 @@ def build_run(
             "min_announcements": config.min_announcements,
             "train_fraction": config.train_fraction,
             "boundary_us": boundary_us,
+            # The relay-delay mean `timing_mle` measures arrivals against, read from the run's
+            # config and not altered. Recorded so a reader knows which world's units the score is
+            # in.
+            "relay_delay_outbound_us": config.relay_delay_us,
+            "mle": {
+                "escape_log_gap": estimate.MLE_ESCAPE_LOG_GAP,
+                "min_mean_us": estimate.MLE_MIN_MEAN_US,
+                "arrival_present": arrival is not None,
+            },
             "model": (
                 {
                     "kind": "lightgbm_binary_native_api",
@@ -309,6 +382,12 @@ def build_run(
                 "to the scale-free separation (p1 - p2) / (p1 + p2)"
             ),
             "abstain_policy": "an abstaining txid has no rank 1 row; ranks start at 2",
+            "l1_policy": (
+                "origin_l1 is the ensemble's candidate mass summed by ASN, weighted by the "
+                "asn_rollup frac_rank_one prior; p_asn and p_country are capped, never "
+                "renormalised; a txid whose top two operators are within margin_floor separation "
+                "abstains with cross_asn_ambiguous, and weak-evidence refusals are inherited"
+            ),
             "deferred_outputs": {
                 "entity_types.parquet": (
                     "empty, subject-type classifier not built; typology_hits is live"

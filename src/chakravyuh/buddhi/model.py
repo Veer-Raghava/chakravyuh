@@ -152,13 +152,22 @@ class _BoosterClassifier:
 
 
 def fit(
-    subject_frame: pl.DataFrame, seed: int, coverage_target: float
+    subject_frame: pl.DataFrame,
+    seed: int,
+    coverage_target: float,
+    features: tuple[str, ...] = MODEL_FEATURES,
 ) -> tuple[dict[str, Any], Calibrated]:
     """Train the risk model and wrap it in class-conditional conformal prediction.
 
-    `subject_frame` is train-window subjects only, with `MODEL_FEATURES` and a `y` column. The
+    `subject_frame` is train-window subjects only, with `features` and a `y` column. The
     fit/calibration split is by time (`_order`, the subject's first activity), never at random.
     Returns the fitted bundle and a `Calibrated` record for `_meta.json`.
+
+    `features` is the baseline `MODEL_FEATURES` unless the caller is training the GNN booster,
+    which adds the embedding columns. The fitted list travels in the bundle, so `predict_sets`,
+    `risk_scores` and `top_shap` score with exactly the columns their own booster was trained on
+    rather than with whatever the caller passes them — the one place the two models could
+    otherwise be confused.
 
     The Mondrian partition is the class itself. Plain (unpartitioned) conformal under-covers the
     minority class exactly when the classes are imbalanced, which is the one failure this project
@@ -187,9 +196,9 @@ def fit(
     booster = lgb.train(
         params,
         lgb.Dataset(
-            fit_rows.select(MODEL_FEATURES).to_numpy(),
+            fit_rows.select(features).to_numpy(),
             label=fit_rows["y"].to_numpy(),
-            feature_name=list(MODEL_FEATURES),
+            feature_name=list(features),
             params=params,
         ),
         num_boost_round=BOOST_ROUNDS,
@@ -197,7 +206,7 @@ def fit(
 
     bundle: dict[str, Any] = {
         "booster": booster,
-        "model_features": list(MODEL_FEATURES),
+        "model_features": list(features),
         "coverage_target": coverage_target,
         "seed": seed,
         "mondrian": None,
@@ -216,33 +225,17 @@ def fit(
             "too_few_calibration_rows",
         )
 
-    _patch_mapie_tags()
-    from mapie.classification import MapieClassifier
-    from mapie.mondrian import MondrianCP
+    from chakravyuh.buddhi import recipe
 
-    classifier = _BoosterClassifier(booster)
-    counts = cal_rows.group_by("y").len()
-    mondrian_ok = (
-        counts.filter(
-            (pl.col("y").is_in([0, 1])) & (pl.col("len") >= MIN_CALIBRATION_PER_CLASS)
-        ).height
-        == counts.height
-        and counts.height == 2
-    )
-
-    X = cal_rows.select(MODEL_FEATURES).to_numpy()
     y_cal = cal_rows["y"].to_numpy()
+    X = cal_rows.select(features).to_numpy()
+    mondrian_ok = recipe._mondrian_ok(y_cal)
 
-    plain = MapieClassifier(estimator=classifier, method="lac", cv="prefit")
-    plain.fit(X, y_cal)
+    plain, mondrian = recipe._fit_calibrators(booster, X, y_cal, mondrian_ok=mondrian_ok)
     bundle["plain"] = plain
+    bundle["mondrian"] = mondrian
 
     if mondrian_ok:
-        mondrian = MondrianCP(
-            mapie_estimator=MapieClassifier(estimator=classifier, method="lac", cv="prefit")
-        )
-        mondrian.fit(X, y_cal, partition=y_cal)
-        bundle["mondrian"] = mondrian
         return bundle, Calibrated(
             True, True, fit_rows.height, cal_rows.height, int(cal_rows["y"].sum()), None
         )
@@ -265,7 +258,7 @@ def predict_sets(bundle: dict[str, Any], frame: pl.DataFrame) -> pl.DataFrame:
     outcome, not an error: it means this subject looks like neither class, and it is what the
     abstain rate counts.
     """
-    X = frame.select(MODEL_FEATURES).to_numpy()
+    X = frame.select(bundle["model_features"]).to_numpy()
     alpha = 1.0 - float(bundle["coverage_target"])
     n = X.shape[0]
 
@@ -306,7 +299,9 @@ def _plain_sets(bundle: dict[str, Any], X: np.ndarray, alpha: float) -> np.ndarr
 def risk_scores(bundle: dict[str, Any], frame: pl.DataFrame) -> np.ndarray:
     """The booster's P(illicit), one per subject. The raw model output, before any set logic."""
     booster: Any = bundle["booster"]
-    return np.asarray(booster.predict(frame.select(MODEL_FEATURES).to_numpy()), dtype="float64")
+    return np.asarray(
+        booster.predict(frame.select(bundle["model_features"]).to_numpy()), dtype="float64"
+    )
 
 
 def top_shap(bundle: dict[str, Any], frame: pl.DataFrame) -> list[list[dict[str, Any]]]:
@@ -320,14 +315,14 @@ def top_shap(bundle: dict[str, Any], frame: pl.DataFrame) -> list[list[dict[str,
     import shap
 
     booster: Any = bundle["booster"]
-    X = frame.select(MODEL_FEATURES).to_numpy()
+    X = frame.select(bundle["model_features"]).to_numpy()
     values = np.asarray(shap.TreeExplainer(booster).shap_values(X))
     if values.ndim == 3:
         values = values[0]
     if values.ndim == 1:
         values = values.reshape(1, -1)
 
-    names = list(MODEL_FEATURES)
+    names = list(bundle["model_features"])
     out: list[list[dict[str, Any]]] = []
     for row in values:
         order = sorted(range(len(names)), key=lambda i: (-abs(float(row[i])), names[i]))

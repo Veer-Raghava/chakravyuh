@@ -27,8 +27,8 @@ import numpy as np
 import polars as pl
 import pytest
 
-from chakravyuh.buddhi import features, model, stage
-from chakravyuh.buddhi.features import MODEL_FEATURES
+from chakravyuh.buddhi import embed, features, model, recipe, stage
+from chakravyuh.buddhi.features import ALL_FEATURES, FEATURE_GLOSSES, MODEL_FEATURES
 from chakravyuh.buddhi.stage import (
     LABEL_ABSTAIN,
     LABEL_LIKELY_ILICIT,
@@ -94,12 +94,15 @@ def workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     return tmp_path
 
 
-def _run_pipeline(workspace: Path, name: str, labels: pl.DataFrame | None) -> Path:
+def _run_pipeline(
+    workspace: Path, name: str, labels: pl.DataFrame | None, *, gnn: bool = False
+) -> Path:
     """Seal, normalise, graph, estimate, then score with the labels handed in.
 
     The fixture rather than a generated capture: 197 rows, every value chosen by hand. `labels`
     is a train-window `(address, y)` frame — the exact shape `__main__.py` extracts from the
-    label door — and nothing else about the run knows it exists.
+    label door — and nothing else about the run knows it exists. `gnn` is the `--gnn` flag: it
+    turns on the embedding columns and the second booster, nothing else.
     """
     target = workspace / "data" / "capture.csv"
     target.write_bytes(FIXTURE_CAPTURE.read_bytes())
@@ -118,11 +121,62 @@ def _run_pipeline(workspace: Path, name: str, labels: pl.DataFrame | None) -> Pa
         int(announcements["seen_us"].max()),  # type: ignore[arg-type]
         0.7,
     )
-    build_run(resolve_in(run), resolve_out(run), labels=labels, boundary_us=boundary)
+    build_run(
+        resolve_in(run),
+        resolve_out(run),
+        labels=labels,
+        boundary_us=boundary,
+        use_embeddings=gnn,
+    )
     return run
 
 
 # --- behaviour, from hand-built frames ----------------------------------------------------------
+
+
+NEW_FEATURES = (
+    "fan_in_ratio",
+    "peel_chain_depth",
+    "peel_leak_frac",
+    "structuring_frac",
+    "burstiness",
+    "fee_anomaly",
+)
+
+
+def test_new_features_declared_and_glossed() -> None:
+    for name in NEW_FEATURES:
+        assert name in MODEL_FEATURES, f"{name} missing from MODEL_FEATURES"
+    # `ALL_FEATURES`, not `MODEL_FEATURES`: the embedding columns are glossed too, because the
+    # GNN booster's SHAP rows name them and `scripts/check_scores.py` validates those names
+    # against the same vocabulary. The baseline set stays a strict prefix of the full one, which
+    # is what makes the plain invocation's features exactly the first thirty-three.
+    assert ALL_FEATURES[: len(MODEL_FEATURES)] == MODEL_FEATURES
+    glossed = {n for n, _ in FEATURE_GLOSSES}
+    assert set(ALL_FEATURES) == glossed, "every model feature needs exactly one gloss"
+    assert len(FEATURE_GLOSSES) == len(set(n for n, _ in FEATURE_GLOSSES)), "no duplicate glosses"
+
+
+def test_features_md_is_the_same_vocabulary() -> None:
+    """`docs/FEATURES.md` is what `scripts/check_scores.py` validates `top_features` against.
+
+    So a feature added to the model and not to that table is not a documentation gap — it turns
+    the gate red the next time the feature reaches a SHAP row, which is how the six morphological
+    features and the three operator ones were caught. Checked here at test scale, where the name
+    of the missing feature is the failure message, rather than only at gate scale.
+    """
+    import re
+
+    text = (REPO / "docs" / "FEATURES.md").read_text(encoding="utf-8")
+    table = {
+        match.group(1): match.group(2).strip()
+        for match in re.finditer(r"^\|\s*`([a-z0-9_]+)`\s*\|\s*(.+?)\s*\|$", text, re.MULTILINE)
+    }
+    assert sorted(table) == sorted(ALL_FEATURES), "FEATURES.md and ALL_FEATURES disagree"
+    # Not just the names: the table is quoted verbatim by the report, so the wording has to match
+    # the glosses the code carries rather than merely covering the same set of features.
+    for name, gloss in FEATURE_GLOSSES:
+        assert table[name] == gloss, f"FEATURES.md gloss for {name} is stale"
 
 
 def _subject_frame(rows: list[dict[str, object]], boundary: int) -> pl.DataFrame:
@@ -333,6 +387,23 @@ def test_fit_refuses_one_class_and_says_so() -> None:
     assert bundle == {}
 
 
+def test_recipe_is_time_ordered_and_deterministic() -> None:
+    rng = np.random.default_rng(0)
+    n = 400
+    X = rng.normal(size=(n, 4))
+    time_index = np.arange(n, dtype="int64")  # strictly increasing
+    y = (X[:, 0] + rng.normal(scale=0.3, size=n) > 0).astype("int64")
+
+    r1 = recipe.train_and_score(X, y, time_index, train_fraction=0.7, seed=0, coverage_target=0.9)
+    r2 = recipe.train_and_score(X, y, time_index, train_fraction=0.7, seed=0, coverage_target=0.9)
+    # Time-ordered: the test slice is exactly the rows at/after the boundary.
+    assert r1.n_train + r1.n_test == n
+    assert r1.n_test == int((time_index >= r1.boundary).sum())
+    # Deterministic: two calls, identical scores.
+    assert np.array_equal(r1.scores, r2.scores)
+    assert r1.scores.shape == r1.y_test.shape == r1.in_set_1.shape
+
+
 def test_the_calibration_table_shows_why_mondrian_exists(workspace: Path) -> None:
     """`_calibration_frame` on a synthetic bundle: plain under-covers the minority class,
     class-conditional does not — the contrast the file exists to put on the record.
@@ -448,6 +519,15 @@ def test_labels_vocabularies_and_set_consistency_over_a_real_run(workspace: Path
     unclear = scores.filter((pl.col("conf_low") == 0.0) & (pl.col("conf_high") == 1.0))
     # Both classes in the set is UNCLEAR, whatever the raw score says.
     assert (unclear["label"] == LABEL_UNCLEAR).all() or unclear.height == 0
+    # Every other interval is anchored on the score and genuinely has a width — the property the
+    # old set-membership mapping broke, collapsing every alert to the point (1.0, 1.0).
+    assert scores.select(
+        (
+            (pl.col("conf_low") <= pl.col("risk_score"))
+            & (pl.col("risk_score") <= pl.col("conf_high"))
+        ).all()
+    ).item()
+    assert (scores["conf_low"] != scores["conf_high"]).any()
     assert scores["coverage_target"].unique().to_list() == [0.9]
 
 
@@ -528,6 +608,187 @@ def _fixture_boundary(run: Path) -> tuple[int, int]:
     return boundary_us(first, last, 0.7), last
 
 
+# --- the graph embedding, hand-built and by eye ---------------------------------------------------
+
+
+def _tagged() -> pl.DataFrame:
+    """A tagged edge table in `_window`'s input shape: both endpoint times, nullable."""
+    return pl.DataFrame(
+        {
+            "src": ["addr:A", "tx:tx1", "addr:C", "asn:1"],
+            "dst": ["tx:tx1", "addr:B", "tx:tx2", "peer:p1"],
+            "kind": ["spends", "pays", "spends", "hosted_in"],
+            "sats": [100, 100, 40, 0],
+            "confidence": [1.0, 0.9, 1.0, 1.0],
+            "ts_src": [1_000, 1_000, 5_000, None],
+            "ts_dst": [1_000, 5_000, 5_000, None],
+        }
+    )
+
+
+def test_the_embedding_window_rule_matches_the_cluster_rule() -> None:
+    """An edge is in a window when no endpoint falls outside it; an untimestamped edge is in both.
+
+    Same rule `features.cluster_shape` applies, and it is what keeps the embedding from being the
+    one feature that reads across the boundary. The `asn:1 -> peer:p1` edge has no time on either
+    end: it is infrastructure metadata, not a fact about the capture's timeline, so excluding it
+    from a window would be subtracting topology the window's subjects actually had.
+    """
+    tagged = _tagged()
+    train = embed._window(tagged, "train", 3_000)
+    holdout = embed._window(tagged, "holdout", 3_000)
+
+    # `addr:A -> tx:tx1` is wholly pre-boundary and so is in the train window only; `addr:C ->
+    # tx:tx2` is wholly post-boundary and so is in the holdout one only; and the untimestamped
+    # `asn:1 -> peer:p1` is in both.
+    assert set(train["dst"].to_list()) == {"tx:tx1", "peer:p1"}
+    assert set(holdout["dst"].to_list()) == {"tx:tx2", "peer:p1"}
+    # `tx:tx1 -> addr:B` crosses the boundary: pre-boundary source, post-boundary destination, so
+    # it is in neither window. An edge that spans the boundary is the one that would leak.
+    assert "addr:B" not in train["dst"].to_list()
+    assert "addr:B" not in holdout["dst"].to_list()
+    # No boundary derived means no window exists, so the whole graph is the only honest answer.
+    assert embed._window(tagged, "train", 0).height == tagged.height
+
+
+def _dual_graph() -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame, pl.DataFrame]:
+    """`(edges, transactions, addresses, members)`: one pre-boundary subject, one post, one none.
+
+    S1's address A is pre-boundary, S2's address Z appears in no edge at all, and S3's address C
+    exists only after the boundary. All three are subjects the model must score; only the first
+    has a graph position in the train window.
+    """
+    edges = pl.DataFrame(
+        {
+            "src": ["addr:A", "tx:tx1", "addr:C", "asn:1"],
+            "dst": ["tx:tx1", "addr:B", "tx:tx2", "peer:p1"],
+            "kind": ["spends", "pays", "spends", "hosted_in"],
+            "sats": [100, 100, 50, 0],
+            "confidence": [1.0, 0.9, 1.0, 1.0],
+        }
+    )
+    transactions = pl.DataFrame({"txid": ["tx1", "tx2"], "first_seen_us": [1_000, 5_000]})
+    addresses = pl.DataFrame(
+        {
+            "address": ["A", "B", "Z", "C"],
+            "first_seen_us": [1_000, 5_000, 1_000, 5_000],
+        }
+    )
+    members = pl.DataFrame({"subject_id": ["S1", "S2", "S3"], "address": ["A", "Z", "C"]})
+    return edges, transactions, addresses, members
+
+
+def test_a_subject_with_no_graph_node_gets_no_row_not_a_zero() -> None:
+    """Absent, not zero — `stage.py` reads that null to decide which booster answered.
+
+    S2's address Z is in `members` and in `addresses` but in no edge, and S3's address C is only
+    reachable through a post-boundary edge. Imputing zeros for either would put a fabricated graph
+    position into the GNN booster's features and let it answer for a subject it has never seen.
+    """
+    edges, transactions, addresses, members = _dual_graph()
+    train = embed.subject_embeddings(
+        edges, transactions, addresses, members, half="train", boundary_us=3_000
+    )
+    assert train["subject_id"].to_list() == ["S1"]
+    # Never wider than `DIM`, and every direction it does have is the caller's to null-fill when a
+    # window offers fewer: a four-node graph has four singular directions, not eight padded ones.
+    assert train.width == 1 + min(embed.DIM, 4)
+    assert all(name.startswith("embed_") for name in train.columns[1:])
+
+    # The other half of the window rule, seen from a subject: A's only edge is pre-boundary, so S1
+    # belongs to the train window's graph and C's only edge is post-boundary, so S3 belongs to the
+    # holdout one. Neither subject is in both, which is the point of the boundary.
+    holdout = embed.subject_embeddings(
+        edges, transactions, addresses, members, half="holdout", boundary_us=3_000
+    )
+    assert holdout["subject_id"].to_list() == ["S3"]
+
+    # With no boundary derived there is no window to be inside of, so the whole graph is one.
+    whole = embed.subject_embeddings(
+        edges, transactions, addresses, members, half="train", boundary_us=0
+    )
+    assert set(whole["subject_id"].to_list()) == {"S1", "S3"}
+
+
+def test_the_embedding_is_deterministic_and_signed_by_rule() -> None:
+    """Same input, same bytes — and the SVD's sign ambiguity resolved by the output, not by luck.
+
+    `make verify-s07` byte-compares two interpreters, so an embedding that flipped a singular
+    vector's sign between processes would turn that gate red without anything being wrong. `_reduce`
+    states the rule: the largest-magnitude entry of each column is positive. The property is
+    asserted on the node matrix where it is defined — a subject's embedding is the mean of its
+    member addresses' rows, so no single row of it carries the pin.
+    """
+    hidden = np.array(
+        [
+            [1.0, -2.0, 3.0, 0.5],
+            [4.0, 5.0, -6.0, 7.0],
+            [-7.0, 8.0, 9.0, -1.5],
+            [10.0, -11.0, 12.0, 2.5],
+            [0.25, 3.0, -4.0, -8.0],
+        ]
+    )
+    reduced = embed._reduce(hidden, 3)
+    assert reduced.shape == (5, 3)
+    assert np.array_equal(reduced, embed._reduce(hidden, 3))
+    for column in range(reduced.shape[1]):
+        vector = reduced[:, column]
+        assert vector[int(np.argmax(np.abs(vector)))] >= 0.0, f"column {column} sign is not pinned"
+
+    edges, transactions, addresses, members = _dual_graph()
+    first = embed.subject_embeddings(
+        edges, transactions, addresses, members, half="train", boundary_us=3_000
+    )
+    second = embed.subject_embeddings(
+        edges, transactions, addresses, members, half="train", boundary_us=3_000
+    )
+    assert first.equals(second)
+
+
+def test_the_gnn_run_flags_each_row_with_the_booster_that_scored_it(workspace: Path) -> None:
+    """`model` is the audit trail: a mixed run has to say which rows came from which booster.
+
+    The fixture is small, so the embedding may cover no training subject at all — which is the
+    other outcome worth asserting. Either the run says every row is `gbm_gnn_v2` *and* records a
+    fitted GNN leg, or it says no row is, and records why. What it may not do is claim rows it
+    did not score, which is the same invariant `scripts/check_scores.py` enforces at gate scale.
+    """
+    run = _run_pipeline(workspace, "gnn", None, gnn=True)
+    scores = pl.read_parquet(run / "scores" / "wallet_scores.parquet")
+    meta = json.loads((run / "scores" / "_meta.json").read_text(encoding="utf-8"))
+
+    # Adding the embedding leg does not change section 7's schema, and the counterfactual column
+    # the eval side needs stays out of the shipped file.
+    got = [(name, str(dtype).split("(")[0]) for name, dtype in scores.schema.items()]
+    assert got == CONTRACT_WALLET_SCORES
+
+    names = set(scores["model"].unique().to_list())
+    assert names <= {"gbm_v2", "gbm_gnn_v2"}, names
+    gnn_rows = scores.filter(pl.col("model") == "gbm_gnn_v2").height
+    params = meta["params"]
+    if gnn_rows:
+        assert params["model_gnn"] is not None
+        assert params["model_gnn"]["n_rows_scored"] == gnn_rows
+    else:
+        assert any(
+            "fall_back_to_the_baseline_model" in warning for warning in meta["warnings"]
+        ), meta["warnings"]
+
+
+def test_the_plain_run_never_names_the_embedding_model(workspace: Path) -> None:
+    """The GNN leg is droppable: without `--gnn` nothing about it reaches the artifacts.
+
+    Default is off, and off has to mean off — a canonical run's rows must all name `gbm_v2` and its
+    meta must carry no GNN block, or the flag would be a decoration rather than a switch.
+    """
+    run = _run_pipeline(workspace, "plain", None)
+    scores = pl.read_parquet(run / "scores" / "wallet_scores.parquet")
+    assert set(scores["model"].unique().to_list()) == {"gbm_v2"}
+    meta = json.loads((run / "scores" / "_meta.json").read_text(encoding="utf-8"))
+    assert meta["params"]["model_gnn"] is None
+    assert not any("gnn" in w for w in meta["warnings"]), meta["warnings"]
+
+
 # --- quarantine: the two Law 2 rules only a real run can demonstrate ------------------------------
 
 
@@ -598,3 +859,209 @@ def test_no_scores_artifact_names_the_quarantine(workspace: Path) -> None:
     for module in sorted((REPO / "src" / "chakravyuh" / "buddhi").rglob("*.py")):
         text = module.read_text(encoding="utf-8")
         assert not any(one in text for one in forbidden), f"{module.name} names the quarantine"
+
+
+def test_campaign_recall_counts_entity_once() -> None:
+    from chakravyuh.eval import metrics
+
+    # Two illicit entities with holdout activity; A has one flagged member, B none.
+    preds = pl.DataFrame(
+        {
+            "subject_id": ["s1", "s2", "s3"],
+            "addresses": [["a1"], ["a2"], ["b1"]],
+            "risk_score": [0.9, 0.2, 0.1],
+            "in_set_0": [False, True, True],
+            "in_set_1": [True, False, False],  # only s1 flagged illicit
+            "abstain": [False, False, False],
+        }
+    )
+    truth = pl.DataFrame(
+        {
+            "entity_id": ["A", "A", "B"],
+            "is_illicit": [True, True, True],
+            "address": ["a1", "a2", "b1"],
+        }
+    )
+    caught, total, recall = metrics._campaign_recall(preds, truth)
+    assert total == 2
+    assert caught == 1
+    assert recall == 0.5
+
+
+def test_asn_fusion_reads_abstained_rows_and_flags_them() -> None:
+    """The operator belief travels with the share of sends the stage refused it.
+
+    An L1 row abstains when the shortlist mass split across operators, but it still carries the
+    operator ranked first and its probability. Averaging that belief is only honest if the refusal
+    rate rides beside it — otherwise a subject whose sends could not be separated at all averages
+    to the same feature value as one the estimator separated cleanly.
+    """
+    sent = pl.DataFrame({"subject_id": ["s1", "s1", "s2"], "txid": ["t1", "t2", "t3"]})
+    l1 = pl.DataFrame(
+        {
+            "txid": ["t1", "t2", "t3"],
+            "p_asn": [0.5, 0.1, 0.2],
+            "margin": [0.4, 0.0, 0.1],
+            "abstain": [True, False, True],
+        }
+    )
+    out = features.asn_fusion(l1, sent).sort("subject_id")
+    # s1 sent t1 (abstained) and t2 (acted): both values count, one of the two refuses.
+    assert out["mean_p_asn"].to_list() == pytest.approx([0.3, 0.2])
+    assert out["mean_asn_margin"].to_list() == pytest.approx([0.2, 0.1])
+    assert out["frac_l1_abstained"].to_list() == pytest.approx([0.5, 1.0])
+
+    # A run that shipped no operator headline yields the typed empty frame, not a crash.
+    empty = features.asn_fusion(pl.DataFrame(schema={"txid": pl.String()}), sent)
+    assert empty.height == 0
+    assert set(empty.columns) == set(features.ASN_FUSION_SCHEMA)
+
+
+def _load_checker() -> object:
+    """`scripts/check_scores.py` as a module, so its report check can be called in-process.
+
+    Loaded by path rather than imported: `scripts/` is not a package, and the point of this
+    checker is that it is *not* imported from the code that writes the report.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "check_scores", REPO / "scripts" / "check_scores.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _report_with_grains() -> dict[str, object]:
+    """An `eval_report.json` body complete enough that only the grains can be the failure."""
+    return {
+        "split": {"mode": "time_ordered", "train_end_us": 1, "val_end_us": 2, "test_start_us": 3},
+        "wallet_model": {
+            "pr_auc": 0.1,
+            "roc_auc": 0.5,
+            "precision_at_20": 0.2,
+            "recall_at_20": 0.1,
+            "tx_pr_auc": 0.3,
+            "campaign_recall": 0.25,
+        },
+        "origin_estimator": {
+            "top1_accuracy": 0.4,
+            "top3_accuracy": 0.6,
+            "abstain_rate": 0.2,
+            "by_observer_fraction": [{"fraction": 0.6, "top1": 0.4, "abstain": 0.2}],
+            "by_traffic_type": [{"type": "clear", "top1": 0.4}],
+        },
+        "clustering": {"precision": 0.9, "recall": 0.8, "threshold": 0.36},
+        "baseline_beaten": True,
+        "seed": 0,
+        "run_id": "r",
+        "code_version": "test",
+        "protocol": "inductive_time_ordered",
+        "elliptic_external": {"available": False, "reason": "not_run_for_this_run"},
+        "embedding_leg": {"available": False, "reason": "embeddings_not_requested"},
+    }
+
+
+@pytest.mark.parametrize(
+    "drop",
+    ["campaign_recall", "tx_pr_auc"],
+)
+def test_check_scores_requires_the_new_grains(tmp_path: Path, drop: str) -> None:
+    """A grain the checker does not name is a grain nobody re-measures.
+
+    Both new wallet_model figures are nullable by accident and by omission: a writer that
+    stopped emitting one would leave the old four keys intact and every existing check green.
+    """
+    checker = _load_checker()
+    report = _report_with_grains()
+    wallet = report["wallet_model"]
+    assert isinstance(wallet, dict)
+    del wallet[drop]
+    (tmp_path / "eval_report.json").write_text(json.dumps(report), encoding="utf-8")
+
+    problems = checker._eval_report(tmp_path, "r")  # type: ignore[attr-defined]
+    assert any(drop in problem for problem in problems), problems
+
+
+def test_check_scores_refuses_rows_its_own_gate_rejected(tmp_path: Path) -> None:
+    """A row may name the embedding model only where the report says the leg cleared its gate.
+
+    `model` exists so a mixed run stays auditable; the audit is only real if the per-row claim and
+    the run's own measurement are compared. The two files are written by the same process, so a
+    mismatch is a bug or a hand-edit, and either way the shipment is not the run the gate approved.
+    """
+    checker = _load_checker()
+    scores = pl.DataFrame(
+        {
+            "subject_id": ["cluster:1", "cluster:2"],
+            "model": ["gbm_gnn_v2", "gbm_v2"],
+        }
+    )
+
+    rejected = _report_with_grains()
+    rejected["embedding_leg"] = {"available": False, "reason": "gnn_does_not_beat_baseline"}
+    (tmp_path / "eval_report.json").write_text(json.dumps(rejected), encoding="utf-8")
+    problems = checker._embedding_gate(scores, tmp_path)  # type: ignore[attr-defined]
+    assert len(problems) == 1 and "gnn_does_not_beat_baseline" in problems[0], problems
+
+    # A model name outside the vocabulary is caught too: the vocabulary check is what keeps a
+    # renamed booster from shipping under a name nothing validates.
+    assert checker._model_names(scores) == []  # type: ignore[attr-defined]
+    stray = scores.with_columns(pl.lit("gnn_v1").alias("model"))
+    assert checker._model_names(stray), (  # type: ignore[attr-defined]
+        "a model name outside the vocabulary must be reported"
+    )
+
+    # The gate is green only when the report says so — and then the row is allowed to say it.
+    approved = _report_with_grains()
+    approved["embedding_leg"] = {"available": True, "reason": None}
+    (tmp_path / "eval_report.json").write_text(json.dumps(approved), encoding="utf-8")
+    assert checker._embedding_gate(scores, tmp_path) == []  # type: ignore[attr-defined]
+
+
+def test_check_scores_requires_the_inductive_protocol(tmp_path: Path) -> None:
+    """The protocol is a string, so presence alone proves nothing: a transductive run could
+    carry the right key with the wrong name on it. The checker compares the value."""
+    checker = _load_checker()
+
+    report = _report_with_grains()
+    (tmp_path / "eval_report.json").write_text(json.dumps(report), encoding="utf-8")
+    assert checker._eval_report(tmp_path, "r") == []  # type: ignore[attr-defined]
+
+    for bad in ("random_split", ""):
+        report["protocol"] = bad
+        (tmp_path / "eval_report.json").write_text(json.dumps(report), encoding="utf-8")
+        problems = checker._eval_report(tmp_path, "r")  # type: ignore[attr-defined]
+        assert any("protocol" in problem for problem in problems), problems
+
+    del report["protocol"]
+    (tmp_path / "eval_report.json").write_text(json.dumps(report), encoding="utf-8")
+    problems = checker._eval_report(tmp_path, "r")  # type: ignore[attr-defined]
+    assert any("protocol" in problem for problem in problems), problems
+
+
+def test_check_scores_requires_the_external_block(tmp_path: Path) -> None:
+    """Both shapes of the block pass the gate; not having a block at all does not.
+
+    The honest-absence shape is not a failure — a run whose external leg never ran is a legitimate
+    run — so the checker must accept it. What it must not accept is silence, because silence is
+    indistinguishable from a writer that dropped the field.
+    """
+    checker = _load_checker()
+    report = _report_with_grains()
+
+    # The shape a run carries when the leg did not run for it.
+    (tmp_path / "eval_report.json").write_text(json.dumps(report), encoding="utf-8")
+    assert checker._eval_report(tmp_path, "r") == []  # type: ignore[attr-defined]
+
+    # The shape it carries once the leg has run.
+    report["elliptic_external"] = {"available": True, "pr_auc": 0.8, "n_test": 10}
+    (tmp_path / "eval_report.json").write_text(json.dumps(report), encoding="utf-8")
+    assert checker._eval_report(tmp_path, "r") == []  # type: ignore[attr-defined]
+
+    del report["elliptic_external"]
+    (tmp_path / "eval_report.json").write_text(json.dumps(report), encoding="utf-8")
+    problems = checker._eval_report(tmp_path, "r")  # type: ignore[attr-defined]
+    assert any("elliptic_external" in problem for problem in problems), problems

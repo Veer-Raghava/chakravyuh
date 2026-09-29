@@ -1,17 +1,19 @@
 import { useEffect, useRef } from "react";
 import { useScroll } from "../scroll/ScrollContext";
-import { STATIONS, local } from "./stations";
+import { STATIONS, copyVis } from "./stations";
 import styles from "./StationCopy.module.css";
 
 /**
  * The per-station DOM copy (§7). Every station's block is rendered once and
  * stacked in the same lower-left slot; a single rAF loop sets each block's
- * opacity to its slice's rise/hold/dissolve bell, so they physically cross-fade
- * as you scroll — no text-swap bookkeeping. All copy is in the DOM (§5.5,
- * screen-reachable) and uses §3 vocabulary only.
+ * opacity, so they hand over without any text-swap bookkeeping. All copy is in
+ * the DOM (§5.5, screen-reachable) and uses §3 vocabulary only.
+ *
+ * The schedule is copyVis(), not the scenes' cross-fade — text may not be
+ * half-and-half. See the note on copyVis: the blocks switch serially.
  *
  * Opacity here is a function of scroll POSITION, not time, so the
- * reduced-motion path needs no branch — it cross-fades exactly the same.
+ * reduced-motion path needs no branch — it hands over exactly the same.
  */
 export function StationCopy() {
   const { progress } = useScroll();
@@ -21,10 +23,10 @@ export function StationCopy() {
     let raf = 0;
     const tick = () => {
       const p = progress.current ?? 0;
-      STATIONS.forEach((st, i) => {
+      STATIONS.forEach((_, i) => {
         const el = refs.current[i];
         if (!el) return;
-        const { vis } = local(p, st.slice);
+        const vis = copyVis(p, i);
         el.style.opacity = String(vis);
         // lift a touch as it resolves — a small settle, not a slide
         el.style.transform = `translateY(${(1 - vis) * 12}px)`;

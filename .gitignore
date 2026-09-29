@@ -18,7 +18,13 @@ ground_truth/
 keys/
 
 # Deliberately fetched external data (GeoLite2, Tor exit lists, fonts).
-vendor/
+# `vendor/*` rather than `vendor/`: git cannot re-include anything inside an excluded
+# directory, and the Elliptic side-loading instructions below are documentation that has to
+# travel with the repository while the dataset it describes must not.
+vendor/*
+!vendor/elliptic/
+vendor/elliptic/*
+!vendor/elliptic/README.md
 
 # data/fixtures/ is intentionally NOT ignored. DATA-CONTRACTS.md section 11
 # requires the fixture set to be committed.

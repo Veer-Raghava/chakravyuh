@@ -129,13 +129,14 @@ def detect(
         sent.filter(pl.col("n_out") >= FAN_OUT_MIN_OUTPUTS)
         .group_by("subject_id")
         .agg(
-            pl.col("txid").alias("txids"), pl.col("n_out").max().cast(pl.Float64).alias("strength")
+            pl.col("txid").sort().alias("txids"),
+            pl.col("n_out").max().cast(pl.Float64).alias("strength"),
         )
     )
     coinjoin = (
         sent.filter(pl.col("has_equal_outputs") & (pl.col("n_out") >= COINJOIN_MIN_OUTPUTS))
         .group_by("subject_id")
-        .agg(pl.col("txid").alias("txids"), pl.len().cast(pl.Float64).alias("strength"))
+        .agg(pl.col("txid").sort().alias("txids"), pl.len().cast(pl.Float64).alias("strength"))
     )
     peel = (
         sent.filter(
@@ -143,14 +144,14 @@ def detect(
             & (pl.col("min_out_sats") <= PEEL_MAX_SHARE * pl.col("total_out_sats"))
         )
         .group_by("subject_id")
-        .agg(pl.col("txid").alias("txids"), pl.len().cast(pl.Float64).alias("strength"))
+        .agg(pl.col("txid").sort().alias("txids"), pl.len().cast(pl.Float64).alias("strength"))
         .filter(pl.col("strength") >= PEEL_MIN_TXNS)
     )
     struct = (
         sent.filter(pl.col("n_out") == 1)
         .group_by("subject_id")
         .agg(
-            pl.col("txid").alias("txids"),
+            pl.col("txid").sort().alias("txids"),
             pl.len().alias("_n"),
             pl.col("total_out_sats").mean().alias("_mean"),
             pl.col("total_out_sats").cast(pl.Float64).std().alias("_std"),

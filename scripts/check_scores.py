@@ -17,6 +17,10 @@ four rules a schema check cannot see:
   object, `by_observer_fraction` and `by_traffic_type` included, `baseline_beaten` a real
   boolean — the section says a test asserts each key is present and non-null, and this is
   that test, run at gate scale rather than only in-process.
+  A row may claim the embedding model only where the report says the leg cleared its gate.
+  `model` is recorded per row so a mixed run stays auditable, and the audit is only real if
+  the claim and the measurement are compared; `gbm_gnn_v2` beside `embedding_leg.available:
+  false` is a run that shipped rows its own gate rejected.
 
 Transcribed from the contract by hand, never imported from `chakravyuh.buddhi`. A checker that
 imports the writer's constants asserts only that a module equals itself.
@@ -58,7 +62,9 @@ CALIBRATION: tuple[tuple[str, pl.DataType], ...] = (
 )
 
 LABELS = {"LIKELY_ILICIT", "UNCLEAR", "LIKELY_LICIT", "ABSTAIN"}
-MODELS = {"lightgbm_v1", "gnn_v1"}
+BASELINE_MODEL = "gbm_v2"
+EMBEDDING_MODEL = "gbm_gnn_v2"
+MODELS = {BASELINE_MODEL, EMBEDDING_MODEL}
 METHODS = {"plain_conformal", "class_conditional"}
 
 # The contract's example eval_report object: every key a reader may index, at the depth it
@@ -71,6 +77,11 @@ EVAL_REPORT: dict[str, object] = {
         "roc_auc": float,
         "precision_at_20": float,
         "recall_at_20": float,
+        # The two further grains. Actor-level is the four figures above; tx-level and
+        # campaign-level are named separately because a model can hold its actor PR-AUC while
+        # losing the campaign it was supposed to catch, and only a separate key can show that.
+        "tx_pr_auc": float,
+        "campaign_recall": float,
     },
     "origin_estimator": {
         "top1_accuracy": float,
@@ -84,7 +95,28 @@ EVAL_REPORT: dict[str, object] = {
     "seed": int,
     "run_id": str,
     "code_version": str,
+    "protocol": str,
+    # Present-and-non-null in both shapes this block has: the scored one and the honest absence.
+    # Only `available` is required, because requiring a figure here would force a run to have run
+    # the external leg before it could report at all.
+    "elliptic_external": {"available": bool},
+    # The embedding leg's gate. Only `available` is required for the same reason:
+    # `reason` is null exactly when the leg IS available, so requiring it non-null here
+    # would make the two states indistinguishable.
+    "embedding_leg": {"available": bool},
 }
+
+# The model a row may name when the embedding gate said no. A run whose embeddings did not
+# beat the baseline booster must not ship rows claiming they did, and the two-column check
+# below is the only place that can be caught after the fact.
+EMBEDDING_GATE_NOT_AVAILABLE = (
+    "wallet_scores.parquet has {n} rows claiming model {model!r} while "
+    "eval_report.embedding_leg.available is false, so the embedding leg did not clear its gate"
+)
+
+# The one protocol a reported figure may come from. A string key is present and non-null under
+# a name like "random_split" too, so this is compared rather than merely walked.
+INDUCTIVE_PROTOCOL = "inductive_time_ordered"
 
 # A complete identifier looks like one: four IPv4 octets, a 64-hex TXID, or a base58 address
 # of full length. Section 0's truncations (x.x.x.x, first6…last4, first8…last4) never match.
@@ -267,10 +299,47 @@ def _eval_report(scores_dir: Path, run_id: str) -> list[str]:
     _walk_keys(report, EVAL_REPORT, "eval_report", problems)
     if isinstance(report, dict) and report.get("run_id") not in (None, run_id):
         problems.append(f"eval_report.json names run {report['run_id']!r}, not {run_id!r}")
+    # The protocol is claimed by name, so it is checked by value: a run that split at random
+    # could carry the key with the wrong word in it and pass every other check here.
+    if isinstance(report, dict) and report.get("protocol") != INDUCTIVE_PROTOCOL:
+        problems.append(
+            f"eval_report.protocol is {report.get('protocol')!r}, "
+            f"the only reported protocol is {INDUCTIVE_PROTOCOL!r}"
+        )
     beaten = report.get("baseline_beaten") if isinstance(report, dict) else None
     if isinstance(beaten, bool) and not beaten:
         problems.append("baseline_beaten is false; the model did not clear the measured bar")
     return problems
+
+
+def _model_names(scores: pl.DataFrame) -> list[str]:
+    """Model names in `wallet_scores.parquet` outside the contract's vocabulary."""
+    stray = set(scores["model"].unique().to_list()) - MODELS
+    return [f"model values outside contract section 7: {sorted(stray)}"] if stray else []
+
+
+def _embedding_gate(scores: pl.DataFrame, scores_dir: Path) -> list[str]:
+    """Rows may claim `gbm_gnn_v2` only where the run's own report says the leg cleared its gate.
+
+    The stage writes both, so a mismatched pair is either a bug or a hand-edit; either way the
+    file that ships is not the file the gate approved, and this is the check that refuses it.
+    """
+    path = scores_dir / "eval_report.json"
+    if not path.is_file():
+        return []  # already reported by _eval_report
+    try:
+        report = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []  # already reported by _eval_report
+    leg = report.get("embedding_leg") if isinstance(report, dict) else None
+    available = leg.get("available") if isinstance(leg, dict) else None
+    n_gnn = scores.filter(pl.col("model") == EMBEDDING_MODEL).height
+    if not n_gnn or available is True:
+        return []
+    message = EMBEDDING_GATE_NOT_AVAILABLE.format(n=n_gnn, model=EMBEDDING_MODEL)
+    if isinstance(leg, dict):
+        message += f" (reason {leg.get('reason')!r})"
+    return [message]
 
 
 def _feature_vocabulary() -> set[str] | None:
@@ -306,6 +375,8 @@ def check(scores_dir: Path, run_id: str) -> list[str]:
 
     problems += _label_matches_interval(scores)
     problems += _identifiers(scores)
+    problems += _model_names(scores)
+    problems += _embedding_gate(scores, scores_dir)
     known = _feature_vocabulary()
     if known:
         problems += _top_features(scores, known)

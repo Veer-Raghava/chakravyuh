@@ -1,7 +1,7 @@
 {
   "seed": 42,
   "target_rows": 1000000,
-  "mean_announcements_per_tx": 15,
+  "mean_announcements_per_tx": 27,
   "world": {
     "n_entities": 20000,
     "illicit_entity_share": 0.05,
@@ -133,8 +133,11 @@
     "relay_delay_outbound_mean_s": 2.0,
     "relay_delay_inbound_mean_s": 5.0,
     "latency_matrix": "regions.yaml",
-    "n_observers": 16,
-    "observer_fraction": 0.7,
+    "observer_regime": "agency",
+    "observer_regimes": {
+      "agency": {"observer_fraction": 0.6, "n_observers": 48, "placement": "asn_ixp_biased"},
+      "stealth": {"observer_fraction": 0.1, "n_observers": 16, "placement": "uniform"}
+    },
     "tor_share": 0.04,
     "vpn_share": 0.08,
     "bucket_penalty": 0.15,

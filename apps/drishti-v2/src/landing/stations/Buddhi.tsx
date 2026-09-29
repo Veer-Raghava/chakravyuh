@@ -111,7 +111,7 @@ export function Buddhi({ reduced }: { reduced: boolean }) {
               <div style={{ ...datum, color: "var(--coral)", fontWeight: 600, letterSpacing: "0.06em", fontSize: "13px" }}>
                 RISK READING · {fixtures.alert.severity.toUpperCase()}
               </div>
-              <div style={{ ...prose, fontSize: "11px", color: "var(--ink-soft)", marginTop: 2 }}>a dial, not a verdict · cluster confidence 0.36 (tunable)</div>
+              <div style={{ ...prose, fontSize: "11px", color: "var(--ink-soft)", marginTop: 2 }}>a dial, not a verdict · same-owner confidence 0.36 (tunable)</div>
             </div>
           </Html>
 

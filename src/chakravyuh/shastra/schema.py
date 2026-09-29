@@ -36,6 +36,11 @@ FEATURES_SCHEMA: Final[dict[str, pl.DataType]] = {
     "n_candidates": pl.Int32(),
     "is_tor_exit": pl.Boolean(),
     "is_hosting": pl.Boolean(),
+    # The multi-observer source log-likelihood `timing_mle` ranks on and `ensemble` blends.
+    # Persisted in the struct so a reader can see the timing evidence behind a call and a replay
+    # can reproduce it; up to a per-transaction constant, so comparable within a transaction, not
+    # across.
+    "mle_logscore": pl.Float64(),
 }
 
 ORIGIN_ESTIMATES_SCHEMA: Final[dict[str, pl.DataType]] = {
@@ -48,6 +53,28 @@ ORIGIN_ESTIMATES_SCHEMA: Final[dict[str, pl.DataType]] = {
     "estimator": pl.String(),
     "abstain": pl.Boolean(),
     "abstain_reason": pl.String(),
+}
+
+# The L1/L2 headline, one row per transaction. `origin_estimates.parquet` above is the L0 host and
+# L3 shortlist substrate, at the (txid, peer_ip) grain the three ranking estimators share; this
+# file is the operator-level attribution the reframe makes the hero, lifted off the ensemble's
+# candidate mass by `asn_rollup`. `p_asn` and `p_country` are capped, never renormalised, on the
+# same reasoning `p_origin` is: the shortfall below one is the file saying the operator may be one
+# no observer heard. `shortlist_size` is the count of candidate peers inside the confidence shell
+# the L3 view draws.
+ORIGIN_L1_SCHEMA: Final[dict[str, pl.DataType]] = {
+    "txid": pl.String(),
+    "origin_asn": pl.Int32(),
+    "as_org": pl.String(),
+    "net_class": pl.String(),
+    "p_asn": pl.Float64(),
+    "origin_country": pl.String(),
+    "p_country": pl.Float64(),
+    "margin": pl.Float64(),
+    "shortlist_size": pl.Int32(),
+    "abstain": pl.Boolean(),
+    "abstain_reason": pl.String(),
+    "estimator": pl.String(),
 }
 
 TYPOLOGY_HITS_SCHEMA: Final[dict[str, pl.DataType]] = {
@@ -67,13 +94,14 @@ ENTITY_TYPES_SCHEMA: Final[dict[str, pl.DataType]] = {
     "exempt_from_scoring": pl.Boolean(),
 }
 
-# The estimator names contract section 6 permits in the `estimator` column. Two are built; the
-# other two are names the contract reserves and this stage does not write, which is why the check
-# is membership rather than equality.
+# The estimator names contract section 6 permits in the `estimator` column. Three ranking
+# estimators are built (first_spy, timing_mle, ensemble) and one L1 producer (asn_rollup); the
+# check is membership rather than equality because a run at low coverage can drop timing_mle to its
+# fallback without changing the vocabulary the file is allowed to use.
 ESTIMATORS: Final[tuple[str, ...]] = (
     "first_spy",
-    "weighted_first_seen",
-    "bayes_peer_prior",
+    "timing_mle",
+    "asn_rollup",
     "ensemble",
 )
 
@@ -83,6 +111,11 @@ ABSTAIN_REASONS: Final[tuple[str, ...]] = (
     "margin_below_floor",
     "too_few_announcements",
 )
+
+# The L1 headline can refuse for every per-candidate reason plus one of its own: the shortlist mass
+# is split across operators, so no single ASN carries the transaction. This is the abstention the
+# reframe adds, and VAANI surfaces the same split as its `cross_asn_ambiguous` counter.
+L1_ABSTAIN_REASONS: Final[tuple[str, ...]] = (*ABSTAIN_REASONS, "cross_asn_ambiguous")
 
 # What the model is allowed to look at. Every one is observable: nothing here is derived from
 # the answer key, and the two categoricals arrive as codes rather than strings so a tree cannot
@@ -102,6 +135,7 @@ MODEL_FEATURES: Final[tuple[str, ...]] = (
     "net_class_code",
     "is_tor_exit",
     "is_hosting",
+    "mle_logscore",
 )
 
 # Fixed so a model trained in one process scores identically in another. Alphabetical, with the

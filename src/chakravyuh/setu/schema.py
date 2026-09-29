@@ -83,11 +83,45 @@ PEERS_SCHEMA: Final[dict[str, pl.DataType]] = {
     "last_us": pl.Int64(),
 }
 
+# One row per observed ASN: the substrate L1 (operator-level) attribution scores against.
+# Candidate origin peers collapse onto few ASNs, so an aggregate keyed on ASN is where a guess
+# becomes defensible. `frac_rank_one` is announcement-weighted here (does traffic on this ASN
+# tend to be the earliest an observer saw?), the per-class counts are over distinct peers, and
+# `as_org`/`geo_country` are the operator label and its region. Enrichment-dependent columns are
+# null when no `vendor/` list resolved them, exactly as in `peers.parquet`.
+ASN_ROLLUP_SCHEMA: Final[dict[str, pl.DataType]] = {
+    "asn": pl.Int32(),
+    "as_org": pl.String(),
+    "geo_country": pl.String(),
+    "n_peers": pl.Int32(),
+    "n_announcements": pl.Int32(),
+    "n_txids": pl.Int32(),
+    "frac_rank_one": pl.Float64(),
+    "n_residential": pl.Int32(),
+    "n_hosting": pl.Int32(),
+    "n_mobile": pl.Int32(),
+    "n_tor_exit": pl.Int32(),
+    "n_vpn_suspect": pl.Int32(),
+    "n_unknown": pl.Int32(),
+}
+
+# The per-transaction arrival matrix the timing estimator reads: {txid -> [(observer_id,
+# peer_ip, seen_us)]} as a tidy long table, one row per announcement. Sorted on (txid, seen_us,
+# observer_id) so the earliest arrival per transaction is a group head, not a scan.
+ARRIVAL_SCHEMA: Final[dict[str, pl.DataType]] = {
+    "txid": pl.String(),
+    "observer_id": pl.String(),
+    "peer_ip": pl.String(),
+    "seen_us": pl.Int64(),
+}
+
 OUTPUTS: Final[dict[str, dict[str, pl.DataType]]] = {
     "announcements.parquet": ANNOUNCEMENTS_SCHEMA,
     "transactions.parquet": TRANSACTIONS_SCHEMA,
     "addresses.parquet": ADDRESSES_SCHEMA,
     "peers.parquet": PEERS_SCHEMA,
+    "asn_rollup.parquet": ASN_ROLLUP_SCHEMA,
+    "arrival.parquet": ARRIVAL_SCHEMA,
 }
 
 NET_CLASSES: Final[frozenset[str]] = frozenset(

@@ -24,8 +24,8 @@ import numpy as np
 import polars as pl
 
 from chakravyuh import buildinfo
-from chakravyuh.buddhi import features, model
-from chakravyuh.buddhi.features import MODEL_FEATURES
+from chakravyuh.buddhi import embed, features, model
+from chakravyuh.buddhi.features import ALL_FEATURES, EMBEDDING_FEATURES, MODEL_FEATURES
 
 INPUT_ROOT: Final[str] = "data"
 OUTPUT_ROOT: Final[str] = "data/generated"
@@ -33,6 +33,9 @@ OUT_DIR: Final[str] = "scores"
 REQUIRED_TABLES: Final[tuple[str, ...]] = ("transactions.parquet", "addresses.parquet")
 SIGNALS_DIR: Final[str] = "signals"
 SIGNALS_TABLE: Final[str] = "origin_estimates.parquet"
+# The operator-grain headline SHASTRA ships beside the host-grain one. Absent in a world with no
+# ASN substrate, which is why every read of it is a file-exists check rather than an assumption.
+L1_TABLE: Final[str] = "origin_l1.parquet"
 GRAPH_DIR: Final[str] = "graph"
 GRAPH_TABLES: Final[tuple[str, ...]] = ("clusters.parquet", "edges.parquet")
 CONFIG_NAME: Final[str] = "config.effective.json"
@@ -49,7 +52,14 @@ LABEL_UNCLEAR: Final[str] = "UNCLEAR"
 LABEL_LIKELY_LICIT: Final[str] = "LIKELY_LICIT"
 LABEL_ABSTAIN: Final[str] = "ABSTAIN"
 
-MODEL_NAME: Final[str] = "lightgbm_v1"
+# The half-width of the displayed score interval, as a fraction of the score itself.
+CONFORMAL_BAND: Final[float] = 0.15
+
+MODEL_NAME: Final[str] = "gbm_v2"
+# The booster that also sees the label-free graph embedding. `wallet_scores.parquet` records which
+# of the two scored each row, so a run where only some subjects have a graph position says so in
+# the data rather than in a footnote.
+MODEL_NAME_GNN: Final[str] = "gbm_gnn_v2"
 STAGE: Final[str] = "buddhi"
 
 
@@ -145,6 +155,21 @@ def _meta_link(directory: Path) -> tuple[str | None, str | None]:
     return _repo_relative(candidate), hashlib.sha256(candidate.read_bytes()).hexdigest()
 
 
+def _conf_bounds(risk_score: float, in_set_0: bool, in_set_1: bool) -> tuple[float, float]:
+    """The `conf_low` / `conf_high` the console prints for one subject.
+
+    A conformal set is a set of labels, not a probability range, so it cannot be read back as an
+    interval: every alert's set is the single element `{1}`, which the old mapping turned into
+    `(1.0, 1.0)` — a band that claims the calibration pinned the risk at certainty. The interval is
+    therefore taken from the score, widened by `CONFORMAL_BAND`, and clamped to [0, 1]. The one
+    case the score cannot speak to is the genuinely ambiguous set, which keeps the full interval.
+    """
+    if in_set_0 and in_set_1:
+        return 0.0, 1.0
+    score = min(max(float(risk_score), 0.0), 1.0)
+    return max(0.0, score * (1.0 - CONFORMAL_BAND)), min(1.0, score * (1.0 + CONFORMAL_BAND))
+
+
 def _row_label(in_set_0: bool, in_set_1: bool) -> str:
     """Section 7's `label`, from the conformal set alone.
 
@@ -217,12 +242,24 @@ def _calibration_frame(
     return pl.DataFrame(rows, schema=schema)
 
 
+def _embedding_complete(frame: pl.DataFrame) -> pl.Series:
+    """One bool per row: this subject has every embedding column, so the GNN booster can score it.
+
+    Read from the columns rather than from a flag column, because the columns are what the booster
+    actually consumes: a row with a null in one direction cannot be scored by a model trained on
+    eight, and a flag that said otherwise would be a flag that lies.
+    """
+    mask = pl.all_horizontal(pl.col(name).is_not_null() for name in EMBEDDING_FEATURES)
+    return frame.select(mask.alias("_embedded"))["_embedded"]
+
+
 def build_run(
     run_dir: Path,
     out: Path,
     *,
     labels: pl.DataFrame | None,
     boundary_us: int | None,
+    use_embeddings: bool = False,
 ) -> tuple[Path, pl.DataFrame | None]:
     """Build `<out>/scores/` from the run's `normalised/`, `graph/` and `signals/`.
 
@@ -237,6 +274,13 @@ def build_run(
     Returns the `_meta.json` path and the holdout subjects' predictions (`subject_id`,
     `addresses`, `risk_score`, `in_set_0`, `in_set_1`, `abstain`) for `__main__.py` to hand to
     `chakravyuh.eval.metrics`. The stage never sees what that call made of them.
+
+    `use_embeddings` switches on the GNN leg: `features.build` then also produces the dual-graph
+    embedding, and a second booster is trained over the subjects that have one. Rows the second
+    booster cannot score keep the baseline model's verdict and say so in their `model` column. The
+    leg's *credibility* is not decided here — the stage has no holdout labels to decide it with —
+    so the predictions also carry the baseline booster's score for the same rows, and the eval side
+    (which owns the labels) makes that call in `_eval_report`.
     """
     started_at_us = int(datetime.now(tz=UTC).timestamp() * 1_000_000)
     config = settings(run_dir)
@@ -263,16 +307,26 @@ def build_run(
         run_dir / SIGNALS_DIR / "typology_hits.parquet",
         columns=["subject_id", "typology", "txids"],
     )
+    # The operator-grain headline, when this run shipped one: a world with no ASN substrate writes
+    # the file empty, and an empty frame is a null feature rather than a missing column.
+    l1_path = run_dir / SIGNALS_DIR / L1_TABLE
+    origin_l1 = (
+        pl.read_parquet(l1_path, columns=list(features.ORIGIN_L1_COLUMNS))
+        if l1_path.is_file()
+        else None
+    )
     rows = {
         "transactions.parquet": transactions.height,
         "addresses.parquet": addresses.height,
         "clusters.parquet": clusters.height,
         "edges.parquet": edges.height,
         SIGNALS_TABLE: origin_estimates.height,
+        L1_TABLE: origin_l1.height if origin_l1 is not None else 0,
     }
 
     # No boundary means no window can be called train, which cannot leak because nothing trains.
     resolved_boundary = boundary_us if boundary_us is not None else 0
+    feature_columns = MODEL_FEATURES + (EMBEDDING_FEATURES if use_embeddings else ())
     subject_table = features.build(
         transactions,
         clusters,
@@ -281,6 +335,8 @@ def build_run(
         origin_estimates,
         resolved_boundary,
         typology_hits=typology_hits,
+        origin_l1=origin_l1,
+        use_embeddings=use_embeddings,
     )
     members = features.subjects(clusters, addresses)
     subject_addresses = members.group_by("subject_id", maintain_order=True).agg(
@@ -316,19 +372,35 @@ def build_run(
             (2 * pl.col("y").sum() > pl.len()).cast(pl.Int64).alias("y")
         )
         train_frame = train_subjects.join(y_by_subject, on="subject_id", how="inner").select(
-            "_order", "y", *MODEL_FEATURES
+            "_order", "y", *feature_columns
         )
     else:
         train_frame = (
             train_subjects.head(0)
             .with_columns(pl.lit(None, dtype=pl.Int64).alias("y"))
-            .select("_order", "y", *MODEL_FEATURES)
+            .select("_order", "y", *feature_columns)
         )
 
     bundle, calibrated = model.fit(
         train_frame, seed=config.seed, coverage_target=config.coverage_target
     )
-    scored = subject_table.select("subject_id", "is_train", *MODEL_FEATURES)
+    # The GNN booster, over the train subjects the embedding actually covers. A subject with no
+    # node in its window's graph is not a row with zeros — it is a row this model has no opinion
+    # about, so it is excluded rather than imputed, and the baseline model answers for it below.
+    gnn_bundle: dict[str, Any] = {}
+    gnn_calibrated = model.Calibrated(False, False, 0, 0, 0, "embeddings_not_requested")
+    n_train_with_embedding = 0
+    if use_embeddings:
+        covered = train_frame.filter(_embedding_complete(train_frame))
+        n_train_with_embedding = covered.height
+        gnn_bundle, gnn_calibrated = model.fit(
+            covered,
+            seed=config.seed,
+            coverage_target=config.coverage_target,
+            features=ALL_FEATURES,
+        )
+
+    scored = subject_table.select("subject_id", "is_train", *feature_columns)
     scores: list[float] | np.ndarray
     shap_values: list[list[dict[str, Any]]]
     if bundle:
@@ -351,11 +423,48 @@ def build_run(
         scores = [0.5] * n
         shap_values = [[] for _ in range(n)]
 
+    # The baseline booster's score for every subject, captured before the GNN overlay replaces any
+    # of them. This is the counterfactual the eval side needs in order to say whether the embedding
+    # leg earned its columns; the stage itself has no holdout label to judge that with.
+    baseline_scores = np.asarray(scores, dtype="float64")
+
     warnings: list[str] = []
     if not calibrated.trained:
         warnings.append(f"model_untrained_{calibrated.reason}")
     elif not calibrated.mondrian:
         warnings.append(f"conformal_plain_only_{calibrated.reason}")
+
+    # Which booster answered for each row, decided by the embeddings that row actually has.
+    model_of_row = np.array([MODEL_NAME] * scored.height, dtype=object)
+    if gnn_bundle:
+        on_gnn = _embedding_complete(scored).to_numpy()
+        if on_gnn.any():
+            subset = scored.filter(pl.Series(on_gnn))
+            gnn_sets = model.predict_sets(gnn_bundle, subset)
+            gnn_scores = model.risk_scores(gnn_bundle, subset)
+            gnn_shap = model.top_shap(gnn_bundle, subset)
+            sets = sets.with_columns(
+                [
+                    pl.when(pl.Series(on_gnn)).then(gnn_sets[column]).otherwise(pl.col(column))
+                    for column in ("in_set_0", "in_set_1", "_plain_set0", "_plain_set1")
+                ]
+            )
+            scores = np.where(on_gnn, gnn_scores, scores)
+            answered = iter(gnn_shap)
+            shap_values = [
+                next(answered) if on else row for on, row in zip(on_gnn, shap_values, strict=True)
+            ]
+            model_of_row[on_gnn] = MODEL_NAME_GNN
+        else:
+            warnings.append("no_subject_has_a_graph_embedding_gnn_booster_unused")
+        if not gnn_calibrated.trained:
+            warnings.append(f"gnn_model_untrained_{gnn_calibrated.reason}")
+    elif use_embeddings:
+        warnings.append("gnn_booster_not_trained_rows_fall_back_to_the_baseline_model")
+
+    n_gnn_rows = int((model_of_row == MODEL_NAME_GNN).sum())
+    if use_embeddings and n_gnn_rows == 0:
+        warnings.append("gnn_requested_and_no_row_was_scored_by_it")
 
     out_frame = pl.DataFrame(
         {
@@ -367,20 +476,32 @@ def build_run(
             "_plain_set1": sets["_plain_set1"].to_list(),
         }
     ).join(subject_addresses, on="subject_id", how="left")
+    if use_embeddings:
+        out_frame = out_frame.with_columns(pl.Series("risk_score_baseline", baseline_scores))
 
     # What the eval side scores: holdout subjects only, with no `label` column anywhere in it.
+    # `risk_score_baseline` travels with them so the eval side can score the same subjects by the
+    # booster the run shipped without — it is not part of section 7 and never reaches
+    # `wallet_scores.parquet`, which is built from `wallet_output` below.
     holdout_predictions = (
         out_frame.filter(~scored["is_train"])
         .select(
             "subject_id",
             "addresses",
             "risk_score",
+            *(["risk_score_baseline"] if use_embeddings else []),
             "in_set_0",
             "in_set_1",
         )
         .with_columns((~(pl.col("in_set_0") | pl.col("in_set_1"))).alias("abstain"))
     )
 
+    bounds = [
+        _conf_bounds(score, s0, s1)
+        for score, s0, s1 in zip(
+            out_frame["risk_score"], out_frame["in_set_0"], out_frame["in_set_1"], strict=True
+        )
+    ]
     wallet_output = pl.DataFrame(
         {
             "subject_id": out_frame["subject_id"],
@@ -389,10 +510,10 @@ def build_run(
                 _row_label(s0, s1)
                 for s0, s1 in zip(out_frame["in_set_0"], out_frame["in_set_1"], strict=True)
             ],
-            "conf_low": [0.0 if s0 else 1.0 for s0 in out_frame["in_set_0"]],
-            "conf_high": [1.0 if s1 else 0.0 for s1 in out_frame["in_set_1"]],
+            "conf_low": [low for low, _ in bounds],
+            "conf_high": [high for _, high in bounds],
             "coverage_target": [config.coverage_target] * out_frame.height,
-            "model": [MODEL_NAME] * out_frame.height,
+            "model": model_of_row.tolist(),
             "top_features": shap_values,
             "abstain": (~(out_frame["in_set_0"] | out_frame["in_set_1"])).to_list(),
         }
@@ -446,6 +567,28 @@ def build_run(
             ),
             "calibration": "mondrian class-conditional conformal (LAC), plain LAC alongside",
             "fit": asdict(calibrated),
+            # The GNN leg's own record, absent unless the leg ran. A reader asking "which model
+            # produced this row" gets the answer twice: per row in `wallet_scores.parquet`'s
+            # `model` column, and in aggregate here.
+            "model_gnn": (
+                {
+                    "kind": "lightgbm_binary_native_api",
+                    "features": list(ALL_FEATURES),
+                    "embedding": {
+                        "source": "buddhi.embed.label_free_dual_graph",
+                        "dim": embed.DIM,
+                        "hops": embed.HOPS,
+                    },
+                    "n_train_with_embedding": n_train_with_embedding,
+                    "n_rows_scored": n_gnn_rows,
+                    "num_boost_round": model.BOOST_ROUNDS,
+                    **model.TREE_PARAMS,
+                    "seed": config.seed,
+                }
+                if gnn_bundle
+                else None
+            ),
+            "fit_gnn": asdict(gnn_calibrated) if use_embeddings else None,
             "label_policy": (
                 "UNCLEAR when both conformal classes are in the set, ABSTAIN when neither, "
                 "otherwise the class the set names"

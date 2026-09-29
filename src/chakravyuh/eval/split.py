@@ -23,6 +23,11 @@ from __future__ import annotations
 TRAIN = "train"
 HOLDOUT = "holdout"
 
+# The name every reported holdout figure is filed under. There is exactly one protocol this
+# project reports — train on the past, test on the future — so the name lives beside the
+# boundary that implements it rather than being retyped by each writer and each checker.
+PROTOCOL = "inductive_time_ordered"
+
 
 def boundary_us(first_us: int, last_us: int, train_fraction: float) -> int:
     """The first microsecond that is *not* in the training window.

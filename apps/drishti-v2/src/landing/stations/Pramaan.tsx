@@ -6,6 +6,7 @@ import { C } from "../../styles/palette";
 import { useScroll } from "../../scroll/ScrollContext";
 import { STATIONS, local } from "../stations";
 import { fixtures } from "../../data/loader";
+import { ownerGroupLabel } from "../../data/jaal";
 
 /**
  * ST.7 PRAMAAN (प्रमाण · "proof") — the finish line (§7). The whole run
@@ -25,11 +26,21 @@ const P = fixtures.packet;
 const A = P.attribution;
 const utc = (us: number) => new Date(us / 1000).toISOString().slice(0, 19).replace("T", " ") + "Z";
 const GEN = utc(P.generated_at_us);
-const PEER = A.peer_ip.split(".").slice(0, 2).join(".") + ".x.x"; // two-octet mask
-const ORIGIN_TX = "da4daa38…8b27";
-const SUBJECT = P.subject.subject_id;
+// The attributed peer is shortlist rank 1; its `peer_ip_display` is the backend's
+// OWN two-octet mask, so the card renders exactly as packet.pdf does (§9).
+const LEAD = A.shortlist[0];
+const PEER = LEAD.peer_ip_display;
+const SUBJECT = ownerGroupLabel(P.subject.subject_id);
 const PACKET_SHA = P.replay.expected_packet_sha256;
-const ROWS = P.input.rows_sealed.toLocaleString("en-IN");
+const MERKLE = P.merkle_head;
+const ROWS = P.input.rows_sealed.toLocaleString("en-US");
+// The run size and the run's proof count, from the same fixture the counter + funnel read —
+// the card must not quote a world size the rest of the page contradicts. "1 of 4" is the
+// honest line: this card is ONE case's document, and the funnel bead behind it says the run
+// produced four. Left as a bare "1" the two numbers read as a disagreement.
+const FUNNEL_LAST = fixtures.world.funnel[fixtures.world.funnel.length - 1];
+const SIGNALS = fixtures.world.funnel[0].count.toLocaleString("en-US");
+const PROOFS = FUNNEL_LAST.count;
 
 const SHARDS = 30;
 const RINGS = [2.95, 2.35, 1.8];
@@ -127,11 +138,15 @@ export function Pramaan({ reduced }: { reduced: boolean }) {
     }
     mats.shard.opacity = vis * (1 - THREE.MathUtils.smoothstep(t, 0.55, 0.72));
 
-    // ★ the proof card assembles — crisp, full opacity, then holds till the exit
+    // ★ the proof card assembles — crisp, full opacity, and then it HOLDS.
+    // There is no station after this one, so the card is the last thing on the
+    // page and must survive to the bottom of it. It used to exit over t 0.9→1,
+    // which shelled it out exactly at the scroll limit: the run ended on bare
+    // paper with nothing but the copy and the button, which reads as the page
+    // having stalled rather than finished. Same rule as `local()`'s b >= 1 guard.
     if (cardRef.current) {
       const form = reduced ? 1 : THREE.MathUtils.smoothstep(t, 0.3, 0.54);
-      const exit = reduced ? 1 : 1 - THREE.MathUtils.smoothstep(t, 0.9, 1.0);
-      cardRef.current.style.opacity = String(form * exit);
+      cardRef.current.style.opacity = String(form);
       cardRef.current.style.transform = `scale(${(0.93 + 0.07 * form).toFixed(3)})`;
     }
 
@@ -188,19 +203,23 @@ export function Pramaan({ reduced }: { reduced: boolean }) {
 
             <div style={{ fontFamily: "var(--font-display)", fontSize: 34, lineHeight: 1.0, margin: "10px 0 3px" }}>One proof.</div>
             <div style={{ fontSize: 9.5, color: "var(--ink-soft)", letterSpacing: "0.03em", marginBottom: 12 }}>
-              1,000,000 signals → <span style={{ color: "var(--coral)", fontWeight: 600 }}>1</span> court-ready document
+              {SIGNALS} signals → <span style={{ color: "var(--coral)", fontWeight: 600 }}>1 of {PROOFS}</span> court-ready proofs
             </div>
 
-            <Row k="origin tx" v={ORIGIN_TX} />
-            <Row k="announcing IP · port" v={`${PEER} · ${A.peer_port}`} />
+            {/* the operator IS the finding (§2) — the masked host stays a lower officer line */}
             <Row k="network operator" v={`AS${A.asn} · ${A.geo_country}`} />
-            <Row k="origin likelihood" v={A.p_origin.toFixed(4)} accent />
+            <Row k="operator likelihood" v={A.p_asn.toFixed(4)} accent />
+            <Row k="observed (UTC)" v={A.observed_at_utc.slice(0, 19).replace("T", " ") + " UTC"} />
+            <Row k="announcing IP · port (officer only)" v={`${PEER} · ${LEAD.peer_port}`} />
             <Row k="subject" v={SUBJECT} />
             <Row k="rows sealed" v={ROWS} />
+            <Row k="attribution" v={P.attribution_ready ? "ready · operator + region + UTC" : "not ready"} />
 
             <div style={{ marginTop: 11 }}>
               <div style={{ fontSize: 8, letterSpacing: "0.14em", color: "var(--ink-soft)", marginBottom: 3 }}>PACKET SHA-256 · IN FULL (BSA 2023 §63(4))</div>
               <div style={{ fontSize: 9, lineHeight: 1.5, color: "var(--riso-blue)", wordBreak: "break-all" }}>{PACKET_SHA}</div>
+              <div style={{ fontSize: 8, letterSpacing: "0.14em", color: "var(--ink-soft)", margin: "8px 0 3px" }}>MERKLE HEAD · IN FULL</div>
+              <div style={{ fontSize: 9, lineHeight: 1.5, color: "var(--riso-blue)", wordBreak: "break-all" }}>{MERKLE}</div>
             </div>
 
             <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-between", fontSize: 8, color: "var(--ink-soft)", letterSpacing: "0.03em" }}>

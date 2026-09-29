@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useScroll } from "../scroll/ScrollContext";
-import { STATIONS, funnelValue } from "./stations";
+import { STATIONS, funnelValue, owns } from "./stations";
 import styles from "./FunnelCounter.module.css";
 
 /**
@@ -42,9 +42,10 @@ export function FunnelCounter() {
         numRef.current.textContent = fmt.format(n);
         lastN = n;
       }
-      // current station = the last one whose slice has started
+      // current station = the one that has taken ownership of the screen, i.e.
+      // the same instant funnelValue() switches the number over
       let cur = STATIONS[0];
-      for (const st of STATIONS) if (p >= st.slice[0]) cur = st;
+      for (const st of STATIONS) if (p >= owns(st)) cur = st;
       const u = UNIT[cur.id];
       if (u !== lastUnit && unitRef.current) {
         unitRef.current.textContent = u;

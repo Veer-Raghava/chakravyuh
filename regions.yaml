@@ -17,16 +17,21 @@
 #
 # `jitter_ms` is the per-link jitter scale for links originating in that region, applied on
 # top of the base latency below. Mobile-heavy and long-haul regions jitter more.
+#
+# `org` is the operator name for that region's ASN: the human-readable half of L1 attribution.
+# The names are invented (they pair with documentation-range ASNs, so naming a real registered
+# operator here would be the same failure the doc-range addresses avoid). This is the single
+# source for `true_origin_as_org`; no other file names an operator.
 
 regions:
-  asia_in:    {share: 0.25, country: IN, asn: 64496, jitter_ms: 11}
-  asia_sg:    {share: 0.09, country: SG, asn: 64497, jitter_ms: 7}
-  asia_jp:    {share: 0.06, country: JP, asn: 64498, jitter_ms: 6}
-  eu_de:      {share: 0.17, country: DE, asn: 64499, jitter_ms: 5}
-  eu_nl:      {share: 0.10, country: NL, asn: 64500, jitter_ms: 5}
-  na_us_east: {share: 0.16, country: US, asn: 64501, jitter_ms: 6}
-  na_us_west: {share: 0.11, country: US, asn: 64502, jitter_ms: 6}
-  sa_br:      {share: 0.06, country: BR, asn: 64503, jitter_ms: 12}
+  asia_in:    {share: 0.25, country: IN, asn: 64496, jitter_ms: 11, org: "Indus Broadband"}
+  asia_sg:    {share: 0.09, country: SG, asn: 64497, jitter_ms: 7,  org: "Lion City Telecom"}
+  asia_jp:    {share: 0.06, country: JP, asn: 64498, jitter_ms: 6,  org: "Sakura Networks"}
+  eu_de:      {share: 0.17, country: DE, asn: 64499, jitter_ms: 5,  org: "Rhein Datacenter"}
+  eu_nl:      {share: 0.10, country: NL, asn: 64500, jitter_ms: 5,  org: "Lowlands Transit"}
+  na_us_east: {share: 0.16, country: US, asn: 64501, jitter_ms: 6,  org: "Atlantic Fiber"}
+  na_us_west: {share: 0.11, country: US, asn: 64502, jitter_ms: 6,  org: "Pacific Cloud"}
+  sa_br:      {share: 0.06, country: BR, asn: 64503, jitter_ms: 12, org: "Amazonia Telecom"}
 
 # One-way base latency in milliseconds. Symmetric, and the parser asserts that: an
 # asymmetric typo would quietly bias peer selection in one direction only. The diagonal is

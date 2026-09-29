@@ -137,7 +137,7 @@ export function Vaani({ reduced }: { reduced: boolean }) {
               <div style={{ ...panel, width: 210 }}>
                 <div style={kicker}>THE LEAD</div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", lineHeight: 1.7, color: "var(--ink-soft)" }}>
-                  <div>network · {fixtures.alert.origin.origin_peer_display} · src port {A.peer_port}</div>
+                  <div>network · {fixtures.alert.origin.shortlist.find((l) => l.rank === 1)?.peer_ip_display} · src port {A.peer_port}</div>
                   <div>operator · AS{A.asn} ({A.geo_country})</div>
                   <div>first announced · {WHEN}</div>
                 </div>

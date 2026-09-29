@@ -1,0 +1,19 @@
+{
+  "available": true,
+  "caveat": "Same training procedure as our own leg (time-ordered split, same booster params, same conformal wrap) on the Elliptic transactions and the labels its authors gave them; Elliptic's own columns are not our named morphology, so this replicates the method, not the feature set.",
+  "dataset": "elliptic",
+  "f1": 0.766174,
+  "illicit_rate": 0.097608,
+  "n_illicit": 4545,
+  "n_test": 17185,
+  "n_train": 29379,
+  "pr_auc": 0.778296,
+  "precision": 0.892052,
+  "protocol": "inductive_time_ordered",
+  "recall": 0.671429,
+  "roc_auc": 0.936546,
+  "seed": 42,
+  "source_name": "elliptic_txs_features.csv",
+  "source_sha256": "2db326ec8ddb68f1d810c1834e1ff62e0a8300378f0984a1e3b2ca82a439821b",
+  "train_fraction": 0.7
+}

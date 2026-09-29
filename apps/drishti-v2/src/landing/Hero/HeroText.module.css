@@ -2,7 +2,9 @@
   position: absolute;
   left: clamp(1.5rem, 6vw, 7rem);
   bottom: clamp(2rem, 12vh, 8rem);
-  max-width: min(46rem, 82vw);
+  /* The formation owns the right of the stage, so the copy keeps a narrow measure
+     on wide screens — that asymmetry is the composition, not a default column. */
+  max-width: min(34rem, 44vw);
   transition:
     opacity 0.7s var(--ease-in-confident),
     transform 0.7s var(--ease-in-confident);
@@ -37,7 +39,9 @@
 .headline {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: var(--t-display);
+  /* Deliberately under --t-display: the formation shares the stage, so the hero
+     line is sized to its own measure rather than the full-bleed display scale. */
+  font-size: clamp(3rem, 8.6vw, 7.25rem);
   line-height: 0.95;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -51,12 +55,25 @@
   font-size: var(--t-sub);
   line-height: 1.4;
   color: var(--ink-soft);
-  max-width: 34rem;
+  max-width: 26rem;
   margin: 1.6rem 0 0;
 }
 .sub b {
   color: var(--ink);
   font-weight: 600;
+}
+
+/* Below the split: the formation moves up and the copy takes the width back. */
+@media (max-width: 1119px) {
+  .wrap {
+    max-width: min(46rem, 84vw);
+  }
+  .headline {
+    font-size: var(--t-display);
+  }
+  .sub {
+    max-width: 34rem;
+  }
 }
 
 @media (max-width: 640px) {

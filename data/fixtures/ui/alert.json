@@ -1,25 +1,46 @@
 {
-  "alert_id": "alw-63329995d8e6",
+  "alert_id": "alw-86c94e363f0f",
   "attribution_ready": true,
+  "base_rate": 0.018518518518518517,
   "conf_high": 1.0,
-  "conf_low": 1.0,
+  "conf_low": 0.8477401129507357,
+  "confidence": {
+    "coverage_target": 0.9,
+    "empirical_coverage": 0.947154,
+    "high": 1.0,
+    "label": "LIKELY_ILLICIT",
+    "low": 0.8477401129507357,
+    "score": 0.9973413093538067
+  },
   "counters": [
     {
+      "kind": "entity_type_conflict",
+      "statement": "the fan out pattern this alert rests on has a benign reading: a wide fan also matches marketplace payouts and wage batches",
+      "strength": 4.0,
+      "would_clear": false
+    },
+    {
+      "kind": "entity_type_conflict",
+      "statement": "the coinjoin like pattern this alert rests on has a benign reading: equal-value outputs also come from privacy wallets used for anonymity alone",
+      "strength": 0.5,
+      "would_clear": false
+    },
+    {
       "kind": "insufficient_observation",
-      "statement": "all observed announcing peers together account for only 5% of the estimated origin probability, so the true originator may not have been observed at all",
-      "strength": 0.9528,
+      "statement": "all observed announcing peers together account for only 27% of the estimated origin probability, so the true originator may not have been observed at all",
+      "strength": 0.7298,
       "would_clear": false
     },
     {
       "kind": "low_origin_margin",
       "statement": "the leading origin candidate is only narrowly ahead of the runner-up, which is too thin a margin to act on",
-      "strength": 0.9376,
+      "strength": 0.062,
       "would_clear": false
     },
     {
       "kind": "shared_ip",
-      "statement": "the same network address announces traffic for 31 distinct subjects, so it may be a shared relay rather than an owner",
-      "strength": 0.9677,
+      "statement": "the same network address announces traffic for 339 distinct subjects, so it may be a shared relay rather than an owner",
+      "strength": 0.9971,
       "would_clear": false
     }
   ],
@@ -27,146 +48,515 @@
   "evidence": [
     {
       "kind": "origin_estimate",
-      "source_ref": "signals/origin_estimates.parquet#tx_prefix=da4daa38",
-      "statement": "transaction da4daa38\u20268b27 is estimated to have originated from network address 198.19.x.x with probability 0.018"
+      "source_ref": "signals/origin_estimates.parquet#tx_prefix=0558fde4",
+      "statement": "transaction 0558fde4\u20265ecf is estimated to have originated from network address 2001:db8:x:x with probability 0.098"
     },
     {
       "kind": "network_context",
-      "source_ref": "normalised/announcements.parquet#row_id=3381",
-      "statement": "the network address was first observed announcing that transaction at 2026-01-01 02:48:20Z, observation row 3381"
+      "source_ref": "normalised/announcements.parquet#row_id=460775",
+      "statement": "the network address was first observed announcing that transaction at 2026-01-03 20:05:07Z, observation row 460775"
     },
     {
       "kind": "cluster_edge",
-      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:3gen0izzzzzzzzzzzzzzzzzzzzzzz37a37",
       "statement": "the subject is a single address that no clustering heuristic linked to anything else"
     }
   ],
   "features": [
     {
       "name": "model_feature",
-      "statement": "this wallet's average fee per vbyte its sends paid raised its risk score substantially",
-      "weight": 1.486501
+      "statement": "this wallet's most addresses it consolidated into a single transaction raised its risk score substantially",
+      "weight": 3.173943
     },
     {
       "name": "model_feature",
-      "statement": "this wallet's satoshis it sent in its window raised its risk score substantially",
-      "weight": 1.332355
-    },
-    {
-      "name": "model_feature",
-      "statement": "this wallet's how far ahead the top origin candidate usually was raised its risk score substantially",
-      "weight": 1.141628
-    },
-    {
-      "name": "model_feature",
-      "statement": "this wallet's average origin confidence on the transactions it sent raised its risk score substantially",
-      "weight": 0.896127
+      "statement": "this wallet's share of its transactions with equal-value outputs, a coinjoin mark raised its risk score substantially",
+      "weight": 2.845019
     },
     {
       "name": "model_feature",
       "statement": "this wallet's distinct wallets it transacted with raised its risk score substantially",
-      "weight": 0.786552
+      "weight": 1.716391
+    },
+    {
+      "name": "model_feature",
+      "statement": "this wallet's typical gap between one of its receipts and its next send raised its risk score substantially",
+      "weight": 0.846055
+    },
+    {
+      "name": "model_feature",
+      "statement": "this wallet's transactions that paid it in its window raised its risk score substantially",
+      "weight": 0.623846
     }
   ],
-  "headline": "illicit: high average fee per vbyte its sends paid; high satoshis it sent in its window",
+  "headline": "illicit: high most addresses it consolidated into a single transaction; high share of its transa...",
   "origin": {
     "abstain": false,
     "abstain_reason": "",
-    "first_seen_us": 1767235700630977,
-    "lanes": [
+    "attribution": {
+      "as_org": "AS64499 DE documentation network",
+      "asn": 64499,
+      "geo_country": "DE",
+      "margin": 0.00043086406814593636,
+      "net_class": "residential",
+      "p_asn": 0.13611380491923872,
+      "p_country": 0.20023340440606333
+    },
+    "estimator": "ensemble",
+    "features": [
+      {
+        "gloss": "how long after the transaction was first seen this peer announced it; the origin is usually first",
+        "label": "first-announcement lead",
+        "value": "0.0 ms"
+      },
+      {
+        "gloss": "this peer's position in the order peers announced the transaction",
+        "label": "announcement rank",
+        "value": "1"
+      },
+      {
+        "gloss": "how many peers announced the transaction and could be its origin",
+        "label": "competing peers",
+        "value": "26"
+      },
+      {
+        "gloss": "the share of this peer's transactions on which it announced first",
+        "label": "first-seen habit",
+        "value": "0.021"
+      },
+      {
+        "gloss": "how many distinct transactions this peer has been seen announcing",
+        "label": "peer activity",
+        "value": "652"
+      },
+      {
+        "gloss": "the kind of network the peer's address sits in",
+        "label": "network class",
+        "value": "residential"
+      },
+      {
+        "gloss": "whether the peer is a known Tor exit, where origin cannot be attributed to a subscriber",
+        "label": "Tor exit",
+        "value": "no"
+      },
+      {
+        "gloss": "whether the peer sits in a datacentre rather than on a residential line",
+        "label": "hosting network",
+        "value": "no"
+      },
+      {
+        "gloss": "the time between the first and last announcement of the transaction",
+        "label": "announcement spread",
+        "value": "0.0 ms"
+      },
+      {
+        "gloss": "how many capture nodes recorded this peer's announcement",
+        "label": "monitors that saw it",
+        "value": "1"
+      }
+    ],
+    "first_seen_us": 1767470707382816,
+    "margin": 0.0750417551118587,
+    "origin_peer_display": "2001:db8:x:x",
+    "p_origin": 0.09769551244001312,
+    "runner_up_display": "198.19.x.x",
+    "runner_up_p": 0.022653757328154424,
+    "shortlist": [
       {
         "announcements_ms": [
           0
         ],
-        "as_org": "",
-        "asn": 64503,
-        "geo_country": "BR",
-        "net_class": "",
-        "p_origin": 0.01785257921281476,
-        "peer_ip": "198.19.221.238",
-        "peer_ip_display": "198.19.x.x",
-        "peer_port": 54099,
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470707382816,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.09769551244001312,
+        "peer_ip": "2001:db8:7f1e:5853:af90:b064:30b8:c0db",
+        "peer_ip_display": "2001:db8:x:x",
+        "peer_port": 42704,
         "rank": 1
       },
       {
         "announcements_ms": [
-          12541
+          188382
         ],
-        "as_org": "",
-        "asn": 64499,
-        "geo_country": "DE",
-        "net_class": "",
-        "p_origin": 0.0017725689504466213,
-        "peer_ip": "100.88.0.37",
-        "peer_ip_display": "100.88.x.x",
-        "peer_port": 41236,
-        "rank": 6
-      },
-      {
-        "announcements_ms": [
-          480000
-        ],
-        "as_org": "",
-        "asn": 64499,
-        "geo_country": "DE",
-        "net_class": "",
-        "p_origin": 0.012862050880463712,
-        "peer_ip": "198.18.222.58",
-        "peer_ip_display": "198.18.x.x",
-        "peer_port": 59652,
+        "as_org": "AS64502 US documentation network",
+        "asn": 64502,
+        "first_seen_us": 1767470707571198,
+        "geo_country": "US",
+        "net_class": "residential",
+        "p_origin": 0.022653757328154424,
+        "peer_ip": "198.19.165.201",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 35520,
         "rank": 2
       },
       {
         "announcements_ms": [
-          837327
+          342792
         ],
-        "as_org": "",
-        "asn": 64499,
-        "geo_country": "DE",
-        "net_class": "",
-        "p_origin": 0.006205727572911222,
-        "peer_ip": "198.18.209.118",
+        "as_org": "AS64497 SG documentation network",
+        "asn": 64497,
+        "first_seen_us": 1767470707725608,
+        "geo_country": "SG",
+        "net_class": "residential",
+        "p_origin": 0.018137704736861382,
+        "peer_ip": "198.18.88.219",
         "peer_ip_display": "198.18.x.x",
-        "peer_port": 43980,
-        "rank": 4
+        "peer_port": 54162,
+        "rank": 3
       },
       {
         "announcements_ms": [
-          1554747
+          548324
         ],
-        "as_org": "",
-        "asn": 64500,
-        "geo_country": "NL",
-        "net_class": "",
-        "p_origin": 0.0017764568028497952,
-        "peer_ip": "198.19.7.134",
+        "as_org": "AS64502 US documentation network",
+        "asn": 64502,
+        "first_seen_us": 1767470707931140,
+        "geo_country": "US",
+        "net_class": "residential",
+        "p_origin": 0.005317297450996116,
+        "peer_ip": "198.19.131.195",
         "peer_ip_display": "198.19.x.x",
-        "peer_port": 35503,
+        "peer_port": 33382,
+        "rank": 15
+      },
+      {
+        "announcements_ms": [
+          674875
+        ],
+        "as_org": "AS64501 US documentation network",
+        "asn": 64501,
+        "first_seen_us": 1767470708057691,
+        "geo_country": "US",
+        "net_class": "residential",
+        "p_origin": 0.013877636165734068,
+        "peer_ip": "198.19.106.241",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 41656,
         "rank": 5
       },
       {
         "announcements_ms": [
-          3229313
+          837165
         ],
-        "as_org": "",
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470708219981,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.00615392964140011,
+        "peer_ip": "198.18.250.132",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 54206,
+        "rank": 10
+      },
+      {
+        "announcements_ms": [
+          919193
+        ],
+        "as_org": "AS64502 US documentation network",
         "asn": 64502,
+        "first_seen_us": 1767470708302009,
         "geo_country": "US",
-        "net_class": "",
-        "p_origin": 0.006763110849305439,
-        "peer_ip": "198.19.152.155",
+        "net_class": "residential",
+        "p_origin": 0.007107945821470745,
+        "peer_ip": "198.19.167.67",
         "peer_ip_display": "198.19.x.x",
-        "peer_port": 43043,
-        "rank": 3
+        "peer_port": 50346,
+        "rank": 8
+      },
+      {
+        "announcements_ms": [
+          929171
+        ],
+        "as_org": "AS64496 IN documentation network",
+        "asn": 64496,
+        "first_seen_us": 1767470708311987,
+        "geo_country": "IN",
+        "net_class": "residential",
+        "p_origin": 0.006555839621883192,
+        "peer_ip": "198.18.55.153",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 41964,
+        "rank": 9
+      },
+      {
+        "announcements_ms": [
+          1076103
+        ],
+        "as_org": "AS64497 SG documentation network",
+        "asn": 64497,
+        "first_seen_us": 1767470708458919,
+        "geo_country": "SG",
+        "net_class": "residential",
+        "p_origin": 0.005056180638797138,
+        "peer_ip": "2001:db8:303f:4aae:e6bc:e785:a63b:1238",
+        "peer_ip_display": "2001:db8:x:x",
+        "peer_port": 48470,
+        "rank": 16
+      },
+      {
+        "announcements_ms": [
+          1284880
+        ],
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470708667696,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.0035892858795313126,
+        "peer_ip": "198.18.195.214",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 36886,
+        "rank": 19
+      },
+      {
+        "announcements_ms": [
+          1288472
+        ],
+        "as_org": "AS64500 NL documentation network",
+        "asn": 64500,
+        "first_seen_us": 1767470708671288,
+        "geo_country": "NL",
+        "net_class": "residential",
+        "p_origin": 0.002017957627663021,
+        "peer_ip": "198.19.19.134",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 45073,
+        "rank": 23
+      },
+      {
+        "announcements_ms": [
+          1399920
+        ],
+        "as_org": "AS64501 US mobile carrier (documentation)",
+        "asn": 64501,
+        "first_seen_us": 1767470708782736,
+        "geo_country": "US",
+        "net_class": "mobile",
+        "p_origin": 0.001444848577366368,
+        "peer_ip": "100.104.0.47",
+        "peer_ip_display": "100.104.x.x",
+        "peer_port": 55933,
+        "rank": 25
+      },
+      {
+        "announcements_ms": [
+          1645561
+        ],
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470709028377,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.0035172366362179897,
+        "peer_ip": "198.18.242.69",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 48250,
+        "rank": 20
+      },
+      {
+        "announcements_ms": [
+          1827039
+        ],
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470709209855,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.0027718405229658024,
+        "peer_ip": "198.18.246.150",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 60777,
+        "rank": 22
+      },
+      {
+        "announcements_ms": [
+          1872179
+        ],
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470709254995,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.0034809582014152804,
+        "peer_ip": "198.18.245.91",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 50953,
+        "rank": 21
+      },
+      {
+        "announcements_ms": [
+          2178594
+        ],
+        "as_org": "AS64501 US mobile carrier (documentation)",
+        "asn": 64501,
+        "first_seen_us": 1767470709561410,
+        "geo_country": "US",
+        "net_class": "mobile",
+        "p_origin": 0.0010294527020448016,
+        "peer_ip": "100.104.0.57",
+        "peer_ip_display": "100.104.x.x",
+        "peer_port": 49002,
+        "rank": 26
+      },
+      {
+        "announcements_ms": [
+          2241444
+        ],
+        "as_org": "AS64496 IN mobile carrier (documentation)",
+        "asn": 64496,
+        "first_seen_us": 1767470709624260,
+        "geo_country": "IN",
+        "net_class": "mobile",
+        "p_origin": 0.001508671589563719,
+        "peer_ip": "100.64.0.57",
+        "peer_ip_display": "100.64.x.x",
+        "peer_port": 52706,
+        "rank": 24
+      },
+      {
+        "announcements_ms": [
+          2260886
+        ],
+        "as_org": "VPN provider (documentation)",
+        "asn": 64511,
+        "first_seen_us": 1767470709643702,
+        "geo_country": "US",
+        "net_class": "vpn_suspect",
+        "p_origin": 0.01775606808574109,
+        "peer_ip": "203.0.113.176",
+        "peer_ip_display": "203.0.x.x",
+        "peer_port": 37880,
+        "rank": 4
+      },
+      {
+        "announcements_ms": [
+          2302432
+        ],
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470709685248,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.005456054189552243,
+        "peer_ip": "198.18.234.139",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 37459,
+        "rank": 14
+      },
+      {
+        "announcements_ms": [
+          2341171
+        ],
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470709723987,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.004156548632605043,
+        "peer_ip": "198.18.226.239",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 58885,
+        "rank": 17
+      },
+      {
+        "announcements_ms": [
+          2347540
+        ],
+        "as_org": "AS64496 IN documentation network",
+        "asn": 64496,
+        "first_seen_us": 1767470709730356,
+        "geo_country": "IN",
+        "net_class": "residential",
+        "p_origin": 0.007725860744762446,
+        "peer_ip": "198.18.12.137",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 41326,
+        "rank": 7
+      },
+      {
+        "announcements_ms": [
+          2488614
+        ],
+        "as_org": "AS64499 DE documentation network",
+        "asn": 64499,
+        "first_seen_us": 1767470709871430,
+        "geo_country": "DE",
+        "net_class": "residential",
+        "p_origin": 0.00590791883472297,
+        "peer_ip": "198.18.234.192",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 48418,
+        "rank": 12
+      },
+      {
+        "announcements_ms": [
+          2666310
+        ],
+        "as_org": "AS64501 US documentation network",
+        "asn": 64501,
+        "first_seen_us": 1767470710049126,
+        "geo_country": "US",
+        "net_class": "residential",
+        "p_origin": 0.006023913563065115,
+        "peer_ip": "198.19.74.121",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 45687,
+        "rank": 11
+      },
+      {
+        "announcements_ms": [
+          3001818
+        ],
+        "as_org": "AS64500 NL documentation network",
+        "asn": 64500,
+        "first_seen_us": 1767470710384634,
+        "geo_country": "NL",
+        "net_class": "residential",
+        "p_origin": 0.0039006324786119008,
+        "peer_ip": "2001:db8:986f:bf51:3945:cac7:3f99:f5a7",
+        "peer_ip_display": "2001:db8:x:x",
+        "peer_port": 54206,
+        "rank": 18
+      },
+      {
+        "announcements_ms": [
+          4040363
+        ],
+        "as_org": "AS64500 NL documentation network",
+        "asn": 64500,
+        "first_seen_us": 1767470711423179,
+        "geo_country": "NL",
+        "net_class": "residential",
+        "p_origin": 0.011559344932851046,
+        "peer_ip": "198.19.13.223",
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 47032,
+        "rank": 6
+      },
+      {
+        "announcements_ms": [
+          4204778
+        ],
+        "as_org": "AS64496 IN documentation network",
+        "asn": 64496,
+        "first_seen_us": 1767470711587594,
+        "geo_country": "IN",
+        "net_class": "residential",
+        "p_origin": 0.005778426488717075,
+        "peer_ip": "198.18.7.124",
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 45931,
+        "rank": 13
       }
     ],
-    "margin": 0.004990528332351047,
-    "origin_peer_display": "198.19.x.x",
-    "p_origin": 0.01785257921281476,
-    "runner_up_display": "100.88.x.x",
-    "runner_up_p": 0.0017725689504466213,
-    "txid": "da4daa3815eafa9e87fe4bbcb147cb7be9cae289020d2936db2f2a75e82c8b27",
-    "txid_display": "da4daa38\u20268b27"
+    "txid": "0558fde4d414ec45e8ede0807a8700bf1b56ab154f7fc5670d7982975c6a5ecf",
+    "txid_display": "0558fde4\u20265ecf",
+    "window_ms": 4204778
   },
   "severity": "high",
-  "subject_display": "bc1qge\u20263182"
+  "subject_display": "3gen0i\u20267a37"
 }

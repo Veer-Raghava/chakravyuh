@@ -1,0 +1,18 @@
+{
+  "heuristics": [
+    "change_addr",
+    "multi_input"
+  ],
+  "metric": "pairwise",
+  "metric_note": "Same-cluster address pairs, restricted to the addresses the stage observed. Not comparable to the full-cluster 0.36/0.44 quoted in contract section 5.",
+  "n_predicted_clusters": 3101,
+  "n_universe_addresses": 44405,
+  "pair_f1": 0.25565006899984166,
+  "pair_precision": 0.87107839358668,
+  "pair_recall": 0.1498084392772394,
+  "predicted_pairs": 25946,
+  "run_id": "_memtest2",
+  "shared_pairs": 22601,
+  "threshold": 0.2,
+  "true_pairs": 150866
+}

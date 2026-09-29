@@ -14,6 +14,7 @@ PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 .PHONY: help setup fixtures fixtures-ui verify verify-contracts verify-quarantine verify-determinism \
         verify-replay validate-data peek api demo demo-full demo-reset clean guard-uv \
         sweep-observer-fraction \
+        compare-estimators \
         verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
         verify-s07 verify-s08 verify-s09 verify-s10 verify-s11 \
         verify-drishti
@@ -24,7 +25,7 @@ help:
 	@echo "  fixtures           regenerate data/fixtures/capture/ (seed 42, deterministic)"
 	@echo "  verify             every stage that exists (S00, S01, S02 today)"
 	@echo "  verify-s00..s11    one stage each; unbuilt stages fail and name their brief"
-	@echo "  sweep-observer-fraction  the S06 accuracy curve over five observer fractions"
+	@echo "  sweep-observer-fraction  the S06 accuracy curve over the observer-fraction ladder"
 	@echo "  verify-contracts   the schema and quarantine guards only"
 	@echo "  verify-quarantine  the leakage gates alone; every stage calls this one"
 	@echo "  validate-data      invariants, distributions and leakage for RUN=<run-id>"
@@ -48,11 +49,62 @@ setup: guard-uv
 fixtures:
 	python3 scripts/make_fixtures.py --seed 42 --out data/fixtures/capture
 
-# The eight adapter payloads as committed JSON, from the reference run. The API's serializers
-# produce these, so fixtures and live responses match by construction. Track B was absent at
-# S10; shapes were authored from docs/DATA-CONTRACTS.md (see docs/DECISIONS.md).
+# The eight adapter payloads as committed JSON, from the canonical agency-regime run. The API's
+# serializers produce these, so fixtures and live responses match by construction. Track B was
+# absent at S10; shapes were authored from docs/DATA-CONTRACTS.md (see docs/DECISIONS.md).
 fixtures-ui:
-	uv run python scripts/export_ui_fixtures.py --run _sweep-0.10
+	uv run python scripts/export_ui_fixtures.py --run $(AGENCY_RUN)
+
+# The canonical demo run: agency regime (observer_fraction ≈ 0.60, the demo default), built at
+# the canonical scale (--txs 24000) with every stage scored so measurements/ carries the origin,
+# model and cluster numbers world.json reads. Rebuilt end to end, then a handful of leads are
+# packeted: the top three by rank plus the first not-attribution-ready alert, so the console has
+# both a ready packet and the honest not-ready state to render.
+AGENCY_RUN := agency-v2
+AGENCY_A := data/generated/$(AGENCY_RUN)
+AGENCY_T := ground_truth/$(AGENCY_RUN)
+AGENCY_M := measurements/$(AGENCY_RUN)
+
+agency-v2: guard-uv
+	@rm -rf $(AGENCY_A) $(AGENCY_T) $(AGENCY_M)
+	uv run python scripts/make_vendor_lists.py --out vendor/
+	uv run python -m chakravyuh.mayajaal --txs 24000 --set network.observer_regime=agency --out $(AGENCY_A)
+	uv run python -m chakravyuh.kavach --in $(AGENCY_A)/capture --out $(AGENCY_A)
+	uv run python -m chakravyuh.setu --in $(AGENCY_A)/sealed --out $(AGENCY_A)
+	uv run python -m chakravyuh.jaal --in $(AGENCY_A)/normalised --out $(AGENCY_A) --score
+	uv run python -m chakravyuh.shastra --in $(AGENCY_A)/normalised --out $(AGENCY_A) --score
+	uv run python -m chakravyuh.eval.external --out $(AGENCY_A) --vendor vendor/elliptic
+	uv run python -m chakravyuh.buddhi --in $(AGENCY_A) --out $(AGENCY_A) --score
+	uv run python -m chakravyuh.vaani --in $(AGENCY_A) --out $(AGENCY_A)
+	@set -e; \
+	 cases=$$(uv run python -c "import polars as pl; \
+a=pl.read_parquet('$(AGENCY_A)/alerts/alerts.parquet', columns=['alert_id','rank','attribution_ready']).sort('rank'); \
+ids=a['alert_id'].head(3).to_list(); \
+nr=a.filter(~a['attribution_ready']); \
+ids += [nr['alert_id'][0]] if nr.height else []; \
+print(' '.join(dict.fromkeys(ids)))"); \
+	 [ -n "$$cases" ] || { echo "FAIL agency-v2: the run produced no alerts to packet."; exit 1; }; \
+	 for c in $$cases; do \
+	   uv run python -m chakravyuh.pramaan --in $(AGENCY_A) --out $(AGENCY_A) --case $$c; \
+	 done; \
+	 echo "agency-v2: $(AGENCY_RUN) built and scored, cases packeted ($$cases)."
+	uv run python -m chakravyuh.eval.validate --run $(AGENCY_RUN)
+	@echo "agency-v2: measurements/$(AGENCY_RUN) written; run 'make fixtures-ui sync-fixtures' next."
+
+# The external-validation leg on its own, for re-measuring it without rebuilding the world. It is
+# a separate target because it reads a 663 MB vendored CSV and fits a second model: that does not
+# belong in a gate that scores the same run twice, and it is quotable only because the numbers
+# come from this file rather than from the scoring pass. Absent vendor/elliptic/, it reports the
+# dataset as not vendored and exits 0 — the run keeps its honest absence, it does not fail.
+elliptic-eval: guard-uv
+	uv run python -m chakravyuh.eval.external --out $(AGENCY_A) --vendor vendor/elliptic
+	@echo "elliptic-eval: measurements/$(AGENCY_RUN)/elliptic_external.json refreshed."
+
+# Copy the committed UI fixtures into the frontend so DRISHTI v2 loads the current run's numbers.
+# The frontend imports these directly; this is the one hop between backend export and the app.
+sync-fixtures:
+	cp data/fixtures/ui/*.json apps/drishti-v2/src/data/fixtures/
+	@echo "sync-fixtures: data/fixtures/ui/*.json -> apps/drishti-v2/src/data/fixtures/"
 
 verify-s00: guard-uv
 	uv run ruff check .
@@ -342,18 +394,22 @@ S06_ARGS := --txs 8000 --entities 1600
 S06_FRACTION := 0.10
 
 # The validator's world-calibration bands, rescaled for the sparse world this gate runs in.
-# They were measured at observer_fraction 0.7 (DECISIONS 2026-09-04: ceiling 0.4286, 15 rows
-# per transaction), and this gate's world is a tenth as observed, so the ceiling itself falls
-# to 0.09 and rows per transaction to 4.8. Set through --set rather than edited into the file,
-# so the run's own config.effective.json records what it was checked against, and so the dense
-# world's numbers stay the default. Each band still binds on the same failure mode, displaced:
-# the recoverable floor sits below the ceiling this world actually has (0.0918), the first-seen
-# floor at the same share-of-reachable it binds at in the dense world (0.51 there, 0.51 here),
-# and the rows-per-transaction floor just under two thirds of this world's measured 4.83.
+# This world is the default agency regime (48 observers) run at observer_fraction 0.10 — a tenth
+# as observed as the demo default — so its numbers are the agency world's, displaced downward:
+# the origin ceiling falls to ~0.092 and the echo to a measured 6.78 rows per transaction (not the
+# pre-remodel 16-observer world's 4.83). The echo target is set here to that world's own value, 7,
+# because the run pins --txs so `mean_announcements_per_tx` serves only as this gate's band centre;
+# the dense world keeps its 27 default. Tolerance is the standard 0.35 (the 0.70 that once papered
+# over a stale 27-centred band is no longer needed). Set through --set rather than edited into the
+# file, so the run's own config.effective.json records what it was checked against. Each band still
+# binds on the same failure mode, displaced: the recoverable floor sits below the ceiling this world
+# actually has (0.0918), the first-seen floor at the same share-of-reachable it binds at in the dense
+# world, and the echo band at 7 ± 35% (4.55–9.45) around this world's measured 6.78.
 S06_SETS := --set network.observer_fraction=$(S06_FRACTION) \
+  --set mean_announcements_per_tx=7 \
   --set validation.origin_recoverable_min=0.07 \
   --set validation.first_seen_leakage_min=0.035 \
-  --set validation.announcements_per_tx_tolerance=0.70
+  --set validation.announcements_per_tx_tolerance=0.35
 
 verify-s06: guard-uv verify-quarantine
 	uv run ruff check .
@@ -397,17 +453,21 @@ verify-s06: guard-uv verify-quarantine
 	@rm -rf $(S06_A) $(S06_T) $(S06_M) $(S06_B)
 	@echo "verify-s06: origin estimator, calibration, abstention, bar and determinism OK."
 
-# The curve the brief demands, out of the gate on purpose. Five worlds, five full pipelines,
+# The curve the brief demands, out of the gate on purpose. Seven worlds, seven full pipelines,
 # one collated report. A single accuracy number is the trap this target exists to avoid: at
-# observer_fraction 0.50 the originator is nearly always in the candidate set and at 0.02 it
-# almost never is, so a number quoted without its fraction says nothing at all.
-SWEEP_FRACTIONS := 0.02 0.05 0.10 0.25 0.50
+# observer_fraction 0.70 the originator is nearly always in the candidate set and at 0.02 it
+# almost never is, so a number quoted without its fraction says nothing at all. Placement is
+# pinned to uniform here on purpose: this is the honest academic-attacker curve that tracks the
+# 11-60% literature band, so it sweeps only the fraction. The biased "agency" demo point is the
+# canonical run, reported alongside rather than folded into this line.
+SWEEP_FRACTIONS := 0.02 0.05 0.10 0.25 0.50 0.60 0.70
 
 sweep-observer-fraction: guard-uv
 	@for f in $(SWEEP_FRACTIONS); do \
 	  run=_sweep-$$f ; a=data/generated/$$run ; \
 	  rm -rf $$a ground_truth/$$run measurements/$$run || exit 1 ; \
 	  uv run python -m chakravyuh.mayajaal $(S06_ARGS) \
+	    --set network.observer_placement=uniform \
 	    --set network.observer_fraction=$$f --out $$a || exit 1 ; \
 	  uv run python -m chakravyuh.kavach --in $$a/capture --out $$a || exit 1 ; \
 	  uv run python -m chakravyuh.setu --in $$a/sealed --out $$a || exit 1 ; \
@@ -421,6 +481,27 @@ sweep-observer-fraction: guard-uv
 verify: verify-s00 verify-s01 verify-s02 verify-s03 verify-s04 verify-s05 verify-s06 \
         verify-s07 verify-s08 verify-s09 verify-s10 verify-s11
 	@echo "verify: S00 through S11. Later stages append themselves as they land."
+
+# The estimator stack, printed side by side rather than asserted. Builds one scored run at the
+# agency demo regime (observer_fraction 0.60, where the L1 hero is recoverable on most
+# transactions) and lays every estimator's L0 and L1 accuracy next to each other, so a reader can
+# see the ensemble beat its own inputs instead of taking the gate's word for it. Read-only report:
+# the pass/fail bar is check_origin.py inside verify-s06.
+CMP_RUN := _compare-estimators
+CMP_A := data/generated/$(CMP_RUN)
+CMP_T := ground_truth/$(CMP_RUN)
+CMP_M := measurements/$(CMP_RUN)
+
+compare-estimators: guard-uv
+	@rm -rf $(CMP_A) $(CMP_T) $(CMP_M)
+	uv run python -m chakravyuh.mayajaal $(S06_ARGS) --set network.observer_regime=agency --out $(CMP_A)
+	uv run python -m chakravyuh.kavach --in $(CMP_A)/capture --out $(CMP_A)
+	uv run python -m chakravyuh.setu --in $(CMP_A)/sealed --out $(CMP_A)
+	uv run python -m chakravyuh.jaal --in $(CMP_A)/normalised --out $(CMP_A)
+	uv run python -m chakravyuh.shastra --in $(CMP_A)/normalised --out $(CMP_A) --score
+	@$(PY) scripts/compare_estimators.py $(CMP_M)/origin_accuracy.json
+	@rm -rf $(CMP_A) $(CMP_T) $(CMP_M)
+
 
 # S11's gate. The demo must serve the precomputed run cold, offline, and from a stripped
 # copy — never regenerating. Lint (the whole tree must still parse and type-check), the
@@ -738,12 +819,12 @@ demo:
 	@echo "demo: serving precomputed $(DEMO_RUN) — no regeneration."
 	@CHAKRAVYUH_RUN=$(DEMO_RUN) $(PY) -m uvicorn chakravyuh.api.app:app \
 	   --host 127.0.0.1 --port 8000 --log-level warning & api=$$!; \
-	 ( cd apps/drishti && VITE_SOURCE=api npm run dev ) & ui=$$!; \
+	 ( cd apps/drishti-v2 && npm run dev ) & ui=$$!; \
 	 trap 'kill $$api $$ui 2>/dev/null' INT TERM EXIT; \
 	 $(PY) scripts/demo_smoke.py --attach --port 8000 || { \
 	   echo "FAIL demo: API did not become ready on 127.0.0.1:8000"; exit 1; }; \
 	 echo "demo: API   http://127.0.0.1:8000"; \
-	 echo "demo: console http://127.0.0.1:5173  (VITE_SOURCE=api)"; \
+	 echo "demo: console http://127.0.0.1:5173  (apps/drishti-v2, offline fixtures)"; \
 	 echo "demo: beat one — open http://127.0.0.1:5173/ . Script: docs/DEMO-SCRIPT.md"; \
 	 wait
 
@@ -775,8 +856,11 @@ clean:
 	@find . -name __pycache__ -type d -prune -exec rm -rf {} +
 	@echo "clean: data/generated/ and tool caches removed."
 
-# Track B console. Definition of done for the drishti shell: typecheck, tests and a
-# production build all pass. npm ci also vendors the IBM Plex woff2 via postinstall.
+# Track B console — apps/drishti-v2 is the console we ship. Definition of done: typecheck
+# and a production build. `npm run build` runs tsc --noEmit itself, so the double typecheck
+# the old target did is gone. v2 vendors its own woff2 in public/fonts/ (no postinstall to
+# run) and carries no vitest suite yet, so this gate runs exactly what exists — it does not
+# claim a test run that never happened.
 verify-drishti:
-	cd apps/drishti && npm ci && npx tsc --noEmit && npx vitest run && npm run build
-	@echo "verify-drishti: typecheck, tests and build all passed."
+	cd apps/drishti-v2 && npm ci && npm run build
+	@echo "verify-drishti: typecheck and production build passed (apps/drishti-v2)."

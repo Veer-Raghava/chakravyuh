@@ -1,0 +1,42 @@
+{
+  "baseline": {
+    "n_scored": 11745,
+    "precision_at_20": 0.2,
+    "recall_at_20": 0.028369,
+    "rule": "rank_by_total_value_received",
+    "split": {
+      "boundary_us": 1767333956535667,
+      "coverage_target": 0.0,
+      "policy": "subject first activity >= boundary is holdout"
+    }
+  },
+  "baseline_beaten": false,
+  "coverage_by_class": {
+    "0": 0.861599,
+    "1": 0.921986
+  },
+  "imbalance_ratio": "1:82",
+  "metric": "wallet risk, holdout subjects only",
+  "metric_note": "Every figure below is computed over subjects whose earliest activity is at or after the split boundary. A subject's label is the majority is_illicit of its members' true owners, ties licit; subjects with no holdout member are excluded. Coverage is class-conditional: the fraction of class-k subjects whose class-k conformal flag is in the set.",
+  "n_subjects_excluded_unlabelled": 0,
+  "params": {
+    "conformal": "mondrian class-conditional",
+    "coverage_target": 0.9,
+    "model": "lightgbm_v1"
+  },
+  "run_id": "_memtest2",
+  "split": {
+    "boundary_us": 1767333956535667,
+    "coverage_target": 0.9,
+    "policy": "subject first activity >= boundary is holdout"
+  },
+  "wallet_model": {
+    "abstain_rate": 0.0,
+    "n_scored": 11745,
+    "n_top": 20,
+    "pr_auc": 0.013942,
+    "precision_at_20": 0.0,
+    "recall_at_20": 0.0,
+    "roc_auc": 0.564893
+  }
+}

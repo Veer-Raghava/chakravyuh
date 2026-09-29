@@ -114,9 +114,15 @@
   font-variant-numeric: tabular-nums;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--risk);
   min-width: 2.6rem;
 }
+/* the risk fill — width is the number */
+.rowBar { position: relative; width: 4.5rem; height: 6px; background: var(--paper-deep); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+.rowBarFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+/* the conformal band, low→high */
+.rowBand { position: relative; width: 5rem; height: 6px; background: var(--paper-deep); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+.rowBandRange { position: absolute; top: 0; bottom: 0; background: var(--riso-blue); border-radius: 3px; }
+.rowConf { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--t-mono-label); color: var(--ink-soft); min-width: 5.2rem; text-align: right; }
 .rowMain { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; min-width: 0; }
 .rowHeadline {
   font-family: var(--font-text);
@@ -152,6 +158,11 @@
 .summary { display: flex; flex-direction: column; gap: 0.85rem; }
 .sumHead { display: flex; align-items: baseline; gap: 0.6rem; }
 .sumScore { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.band { display: grid; grid-template-columns: 5.2rem 1fr; gap: 0.55rem; align-items: center; }
+.bandLabel { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+.bandTrack { position: relative; height: 6px; background: var(--paper-deep); border-radius: 3px; overflow: hidden; }
+.bandFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; }
+.bandRange { position: absolute; top: 0; bottom: 0; background: var(--riso-blue); border-radius: 3px; }
 .sumSeverity { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.12em; border: 1px solid; border-radius: 3px; padding: 1px 6px; }
 .sumSubject { margin-left: auto; font-family: var(--font-mono); font-size: var(--t-mono-label); color: var(--ink-soft); }
 .sumHeadline { font-family: var(--font-text); font-size: 1rem; line-height: 1.4; color: var(--ink); margin: 0; }

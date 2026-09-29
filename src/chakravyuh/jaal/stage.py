@@ -21,7 +21,7 @@ from typing import Final
 import polars as pl
 
 from chakravyuh import buildinfo
-from chakravyuh.jaal import build, cluster, view
+from chakravyuh.jaal import build, cluster, mixer, trace, view
 
 INPUT_ROOT: Final[str] = "data"
 OUTPUT_ROOT: Final[str] = "data/generated"
@@ -121,14 +121,27 @@ def build_run(normalised: Path, out: Path, threshold: float = cluster.DEFAULT_TH
     cluster_frame, member_edges = cluster.clusters(same_owner, threshold)
     kept = same_owner.filter(pl.col("confidence") >= threshold)
 
-    node_frame = pl.concat(
-        [
-            build.address_nodes(addresses),
-            build.transaction_nodes(transactions),
-            build.peer_nodes(peers),
-            build.asn_nodes(peers),
-            cluster.cluster_nodes(cluster_frame),
-        ]
+    # The two marks contract section 5 puts on a transaction, and the accounting for them. The
+    # hop frame is the tracer's own denominator: peel-shaped transactions minus the ones inside a
+    # chain is the number of peels that went nowhere, and a stage that dropped those in silence
+    # would be reporting a chain count over an unstated base.
+    coinjoin = mixer.flags(transactions)
+    hop_frame = trace.hops(transactions)
+    chains = trace.peel_chains(transactions)
+    chained_hops = int(chains["depth"].sum() or 0)
+
+    node_frame = build.mark_transaction_nodes(
+        pl.concat(
+            [
+                build.address_nodes(addresses),
+                build.transaction_nodes(transactions),
+                build.peer_nodes(peers),
+                build.asn_nodes(peers),
+                cluster.cluster_nodes(cluster_frame),
+            ]
+        ),
+        coinjoin,
+        chains,
     )
     edge_frame = pl.concat(
         [
@@ -144,6 +157,7 @@ def build_run(normalised: Path, out: Path, threshold: float = cluster.DEFAULT_TH
         "nodes.parquet": node_frame,
         "edges.parquet": edge_frame,
         "clusters.parquet": cluster_frame,
+        "peel_chains.parquet": chains,
     }
     out_dir = out / OUT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -159,6 +173,12 @@ def build_run(normalised: Path, out: Path, threshold: float = cluster.DEFAULT_TH
         warnings.append("no_asn_resolved_graph_has_no_asn_layer")
     if cluster_frame.height == 0:
         warnings.append("no_clusters_at_this_threshold")
+    if chains.height == 0:
+        # Not an error: a capture can hold no peel chains at all. Recorded so a reader who came
+        # for the tracer learns it found nothing here rather than that it was never run.
+        warnings.append("no_peel_chains_in_this_capture")
+    if coinjoin.filter(pl.col("coinjoin")).height == 0:
+        warnings.append("no_mixer_shaped_transactions")
     if upstream_hash is None:
         warnings.append("upstream_meta_absent_no_staleness_link")
 
@@ -220,6 +240,30 @@ def build_run(normalised: Path, out: Path, threshold: float = cluster.DEFAULT_TH
             "hosting_evidence": "geoip" if from_lookup else "observed",
             "counts_grain": "normalised rows",
             "edge_shape": "star per transaction, anchored on the smallest address",
+            # Both marks, with the rule that produced them and what each one cost. A threshold
+            # that lives only in a module and not in the manifest cannot be replayed, and a
+            # set-aside with no count is an exclusion nobody can audit.
+            "mixer": {
+                "rule": "has_equal_outputs and n_out >= min_equal_outputs and n_in >= min_inputs",
+                "min_equal_outputs": mixer.COINJOIN_MIN_OUTPUTS,
+                "min_inputs": mixer.MIXER_MIN_INPUTS,
+                "set_aside_reason": mixer.SET_ASIDE_REASON,
+                "transactions": coinjoin.filter(pl.col("coinjoin")).height,
+                "suppressed_edges": cluster.set_aside_edges(transactions),
+                "source": "Moser and Narayanan 2019, equal-value outputs; CIOH is not applied "
+                "across a collaborative transaction",
+            },
+            "peel_tracer": {
+                "rule": "n_out == 2, unequal outputs, payment <= max_share * total_out, linked "
+                "only through the change output the next hop spends",
+                "max_share": trace.PEEL_MAX_SHARE_NUM / trace.PEEL_MAX_SHARE_DEN,
+                "min_hops": trace.PEEL_MIN_HOPS,
+                "peel_shaped_transactions": hop_frame.height,
+                "chains": chains.height,
+                "chained_transactions": chained_hops,
+                "isolated_hops": hop_frame.height - chained_hops,
+                "source": "arXiv 2205.13882, peeling chains",
+            },
         },
         "inputs": [
             {

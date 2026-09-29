@@ -53,6 +53,20 @@ CONTRACT_ORIGIN_ESTIMATES: list[tuple[str, str]] = [
     ("abstain", "Boolean"),
     ("abstain_reason", "String"),
 ]
+CONTRACT_ORIGIN_L1: list[tuple[str, str]] = [
+    ("txid", "String"),
+    ("origin_asn", "Int32"),
+    ("as_org", "String"),
+    ("net_class", "String"),
+    ("p_asn", "Float64"),
+    ("origin_country", "String"),
+    ("p_country", "Float64"),
+    ("margin", "Float64"),
+    ("shortlist_size", "Int32"),
+    ("abstain", "Boolean"),
+    ("abstain_reason", "String"),
+    ("estimator", "String"),
+]
 CONTRACT_FEATURES: list[tuple[str, str]] = [
     ("delta_first_us", "Int64"),
     ("rank_in_tx", "Int32"),
@@ -63,13 +77,14 @@ CONTRACT_FEATURES: list[tuple[str, str]] = [
     ("net_class", "String"),
     ("announce_spread_us", "Int64"),
 ]
-CONTRACT_ESTIMATORS = {"first_spy", "weighted_first_seen", "bayes_peer_prior", "ensemble"}
+CONTRACT_ESTIMATORS = {"first_spy", "timing_mle", "asn_rollup", "ensemble"}
 CONTRACT_ABSTAIN_REASONS = {
     "tor_present",
     "single_observer",
     "margin_below_floor",
     "too_few_announcements",
 }
+CONTRACT_L1_ABSTAIN_REASONS = CONTRACT_ABSTAIN_REASONS | {"cross_asn_ambiguous"}
 CONTRACT_TYPOLOGIES = {
     "peel_chain",
     "structuring",
@@ -748,13 +763,34 @@ def test_the_features_struct_holds_the_contract_eight_first(workspace: Path) -> 
     assert len(fields) >= len(CONTRACT_FEATURES)
 
 
+def test_the_l1_headline_is_one_honest_row_per_transaction(workspace: Path) -> None:
+    """`origin_l1.parquet`: contract section 6 shape, one operator per transaction, capped
+    probabilities, and the abstain/reason agreement the per-candidate file is also held to.
+
+    The fixture has an ASN substrate, so the headline ships rather than falling back to empty;
+    `asn_rollup` is the only name it carries because L1 is the ensemble's operator view.
+    """
+    l1 = pl.read_parquet(_run(workspace) / "signals" / "origin_l1.parquet")
+    found = [(key, str(value)) for key, value in l1.schema.items()]
+    assert found == CONTRACT_ORIGIN_L1
+    assert not l1.is_empty(), "the fixture has an ASN substrate, so the headline must not be empty"
+    assert l1["txid"].n_unique() == l1.height  # one row per transaction
+    assert set(l1["estimator"].unique().to_list()) == {"ensemble"}
+    assert set(l1["abstain_reason"].drop_nulls().to_list()) <= CONTRACT_L1_ABSTAIN_REASONS
+    # abstain and its reason agree: a refusal without a reason cannot be reviewed.
+    assert l1.filter(pl.col("abstain") != pl.col("abstain_reason").is_not_null()).height == 0
+    for column in ("p_asn", "p_country"):
+        assert l1.filter((pl.col(column) < 0.0) | (pl.col(column) > 1.0 + 1e-9)).height == 0
+
+
 def test_the_vocabulary_is_closed_and_both_estimators_are_written(workspace: Path) -> None:
-    """Every `estimator` and `abstain_reason` is one contract section 6 permits, and the two
-    built estimators are both present — the gate has to compare pass one against pass two
-    on the same run."""
+    """Every `estimator` and `abstain_reason` is one contract section 6 permits, and the three
+    ranking estimators are all present — the gate has to compare them against each other on the
+    same run. `asn_rollup` names the L1 headline, not a per-candidate ranking, so it lives in
+    `origin_l1.parquet` rather than here."""
     frame = _signals(_run(workspace))
     assert set(frame["estimator"].unique().to_list()) <= CONTRACT_ESTIMATORS
-    assert {"first_spy", "ensemble"} <= set(frame["estimator"].unique().to_list())
+    assert {"first_spy", "timing_mle", "ensemble"} <= set(frame["estimator"].unique().to_list())
     reasons = set(frame["abstain_reason"].drop_nulls().to_list())
     assert reasons <= CONTRACT_ABSTAIN_REASONS
     assert reasons, "the fixture run abstained on nothing, so the vocabulary check was vacuous"
@@ -799,7 +835,7 @@ def test_the_stage_accounts_for_every_announcement_row(workspace: Path) -> None:
 
     counts = meta["counts"]
     assert counts["in"] == announcements.height
-    assert counts["out"] * 2 == frame.height
+    assert counts["out"] * 3 == frame.height
     assert counts["in"] == counts["out"] + counts["dropped"]
 
     by_name = {entry["path"]: entry["rows"] for entry in meta["outputs"]}

@@ -30,6 +30,12 @@ NODES_SCHEMA: Final[dict[str, pl.DataType]] = {
     "label": pl.String(),
     "first_us": pl.Int64(),
     "last_us": pl.Int64(),
+    # Contract section 5's two additive columns. Both describe a transaction and neither describes
+    # any other node kind, so every node starts null and false here and `mark_transaction_nodes`
+    # is the only writer. An address is not a chain and not a mixer, and a false that could have
+    # been a null would make "not a mixer" and "not asked" the same cell.
+    "peel_chain_id": pl.String(),
+    "coinjoin": pl.Boolean(),
 }
 
 EDGES_SCHEMA: Final[dict[str, pl.DataType]] = {
@@ -112,7 +118,13 @@ def _label_expr(prefix: str, column: str) -> pl.Expr:
 def _nodes(
     frame: pl.DataFrame, prefix: str, kind: str, key: str, first: str, last: str
 ) -> pl.DataFrame:
-    """One node per row of `frame`, which is already one row per distinct `key`."""
+    """One node per row of `frame`, which is already one row per distinct `key`.
+
+    The two trailing columns are left empty here rather than filled in per kind. They describe a
+    transaction, `mark_transaction_nodes` is the one writer, and a builder that had to know about
+    peel chains to emit an address node would be reaching across the graph for a fact that is not
+    its own.
+    """
     return conform(
         frame.select(
             (pl.lit(f"{prefix}:") + pl.col(key).cast(pl.String())).alias("node_id"),
@@ -120,8 +132,50 @@ def _nodes(
             _label_expr(prefix, key),
             pl.col(first).cast(pl.Int64()).alias("first_us"),
             pl.col(last).cast(pl.Int64()).alias("last_us"),
+            pl.lit(None).cast(pl.String).alias("peel_chain_id"),
+            pl.lit(False).alias("coinjoin"),
         ),
         NODES_SCHEMA,
+    )
+
+
+def mark_transaction_nodes(
+    node_frame: pl.DataFrame, coinjoin: pl.DataFrame, chains: pl.DataFrame
+) -> pl.DataFrame:
+    """`peel_chain_id` and `coinjoin` written onto the transaction nodes, and onto no others.
+
+    `coinjoin` is `mixer.flags`'s `(txid, coinjoin)` frame and `chains` is `trace.peel_chains`'s
+    output. Both are looked up by node id rather than joined, so a node of any other kind keeps
+    the null and the false `_nodes` gave it without a suffix, a coalesce, or a column order to
+    reason about.
+
+    `replace_strict` looks a value up in a map; it does not iterate one. Two interpreters therefore
+    reach the same node table from the same chains whatever order the maps were built in.
+    """
+    if chains.height:
+        # Explode at frame level, not inside `select`: a bare column name in the same `select` is
+        # read at the frame's original height, and the frame grows under it. This is the version
+        # that raises rather than silently pairing a hop with the wrong chain.
+        members = chains.explode("transactions").select(
+            pl.col("transactions").alias("txid"), "peel_chain_id"
+        )
+        chain_of = {
+            f"tx:{txid}": chain
+            for txid, chain in zip(members["txid"], members["peel_chain_id"], strict=True)
+        }
+    else:
+        chain_of = {}
+    coinjoin_of = {
+        f"tx:{txid}": flag
+        for txid, flag in zip(coinjoin["txid"], coinjoin["coinjoin"], strict=True)
+    }
+    return node_frame.with_columns(
+        pl.col("node_id")
+        .replace_strict(chain_of, default=None, return_dtype=pl.String)
+        .alias("peel_chain_id"),
+        pl.col("node_id")
+        .replace_strict(coinjoin_of, default=False, return_dtype=pl.Boolean)
+        .alias("coinjoin"),
     )
 
 

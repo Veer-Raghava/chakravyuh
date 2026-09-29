@@ -168,6 +168,15 @@
   border-radius: 50%;
   flex: none;
 }
+/* the owner floor's one outline key — a filled dot would read as another mark */
+.ring {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--coral);
+  flex: none;
+  opacity: 0.75;
+}
 /* the overview's plain "how to read it" line under its one colour key */
 .keyPlain {
   font-family: var(--font-mono);

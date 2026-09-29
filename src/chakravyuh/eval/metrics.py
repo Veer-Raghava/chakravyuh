@@ -347,6 +347,299 @@ def _windows(observable: Path, train_fraction: float) -> tuple[pl.DataFrame, int
     )
 
 
+# --- per-granularity origin accuracy -----------------------------------------------------------
+#
+# The reframe's arithmetic. L0 above scores the exact host, which most observers never heard; the
+# hero is L1, the operator, and it is winnable on transactions L0 cannot touch, because a sibling
+# peer in the same ASN carries the operator even when the precise host is absent. So the ceiling
+# and the accuracy are re-measured at each granularity, from the same per-candidate p_origin the
+# ranking estimators shipped, rolled up here the way SHASTRA's asn_rollup rolls it up: mass summed
+# per key, the ASN prior applied at L1 (never at L2, matching the stage), ranked with the same
+# key-ascending tie-break so the ensemble's L1 top-1 here equals the operator it actually shipped.
+#
+# Truth for L1/L2 is `true_origin_asn` and `true_origin_country`, which only ground truth written
+# at or after P0-b carries. When they are absent the granularity block is omitted with a note
+# rather than scored against nulls, because a fabricated denominator is worse than a missing one.
+
+GRAIN_K = 3
+
+
+@dataclass(frozen=True)
+class GranularityScore:
+    """One estimator scored at one granularity. Shares of all broadcast transactions.
+
+    `top1` is the rank-1 key hitting truth; `topk` is truth landing anywhere in the top `k`. Both
+    ignore abstention for the same reason `OriginScore` does: the comparison is of ranking, and the
+    baselines never refuse. `abstain_rate` is the share of scored transactions whose rank-1 key
+    abstained, reported alongside rather than folded in.
+    """
+
+    top1: float
+    topk: float
+    abstain_rate: float
+    n_correct: int
+    n_scored: int
+    by_traffic: Mapping[str, float]
+
+
+def _rollup(
+    ranked: pl.DataFrame, peers: pl.DataFrame, key: str, prior: pl.DataFrame | None
+) -> pl.DataFrame:
+    """Lift a per-candidate ranking to a per-key ranking, the way `asn_rollup` lifts it.
+
+    `ranked` is `txid`, `peer_ip`, `rank`, `abstain`, and optionally `p_origin`. When `p_origin`
+    is present the key's score is its summed candidate mass, times `prior` at L1; when it is absent
+    (a trivial rule that carries no probability) the key inherits its best member's rank, so a rule
+    that puts the originator's host first also puts its operator first. Ties break on the key
+    ascending, the same order `_top_two` uses in the stage, so the ensemble's rank-1 key here is
+    the operator it shipped. `abstain` at the key is whether its best-ranked member abstained.
+    """
+    labelled = ranked.join(peers.select("peer_ip", key), on="peer_ip", how="inner").filter(
+        pl.col(key).is_not_null()
+    )
+    if "p_origin" in ranked.columns:
+        grouped = labelled.group_by("txid", key, maintain_order=True).agg(
+            pl.col("p_origin").sum().alias("_mass"),
+            pl.col("rank").min().alias("_best"),
+        )
+        scored = grouped.with_columns(pl.col("_mass").alias("_score"))
+        if prior is not None:
+            scored = (
+                scored.join(prior, on=key, how="left")
+                .with_columns(
+                    (pl.col("_mass") * (pl.col("_prior").fill_null(0.0) + 1e-12)).alias("_score")
+                )
+                .drop("_prior")
+            )
+    else:
+        grouped = labelled.group_by("txid", key, maintain_order=True).agg(
+            pl.col("rank").min().alias("_best")
+        )
+        # A trivial rule has no probability, so the key that owns the earliest-ranked host wins.
+        # Negated so "smaller rank" becomes "larger score" and the sort below is one rule.
+        scored = grouped.with_columns((-pl.col("_best")).cast(pl.Float64).alias("_score"))
+
+    # The abstain flag each key inherits from its best-ranked member.
+    best_member = (
+        labelled.sort("rank")
+        .group_by("txid", key, maintain_order=True)
+        .agg(pl.col("abstain").first().alias("abstain"))
+    )
+    return (
+        scored.join(best_member, on=["txid", key], how="left")
+        .sort(["txid", "_score", key], descending=[False, True, False])
+        .with_columns(pl.int_range(pl.len()).over("txid").add(1).alias("position"))
+        .select("txid", key, "position", "abstain")
+    )
+
+
+def _score_grain(
+    ranked: pl.DataFrame, truth: pl.DataFrame, key: str, truth_key: str, broadcast: int
+) -> GranularityScore:
+    """Score a per-key ranking against the answer key. `ranked` has `txid`, `key`, `position`."""
+    joined = ranked.join(truth, on="txid", how="inner").with_columns(
+        (pl.col(key) == pl.col(truth_key)).alias("hit")
+    )
+    at1 = joined.filter(pl.col("position") == 1)
+    atk = joined.filter(pl.col("position") <= GRAIN_K).group_by("txid").agg(pl.col("hit").any())
+    correct = int(at1["hit"].sum())
+    abstained = int(at1.filter(pl.col("abstain")).height)
+    by_traffic: dict[str, float] = {}
+    for name in TRAFFIC:
+        total = truth.filter(pl.col("traffic") == name).height
+        got = at1.filter((pl.col("traffic") == name) & pl.col("hit")).height
+        by_traffic[name] = _round(got / total) if total else 0.0
+    return GranularityScore(
+        top1=_round(correct / broadcast) if broadcast else 0.0,
+        topk=_round(int(atk["hit"].sum()) / broadcast) if broadcast else 0.0,
+        abstain_rate=_round(abstained / at1.height) if at1.height else 0.0,
+        n_correct=correct,
+        n_scored=at1.height,
+        by_traffic=by_traffic,
+    )
+
+
+def _positioned(ranked: pl.DataFrame, key: str) -> pl.DataFrame:
+    """A per-candidate ranking as `txid`, `key`, `position`, `abstain`, position from `rank`.
+
+    Position is derived rather than read for the reason `_score_ranked` derives it: an abstaining
+    transaction's ranks start at two, so `rank` is not an ordinal, but its order is intact.
+    """
+    return (
+        ranked.sort(["txid", "rank"])
+        .with_columns(pl.int_range(pl.len()).over("txid").add(1).alias("position"))
+        .select("txid", key, "position", "abstain")
+    )
+
+
+def _l1_headline(observable: Path, truth: pl.DataFrame, broadcast: int) -> dict[str, Any] | None:
+    """Score the operator SHASTRA actually shipped in `origin_l1.parquet`, not a re-derivation.
+
+    `by_granularity.l1_asn` rolls every estimator up the same way for comparison; this scores the
+    one row per transaction the stage committed to, including its abstention, so the report carries
+    what the console will show as the hero. None when the headline is empty (no ASN substrate).
+    """
+    path = observable / "signals" / "origin_l1.parquet"
+    if not path.is_file():
+        return None
+    l1 = pl.read_parquet(path, columns=["txid", "origin_asn", "abstain", "abstain_reason"])
+    if l1.is_empty():
+        return None
+    joined = l1.join(truth.select("txid", "true_origin_asn", "traffic"), on="txid", how="inner")
+    joined = joined.with_columns((pl.col("origin_asn") == pl.col("true_origin_asn")).alias("hit"))
+    correct = int(joined["hit"].sum())
+    acted = joined.filter(~pl.col("abstain"))
+    acted_correct = int(acted["hit"].sum())
+    by_traffic: dict[str, float] = {}
+    for name in TRAFFIC:
+        total = truth.filter(pl.col("traffic") == name).height
+        got = joined.filter((pl.col("traffic") == name) & pl.col("hit")).height
+        by_traffic[name] = _round(got / total) if total else 0.0
+    return {
+        "top1": _round(correct / broadcast) if broadcast else 0.0,
+        "top1_acted": _round(acted_correct / broadcast) if broadcast else 0.0,
+        "precision_when_acted": _round(acted_correct / acted.height) if acted.height else 0.0,
+        "coverage": _round(acted.height / broadcast) if broadcast else 0.0,
+        "abstain_rate": _round(float(l1["abstain"].mean())),  # type: ignore[arg-type]
+        "cross_asn_ambiguous": int(
+            l1.filter(pl.col("abstain_reason") == "cross_asn_ambiguous").height
+        ),
+        "n_transactions": l1.height,
+        "by_traffic": by_traffic,
+    }
+
+
+def _by_granularity(
+    ranked_l0: Mapping[str, pl.DataFrame],
+    truth: pl.DataFrame,
+    observable: Path,
+    broadcast: int,
+    candidates: pl.DataFrame,
+    *,
+    has_l1: bool,
+    has_l2: bool,
+) -> dict[str, Any]:
+    """The reframe's four granularities, each with its own ceiling and per-estimator accuracy.
+
+    L0 and L3 read the shipped per-candidate ranking directly; L1 and L2 roll it up to the operator
+    and the country the way `asn_rollup` does, applying the ASN prior at L1 only. L1/L2 are omitted
+    with a note when the answer key predates the columns they need, rather than scored against null.
+    """
+    peers = pl.read_parquet(
+        observable / "normalised" / "peers.parquet", columns=["peer_ip", "asn", "geo_country"]
+    )
+    prior_path = observable / "normalised" / "asn_rollup.parquet"
+    asn_prior = (
+        pl.read_parquet(prior_path, columns=["asn", "frac_rank_one"]).rename(
+            {"frac_rank_one": "_prior"}
+        )
+        if prior_path.is_file()
+        else None
+    )
+    cand_keys = candidates.select("txid", "peer_ip").join(peers, on="peer_ip", how="inner")
+
+    def _ceiling(key: str, truth_key: str) -> float:
+        reach = (
+            cand_keys.join(truth.select("txid", truth_key), on="txid", how="inner")
+            .filter(pl.col(key) == pl.col(truth_key))
+            .select("txid")
+            .unique()
+            .height
+        )
+        return _round(reach / broadcast) if broadcast else 0.0
+
+    grain: dict[str, Any] = {}
+
+    l0 = {
+        name: _score_grain(
+            _positioned(fr, "peer_ip"), truth, "peer_ip", "true_origin_ip", broadcast
+        )
+        for name, fr in ranked_l0.items()
+    }
+    l0_reach = (
+        candidates.join(truth.select("txid", "true_origin_ip"), on="txid", how="inner")
+        .filter(pl.col("peer_ip") == pl.col("true_origin_ip"))
+        .select("txid")
+        .unique()
+        .height
+    )
+    grain["l0_host"] = {
+        "note": "Exact announcing host. Officer-only; most observers never heard it.",
+        "k": GRAIN_K,
+        "recoverable_ceiling": _round(l0_reach / broadcast) if broadcast else 0.0,
+        "scores": {name: asdict(score) for name, score in sorted(l0.items())},
+    }
+
+    # L3 is the shortlist: the same per-candidate ranking read as "is the host anywhere in the top
+    # k", the number the console leads with, plus the mean shell size the ensemble committed to.
+    shortlist_size = 0.0
+    l1_path = observable / "signals" / "origin_l1.parquet"
+    if l1_path.is_file():
+        l1_sizes = pl.read_parquet(l1_path, columns=["shortlist_size"])
+        if not l1_sizes.is_empty():
+            shortlist_size = _round(float(l1_sizes["shortlist_size"].mean()))  # type: ignore[arg-type]
+    grain["l3_shortlist_topk"] = {
+        "note": "The host inside the top-k shortlist, the confidence set the console draws.",
+        "k": GRAIN_K,
+        "recoverable_ceiling": grain["l0_host"]["recoverable_ceiling"],
+        "mean_shortlist_size": shortlist_size,
+        "scores": {
+            name: {"topk": asdict(score)["topk"], "by_traffic": asdict(score)["by_traffic"]}
+            for name, score in sorted(l0.items())
+        },
+    }
+
+    if has_l1:
+        l1 = {
+            name: _score_grain(
+                _rollup(fr, peers, "asn", asn_prior), truth, "asn", "true_origin_asn", broadcast
+            )
+            for name, fr in ranked_l0.items()
+        }
+        grain["l1_asn"] = {
+            "note": "The network operator (ASN). The hero: winnable where the exact host is not.",
+            "k": GRAIN_K,
+            "recoverable_ceiling": _ceiling("asn", "true_origin_asn"),
+            "scores": {name: asdict(score) for name, score in sorted(l1.items())},
+        }
+        headline = _l1_headline(observable, truth, broadcast)
+        if headline is not None:
+            grain["l1_headline"] = {
+                "note": "The one operator per transaction origin_l1.parquet shipped, with its "
+                "abstention. This is what the console shows, not a re-derivation.",
+                **headline,
+            }
+    else:
+        grain["l1_asn"] = {
+            "note": "Omitted: this run's ground truth predates true_origin_asn, so L1 cannot be "
+            "scored without fabricating a denominator. Regenerate ground truth to score it."
+        }
+
+    if has_l2:
+        l2 = {
+            name: _score_grain(
+                _rollup(fr, peers, "geo_country", None),
+                truth,
+                "geo_country",
+                "true_origin_country",
+                broadcast,
+            )
+            for name, fr in ranked_l0.items()
+        }
+        grain["l2_region"] = {
+            "note": "The country. Coarsest granularity, so the highest ceiling of the four.",
+            "k": GRAIN_K,
+            "recoverable_ceiling": _ceiling("geo_country", "true_origin_country"),
+            "scores": {name: asdict(score) for name, score in sorted(l2.items())},
+        }
+    else:
+        grain["l2_region"] = {
+            "note": "Omitted: this run's ground truth predates true_origin_country."
+        }
+
+    return grain
+
+
 def score_origin(
     run_id: str,
     *,
@@ -373,9 +666,10 @@ def score_origin(
 
     chain = pl.read_parquet(observable / "chain" / "transactions.parquet", columns=["is_coinbase"])
     broadcast = chain.height - int(chain["is_coinbase"].sum())
-    truth = pl.read_parquet(
-        key, columns=["txid", "true_origin_ip", "used_tor", "used_vpn"]
-    ).with_columns(_traffic_expr())
+    truth_all = pl.read_parquet(key)
+    has_l1 = "true_origin_asn" in truth_all.columns
+    has_l2 = "true_origin_country" in truth_all.columns
+    truth = truth_all.with_columns(_traffic_expr())
 
     candidates = _candidates(observable)
     windows, boundary = _windows(observable, train_fraction)
@@ -402,19 +696,18 @@ def score_origin(
             "n_recoverable": got,
         }
 
-    scores: dict[str, OriginScore] = {
-        "first_seen": _score_ranked(
-            _rank_by(candidates, ["seen_us", "row_id"], [False, False]), truth, broadcast, windows
-        ),
-        "payer_linkage": _score_ranked(
-            _payer_linkage(observable, candidates), truth, broadcast, windows
-        ),
+    ranked_l0: dict[str, pl.DataFrame] = {
+        "first_seen": _rank_by(candidates, ["seen_us", "row_id"], [False, False]),
+        "payer_linkage": _payer_linkage(observable, candidates),
     }
-    baselines = tuple(scores)
+    baselines = tuple(ranked_l0)
+    scores: dict[str, OriginScore] = {
+        name: _score_ranked(frame, truth, broadcast, windows) for name, frame in ranked_l0.items()
+    }
 
     estimates = pl.read_parquet(
         observable / "signals" / "origin_estimates.parquet",
-        columns=["txid", "peer_ip", "rank", "abstain", "estimator"],
+        columns=["txid", "peer_ip", "p_origin", "rank", "abstain", "estimator"],
     )
     for name in sorted(estimates["estimator"].unique().to_list()):
         if name in scores:
@@ -424,7 +717,12 @@ def score_origin(
                 "apart or the gate compares a number against itself."
             )
         rows = estimates.filter(pl.col("estimator") == name).drop("estimator")
+        ranked_l0[name] = rows
         scores[name] = _score_ranked(rows, truth, broadcast, windows)
+
+    by_granularity = _by_granularity(
+        ranked_l0, truth, observable, broadcast, candidates, has_l1=has_l1, has_l2=has_l2
+    )
 
     report: dict[str, Any] = {
         "run_id": run_id,
@@ -441,6 +739,7 @@ def score_origin(
         "transactions_with_a_candidate": int(candidates["txid"].n_unique()),
         "recoverable_ceiling": _round(reachable / broadcast) if broadcast else 0.0,
         "recoverable_ceiling_by_window": ceiling_by_window,
+        "by_granularity": by_granularity,
         "split": {
             "train_fraction": train_fraction,
             "boundary_us": boundary,
@@ -551,6 +850,28 @@ def _true_label_of_subject(addresses: Sequence[str], truth: pl.DataFrame) -> tup
     return (1 if illicit * 2 > members.height else 0), members.height
 
 
+def _campaign_recall(
+    predictions: pl.DataFrame, truth_illicit: pl.DataFrame
+) -> tuple[int, int, float]:
+    """Campaign = illicit entity_id. Caught = >=1 of its addresses is in a flagged subject.
+
+    `truth_illicit` is address-grain rows (entity_id, is_illicit, address) already restricted to
+    holdout addresses of illicit entities by the caller. Recall is over illicit entities only.
+    """
+    addr_flag = (
+        predictions.explode("addresses")
+        .rename({"addresses": "address"})
+        .select("address", pl.col("in_set_1").alias("flagged"))
+    )
+    joined = truth_illicit.join(addr_flag, on="address", how="left").with_columns(
+        pl.col("flagged").fill_null(False)
+    )
+    per_entity = joined.group_by("entity_id").agg(pl.col("flagged").any().alias("caught"))
+    total = per_entity.height
+    caught = int(per_entity["caught"].sum())
+    return caught, total, (caught / total if total else 0.0)
+
+
 def score_wallets(
     run_id: str,
     *,
@@ -558,6 +879,7 @@ def score_wallets(
     boundary_us: int,
     coverage_target: float,
     params: Mapping[str, Any],
+    write: bool = True,
 ) -> dict[str, Any] | None:
     """Score BUDDHI's wallet predictions against the run's answer key; write `model_report.json`.
 
@@ -570,6 +892,11 @@ def score_wallets(
     thresholded score, are what coverage means here: a class is covered when the true label's
     column is in the set. Holdout is decided here, from the observable `addresses.parquet`, so a
     stage cannot select its own evaluation rows.
+
+    `write=False` scores a second ranking of the same subjects — BUDDHI's GNN leg calls it with the
+    baseline booster's scores to measure the counterfactual — and returns the report without
+    filing it. The file `model_report.json` is always the shipped model's, so the one thing a
+    mis-ordered call cannot do is leave a comparison standing where the result should be.
     """
     if not RUN_ID.match(run_id):
         raise ValueError(f"run_id must match {RUN_ID.pattern}, got {run_id!r}")
@@ -640,6 +967,63 @@ def score_wallets(
         predictions.filter(~pl.col("subject_id").is_in(frame["subject_id"].to_list())).height
     )
 
+    # Three grains, all under the inductive time-ordered split. The guard makes a transductive
+    # (or None) boundary unable to emit a grain number at all: the whole point of these figures
+    # is that the holdout was decided by first-activity time, not chosen after the fact.
+    assert boundary_us is not None, "eval must run under the inductive time-ordered split"
+
+    # Campaign grain: an illicit entity is caught when >=1 of its holdout addresses lands in a
+    # flagged subject. Recall is over illicit entities only.
+    entities = (
+        pl.read_parquet(key, columns=["entity_id", "is_illicit", "addresses"])
+        .explode("addresses")
+        .rename({"addresses": "address"})
+        .drop_nulls("address")
+        .unique(subset=["address"])
+    )
+    truth_illicit = entities.filter(
+        pl.col("is_illicit") & pl.col("address").is_in(holdout_addresses)
+    ).select("entity_id", "is_illicit", "address")
+    n_caught, n_campaigns, campaign_recall = _campaign_recall(predictions, truth_illicit)
+
+    # Tx grain: label a holdout tx illicit when any input address is owned by an illicit entity;
+    # score it by the max risk_score of any subject holding one of its input addresses (0 if none).
+    illicit_addresses = set(truth.filter(pl.col("is_illicit"))["address"].to_list())
+    addr_score = (
+        predictions.explode("addresses")
+        .rename({"addresses": "address"})
+        .drop_nulls("address")
+        .group_by("address")
+        .agg(pl.col("risk_score").max().alias("addr_score"))
+    )
+    tx = pl.read_parquet(
+        observable / "normalised" / "transactions.parquet",
+        columns=["txid", "input_addresses", "first_seen_us"],
+    ).filter(pl.col("first_seen_us") >= boundary_us)
+    per_tx = (
+        tx.select("txid", "input_addresses")
+        .explode("input_addresses")
+        .rename({"input_addresses": "address"})
+        .join(addr_score, on="address", how="left")
+        .with_columns(
+            pl.col("addr_score").fill_null(0.0),
+            pl.col("address").is_in(illicit_addresses).fill_null(False).alias("addr_illicit"),
+        )
+        .group_by("txid")
+        .agg(
+            pl.col("addr_score").max().alias("score"),
+            pl.col("addr_illicit").any().alias("label_bool"),
+        )
+    )
+    tx_y = [int(v) for v in per_tx["label_bool"].to_list()]
+    tx_s = per_tx["score"].to_list()
+    tx_ids = per_tx["txid"].to_list()
+    # Tie-break on txid, same reasoning as the actor top-20: a metric that reads dict order is not
+    # a measurement.
+    tx_order = sorted(range(per_tx.height), key=lambda i: (-tx_s[i], tx_ids[i]))
+    tx_top = tx_order[:20]
+    tx_precision_at_20 = sum(tx_y[i] for i in tx_top) / len(tx_top) if tx_top else 0.0
+
     return _write_wallet_report(
         run_id,
         y=y,
@@ -653,6 +1037,14 @@ def score_wallets(
         boundary_us=boundary_us,
         coverage_target=coverage_target,
         params=params,
+        write=write,
+        tx_pr_auc=_auc(tx_y, tx_s, pr=True),
+        tx_roc_auc=_auc(tx_y, tx_s, pr=False),
+        tx_precision_at_20=tx_precision_at_20,
+        tx_n_scored=per_tx.height,
+        campaign_recall=campaign_recall,
+        n_campaigns=n_campaigns,
+        n_caught=n_caught,
     )
 
 
@@ -670,6 +1062,14 @@ def _write_wallet_report(
     boundary_us: int,
     coverage_target: float,
     params: Mapping[str, Any],
+    write: bool = True,
+    tx_pr_auc: float = 0.0,
+    tx_roc_auc: float = 0.0,
+    tx_precision_at_20: float = 0.0,
+    tx_n_scored: int = 0,
+    campaign_recall: float = 0.0,
+    n_campaigns: int = 0,
+    n_caught: int = 0,
 ) -> dict[str, Any] | None:
     """Assemble and write `model_report.json`, reading the baseline file if one exists.
 
@@ -680,6 +1080,8 @@ def _write_wallet_report(
     """
     n_illicit = sum(y)
     n_labelled = len(y)
+    actor_pr_auc = _round(_auc(y, s, pr=True))
+    actor_roc_auc = _round(_auc(y, s, pr=False))
     baseline_report = MEASUREMENTS_ROOT / run_id / "baseline_wallet.json"
     baseline = json.loads(baseline_report.read_text()) if baseline_report.is_file() else None
     baseline_beaten = bool(
@@ -701,14 +1103,33 @@ def _write_wallet_report(
             "coverage_target": coverage_target,
         },
         "wallet_model": {
-            "pr_auc": _round(_auc(y, s, pr=True)),
-            "roc_auc": _round(_auc(y, s, pr=False)),
+            "pr_auc": actor_pr_auc,
+            "roc_auc": actor_roc_auc,
             "precision_at_20": _round(precision_at_20),
             "recall_at_20": _round(recall_at_20),
             "n_scored": n_labelled,
             "n_top": min(20, n_labelled),
             "abstain_rate": _round(abstain_rate),
+            "actor_level": {
+                "pr_auc": actor_pr_auc,
+                "roc_auc": actor_roc_auc,
+                "precision_at_20": _round(precision_at_20),
+                "recall_at_20": _round(recall_at_20),
+                "n_scored": n_labelled,
+            },
+            "tx_level": {
+                "pr_auc": _round(tx_pr_auc),
+                "roc_auc": _round(tx_roc_auc),
+                "precision_at_20": _round(tx_precision_at_20),
+                "n_scored": tx_n_scored,
+            },
+            "campaign_level": {
+                "campaign_recall": _round(campaign_recall),
+                "n_campaigns": n_campaigns,
+                "n_caught": n_caught,
+            },
         },
+        "protocol": split.PROTOCOL,
         "coverage_by_class": coverage,
         "imbalance_ratio": f"1:{max(1, round((n_labelled - n_illicit) / max(1, n_illicit)))}",
         "baseline": baseline,
@@ -718,9 +1139,10 @@ def _write_wallet_report(
     }
     out = MEASUREMENTS_ROOT / run_id
     out.mkdir(parents=True, exist_ok=True)
-    (out / "model_report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
-    )
+    if write:
+        (out / "model_report.json").write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
     return report
 
 

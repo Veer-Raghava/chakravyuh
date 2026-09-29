@@ -89,6 +89,10 @@ ASN_DOC_RANGE = range(64496, 64512)
 FORBIDDEN_GT_COLUMNS = frozenset(
     {
         "true_origin_ip",
+        "true_origin_asn",
+        "true_origin_as_org",
+        "true_origin_net_class",
+        "true_origin_country",
         "true_origin_entity_id",
         "broadcast_us",
         "used_tor",

@@ -1,7 +1,10 @@
 .hint {
+  /* The formation owns the right of the stage and the copy the left, so the
+     guide's one line sits on the floor between them — a caption, not a badge. */
   position: absolute;
-  right: clamp(1.5rem, 6vw, 6rem);
-  bottom: clamp(4rem, 22vh, 14rem);
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: clamp(1.25rem, 4vh, 2.5rem);
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
@@ -53,6 +56,8 @@
   .hint {
     top: clamp(4.5rem, 12vh, 8rem);
     bottom: auto;
+    left: auto;
+    transform: none;
     right: 1.25rem;
     max-width: 15rem;
   }

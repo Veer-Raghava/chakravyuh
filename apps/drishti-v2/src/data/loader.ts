@@ -16,18 +16,22 @@ import collapse from "./fixtures/collapse.json";
 import transactions from "./fixtures/transactions.json";
 import graph from "./fixtures/graph.json";
 import graphAddress from "./fixtures/graph-address.json";
+import graphActor from "./fixtures/graph-actor.json";
 import origin from "./fixtures/origin.json";
 import originAbstain from "./fixtures/origin-abstain.json";
 import alerts from "./fixtures/alerts.json";
 import alert from "./fixtures/alert.json";
 import packet from "./fixtures/packet.json";
+import world from "./fixtures/world.json";
 
 export const fixtures = {
   manifest,
+  world, // canonical numbers (funnel, ceiling, observer-fraction curve) — one source
   collapse,
   transactions,
   graph, // fused peer/money graph, aggregated above the node cap
   graphAddress, // address-only view
+  graphActor, // owner-level view (`detail=actor`) — addresses × owner groups
   origin, // confident case
   originAbstain, // "No answer available" case
   alerts,

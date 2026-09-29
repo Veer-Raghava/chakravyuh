@@ -41,11 +41,11 @@ ALERTS_SCHEMA: Final[dict[str, pl.DataType]] = {
     "attribution_ready": pl.Boolean(),
 }
 
-SEVERITY: Final[dict[str, str]] = {
-    "LIKELY_ILICIT": "high",
-    "UNCLEAR": "medium",
-    "ABSTAIN": "low",
-}
+# Severity bands over the risk score, the three values contract section 8 allows. Derived from the
+# score rather than the label because the label is a set-membership fact, not a magnitude: every
+# alert's set was `{1}`, so a label-keyed map coloured all 200 of them the same.
+SEVERITY_HIGH: Final[float] = 0.65
+SEVERITY_MEDIUM: Final[float] = 0.40
 
 
 def _anchor(
@@ -127,8 +127,11 @@ def alerts_frame(
     internal = pl.DataFrame(rows).sort("risk_score", "subject_id", descending=[True, False])
     ordered = internal.with_row_index("rank", offset=1).with_columns(
         pl.col("rank").cast(pl.Int32()),
-        pl.col("label")
-        .replace_strict(SEVERITY, default="medium", return_dtype=pl.String())
+        pl.when(pl.col("risk_score") > SEVERITY_HIGH)
+        .then(pl.lit("high"))
+        .when(pl.col("risk_score") > SEVERITY_MEDIUM)
+        .then(pl.lit("medium"))
+        .otherwise(pl.lit("low"))
         .alias("severity"),
     )
     # The headline, one sentence under 100 characters, generated from the top two features

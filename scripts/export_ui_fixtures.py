@@ -45,12 +45,13 @@ def main(argv: list[str] | None = None) -> int:
 
     _write("manifest", serialize.manifest(run_dir))
     _write("collapse", serialize.collapse(run_dir))
+    _write("world", serialize.world(run_dir))
     _write("transactions", serialize.transactions(run_dir, limit=200, offset=0))
     _write("alerts", serialize.alerts(run_dir, limit=200, offset=0, severity=None))
 
     # One confident origin case and one abstain case, so the console's abstain state has a
-    # real payload. Chosen deterministically: first txid with 8+ lanes, first abstained txid
-    # announced by a Tor exit (asn 64510 in this world), both from the run's own tables.
+    # real payload. Chosen deterministically: first txid with 8+ candidates, first abstained
+    # txid announced by a Tor exit (asn 64510 in this world), both from the run's own tables.
     import polars as pl
 
     txs = pl.read_parquet(
@@ -87,6 +88,10 @@ def main(argv: list[str] | None = None) -> int:
 
     _write("graph", serialize.graph(run_dir, detail="cluster", focus=None, cap=2000))
     _write("graph-address", serialize.graph(run_dir, detail="address", focus=None, cap=500))
+    # The ownership floor: addresses and the clusters they sit in, with the money edges left off
+    # it. The cap is the default one, because the view splits it between its two node kinds and a
+    # smaller cap would starve the clusters.
+    _write("graph-actor", serialize.graph(run_dir, detail="actor", focus=None, cap=2000))
 
     top = pl.read_parquet(run_dir / "alerts" / "alerts.parquet", columns=["alert_id", "rank"]).sort(
         "rank"

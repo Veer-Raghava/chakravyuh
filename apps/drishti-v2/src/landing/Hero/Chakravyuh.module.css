@@ -1,0 +1,41 @@
+/* Station zero: the CHAKRAVYUH formation. Flat 2D ink on paper, in the DOM
+   (the same data the aria-hidden wrapper keeps out of the a11y tree — the copy
+   beside it carries the meaning).
+
+   Two layers on purpose. The walls are one path that is rasterised once and
+   kept on its own composited layer, so the signal's per-frame motion down in
+   the live layer never re-rasterises them. At 190 SVG nodes in one tree that
+   cost 15fps; split, the walls are nearly free. */
+.wrap {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Carries the dissolve: translate centres the box on its anchor, and the
+   bloom scale rides the compositor rather than a transform inside the SVG. */
+.bloom {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.walls {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bloom {
+    transition: none;
+  }
+  .walls {
+    will-change: auto;
+  }
+}

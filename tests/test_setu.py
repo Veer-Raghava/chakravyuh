@@ -98,6 +98,27 @@ CONTRACT_SECTION_4: dict[str, list[tuple[str, str]]] = {
         ("first_us", "Int64"),
         ("last_us", "Int64"),
     ],
+    "asn_rollup.parquet": [
+        ("asn", "Int32"),
+        ("as_org", "String"),
+        ("geo_country", "String"),
+        ("n_peers", "Int32"),
+        ("n_announcements", "Int32"),
+        ("n_txids", "Int32"),
+        ("frac_rank_one", "Float64"),
+        ("n_residential", "Int32"),
+        ("n_hosting", "Int32"),
+        ("n_mobile", "Int32"),
+        ("n_tor_exit", "Int32"),
+        ("n_vpn_suspect", "Int32"),
+        ("n_unknown", "Int32"),
+    ],
+    "arrival.parquet": [
+        ("txid", "String"),
+        ("observer_id", "String"),
+        ("peer_ip", "String"),
+        ("seen_us", "Int64"),
+    ],
 }
 
 

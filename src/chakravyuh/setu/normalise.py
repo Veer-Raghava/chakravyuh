@@ -28,6 +28,18 @@ ROUND_SATS: Final[int] = 1000
 left after the fee and does not. This is the only change signal available from one transaction
 in isolation, and it is deliberately weak: S05 owns the real heuristic, which needs the graph."""
 
+_NET_CLASS_ORDER: Final[tuple[str, ...]] = (
+    "residential",
+    "hosting",
+    "mobile",
+    "tor_exit",
+    "vpn_suspect",
+    "unknown",
+)
+"""Contract section 4's closed vocabulary in the column order of `ASN_ROLLUP_SCHEMA`. A tuple,
+not `schema.NET_CLASSES`, because the rollup's `n_<class>` columns are positional and a set has
+no order to pin them to."""
+
 _SCRIPT_TYPE_FROM_ADDRESS: Final[pl.Expr] = (
     pl.when(pl.col("address").str.starts_with("bc1p"))
     .then(pl.lit("p2tr"))
@@ -161,6 +173,54 @@ def announcements(base: pl.DataFrame, peer_table: pl.DataFrame) -> pl.DataFrame:
         asn=pl.coalesce("asn", "p_asn"),
     )
     return schema.conform(attached, schema.ANNOUNCEMENTS_SCHEMA).sort("row_id")
+
+
+def asn_rollup(peer_table: pl.DataFrame, announcement_table: pl.DataFrame) -> pl.DataFrame:
+    """One row per observed ASN, the substrate L1 attribution scores against.
+
+    Two group-bys joined on `asn`, never a per-ASN loop: the per-peer half counts distinct peers
+    and their net_class mix (a peer holds one class, so counting peer rows is counting distinct
+    peers), and the per-announcement half carries the counts that are announcement-weighted, of
+    which `frac_rank_one` is the one that matters — an ASN whose traffic is repeatedly the
+    earliest an observer saw is where an origin guess is defensible. `as_org` and `geo_country`
+    are taken with `min` rather than `first`: every peer in one ASN shares them, so the two agree,
+    and `min` is order-independent where `first` would depend on group order the sort only fixes
+    afterwards. A null `asn` is its own row: the honest unresolved-operator bucket, not dropped.
+    """
+    per_peer = peer_table.group_by("asn").agg(
+        *[
+            (pl.col("net_class") == name).sum().cast(pl.Int32).alias(f"n_{name}")
+            for name in _NET_CLASS_ORDER
+        ],
+        as_org=pl.col("as_org").drop_nulls().min(),
+        geo_country=pl.col("geo_country").drop_nulls().min(),
+        n_peers=pl.len().cast(pl.Int32),
+    )
+    per_announcement = announcement_table.group_by("asn").agg(
+        n_announcements=pl.len().cast(pl.Int32),
+        n_txids=pl.col("txid").n_unique().cast(pl.Int32),
+        frac_rank_one=(pl.col("rank_in_tx") == 1).mean(),
+    )
+    joined = per_peer.join(per_announcement, on="asn", how="left")
+    return schema.conform(joined, schema.ASN_ROLLUP_SCHEMA).sort("asn", nulls_last=True)
+
+
+def arrival(rows: pl.DataFrame) -> pl.DataFrame:
+    """The per-transaction arrival matrix as a tidy long table: one row per announcement.
+
+    `{txid -> [(observer_id, peer_ip, seen_us)]}` is the shape the timing estimator wants, and a
+    long frame sorted on `(txid, seen_us, observer_id)` is that mapping without a nested column:
+    the earliest arrival for a transaction is the head of its group. `observer_id` is read
+    through `_optional` so a hand-fed sealed directory that lacks it degrades to a typed null
+    rather than a crash; a real capture always carries it.
+    """
+    frame = rows.select(
+        pl.col("txid"),
+        _optional(rows, "observer_id", pl.String()),
+        pl.col("src_ip").alias("peer_ip"),
+        pl.col("ts_us").alias("seen_us"),
+    )
+    return schema.conform(frame, schema.ARRIVAL_SCHEMA).sort(["txid", "seen_us", "observer_id"])
 
 
 def _change_index(txs: pl.DataFrame) -> pl.DataFrame:

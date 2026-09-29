@@ -44,6 +44,7 @@ def _read(fraction: str) -> dict[str, Any]:
 def _row(fraction: str, report: dict[str, Any]) -> dict[str, Any]:
     """One point on the curve: every estimator's top-1, the ceiling, and the traffic breakdown."""
     scores = report.get("scores", {})
+    grain = report.get("by_granularity", {})
     point: dict[str, Any] = {
         "observer_fraction": float(report.get("observer_fraction", float(fraction))),
         "ceiling": report.get("recoverable_ceiling"),
@@ -58,6 +59,20 @@ def _row(fraction: str, report: dict[str, Any]) -> dict[str, Any]:
             "by_traffic": scores[name].get("by_traffic", {}),
             "by_window": scores[name].get("by_window", {}),
         }
+    # The reframe's hero, carried across the ladder beside L0: the operator granularity is the one
+    # the console sells, and its accuracy moves with the fraction exactly as L0's does. Absent on
+    # runs whose ground truth predates true_origin_asn, and left absent here rather than faked.
+    point["by_granularity"] = {
+        gname: {
+            "recoverable_ceiling": node.get("recoverable_ceiling"),
+            "scores": {
+                name: {"top1": score.get("top1"), "topk": score.get("topk")}
+                for name, score in node.get("scores", {}).items()
+            },
+        }
+        for gname, node in grain.items()
+        if isinstance(node, dict) and "scores" in node
+    }
     return point
 
 
@@ -90,6 +105,29 @@ def _markdown(points: list[dict[str, Any]]) -> str:
     for point in points:
         cells = " | ".join(_cell(point, column) for column in COLUMNS)
         lines.append(f"| {point['observer_fraction']:.2f} | {cells} |")
+
+    if any(point.get("by_granularity", {}).get("l1_asn") for point in points):
+        lines += [
+            "",
+            "## Operator (L1 ASN) accuracy over observer fraction — the hero",
+            "",
+            "The exact host most observers never heard is L0 above; the network operator is",
+            "recoverable on far more transactions, because a sibling peer in the same ASN carries",
+            "it. `l1_ceiling` is the share whose true operator is in the candidate set at all.",
+            "",
+            "| observer_fraction | l1_ceiling | first_seen | payer_linkage | first_spy | ensemble |",  # noqa: E501
+            "|---|---|---|---|---|---|",
+        ]
+        for point in points:
+            l1 = point.get("by_granularity", {}).get("l1_asn", {})
+            l1_scores = l1.get("scores", {})
+            ceiling = l1.get("recoverable_ceiling")
+            cells = " | ".join(
+                f"{l1_scores.get(name, {}).get('top1', 0.0):.4f}"
+                for name in ("first_seen", "payer_linkage", "first_spy", "ensemble")
+            )
+            head = f"{ceiling:.4f}" if ceiling is not None else "—"
+            lines.append(f"| {point['observer_fraction']:.2f} | {head} | {cells} |")
 
     lines += [
         "",

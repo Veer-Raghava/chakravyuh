@@ -92,6 +92,7 @@ class Regions:
     shares: tuple[float, ...]
     countries: tuple[str, ...]
     asns: tuple[int, ...]
+    orgs: tuple[str, ...]
     jitter_us: tuple[int, ...]
     latency_us: tuple[tuple[int, ...], ...]
 
@@ -144,6 +145,7 @@ def load(path: Path) -> Regions:
 
     countries: list[str] = []
     asns: list[int] = []
+    orgs: list[str] = []
     jitter: list[int] = []
     for name in names:
         country = table[name].get("country")
@@ -151,6 +153,10 @@ def load(path: Path) -> Regions:
             raise ValueError(f"regions.yaml: regions.{name}.country must be a 2-letter code")
         countries.append(country)
         asns.append(int(_number(table[name], "asn", f"regions.{name}")))
+        org = table[name].get("org")
+        if not isinstance(org, str) or not org.strip():
+            raise ValueError(f"regions.yaml: regions.{name}.org must be a non-empty operator name")
+        orgs.append(org)
         jitter.append(round(_number(table[name], "jitter_ms", f"regions.{name}") * 1000))
 
     if set(matrix) != set(names):
@@ -179,6 +185,7 @@ def load(path: Path) -> Regions:
         shares=shares,
         countries=tuple(countries),
         asns=tuple(asns),
+        orgs=tuple(orgs),
         jitter_us=tuple(jitter),
         latency_us=tuple(rows),
     )

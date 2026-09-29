@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="DRISHTI">
+  <!-- the eye that sees through the maze: coral iris, ink pupil, one paper glint.
+       Drawn flat and bold so it still reads at 16px in a browser tab. -->
+  <circle cx="16" cy="16" r="15" fill="#FF6B4A" />
+  <circle cx="16" cy="16" r="7.5" fill="#1B1712" />
+  <circle cx="12.4" cy="12.4" r="2.6" fill="#F6EFE0" />
+</svg>

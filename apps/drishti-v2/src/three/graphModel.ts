@@ -129,9 +129,9 @@ export function buildGraph(raw: { nodes: RawNode[]; edges: RawEdge[] }): Graph {
   // 4 evenly spaced time gridlines across the run
   const ticks: GraphTick[] = times.length
     ? [0, 1, 2, 3].map((k) => {
-        const us = tMin + (span * k) / 3;
-        return { x: xOf(us), us };
-      })
+      const us = tMin + (span * k) / 3;
+      return { x: xOf(us), us };
+    })
     : [];
 
   return { nodes, links, ticks, count: nodes.length, bridged: connected.size, xw: XW };

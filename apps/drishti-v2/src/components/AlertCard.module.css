@@ -45,6 +45,28 @@
   color: var(--ink-soft);
 }
 
+/* ── meters: risk (filled) + confidence (a band, not a point) ── */
+.meter { display: grid; grid-template-columns: 5.2rem 1fr auto; gap: 0.55rem; align-items: center; margin-bottom: 0.3rem; }
+.meterLabel {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.meterTrack { position: relative; height: 6px; background: var(--paper-deep); border-radius: 3px; overflow: hidden; }
+.meterFill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--risk); border-radius: 3px; }
+.rangeBand { position: absolute; top: 0; bottom: 0; background: var(--riso-blue); border-radius: 3px; }
+.meterVal {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-mono-label);
+  color: var(--ink);
+  min-width: 4.2rem;
+  text-align: right;
+}
+.meter + .meter { margin-bottom: 0.75rem; }
+
 .headline {
   font-family: var(--font-text);
   font-size: 1.02rem;

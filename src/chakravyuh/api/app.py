@@ -106,7 +106,7 @@ def get_origin_estimate(txid: str) -> dict[str, Any]:
 
 @app.get("/graph")
 def get_graph(
-    detail: Literal["cluster", "address"] = "cluster",
+    detail: Literal["cluster", "address", "actor"] = "cluster",
     focus: str | None = None,
     cap: int = Query(default=serialize.DEFAULT_NODE_CAP, ge=1, le=20000),
 ) -> dict[str, Any]:

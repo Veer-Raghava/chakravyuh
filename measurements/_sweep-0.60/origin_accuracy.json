@@ -1,0 +1,437 @@
+{
+  "baselines": [
+    "first_seen",
+    "payer_linkage"
+  ],
+  "by_granularity": {
+    "l0_host": {
+      "k": 3,
+      "note": "Exact announcing host. Officer-only; most observers never heard it.",
+      "recoverable_ceiling": 0.494804,
+      "scores": {
+        "ensemble": {
+          "abstain_rate": 0.668563,
+          "by_traffic": {
+            "clear": 0.297707,
+            "tor": 0.247934,
+            "vpn": 0.190409
+          },
+          "n_correct": 2484,
+          "n_scored": 8611,
+          "top1": 0.286836,
+          "topk": 0.384296
+        },
+        "first_seen": {
+          "abstain_rate": 0.0,
+          "by_traffic": {
+            "clear": 0.206906,
+            "tor": 0.195592,
+            "vpn": 0.16079
+          },
+          "n_correct": 1755,
+          "n_scored": 8611,
+          "top1": 0.202656,
+          "topk": 0.268476
+        },
+        "first_spy": {
+          "abstain_rate": 0.648124,
+          "by_traffic": {
+            "clear": 0.206906,
+            "tor": 0.195592,
+            "vpn": 0.16079
+          },
+          "n_correct": 1755,
+          "n_scored": 8611,
+          "top1": 0.202656,
+          "topk": 0.268476
+        },
+        "payer_linkage": {
+          "abstain_rate": 0.0,
+          "by_traffic": {
+            "clear": 0.252372,
+            "tor": 0.14876,
+            "vpn": 0.111425
+          },
+          "n_correct": 2048,
+          "n_scored": 8611,
+          "top1": 0.23649,
+          "topk": 0.316628
+        },
+        "timing_mle": {
+          "abstain_rate": 0.721984,
+          "by_traffic": {
+            "clear": 0.189114,
+            "tor": 0.112948,
+            "vpn": 0.06488
+          },
+          "n_correct": 1522,
+          "n_scored": 8611,
+          "top1": 0.175751,
+          "topk": 0.264781
+        }
+      }
+    },
+    "l1_asn": {
+      "k": 3,
+      "note": "The network operator (ASN). The hero: winnable where the exact host is not.",
+      "recoverable_ceiling": 0.952887,
+      "scores": {
+        "ensemble": {
+          "abstain_rate": 0.668563,
+          "by_traffic": {
+            "clear": 0.514497,
+            "tor": 0.297521,
+            "vpn": 0.214386
+          },
+          "n_correct": 4164,
+          "n_scored": 8611,
+          "top1": 0.480831,
+          "topk": 0.735219
+        },
+        "first_seen": {
+          "abstain_rate": 0.0,
+          "by_traffic": {
+            "clear": 0.423036,
+            "tor": 0.242424,
+            "vpn": 0.207334
+          },
+          "n_correct": 3445,
+          "n_scored": 8611,
+          "top1": 0.397806,
+          "topk": 0.65843
+        },
+        "first_spy": {
+          "abstain_rate": 0.648124,
+          "by_traffic": {
+            "clear": 0.424881,
+            "tor": 0.242424,
+            "vpn": 0.203103
+          },
+          "n_correct": 3456,
+          "n_scored": 8611,
+          "top1": 0.399076,
+          "topk": 0.658661
+        },
+        "payer_linkage": {
+          "abstain_rate": 0.0,
+          "by_traffic": {
+            "clear": 0.462309,
+            "tor": 0.190083,
+            "vpn": 0.172073
+          },
+          "n_correct": 3699,
+          "n_scored": 8611,
+          "top1": 0.427136,
+          "topk": 0.691339
+        },
+        "timing_mle": {
+          "abstain_rate": 0.721984,
+          "by_traffic": {
+            "clear": 0.449657,
+            "tor": 0.030303,
+            "vpn": 0.025388
+          },
+          "n_correct": 3441,
+          "n_scored": 8611,
+          "top1": 0.397344,
+          "topk": 0.68418
+        }
+      }
+    },
+    "l1_headline": {
+      "abstain_rate": 0.999884,
+      "by_traffic": {
+        "clear": 0.514497,
+        "tor": 0.297521,
+        "vpn": 0.214386
+      },
+      "coverage": 0.000115,
+      "cross_asn_ambiguous": 3029,
+      "n_transactions": 8611,
+      "note": "The one operator per transaction origin_l1.parquet shipped, with its abstention. This is what the console shows, not a re-derivation.",
+      "precision_when_acted": 1.0,
+      "top1": 0.480831,
+      "top1_acted": 0.000115
+    },
+    "l2_region": {
+      "k": 3,
+      "note": "The country. Coarsest granularity, so the highest ceiling of the four.",
+      "recoverable_ceiling": 0.971132,
+      "scores": {
+        "ensemble": {
+          "abstain_rate": 0.668563,
+          "by_traffic": {
+            "clear": 0.560886,
+            "tor": 0.548209,
+            "vpn": 0.486601
+          },
+          "n_correct": 4800,
+          "n_scored": 8611,
+          "top1": 0.554273,
+          "topk": 0.829215
+        },
+        "first_seen": {
+          "abstain_rate": 0.0,
+          "by_traffic": {
+            "clear": 0.475356,
+            "tor": 0.476584,
+            "vpn": 0.466855
+          },
+          "n_correct": 4111,
+          "n_scored": 8611,
+          "top1": 0.474711,
+          "topk": 0.776443
+        },
+        "first_spy": {
+          "abstain_rate": 0.648124,
+          "by_traffic": {
+            "clear": 0.475356,
+            "tor": 0.476584,
+            "vpn": 0.466855
+          },
+          "n_correct": 4111,
+          "n_scored": 8611,
+          "top1": 0.474711,
+          "topk": 0.776443
+        },
+        "payer_linkage": {
+          "abstain_rate": 0.0,
+          "by_traffic": {
+            "clear": 0.518187,
+            "tor": 0.415978,
+            "vpn": 0.403385
+          },
+          "n_correct": 4369,
+          "n_scored": 8611,
+          "top1": 0.504503,
+          "topk": 0.804965
+        },
+        "timing_mle": {
+          "abstain_rate": 0.721984,
+          "by_traffic": {
+            "clear": 0.47048,
+            "tor": 0.443526,
+            "vpn": 0.442877
+          },
+          "n_correct": 4045,
+          "n_scored": 8611,
+          "top1": 0.46709,
+          "topk": 0.794573
+        }
+      }
+    },
+    "l3_shortlist_topk": {
+      "k": 3,
+      "mean_shortlist_size": 2.145047,
+      "note": "The host inside the top-k shortlist, the confidence set the console draws.",
+      "recoverable_ceiling": 0.494804,
+      "scores": {
+        "ensemble": {
+          "by_traffic": {
+            "clear": 0.297707,
+            "tor": 0.247934,
+            "vpn": 0.190409
+          },
+          "topk": 0.384296
+        },
+        "first_seen": {
+          "by_traffic": {
+            "clear": 0.206906,
+            "tor": 0.195592,
+            "vpn": 0.16079
+          },
+          "topk": 0.268476
+        },
+        "first_spy": {
+          "by_traffic": {
+            "clear": 0.206906,
+            "tor": 0.195592,
+            "vpn": 0.16079
+          },
+          "topk": 0.268476
+        },
+        "payer_linkage": {
+          "by_traffic": {
+            "clear": 0.252372,
+            "tor": 0.14876,
+            "vpn": 0.111425
+          },
+          "topk": 0.316628
+        },
+        "timing_mle": {
+          "by_traffic": {
+            "clear": 0.189114,
+            "tor": 0.112948,
+            "vpn": 0.06488
+          },
+          "topk": 0.264781
+        }
+      }
+    }
+  },
+  "metric": "top-1 and top-3 over all broadcast transactions",
+  "metric_note": "The denominator is every transaction put on the wire, not the transactions an observer recorded. recoverable_ceiling is the most any estimator here can score. top1 scores the ranking and ignores abstention, so it means the same thing for an estimator that refuses and for a trivial rule that cannot; top1_acted, coverage and precision_when_acted are what the estimator actually claimed.",
+  "observer_fraction": 0.6,
+  "params": {
+    "train_fraction": 0.7
+  },
+  "recoverable_ceiling": 0.494804,
+  "recoverable_ceiling_by_window": {
+    "holdout": {
+      "ceiling": 0.494071,
+      "n_recoverable": 1375,
+      "n_transactions": 2783
+    },
+    "train": {
+      "ceiling": 0.499314,
+      "n_recoverable": 2910,
+      "n_transactions": 5828
+    }
+  },
+  "run_id": "_sweep-0.60",
+  "scores": {
+    "ensemble": {
+      "by_traffic": {
+        "clear": 0.297707,
+        "tor": 0.247934,
+        "vpn": 0.190409
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 738,
+          "n_transactions": 2783,
+          "top1": 0.265181
+        },
+        "train": {
+          "n_correct": 1746,
+          "n_transactions": 5828,
+          "top1": 0.299588
+        }
+      },
+      "coverage": 0.329561,
+      "n_abstained": 5757,
+      "n_correct": 2484,
+      "n_ranked": 8611,
+      "precision_when_acted": 0.30028,
+      "top1": 0.286836,
+      "top1_acted": 0.098961,
+      "top3": 0.384296
+    },
+    "first_seen": {
+      "by_traffic": {
+        "clear": 0.206906,
+        "tor": 0.195592,
+        "vpn": 0.16079
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 569,
+          "n_transactions": 2783,
+          "top1": 0.204456
+        },
+        "train": {
+          "n_correct": 1186,
+          "n_transactions": 5828,
+          "top1": 0.2035
+        }
+      },
+      "coverage": 0.994342,
+      "n_abstained": 0,
+      "n_correct": 1755,
+      "n_ranked": 8611,
+      "precision_when_acted": 0.203809,
+      "top1": 0.202656,
+      "top1_acted": 0.202656,
+      "top3": 0.268476
+    },
+    "first_spy": {
+      "by_traffic": {
+        "clear": 0.206906,
+        "tor": 0.195592,
+        "vpn": 0.16079
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 569,
+          "n_transactions": 2783,
+          "top1": 0.204456
+        },
+        "train": {
+          "n_correct": 1186,
+          "n_transactions": 5828,
+          "top1": 0.2035
+        }
+      },
+      "coverage": 0.349885,
+      "n_abstained": 5581,
+      "n_correct": 1755,
+      "n_ranked": 8611,
+      "precision_when_acted": 0.19967,
+      "top1": 0.202656,
+      "top1_acted": 0.069861,
+      "top3": 0.268476
+    },
+    "payer_linkage": {
+      "by_traffic": {
+        "clear": 0.252372,
+        "tor": 0.14876,
+        "vpn": 0.111425
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 666,
+          "n_transactions": 2783,
+          "top1": 0.23931
+        },
+        "train": {
+          "n_correct": 1382,
+          "n_transactions": 5828,
+          "top1": 0.237131
+        }
+      },
+      "coverage": 0.994342,
+      "n_abstained": 0,
+      "n_correct": 2048,
+      "n_ranked": 8611,
+      "precision_when_acted": 0.237835,
+      "top1": 0.23649,
+      "top1_acted": 0.23649,
+      "top3": 0.316628
+    },
+    "timing_mle": {
+      "by_traffic": {
+        "clear": 0.189114,
+        "tor": 0.112948,
+        "vpn": 0.06488
+      },
+      "by_window": {
+        "holdout": {
+          "n_correct": 523,
+          "n_transactions": 2783,
+          "top1": 0.187927
+        },
+        "train": {
+          "n_correct": 999,
+          "n_transactions": 5828,
+          "top1": 0.171414
+        }
+      },
+      "coverage": 0.276443,
+      "n_abstained": 6217,
+      "n_correct": 1522,
+      "n_ranked": 8611,
+      "precision_when_acted": 0.210109,
+      "top1": 0.175751,
+      "top1_acted": 0.058083,
+      "top3": 0.264781
+    }
+  },
+  "split": {
+    "boundary_us": 1767336506007779,
+    "by_window_note": "by_window denominators count only transactions an observer heard, so they do not sum to transactions_broadcast.",
+    "policy": "first_seen_us < boundary trains",
+    "train_fraction": 0.7
+  },
+  "transactions_broadcast": 8660,
+  "transactions_with_a_candidate": 8611
+}

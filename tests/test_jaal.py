@@ -16,11 +16,12 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 import polars as pl
 import pytest
 
-from chakravyuh.jaal import build, cluster, view
+from chakravyuh.jaal import build, cluster, mixer, trace, view
 from chakravyuh.jaal.stage import InputPathError, build_run, resolve_in, resolve_out
 from chakravyuh.kavach.seal import resolve_out as kavach_out
 from chakravyuh.kavach.seal import seal
@@ -41,6 +42,8 @@ CONTRACT_SECTION_5: dict[str, list[tuple[str, str]]] = {
         ("label", "String"),
         ("first_us", "Int64"),
         ("last_us", "Int64"),
+        ("peel_chain_id", "String"),
+        ("coinjoin", "Boolean"),
     ],
     "edges.parquet": [
         ("src", "String"),
@@ -58,6 +61,18 @@ CONTRACT_SECTION_5: dict[str, list[tuple[str, str]]] = {
         ("min_edge_confidence", "Float64"),
         ("heuristics_used", "List(String)"),
         ("threshold", "Float64"),
+    ],
+    "peel_chains.parquet": [
+        ("peel_chain_id", "String"),
+        ("transactions", "List(String)"),
+        ("depth", "Int32"),
+        ("initial_sats", "Int64"),
+        ("peeled_sats", "Int64"),
+        ("leak_frac", "Float64"),
+        ("root_address", "String"),
+        ("first_us", "Int64"),
+        ("last_us", "Int64"),
+        ("stop_reason", "String"),
     ],
 }
 
@@ -105,6 +120,12 @@ def _frames(graph: Path) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
         pl.read_parquet(graph / "edges.parquet"),
         pl.read_parquet(graph / "clusters.parquet"),
     )
+
+
+def _meta(graph: Path) -> dict[str, Any]:
+    """The stage manifest, read fresh. `dict` rather than a typed shape: it is JSON."""
+    loaded: dict[str, object] = json.loads((graph / "_meta.json").read_text(encoding="utf-8"))
+    return loaded
 
 
 def _same_owner(pairs: list[tuple[str, str, float, str]]) -> pl.DataFrame:
@@ -350,19 +371,23 @@ def test_a_star_and_a_clique_cluster_the_same(workspace: Path) -> None:
 def test_coinjoin_like_transactions_produce_no_multi_input_edge() -> None:
     """The heuristic's known failure mode, excluded rather than emitted and regretted.
 
-    Two transactions, identical except that the second has two outputs of equal value. Several
+    Two transactions, identical except that the second has three outputs of equal value. Several
     unrelated parties signing one transaction is exactly what equal outputs signal, so the second
-    contributes nothing.
+    contributes nothing. The equal-output bar alone is not what excludes it — `n_out >= 3` and
+    `n_in >= 2` are the rest of the rule, and a two-output equal-value transaction is one party
+    splitting their own coin, which is a case the heuristic is right about.
     """
     frame = pl.DataFrame(
         {
             "txid": ["plain", "coinjoin"],
             "is_coinbase": [False, False],
             "n_in": [2, 2],
+            "n_out": [2, 3],
             "has_equal_outputs": [False, True],
             "input_addresses": [["a", "b"], ["c", "d"]],
         }
     )
+    assert mixer.flags(frame)["coinjoin"].to_list() == [False, True]
     edges = cluster.common_input_edges(frame)
     assert edges.height == 1
     assert edges["src"].to_list() == ["addr:a"]
@@ -460,6 +485,470 @@ def test_two_builds_of_one_normalised_agree(workspace: Path) -> None:
     build_run(resolve_in(run / "normalised"), resolve_out(run))
     second = {name: (run / "graph" / name).read_bytes() for name in CONTRACT_SECTION_5}
     assert first == second
+
+
+# --- the peel tracer ------------------------------------------------------------------------
+
+
+def _transactions(rows: list[dict[str, object]]) -> pl.DataFrame:
+    """A `normalised/transactions.parquet`-shaped frame, filled with the columns the tracer reads.
+
+    Each row is a partial dict; everything it leaves out takes the default below. Declaring the
+    whole schema explicitly rather than letting Polars infer it is the point: a test frame that
+    quietly grew a column from a typo would silently stop exercising the condition it names.
+    """
+    defaults: dict[str, object] = {
+        "txid": "",
+        "input_addresses": [],
+        "input_amounts": [],
+        "output_addresses": [],
+        "output_amounts": [],
+        "total_in_sats": 0,
+        "total_out_sats": 0,
+        "is_coinbase": False,
+        "has_equal_outputs": False,
+        "change_index": -1,
+        "n_in": 1,
+        "n_out": 2,
+        "first_seen_us": 0,
+        "last_seen_us": 0,
+    }
+    merged = [{**defaults, **row} for row in rows]
+    return pl.DataFrame(
+        {key: [row[key] for row in merged] for key in defaults},
+        schema={
+            "txid": pl.String(),
+            "input_addresses": pl.List(pl.String()),
+            "input_amounts": pl.List(pl.Int64()),
+            "output_addresses": pl.List(pl.String()),
+            "output_amounts": pl.List(pl.Int64()),
+            "total_in_sats": pl.Int64(),
+            "total_out_sats": pl.Int64(),
+            "is_coinbase": pl.Boolean(),
+            "has_equal_outputs": pl.Boolean(),
+            "change_index": pl.Int32(),
+            "n_in": pl.Int32(),
+            "n_out": pl.Int32(),
+            "first_seen_us": pl.Int64(),
+            "last_seen_us": pl.Int64(),
+        },
+    )
+
+
+def _hop(txid: str, change: str, change_sats: int, seen_us: int) -> dict[str, object]:
+    """One peel-shaped transaction: a 1000-sat slice paid out, the rest carried on as `change`.
+
+    The input is named after the change address of the hop before it, which is how `_spenders`
+    finds the link, and it is exactly `1000 + change_sats` so each hop spends only its own coin.
+    """
+    return {
+        "txid": txid,
+        "input_addresses": [f"in-{txid}"],
+        "input_amounts": [1000 + change_sats],
+        "output_addresses": [f"pay-{txid}", change],
+        "output_amounts": [1000, change_sats],
+        "total_in_sats": 1000 + change_sats,
+        "total_out_sats": 1000 + change_sats,
+        "first_seen_us": seen_us,
+        "last_seen_us": seen_us,
+    }
+
+
+def _successor(
+    txid: str, spends: str, sats: int, change: str, seen_us: int = 0
+) -> dict[str, object]:
+    """A hop that spends `spends` — the previous hop's change — and carries the rest on."""
+    slice_sats = 1000
+    return {
+        "txid": txid,
+        "input_addresses": [spends],
+        "input_amounts": [sats],
+        "output_addresses": [f"pay-{txid}", change],
+        "output_amounts": [slice_sats, sats - slice_sats],
+        "total_in_sats": sats,
+        "total_out_sats": sats,
+        "first_seen_us": seen_us,
+        "last_seen_us": seen_us,
+    }
+
+
+def test_a_hop_chain_links_through_the_change_output_spent_next() -> None:
+    """Three hops, each spending the previous one's change; the last change is never spent."""
+    transactions = _transactions(
+        [
+            _hop("t1", "c1", 9000, 100),
+            _successor("t2", "c1", 9000, "c2", 200),
+            _successor("t3", "c2", 8000, "c3", 300),
+        ]
+    )
+    chains = trace.peel_chains(transactions)
+
+    assert chains.height == 1
+    chain = chains.row(0, named=True)
+    assert chain["transactions"] == ["t1", "t2", "t3"]
+    assert chain["depth"] == 3
+    # t1 put 10000 sats in; the three hops peeled 1000, 1000 and 1000.
+    assert chain["initial_sats"] == 10000
+    assert chain["peeled_sats"] == 3000
+    assert chain["leak_frac"] == pytest.approx(0.3)
+    assert chain["root_address"] == "in-t1"
+    assert chain["first_us"] == 100
+    assert chain["last_us"] == 300
+    assert chain["stop_reason"] == trace.NO_CONTINUATION
+
+
+def test_a_thin_slice_is_not_a_peel() -> None:
+    """The share test, from outside, on the two satoshi counts either side of 35%.
+
+    This is the test the precedence bug in the writer fails. `&` binds tighter than `<=` in Python,
+    so `(a) & (b * 20) <= (c * 7)` parses as `((a) & (b * 20)) <= (c * 7)`; the share test is
+    absorbed into the bitwise `and` and passes almost everything. `scripts/check_graph.py` caught
+    it on real data — 301 of 1688 hops were not peels — by re-deriving the shape independently.
+    """
+
+    def one(txid: str, slice_sats: int) -> dict[str, object]:
+        return {
+            "txid": txid,
+            "input_addresses": ["a"],
+            "input_amounts": [10000],
+            "output_addresses": ["thin", "change"],
+            "output_amounts": [slice_sats, 10000 - slice_sats],
+            "total_in_sats": 10000,
+            "total_out_sats": 10000,
+        }
+
+    # 3400 / 10000 = 34%, thin enough. 3600 / 10000 = 36%, not thin enough.
+    transactions = _transactions([one("peel", 3400), one("not_a_peel", 3600)])
+    assert trace.hops(transactions)["txid"].to_list() == ["peel"]
+    assert trace.peel_chains(transactions).height == 0
+
+
+def test_a_single_peel_is_not_a_chain() -> None:
+    """A chain needs two hops. One peel on its own is the typology's hit, and not this."""
+    transactions = _transactions([_hop("t1", "c1", 9000, 100)])
+    assert trace.hops(transactions).height == 1
+    assert trace.peel_chains(transactions).height == 0
+
+
+def test_an_ambiguous_spend_stops_the_walk() -> None:
+    """Two transactions spending one change output: neither continuation can be claimed."""
+    transactions = _transactions(
+        [
+            _hop("t1", "c1", 9000, 100),
+            _successor("t2", "c1", 9000, "c2"),
+            _successor("t3", "c1", 9000, "c3"),
+        ]
+    )
+    # t1 has no claimable successor, so the longest chain is the two followers, and each of those
+    # is one hop with no predecessor: a chain of one, which is not a chain.
+    assert trace.peel_chains(transactions).height == 0
+
+
+def test_a_later_hop_can_spend_coin_from_outside_the_chain() -> None:
+    """A chain that absorbed value leaks more than it started with, and reports that.
+
+    Clamping `leak_frac` at 1.0 would hide the fact. The column is a fact about the chain, and a
+    reader chasing one wants to know that the coin it is following was topped up from elsewhere.
+    """
+    transactions = _transactions(
+        [
+            _hop("t1", "c1", 9000, 100),  # 10000 in, 1000 peeled
+            {
+                "txid": "t2",
+                # 9000 of change plus 900000 of coin from somewhere else.
+                "input_addresses": ["c1", "outside"],
+                "input_amounts": [9000, 900000],
+                "output_addresses": ["pay-t2", "c2"],
+                "output_amounts": [50000, 859000],
+                "total_in_sats": 909000,
+                "total_out_sats": 909000,
+            },
+        ]
+    )
+    chains = trace.peel_chains(transactions)
+    assert chains.height == 1
+    chain = chains.row(0, named=True)
+    assert chain["initial_sats"] == 10000
+    assert chain["peeled_sats"] == 51000
+    assert chain["leak_frac"] == pytest.approx(5.1)
+
+
+def test_the_tracer_never_numbers_a_chain_by_iteration_order() -> None:
+    """Determinism: the same input, reversed, numbers the same chains the same way."""
+    rows = [
+        _hop("t1", "c1", 9000, 100),
+        _successor("t2", "c1", 9000, "c2"),
+        _hop("u1", "d1", 4000, 400),
+        _successor("u2", "d1", 4000, "d2"),
+    ]
+    forward = trace.peel_chains(_transactions(rows))
+    backward = trace.peel_chains(_transactions(list(reversed(rows))))
+    assert forward.equals(backward)
+    assert forward.height == 2
+
+
+def test_a_mixer_is_never_a_peel_hop() -> None:
+    """The two shapes are disjoint, which is what lets a transaction carry one mark and not both.
+
+    A hop is two outputs with one thin; a mixer is three or more equal ones. The guard in `hops`
+    restates the rule anyway, so that relaxing one side cannot quietly widen the other.
+    """
+    transactions = _transactions(
+        [
+            {
+                "txid": "mix",
+                "input_addresses": ["a", "b"],
+                "input_amounts": [5000, 5000],
+                "output_addresses": ["p1", "p2", "p3"],
+                "output_amounts": [3300, 3300, 3300],
+                "total_in_sats": 10000,
+                "total_out_sats": 9900,
+                "n_out": 3,
+                "n_in": 2,
+                "has_equal_outputs": True,
+            },
+            _hop("t2", "c2", 9000, 200),
+        ]
+    )
+    assert mixer.flags(transactions).filter(pl.col("coinjoin"))["txid"].to_list() == ["mix"]
+    assert trace.hops(transactions)["txid"].to_list() == ["t2"]
+
+
+# --- the mixer set-aside --------------------------------------------------------------------
+
+
+def test_a_coinjoin_gets_no_common_input_edge() -> None:
+    """Three equal outputs and two inputs. Its inputs are strangers, so no edge claims otherwise."""
+    transactions = _transactions(
+        [
+            {
+                "txid": "mix",
+                "input_addresses": ["a", "b"],
+                "input_amounts": [5000, 5000],
+                "output_addresses": ["p1", "p2", "p3"],
+                "output_amounts": [3300, 3300, 3300],
+                "total_in_sats": 10000,
+                "total_out_sats": 9900,
+                "n_out": 3,
+                "n_in": 2,
+                "has_equal_outputs": True,
+            },
+            {
+                "txid": "ordinary",
+                "input_addresses": ["c", "d"],
+                "input_amounts": [5000, 5000],
+                "output_addresses": ["p4", "p5"],
+                "output_amounts": [6000, 3900],
+                "total_in_sats": 10000,
+                "total_out_sats": 9900,
+                "n_out": 2,
+                "n_in": 2,
+            },
+        ]
+    )
+    edges = cluster.common_input_edges(transactions)
+    pairs = set(zip(edges["src"], edges["dst"], strict=True))
+    assert pairs == {("addr:c", "addr:d")}
+
+
+def test_a_coinjoin_gets_no_change_edge() -> None:
+    """A mixer has no change output to find. Every equal output belongs to someone else."""
+    transactions = _transactions(
+        [
+            {
+                "txid": "mix",
+                "input_addresses": ["a", "b"],
+                "input_amounts": [5000, 5000],
+                "output_addresses": ["p1", "p2", "p3"],
+                "output_amounts": [3300, 3300, 3300],
+                "total_in_sats": 10000,
+                "total_out_sats": 9900,
+                "n_out": 3,
+                "n_in": 2,
+                "has_equal_outputs": True,
+                # SETU's change detector would name the third output, which is the trap.
+                "change_index": 2,
+            }
+        ]
+    )
+    assert cluster.change_edges(transactions).height == 0
+    # Anti-vacuity: the same row without the equal outputs does produce the edge.
+    innocent = _transactions(
+        [
+            {
+                "txid": "ordinary",
+                "input_addresses": ["a", "b"],
+                "input_amounts": [5000, 5000],
+                "output_addresses": ["p1", "p2", "change"],
+                "output_amounts": [9000, 500, 500],
+                "total_in_sats": 10000,
+                "total_out_sats": 10000,
+                "n_out": 3,
+                "n_in": 2,
+                "change_index": 2,
+            }
+        ]
+    )
+    assert cluster.change_edges(innocent).height == 2
+
+
+def test_the_set_aside_counts_the_edges_it_suppressed() -> None:
+    """The number in the manifest is the edges that did not get written, measured by running it."""
+    transactions = _transactions(
+        [
+            {
+                "txid": "mix",
+                "input_addresses": ["a", "b", "c"],
+                "input_amounts": [100, 100, 100],
+                "output_addresses": ["p1", "p2", "p3"],
+                "output_amounts": [99, 99, 99],
+                "total_in_sats": 300,
+                "total_out_sats": 297,
+                "n_out": 3,
+                "n_in": 3,
+                "has_equal_outputs": True,
+                "change_index": 0,
+            }
+        ]
+    )
+    # A star over three inputs is two edges; a star over the three inputs plus one change output
+    # is three. Both are suppressed, and this is the same code path that would have written them.
+    assert cluster.set_aside_edges(transactions) == {"multi_input": 2, "change_addr": 3}
+    assert cluster.same_owner_edges(transactions).height == 0
+
+
+def test_the_mixer_mark_is_on_transactions_only(workspace: Path) -> None:
+    """`coinjoin` is set everywhere, and true only on a node the rule names."""
+    graph = _build(workspace)
+    nodes = pl.read_parquet(graph / "nodes.parquet")
+
+    assert nodes["coinjoin"].null_count() == 0
+    marked = nodes.filter(pl.col("coinjoin"))
+    assert set(marked["kind"].to_list()) <= {"transaction"}
+
+    transactions = pl.read_parquet(
+        workspace / "data" / "generated" / "run" / "normalised" / "transactions.parquet"
+    )
+    shaped = set(transactions.filter(mixer.is_mixer())["txid"].to_list())
+    assert {str(node).removeprefix("tx:") for node in marked["node_id"].to_list()} == shaped
+    # Anti-vacuity: the committed fixture really does carry mixer-shaped transactions, so the
+    # equality above is a decision the run made rather than a column that was never exercised.
+    assert shaped
+    assert "no_mixer_shaped_transactions" not in _meta(graph)["warnings"]
+    # And the shape is where the numbers live, not in a second implementation of the rule.
+    assert set(marked["node_id"].to_list()) <= set(nodes["node_id"].to_list())
+
+
+def test_chain_membership_is_on_the_graph_and_not_only_on_the_file(workspace: Path) -> None:
+    """The round trip: every hop carries its chain's id, and no other node carries one."""
+    graph = _build(workspace)
+    nodes = pl.read_parquet(graph / "nodes.parquet")
+    chains = pl.read_parquet(graph / "peel_chains.parquet")
+
+    members = {
+        f"tx:{txid}": chain
+        for chain, txids in zip(chains["peel_chain_id"], chains["transactions"], strict=True)
+        for txid in txids
+    }
+    marked = {
+        row["node_id"]: row["peel_chain_id"]
+        for row in nodes.filter(pl.col("peel_chain_id").is_not_null()).iter_rows(named=True)
+    }
+    assert marked == members
+    # Anti-vacuity: the fixture really does contain a chain, so the equality above is not 0 == 0.
+    assert chains.height > 0
+    assert set(chains["stop_reason"].to_list()) <= {
+        trace.NO_CONTINUATION,
+        trace.AMBIGUOUS_SPEND,
+        trace.CHAIN_BROKEN,
+        trace.CYCLE,
+    }
+    assert all(int(depth) >= trace.PEEL_MIN_HOPS for depth in chains["depth"].to_list())
+
+
+def test_the_manifest_accounts_for_the_peels_that_went_nowhere(workspace: Path) -> None:
+    """The tracer's denominator is stated, not implied.
+
+    A chain count over an unstated base is unreadable, so the manifest carries the number of
+    peel-shaped transactions, how many of them are inside a chain, and the difference. The
+    identity is what makes the three numbers one claim rather than three.
+    """
+    meta = _meta(_build(workspace))
+    tracer = meta["params"]["peel_tracer"]
+
+    assert (
+        tracer["isolated_hops"] + tracer["chained_transactions"]
+        == tracer["peel_shaped_transactions"]
+    )
+    assert 0 <= tracer["chained_transactions"] <= tracer["peel_shaped_transactions"]
+    assert tracer["min_hops"] == trace.PEEL_MIN_HOPS
+    assert tracer["max_share"] == pytest.approx(trace.PEEL_MAX_SHARE_NUM / trace.PEEL_MAX_SHARE_DEN)
+    mixer_params = meta["params"]["mixer"]
+    assert mixer_params["set_aside_reason"] == mixer.SET_ASIDE_REASON
+    assert mixer_params["min_equal_outputs"] == mixer.COINJOIN_MIN_OUTPUTS
+    assert mixer_params["min_inputs"] == mixer.MIXER_MIN_INPUTS
+    # The set-aside is counted, not asserted, and both heuristics are counted under their own
+    # names so a reader can see which one the mixer actually suppressed.
+    assert set(mixer_params["suppressed_edges"]) == {"multi_input", "change_addr"}
+    assert all(count >= 0 for count in mixer_params["suppressed_edges"].values())
+
+
+def test_the_mixer_rule_is_a_strict_subset_of_the_equal_output_shape() -> None:
+    """JAAL's rule is SHASTRA's shape plus a bar on the output count.
+
+    A two-output transaction with equal outputs is one party splitting their own coin; the
+    multi-input heuristic is right about it and applying the set-aside there would lose real
+    edges. So the rule must be the narrow one, and this checks the relationship rather than two
+    constants happening to agree.
+    """
+    transactions = _transactions(
+        [
+            {
+                "txid": "split",
+                "input_addresses": ["a", "b"],
+                "input_amounts": [100, 100],
+                "output_addresses": ["p", "q"],
+                "output_amounts": [150, 150],
+                "total_in_sats": 300,
+                "total_out_sats": 300,
+                "n_out": 2,
+                "n_in": 2,
+                "has_equal_outputs": True,
+            },
+            {
+                "txid": "mix",
+                "input_addresses": ["c", "d"],
+                "input_amounts": [100, 100],
+                "output_addresses": ["r", "s", "t"],
+                "output_amounts": [66, 66, 66],
+                "total_in_sats": 200,
+                "total_out_sats": 198,
+                "n_out": 3,
+                "n_in": 2,
+                "has_equal_outputs": True,
+            },
+            {
+                "txid": "lonesome_mix",
+                "input_addresses": ["e"],
+                "input_amounts": [100],
+                "output_addresses": ["u", "v", "w"],
+                "output_amounts": [33, 33, 33],
+                "total_in_sats": 100,
+                "total_out_sats": 99,
+                "n_out": 3,
+                "n_in": 1,
+                "has_equal_outputs": True,
+            },
+        ]
+    )
+    flagged = set(mixer.flags(transactions).filter(pl.col("coinjoin"))["txid"].to_list())
+    equal_outputs = set(transactions.filter(pl.col("has_equal_outputs"))["txid"].to_list())
+    assert flagged == {"mix"}
+    assert flagged < equal_outputs
+    # The other direction, which is the one that matters: the split keeps its multi-input edge,
+    # so the set-aside is narrow rather than a blanket exclusion of equal outputs.
+    kept = cluster.common_input_edges(transactions)
+    assert set(zip(kept["src"], kept["dst"], strict=True)) == {("addr:a", "addr:b")}
 
 
 # --- quarantine -----------------------------------------------------------------------------

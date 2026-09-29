@@ -18,16 +18,61 @@ import styles from "./OriginScreen.module.css";
  * a relay, not the sender — here the earliest peer and the model's top peer happen to
  * be the same, shown honestly, not faked apart. Reduced motion = frozen rings + fan.
  */
-type Lane = (typeof fixtures.origin.lanes)[number];
-type Origin = typeof fixtures.origin;
+type Lane = (typeof fixtures.origin.shortlist)[number];
+// Explicit shape so the confident fixture (attribution.asn: number) and the abstain
+// fixture (attribution.asn: null) share one type without a TS2352 cast error.
+type Origin = Omit<typeof fixtures.origin, "attribution"> & {
+  attribution: {
+    asn: number | null;
+    as_org: string;
+    net_class: string;
+    geo_country: string;
+    p_asn: number;
+    p_country: number;
+    margin: number;
+  };
+};
 
 const DISC_R = 2.35;
-const CEILING = 41.5; // §6 flex: only 41.5% of txs even contain the answer.
+// §2 the ladder, read from world.json — never hand-typed. There are two DIFFERENT quantities
+// here and the remodel turns on not confusing them:
+//   · ceiling  = the most ANY estimator could score at that grain (world.ceilings.l1_asn,
+//                0.934 — the physics limit; a run whose observers never heard the operator
+//                cannot name it however good the model is).
+//   · accuracy = what this run's ensemble actually scored (world.headline.l1_top1, 0.459).
+// The gauge is accuracy ÷ ceiling at the SAME grain: 49% of the theoretical maximum. Dividing
+// the operator accuracy by the host ceiling (or by a host accuracy) would be a category error
+// and would flatter us either way.
+const OF = fixtures.world.observer_fraction;
+const L1_CEIL = fixtures.world.ceilings?.l1_asn ?? null;
+const L0_CEIL = fixtures.world.ceilings?.l0_host ?? null;
+const L1_TOP1 = fixtures.world.headline.l1_top1;
+const L0_TOP1 = fixtures.world.headline.l0_top1;
+const NAIVE = fixtures.world.naive_first_seen_top1;
+const LIFT = NAIVE ? L1_TOP1 / NAIVE : null; // 2.46× the free baseline
+const CAPTURED = L1_CEIL ? (L1_TOP1 / L1_CEIL) * 100 : null; // 49.1% of the maximum
+
+/** Plain words for a backend abstain reason — the reason is DATA, so we gloss it, not invent it. */
+const REASON_GLOSS: Record<string, string> = {
+  tor_present: "the sender announced from a Tor exit — the capture saw the relay, never the origin",
+  single_observer: "only one observer heard this transaction, so there is nothing to compare",
+  margin_below_floor: "the top two candidates were too close to separate",
+  too_few_announcements: "too few announcements to estimate from",
+  cross_asn_ambiguous: "the shortlist mass split across operators, so no single one carries it",
+};
+
+// Rings are grouped by network operator (ASN): the leader stays coral, the earliest
+// announcer stays butter, and the remaining operators cycle this small curated palette.
+const OP_PALETTE = [C.risoBlue, C.teal, C.fluoroPink];
 
 /** Backend display format (DATA-CONTRACTS §9): keep first two octets, mask the rest —
  *  matches the fixtures' own peer_ip_display + runner_up_peer_ip. Never a full IP. */
 const maskIp = (ip: string) =>
   ip.includes(":") ? ip.split(":").slice(0, 2).join(":") + ":…" : ip.split(".").slice(0, 2).join(".") + ".x.x";
+
+/** A candidate's likelihood against a blind pick among the peers that announced the tx.
+ *  The denominator is the shortlist we hold, so the claim is exactly as strong as the data. */
+const liftVsRandom = (p: number, n: number) => (n > 0 && p > 0 ? p * n : 0);
 
 type Placed = { lane: Lane; radius: number; x: number; z: number; i: number };
 
@@ -44,8 +89,8 @@ function place(lanes: Lane[]): Placed[] {
   });
 }
 
-function Rings({ placed, abstain, topIdx, earliestIdx, leaderR, reduced }: {
-  placed: Placed[]; abstain: boolean; topIdx: number; earliestIdx: number; leaderR: number; reduced: boolean;
+function Rings({ placed, abstain, topIdx, earliestIdx, leaderR, asnHue, reduced }: {
+  placed: Placed[]; abstain: boolean; topIdx: number; earliestIdx: number; leaderR: number; asnHue: Map<number, string>; reduced: boolean;
 }) {
   const grp = useRef<THREE.Group>(null);
   const dot = useMemo(() => new THREE.SphereGeometry(1, 20, 20), []);
@@ -99,7 +144,7 @@ function Rings({ placed, abstain, topIdx, earliestIdx, leaderR, reduced }: {
       {/* candidate IPs */}
       {placed.map((p) => {
         const leader = !abstain && p.i === topIdx;
-        const col = abstain ? C.inkSoft : leader ? C.coral : p.i === earliestIdx ? C.butter : C.risoBlue;
+        const col = abstain ? C.inkSoft : leader ? C.coral : p.i === earliestIdx ? C.butter : (asnHue.get(p.lane.asn) ?? C.risoBlue);
         return (
           <mesh key={"dot" + p.i} geometry={dot} position={[p.x, 0.06, p.z]} scale={leader ? 0.12 : 0.075}>
             <meshStandardMaterial color={col} emissive={col} emissiveIntensity={leader ? 0.5 : 0.18} roughness={0.6} />
@@ -134,15 +179,21 @@ export function OriginScreen() {
   const data: Origin = showAbstain ? (fixtures.originAbstain as Origin) : fixtures.origin;
   const abstain = data.abstain;
 
-  const placed = useMemo(() => place(data.lanes), [data]);
+  const placed = useMemo(() => place(data.shortlist), [data]);
   const topIdx = useMemo(
-    () => data.lanes.reduce((b, l, i, a) => (l.p_origin > a[b].p_origin ? i : b), 0),
+    () => data.shortlist.reduce((b, l, i, a) => (l.p_origin > a[b].p_origin ? i : b), 0),
     [data],
   );
   const earliestIdx = useMemo(
-    () => data.lanes.reduce((b, l, i, a) => ((l.announcements_ms[0] ?? 0) < (a[b].announcements_ms[0] ?? 0) ? i : b), 0),
+    () => data.shortlist.reduce((b, l, i, a) => ((l.announcements_ms[0] ?? 0) < (a[b].announcements_ms[0] ?? 0) ? i : b), 0),
     [data],
   );
+  // deterministic operator → hue map (leader/earliest are re-coloured in Rings)
+  const asnHue = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const l of data.shortlist) if (!m.has(l.asn)) m.set(l.asn, OP_PALETTE[m.size % OP_PALETTE.length]);
+    return m;
+  }, [data]);
   const leaderR = placed[topIdx]?.radius ?? 0.4;
   const trapCoincides = topIdx === earliestIdx;
 
@@ -169,6 +220,7 @@ export function OriginScreen() {
               topIdx={topIdx}
               earliestIdx={earliestIdx}
               leaderR={leaderR}
+              asnHue={asnHue}
               reduced={reduced}
             />
             <AdaptiveDpr pixelated />
@@ -180,6 +232,7 @@ export function OriginScreen() {
           <span className={styles.key}><span className={styles.sw} style={{ background: C.butter }} /> first to announce</span>
           <span className={styles.key}><span className={styles.sw} style={{ background: C.risoBlue }} /> other candidate</span>
           <p className={styles.legNote}>radius = inverse likelihood — nearest the centre is most likely.</p>
+          <p className={styles.legNote}>rings grouped by network operator (ASN).</p>
         </div>
       </div>
 
@@ -208,18 +261,26 @@ export function OriginScreen() {
           <div className={`${styles.verdict} ${styles.vAbstain}`}>
             <span className={styles.vLabel}>No answer available</span>
             <p className={styles.vBody}>
-              The shortlist was too close to call — the margin fell below the floor we're willing to
-              act on. We say so plainly rather than name a peer we don't trust.
+              We refuse to name this one: {REASON_GLOSS[data.abstain_reason] ?? data.abstain_reason}.
+              A confident wrong name destroys an investigation, so when the evidence can't carry an
+              answer we say so plainly — and show you exactly why. This is a correct output, not a
+              failure.
             </p>
           </div>
         ) : (
           <div className={`${styles.verdict} ${styles.vName}`}>
-            <span className={styles.vLabel}>One clear leader</span>
+            <span className={styles.vLabel}>One clear operator</span>
             <p className={styles.vBody}>
-              <span className={styles.vIp}>{maskIp(data.lanes[topIdx].peer_ip)}</span> leads with origin
-              likelihood <strong>{(data.p_origin * 100).toFixed(2)}%</strong>, a margin of{" "}
-              <strong>{(data.margin * 100).toFixed(2)}%</strong> over the runner-up — above the floor,
-              so we're willing to name it.
+              <span className={styles.vIp}>AS{data.attribution.asn} · {data.attribution.geo_country}</span> leads with
+              operator-origin likelihood <strong>{(data.attribution.p_asn * 100).toFixed(2)}%</strong>, a margin of{" "}
+              <strong>{(data.attribution.margin * 100).toFixed(2)}%</strong> over the runner-up — above the floor,
+              so we're willing to name the operator. The exact host stays in the candidate table below.
+            </p>
+            <p className={styles.vBody}>
+              The leading candidate's own likelihood is <strong>{(data.p_origin * 100).toFixed(2)}%</strong> —{" "}
+              <strong>{liftVsRandom(data.p_origin, data.shortlist.length).toFixed(1)}× more likely than random</strong>.
+              Random here means picking one of the {data.shortlist.length} peers that announced it
+              ({(100 / data.shortlist.length).toFixed(2)}% each).
             </p>
           </div>
         )}
@@ -235,17 +296,39 @@ export function OriginScreen() {
           </p>
         </div>
 
-        {/* §6 ceiling flex */}
+        {/* §2 the gauge — accuracy ÷ ceiling at the SAME grain. 45.9% ÷ 93.4% = 49.1%. */}
         <div className={styles.gauge}>
           <div className={styles.gaugeHead}>
-            <span className={styles.gaugeLabel}>visibility ceiling</span>
-            <span className={styles.gaugeVal}>{CEILING}%</span>
+            <span className={styles.gaugeLabel}>of the theoretical maximum</span>
+            <span className={styles.gaugeVal}>
+              {CAPTURED != null ? `${CAPTURED.toFixed(1)}%` : "—"}
+            </span>
           </div>
-          <div className={styles.gaugeTrack}><div className={styles.gaugeFill} style={{ width: `${CEILING}%` }} /></div>
+          <div className={styles.gaugeTrack}>
+            <div className={styles.gaugeFill} style={{ width: `${CAPTURED ?? 0}%` }} />
+          </div>
           <p className={styles.gaugeNote}>
-            Only {CEILING}% of transactions even contain the answer in what we observed
-            {abstain ? " — and this one, even within reach, was too close to call." : " — this one is within reach."}
+            We name the <strong>operator</strong> for <strong>{(L1_TOP1 * 100).toFixed(1)}%</strong> of
+            transactions at <strong>{(OF * 100).toFixed(0)}%</strong> of the network observed, against
+            an operator ceiling of{" "}
+            <strong>{L1_CEIL != null ? `${(L1_CEIL * 100).toFixed(1)}%` : "—"}</strong> — the most any
+            estimator could score at this coverage, because a run whose observers never heard the
+            announcer cannot name it however good the model is.
+            {CAPTURED != null && (
+              <> That is <strong>{CAPTURED.toFixed(0)}% of the theoretical maximum</strong></>
+            )}
+            {LIFT != null && (
+              <>, and <strong>{LIFT.toFixed(2)}×</strong> the naive first-seen guess ({(NAIVE * 100).toFixed(1)}%)</>
+            )}.
           </p>
+          {L0_CEIL != null && (
+            <p className={styles.gaugeNote}>
+              The exact <strong>host</strong> — the officer-only grain, which Indian law bars from
+              display — is {(L0_TOP1 * 100).toFixed(1)}% against a {(L0_CEIL * 100).toFixed(1)}% ceiling.
+              We report it for completeness; the operator is the product.
+            </p>
+          )}
+          <p className={styles.gaugeNote}>measured over this run's own observer sweep — not a projection.</p>
         </div>
 
         {/* confidence dial (display of the tunable numbers) */}
@@ -258,7 +341,7 @@ export function OriginScreen() {
         {/* every candidate reachable in the DOM (§5.5), ordered by likelihood */}
         <table className={styles.table}>
           <thead>
-            <tr><th>the IP that told us</th><th>operator (ASN)</th><th>geo</th><th>likelihood</th><th>first heard</th></tr>
+            <tr><th>the IP that told us</th><th>network operator (ASN)</th><th>geo</th><th>likelihood</th><th>first heard</th></tr>
           </thead>
           <tbody>
             {rows.map((p) => (

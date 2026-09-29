@@ -1,201 +1,408 @@
 {
   "attribution": {
-    "as_org": "",
-    "asn": 64503,
-    "geo_country": "BR",
-    "margin": 0.004990528332351047,
-    "net_class": "",
-    "observed_at_utc": "2026-01-01T02:48:20.630977+00:00",
-    "p_origin": 0.01785257921281476,
-    "peer_ip": "198.19.221.238",
-    "peer_port": 54099,
-    "runner_up_peer_ip": "198.18.x.x"
+    "as_org": "AS64499 DE documentation network",
+    "asn": 64499,
+    "geo_country": "DE",
+    "margin": 0.00043086406814593636,
+    "net_class": "residential",
+    "observed_at_utc": "2026-01-03T20:05:07.382816+00:00",
+    "p_asn": 0.13611380491923872,
+    "peer_ip": "2001:db8:7f1e:5853:af90:b064:30b8:c0db",
+    "peer_port": 42704,
+    "shortlist": [
+      {
+        "p_origin": 0.09769551244001312,
+        "peer_ip_display": "2001:db8:x:x",
+        "peer_port": 42704,
+        "rank": 1
+      },
+      {
+        "p_origin": 0.022653757328154424,
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 35520,
+        "rank": 2
+      },
+      {
+        "p_origin": 0.018137704736861382,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 54162,
+        "rank": 3
+      },
+      {
+        "p_origin": 0.01775606808574109,
+        "peer_ip_display": "203.0.x.x",
+        "peer_port": 37880,
+        "rank": 4
+      },
+      {
+        "p_origin": 0.013877636165734068,
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 41656,
+        "rank": 5
+      },
+      {
+        "p_origin": 0.011559344932851046,
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 47032,
+        "rank": 6
+      },
+      {
+        "p_origin": 0.007725860744762446,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 41326,
+        "rank": 7
+      },
+      {
+        "p_origin": 0.007107945821470745,
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 50346,
+        "rank": 8
+      },
+      {
+        "p_origin": 0.006555839621883192,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 41964,
+        "rank": 9
+      },
+      {
+        "p_origin": 0.00615392964140011,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 54206,
+        "rank": 10
+      },
+      {
+        "p_origin": 0.006023913563065115,
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 45687,
+        "rank": 11
+      },
+      {
+        "p_origin": 0.00590791883472297,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 48418,
+        "rank": 12
+      },
+      {
+        "p_origin": 0.005778426488717075,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 45931,
+        "rank": 13
+      },
+      {
+        "p_origin": 0.005456054189552243,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 37459,
+        "rank": 14
+      },
+      {
+        "p_origin": 0.005317297450996116,
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 33382,
+        "rank": 15
+      },
+      {
+        "p_origin": 0.005056180638797138,
+        "peer_ip_display": "2001:db8:x:x",
+        "peer_port": 48470,
+        "rank": 16
+      },
+      {
+        "p_origin": 0.004156548632605043,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 58885,
+        "rank": 17
+      },
+      {
+        "p_origin": 0.0039006324786119008,
+        "peer_ip_display": "2001:db8:x:x",
+        "peer_port": 54206,
+        "rank": 18
+      },
+      {
+        "p_origin": 0.0035892858795313126,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 36886,
+        "rank": 19
+      },
+      {
+        "p_origin": 0.0035172366362179897,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 48250,
+        "rank": 20
+      },
+      {
+        "p_origin": 0.0034809582014152804,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 50953,
+        "rank": 21
+      },
+      {
+        "p_origin": 0.0027718405229658024,
+        "peer_ip_display": "198.18.x.x",
+        "peer_port": 60777,
+        "rank": 22
+      },
+      {
+        "p_origin": 0.002017957627663021,
+        "peer_ip_display": "198.19.x.x",
+        "peer_port": 45073,
+        "rank": 23
+      },
+      {
+        "p_origin": 0.001508671589563719,
+        "peer_ip_display": "100.64.x.x",
+        "peer_port": 52706,
+        "rank": 24
+      },
+      {
+        "p_origin": 0.001444848577366368,
+        "peer_ip_display": "100.104.x.x",
+        "peer_port": 55933,
+        "rank": 25
+      },
+      {
+        "p_origin": 0.0010294527020448016,
+        "peer_ip_display": "100.104.x.x",
+        "peer_port": 49002,
+        "rank": 26
+      }
+    ]
   },
-  "case_id": "alw-63329995d8e6",
+  "attribution_ready": true,
+  "case_id": "alw-86c94e363f0f",
   "chain_of_custody": [
     {
-      "at_us": 1789457002731619,
+      "at_us": 1790611459876457,
       "inputs": [
-        "data/generated/_sweep-0.10/capture/part-0000.csv"
+        "data/generated/agency-v2/capture/part-0000.csv",
+        "data/generated/agency-v2/capture/part-0001.csv",
+        "data/generated/agency-v2/capture/part-0002.csv",
+        "data/generated/agency-v2/capture/part-0003.csv"
       ],
       "outputs": [
         "sealed/rows.parquet",
         "sealed/rejected.parquet",
         "sealed/INPUT.sha256"
       ],
-      "sha256": "aa198787d76bb350823381c483d2155dff9bcef4e58e221f6f4fc3e11dfb0c89",
+      "sha256": "4919533be7536884986c5bf6ea8969489e48ea1e29843196dd89022dcd5a115c",
       "stage": "kavach"
     },
     {
-      "at_us": 1789457003082959,
+      "at_us": 1790611462955770,
       "inputs": [
-        "data/generated/_sweep-0.10/sealed/rows.parquet"
+        "data/generated/agency-v2/sealed/rows.parquet"
       ],
       "outputs": [
         "normalised/addresses.parquet",
         "normalised/announcements.parquet",
+        "normalised/arrival.parquet",
+        "normalised/asn_rollup.parquet",
         "normalised/peers.parquet",
         "normalised/transactions.parquet"
       ],
-      "sha256": "4bba0a8f4fa9006e706110a5d46f47df43e59de893df0942451b57b920baf71d",
+      "sha256": "f29527b1a7ebd4ad1027d818663c3617725bf66dd965c2cea0671b6fe56a6e50",
       "stage": "setu"
     },
     {
-      "at_us": 1789457003681398,
+      "at_us": 1790629310706122,
       "inputs": [
-        "data/generated/_sweep-0.10/normalised/announcements.parquet",
-        "data/generated/_sweep-0.10/normalised/transactions.parquet",
-        "data/generated/_sweep-0.10/normalised/addresses.parquet",
-        "data/generated/_sweep-0.10/normalised/peers.parquet"
+        "data/generated/agency-v2/normalised/announcements.parquet",
+        "data/generated/agency-v2/normalised/transactions.parquet",
+        "data/generated/agency-v2/normalised/addresses.parquet",
+        "data/generated/agency-v2/normalised/peers.parquet"
       ],
       "outputs": [
         "graph/clusters.parquet",
         "graph/edges.parquet",
-        "graph/nodes.parquet"
+        "graph/nodes.parquet",
+        "graph/peel_chains.parquet"
       ],
-      "sha256": "14d871653bfce4b71e43ca209fae6f8a464b1ea3fdfa60b7898f0c3085fd425b",
+      "sha256": "4845049566fabafb9aa7746d88ea5bda7893222dcc93349453b51a87d4cfb99b",
       "stage": "jaal"
     },
     {
-      "at_us": 1789457005125039,
+      "at_us": 1790611480021045,
       "inputs": [
-        "data/generated/_sweep-0.10/normalised/announcements.parquet",
-        "data/generated/_sweep-0.10/normalised/transactions.parquet",
-        "data/generated/_sweep-0.10/normalised/peers.parquet",
-        "data/generated/_sweep-0.10/graph/edges.parquet"
+        "data/generated/agency-v2/normalised/announcements.parquet",
+        "data/generated/agency-v2/normalised/transactions.parquet",
+        "data/generated/agency-v2/normalised/peers.parquet",
+        "data/generated/agency-v2/graph/edges.parquet"
       ],
       "outputs": [
         "signals/entity_types.parquet",
         "signals/origin_estimates.parquet",
+        "signals/origin_l1.parquet",
         "signals/typology_hits.parquet"
       ],
-      "sha256": "d74b10525236f86ff489bfaa586846d217d93f4dcb9738af318c14c9ff144b78",
+      "sha256": "751ca987c6343b10b6f188ef798df192b16f87d7b2c79e5acd41b35d49c97de1",
       "stage": "shastra"
     },
     {
-      "at_us": 1789494494363030,
+      "at_us": 1790667775009541,
       "inputs": [
-        "data/generated/_sweep-0.10/normalised/addresses.parquet",
-        "data/generated/_sweep-0.10/normalised/transactions.parquet",
-        "data/generated/_sweep-0.10/graph/clusters.parquet",
-        "data/generated/_sweep-0.10/graph/edges.parquet",
-        "data/generated/_sweep-0.10/signals/origin_estimates.parquet"
+        "data/generated/agency-v2/normalised/addresses.parquet",
+        "data/generated/agency-v2/normalised/transactions.parquet",
+        "data/generated/agency-v2/graph/clusters.parquet",
+        "data/generated/agency-v2/graph/edges.parquet",
+        "data/generated/agency-v2/signals/origin_estimates.parquet"
       ],
       "outputs": [
         "scores/calibration.parquet",
         "scores/wallet_scores.parquet"
       ],
-      "sha256": "5221e264270d2076fd6c708743e3bce7c7eababd6019407628ebeb947986a6d1",
+      "sha256": "8241d4a46bb02b99aa5ca84d55c197d19cc0f54486eaa15eee3563d2eaf1912d",
       "stage": "buddhi"
     },
     {
-      "at_us": 1789504617630581,
+      "at_us": 1790668146342328,
       "inputs": [
-        "data/generated/_sweep-0.10/graph/clusters.parquet",
-        "data/generated/_sweep-0.10/graph/edges.parquet",
-        "data/generated/_sweep-0.10/normalised/announcements.parquet",
-        "data/generated/_sweep-0.10/scores/wallet_scores.parquet",
-        "data/generated/_sweep-0.10/signals/entity_types.parquet",
-        "data/generated/_sweep-0.10/signals/origin_estimates.parquet",
-        "data/generated/_sweep-0.10/signals/typology_hits.parquet"
+        "data/generated/agency-v2/graph/clusters.parquet",
+        "data/generated/agency-v2/graph/edges.parquet",
+        "data/generated/agency-v2/normalised/announcements.parquet",
+        "data/generated/agency-v2/scores/wallet_scores.parquet",
+        "data/generated/agency-v2/signals/entity_types.parquet",
+        "data/generated/agency-v2/signals/origin_estimates.parquet",
+        "data/generated/agency-v2/signals/typology_hits.parquet"
       ],
       "outputs": [
         "alerts/alerts.parquet",
         "alerts/counter.parquet",
         "alerts/evidence.parquet"
       ],
-      "sha256": "ae48d2ff2ff6a404f91faf166bd1b4cabd689bd4efcaf9e48f3ae88bb617d7b9",
+      "sha256": "a219340d9cf8554a98ef4e0e61b747427836ea13ec472d2faa06680a4c663639",
       "stage": "vaani"
     }
   ],
-  "code_version": "f70e4515a027-dirty",
+  "code_version": "0ca8328b7ee2-dirty",
   "confidence": {
     "coverage_target": 0.9,
     "high": 1.0,
-    "low": 1.0,
+    "low": 0.8477401129507357,
     "method": "plain_conformal"
   },
   "counter_findings": [
     {
+      "kind": "entity_type_conflict",
+      "statement": "the fan out pattern this alert rests on has a benign reading: a wide fan also matches marketplace payouts and wage batches",
+      "would_clear": false
+    },
+    {
+      "kind": "entity_type_conflict",
+      "statement": "the coinjoin like pattern this alert rests on has a benign reading: equal-value outputs also come from privacy wallets used for anonymity alone",
+      "would_clear": false
+    },
+    {
       "kind": "insufficient_observation",
-      "statement": "all observed announcing peers together account for only 5% of the estimated origin probability, so the true originator may not have been observed at all",
+      "statement": "all observed announcing peers together account for only 27% of the estimated origin probability, so the true originator may not have been observed at all",
       "would_clear": false
     },
     {
       "kind": "low_origin_margin",
       "statement": "the leading origin candidate is only narrowly ahead of the runner-up, which is too thin a margin to act on",
       "would_clear": false
+    },
+    {
+      "kind": "shared_ip",
+      "statement": "the same network address announces traffic for 339 distinct subjects, so it may be a shared relay rather than an owner",
+      "would_clear": false
     }
   ],
+  "ed25519_signature": "5a714e6c2e47c51dfac81a6f6dfdca49e54c288450a79c50a13d670b39ef33f79b5b77c7c21b3da179b657ec60a0c32f7d0bc5772dd2b4cc0e91f66c13a78608",
   "findings": [
     {
       "kind": "model_feature",
-      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
-      "statement": "this wallet's average fee per vbyte its sends paid raised its risk score substantially"
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:3gen0izzzzzzzzzzzzzzzzzzzzzzz37a37",
+      "statement": "this wallet's most addresses it consolidated into a single transaction raised its risk score substantially"
     },
     {
       "kind": "model_feature",
-      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
-      "statement": "this wallet's satoshis it sent in its window raised its risk score substantially"
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:3gen0izzzzzzzzzzzzzzzzzzzzzzz37a37",
+      "statement": "this wallet's share of its transactions with equal-value outputs, a coinjoin mark raised its risk score substantially"
     },
     {
       "kind": "model_feature",
-      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
-      "statement": "this wallet's how far ahead the top origin candidate usually was raised its risk score substantially"
-    },
-    {
-      "kind": "model_feature",
-      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
-      "statement": "this wallet's average origin confidence on the transactions it sent raised its risk score substantially"
-    },
-    {
-      "kind": "model_feature",
-      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:3gen0izzzzzzzzzzzzzzzzzzzzzzz37a37",
       "statement": "this wallet's distinct wallets it transacted with raised its risk score substantially"
     },
     {
+      "kind": "model_feature",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:3gen0izzzzzzzzzzzzzzzzzzzzzzz37a37",
+      "statement": "this wallet's typical gap between one of its receipts and its next send raised its risk score substantially"
+    },
+    {
+      "kind": "model_feature",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:3gen0izzzzzzzzzzzzzzzzzzzzzzz37a37",
+      "statement": "this wallet's transactions that paid it in its window raised its risk score substantially"
+    },
+    {
       "kind": "origin_estimate",
-      "source_ref": "signals/origin_estimates.parquet#tx_prefix=da4daa38",
-      "statement": "transaction da4daa38\u20268b27 is estimated to have originated from network address 198.19.x.x with probability 0.018"
+      "source_ref": "signals/origin_estimates.parquet#tx_prefix=0558fde4",
+      "statement": "transaction 0558fde4\u20265ecf is estimated to have originated from network address 2001:db8:x:x with probability 0.098"
     },
     {
       "kind": "network_context",
-      "source_ref": "normalised/announcements.parquet#row_id=3381",
-      "statement": "the network address was first observed announcing that transaction at 2026-01-01 02:48:20Z, observation row 3381"
+      "source_ref": "normalised/announcements.parquet#row_id=460775",
+      "statement": "the network address was first observed announcing that transaction at 2026-01-03 20:05:07Z, observation row 460775"
     },
     {
       "kind": "cluster_edge",
-      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:bc1qgen0iqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3182",
+      "source_ref": "scores/wallet_scores.parquet#subject_id=addr:3gen0izzzzzzzzzzzzzzzzzzzzzzz37a37",
       "statement": "the subject is a single address that no clustering heuristic linked to anything else"
     }
   ],
-  "generated_at_us": 1789504617630581,
+  "generated_at_us": 1790668146342328,
   "input": {
     "files": [
       {
-        "path": "data/generated/_sweep-0.10/capture/part-0000.csv",
-        "sha256": "f3977f4c5859d1f0ffe02216ccda8319d2e6fc4be4ebcb0c0534eff00eaba206"
+        "path": "data/generated/agency-v2/capture/part-0000.csv",
+        "sha256": "23c816aa1bf788277e71c873eb3991bf7df7fa9b78e9eda0cc1378f2792e2f3b"
+      },
+      {
+        "path": "data/generated/agency-v2/capture/part-0001.csv",
+        "sha256": "0ea88cb66ddaa39e4a50eff3872c1115da926b30984abd4a97b77f8469306d11"
+      },
+      {
+        "path": "data/generated/agency-v2/capture/part-0002.csv",
+        "sha256": "8439b53f2901e02b3fed66c25e145e415670e9ecc46165479e1bd63694421880"
+      },
+      {
+        "path": "data/generated/agency-v2/capture/part-0003.csv",
+        "sha256": "eda3be05359697731775c2489b47132026eac91783b2f3c1c8ab6a2dc070c29f"
       }
     ],
-    "rows_sealed": 41594
+    "rows_sealed": 906560
   },
   "legal": {
     "basis": "BNSS 2023 s.94",
     "hash_disclosure": "BSA 2023 s.63(4), Schedule Part A"
   },
-  "merkle_head": "0000000000000000000000000000000000000000000000000000000000000000",
+  "merkle_head": "1812c644d6f85f1ec838698a98a611f590b968545aed3bd45a174576fb69d7be",
+  "notice": {
+    "exchange": "AS64499 DE documentation network",
+    "requested_records": [
+      "Subscriber and session records for the attributed network address at the observed time.",
+      "RADIUS/DHCP assignment logs identifying the subscriber behind that address.",
+      "Know-your-customer records and transaction statements for the attributed Bitcoin subject."
+    ],
+    "statute": "BNSS 2023 s.94"
+  },
   "replay": {
-    "command": "uv run python -m chakravyuh.pramaan --in data/generated/_sweep-0.10 --out data/generated/_sweep-0.10 --case alw-63329995d8e6 --verify-replay",
-    "expected_packet_sha256": "4c059acb6cd9ff7616e81b1f4b73d6df8a712fc63f51e2d757b25f91dbcf7c46",
+    "command": "uv run python -m chakravyuh.pramaan --in data/generated/agency-v2 --out data/generated/agency-v2 --case alw-86c94e363f0f --verify-replay",
+    "expected_packet_sha256": "9e72cca1f0daf45fd6192a2d52363d4026a82db35cc2a3612e7d6e755ccc66e3",
     "seed": 42
   },
-  "replay_command": "uv run python -m chakravyuh.pramaan --in data/generated/_sweep-0.10 --out data/generated/_sweep-0.10 --case alw-63329995d8e6 --verify-replay",
+  "replay_command": "uv run python -m chakravyuh.pramaan --in data/generated/agency-v2 --out data/generated/agency-v2 --case alw-86c94e363f0f --verify-replay",
   "subject": {
     "addresses_redacted": [
-      "addr:bc1qge\u20263182"
+      "addr:3gen0i\u20267a37"
     ],
     "cluster_id": "",
-    "subject_id": "addr:bc1qge\u20263182"
+    "subject_id": "addr:3gen0i\u20267a37"
   },
-  "tool_version": "0.1.0"
+  "tool_version": "0.1.0",
+  "verification": {
+    "hash_verified": true,
+    "replay_matched": true,
+    "signature_valid": true
+  }
 }

@@ -49,6 +49,10 @@ TRUTH_ONLY = (
     "change_index",
     "heuristic_violation",
     "true_origin_ip",
+    "true_origin_asn",
+    "true_origin_as_org",
+    "true_origin_net_class",
+    "true_origin_country",
     "true_origin_entity_id",
 )
 

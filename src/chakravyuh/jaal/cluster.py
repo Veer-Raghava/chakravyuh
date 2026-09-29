@@ -22,6 +22,7 @@ from typing import Final
 import polars as pl
 import rustworkx as rx
 
+from chakravyuh.jaal import mixer
 from chakravyuh.jaal.build import CLUSTERS_SCHEMA, EDGES_SCHEMA, conform
 
 # The multi-input heuristic's published precision on full clusters in law enforcement settings,
@@ -71,25 +72,33 @@ def _star(frame: pl.DataFrame, members: str, evidence: str, confidence: float) -
 def common_input_edges(transactions: pl.DataFrame) -> pl.DataFrame:
     """Common input ownership: spending two addresses in one transaction needs both keys.
 
-    CoinJoin-like transactions are excluded, because they are exactly the construction that
-    breaks this heuristic: several unrelated parties sign one transaction on purpose. SETU hands
-    us `has_equal_outputs` for that, and dropping those transactions is cheaper and more honest
-    than emitting edges we already believe are wrong.
+    Mixers are set aside, because they are exactly the construction that breaks this heuristic:
+    several unrelated parties sign one transaction on purpose, so its inputs are strangers and the
+    edge this would emit is known to be wrong before it is written. `mixer.is_mixer` names the
+    shape and the reason; `stage.py` records how many transactions were set aside for it. Dropping
+    them is cheaper and more honest than emitting edges we already believe are wrong.
+
+    The one-input case is excluded by the `n_in >= 2` bar alone, which is a different fact: a
+    single input claims nothing about two addresses because there are not two.
     """
     candidates = transactions.filter(
-        ~pl.col("is_coinbase") & (pl.col("n_in") >= 2) & ~pl.col("has_equal_outputs")
+        ~pl.col("is_coinbase") & (pl.col("n_in") >= 2) & ~mixer.is_mixer()
     )
     return _star(candidates, "input_addresses", "multi_input", MULTI_INPUT_CONFIDENCE)
 
 
-def change_edges(transactions: pl.DataFrame) -> pl.DataFrame:
-    """Change-address detection: the suspected change output belongs to the sender.
+def _change_members(transactions: pl.DataFrame) -> pl.DataFrame:
+    """Transactions with a determinate change output, as one `members` list each.
 
-    The change index is SETU's, and deliberately weak. This links the change output to the
-    transaction's own input addresses, which is the claim the heuristic actually makes: that
+    The change index is SETU's and is deliberately weak. The list is the transaction's own input
+    addresses plus that one output, which is the claim the change heuristic actually makes: that
     output came back to whoever funded the inputs.
+
+    Factored out because `change_edges` and `set_aside_edges` must agree about which transactions
+    have a change output at all — a set-aside count computed from a different reading of the same
+    rule would be a number about nothing.
     """
-    candidates = (
+    return (
         transactions.filter(~pl.col("is_coinbase") & (pl.col("change_index") >= 0))
         .with_columns(
             pl.col("output_addresses")
@@ -101,7 +110,46 @@ def change_edges(transactions: pl.DataFrame) -> pl.DataFrame:
             pl.concat_list(pl.col("input_addresses"), pl.col("change_address")).alias("members")
         )
     )
-    return _star(candidates, "members", "change_addr", CHANGE_ADDR_CONFIDENCE)
+
+
+def change_edges(transactions: pl.DataFrame) -> pl.DataFrame:
+    """Change-address detection: the suspected change output belongs to the sender.
+
+    Mixers are set aside here for the same reason as above. A CoinJoin has no change output to
+    find — every equal output belongs to a different participant — so a "change" picked out of one
+    is a slice of somebody else's coin, and linking it to this transaction's inputs would merge
+    strangers. The exclusion is one predicate, applied where the claim is made.
+    """
+    return _star(
+        _change_members(transactions.filter(~mixer.is_mixer())),
+        "members",
+        "change_addr",
+        CHANGE_ADDR_CONFIDENCE,
+    )
+
+
+def set_aside_edges(transactions: pl.DataFrame) -> dict[str, int]:
+    """The candidate edges the mixer set-aside suppressed, counted rather than asserted.
+
+    The proof that a set-aside is real is the edges that did not get written, and the only honest
+    way to count them is to run the two heuristics over the transactions that were excluded with
+    the same code and the same thresholds. A number derived any other way would be a second
+    implementation of the rule, free to disagree with the first.
+    """
+    mixers = transactions.filter(mixer.is_mixer())
+    if mixers.is_empty():
+        return {"multi_input": 0, "change_addr": 0}
+    return {
+        "multi_input": _star(
+            mixers.filter(pl.col("n_in") >= 2),
+            "input_addresses",
+            "multi_input",
+            MULTI_INPUT_CONFIDENCE,
+        ).height,
+        "change_addr": _star(
+            _change_members(mixers), "members", "change_addr", CHANGE_ADDR_CONFIDENCE
+        ).height,
+    }
 
 
 def same_owner_edges(transactions: pl.DataFrame) -> pl.DataFrame:
@@ -217,7 +265,9 @@ def cluster_nodes(cluster_frame: pl.DataFrame) -> pl.DataFrame:
 
     `first_us` and `last_us` are null: a cluster is an inference about ownership, not something
     the capture observed between two times. Writing the span of its addresses there would invite a
-    reader to treat a heuristic's output as an observation.
+    reader to treat a heuristic's output as an observation. For the same reason `peel_chain_id` is
+    null and `coinjoin` is false: section 5's two trailing columns describe a transaction, and a
+    cluster is not one.
     """
     from chakravyuh.jaal.build import NODES_SCHEMA
 
@@ -234,6 +284,8 @@ def cluster_nodes(cluster_frame: pl.DataFrame) -> pl.DataFrame:
             ).alias("label"),
             pl.lit(None).cast(pl.Int64()).alias("first_us"),
             pl.lit(None).cast(pl.Int64()).alias("last_us"),
+            pl.lit(None).cast(pl.String).alias("peel_chain_id"),
+            pl.lit(False).alias("coinjoin"),
         ),
         NODES_SCHEMA,
     )

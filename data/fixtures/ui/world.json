@@ -1,0 +1,196 @@
+{
+  "ceilings": {
+    "l0_host": 0.482405,
+    "l1_asn": 0.934491,
+    "l2_region": 0.959333,
+    "l3_shortlist_topk": 0.482405
+  },
+  "defences": [
+    "observer curve",
+    "elliptic replication",
+    "real-slice",
+    "parameter holdout"
+  ],
+  "funnel": [
+    {
+      "count": 906560,
+      "label": "signals",
+      "layer": "MAYAJAAL",
+      "stage": "globe"
+    },
+    {
+      "count": 906560,
+      "label": "sealed",
+      "layer": "KAVACH",
+      "stage": "intake"
+    },
+    {
+      "count": 906560,
+      "label": "announcements",
+      "layer": "SETU",
+      "stage": "untangle"
+    },
+    {
+      "count": 32787,
+      "label": "transactions",
+      "layer": "JAAL",
+      "stage": "map"
+    },
+    {
+      "count": 32787,
+      "label": "with a candidate",
+      "layer": "SHASTRA",
+      "stage": "origin"
+    },
+    {
+      "count": 87896,
+      "label": "owner groups scored",
+      "layer": "BUDDHI",
+      "stage": "buddhi"
+    },
+    {
+      "count": 66689,
+      "label": "ranked leads",
+      "layer": "VAANI",
+      "stage": "leads"
+    },
+    {
+      "count": 9,
+      "label": "court-ready proofs",
+      "layer": "PRAMAAN",
+      "stage": "proof"
+    }
+  ],
+  "headline": {
+    "campaign_recall": 0.954082,
+    "elliptic_f1": 0.766174,
+    "elliptic_precision": 0.892052,
+    "elliptic_roc_auc": 0.936546,
+    "l0_top1": 0.25323,
+    "l1_top1": 0.459469,
+    "pair_precision": 0.5882705173589685
+  },
+  "literature_band": [
+    0.11,
+    0.6
+  ],
+  "naive_first_seen_top1": 0.186753,
+  "observer_fraction": 0.6,
+  "observer_regime": "agency",
+  "origin_curve": {
+    "l0_host": [
+      {
+        "abstain": 0.547456,
+        "fraction": 0.02,
+        "top1": 0.019861
+      },
+      {
+        "abstain": 0.398584,
+        "fraction": 0.05,
+        "top1": 0.031986
+      },
+      {
+        "abstain": 0.491173,
+        "fraction": 0.1,
+        "top1": 0.078753
+      },
+      {
+        "abstain": 0.537313,
+        "fraction": 0.25,
+        "top1": 0.154157
+      },
+      {
+        "abstain": 0.633883,
+        "fraction": 0.5,
+        "top1": 0.260393
+      },
+      {
+        "abstain": 0.356086,
+        "fraction": 0.6,
+        "top1": 0.25323
+      },
+      {
+        "abstain": 0.642259,
+        "fraction": 0.7,
+        "top1": 0.314896
+      }
+    ],
+    "l1_asn": [
+      {
+        "abstain": 0.547456,
+        "fraction": 0.02,
+        "top1": 0.177021
+      },
+      {
+        "abstain": 0.398584,
+        "fraction": 0.05,
+        "top1": 0.201155
+      },
+      {
+        "abstain": 0.491173,
+        "fraction": 0.1,
+        "top1": 0.258199
+      },
+      {
+        "abstain": 0.537313,
+        "fraction": 0.25,
+        "top1": 0.355889
+      },
+      {
+        "abstain": 0.633883,
+        "fraction": 0.5,
+        "top1": 0.457852
+      },
+      {
+        "abstain": 0.356086,
+        "fraction": 0.6,
+        "top1": 0.459469
+      },
+      {
+        "abstain": 0.642259,
+        "fraction": 0.7,
+        "top1": 0.50843
+      }
+    ],
+    "l3_shortlist": [
+      {
+        "fraction": 0.02,
+        "k": 3,
+        "topk": 0.021594
+      },
+      {
+        "fraction": 0.05,
+        "k": 3,
+        "topk": 0.036952
+      },
+      {
+        "fraction": 0.1,
+        "k": 3,
+        "topk": 0.091455
+      },
+      {
+        "fraction": 0.25,
+        "k": 3,
+        "topk": 0.197229
+      },
+      {
+        "fraction": 0.5,
+        "k": 3,
+        "topk": 0.342841
+      },
+      {
+        "fraction": 0.6,
+        "k": 3,
+        "topk": 0.33057
+      },
+      {
+        "fraction": 0.7,
+        "k": 3,
+        "topk": 0.421594
+      }
+    ]
+  },
+  "protocol": "inductive_time_ordered",
+  "recoverable_ceiling": 0.482405,
+  "run_id": "agency-v2"
+}

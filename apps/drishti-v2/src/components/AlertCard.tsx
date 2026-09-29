@@ -11,11 +11,27 @@ import styles from "./AlertCard.module.css";
  *
  * Two backend fields are first-class here, not footnotes (§6):
  *  - would_clear on a counter — "this one doubt is enough to close the lead"
- *  - attribution_ready — gates the {IP · port · UTC} hero; false = honest not-ready.
+ *  - attribution_ready — gates the {operator · region · UTC} hero; false = honest not-ready.
+ * Attribution leads with the network operator (ASN) + region + shortlist size, never the
+ * exact host (§2) — the full IP/port live only in packet.json and are never rendered.
  * All identifiers are the backend's *_display forms (truncated per §9); we never
  * render a full identifier on screen.
  */
-const RISK = { high: "var(--coral)", med: "var(--butter)", low: "var(--riso-blue)" } as const;
+/**
+ * Severity → colour, the backend's whole vocabulary, hottest first. Shared with the Leads
+ * queue so a tier can never mean two colours in two places. An unknown tier falls back to
+ * the calm grey rather than borrowing the alarm colour it did not earn.
+ */
+export const SEVERITY_COLOR: Record<string, string> = {
+  critical: "var(--coral)",
+  high: "var(--butter)",
+  medium: "var(--ink-soft)",
+  low: "var(--riso-blue)",
+  informational: "var(--teal)",
+};
+
+/** A score as a 0–100 string for the bar widths (the width IS the number, no decoration). */
+const pctWidth = (x: number) => `${Math.max(0, Math.min(1, x)) * 100}%`;
 
 function utcMicrosToUTC(us: number): string {
   // _us fields are UTC microseconds (int64). Convert only at the render layer.
@@ -25,7 +41,10 @@ function utcMicrosToUTC(us: number): string {
 export function AlertCard({ footer }: { footer?: ReactNode }) {
   const a = fixtures.alert;
   const o = a.origin;
-  const risk = RISK[a.severity as keyof typeof RISK] ?? RISK.high;
+  const risk = SEVERITY_COLOR[a.severity] ?? "var(--ink-soft)";
+  // The detail payload carries the score inside `confidence` (the queue carries it flat as
+  // risk_score); one number, read where this shape keeps it.
+  const score = a.confidence.score;
   const clearing = a.counters.find((c) => c.would_clear);
 
   return (
@@ -33,25 +52,45 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
       <div className={styles.severityEdge} />
 
       <header className={styles.head}>
-        <span className={styles.score}>{a.conf_high.toFixed(2)}</span>
+        <span className={styles.score}>{score.toFixed(2)}</span>
         <span className={styles.severity}>{a.severity.toUpperCase()}</span>
         <span className={styles.subject}>{a.subject_display}</span>
       </header>
 
+      {/* risk as a filled bar — the width is the number, so a 0.80 and a 0.99 never read alike */}
+      <div className={styles.meter}>
+        <span className={styles.meterLabel}>risk</span>
+        <span className={styles.meterTrack}>
+          <span className={styles.meterFill} style={{ width: pctWidth(score) }} />
+        </span>
+        <span className={styles.meterVal}>{score.toFixed(3)}</span>
+      </div>
+      {/* the conformal range — a band, not a point. A wide band is an honest "we're not sure". */}
+      <div className={styles.meter}>
+        <span className={styles.meterLabel}>confidence</span>
+        <span className={styles.meterTrack}>
+          <span
+            className={styles.rangeBand}
+            style={{ left: pctWidth(a.conf_low), width: pctWidth(a.conf_high - a.conf_low) }}
+          />
+        </span>
+        <span className={styles.meterVal}>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}</span>
+      </div>
+
       <p className={styles.headline}>{a.headline}</p>
 
-      {/* the {IP · port · UTC} hero — gated by attribution_ready (§6) */}
+      {/* the {operator · region · UTC} hero — gated by attribution_ready (§6) */}
       {a.attribution_ready ? (
         <div className={styles.attribution}>
           <span className={styles.attrLabel}>attribution ready</span>
           <span className={styles.attrValue}>
-            {o.origin_peer_display} · port {o.lanes[0]?.peer_port} · {utcMicrosToUTC(o.first_seen_us)}
+            AS{o.attribution.asn} · {o.attribution.geo_country} · {utcMicrosToUTC(o.first_seen_us)}
           </span>
         </div>
       ) : (
         <div className={`${styles.attribution} ${styles.notReady}`}>
           <span className={styles.attrLabel}>attribution not ready</span>
-          <span className={styles.attrValue}>peer IP, source port and precise time not all present</span>
+          <span className={styles.attrValue}>operator, region and precise time not all present</span>
         </div>
       )}
 
@@ -63,7 +102,8 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
               <span className={styles.abstain}>No answer available</span>
             ) : (
               <>
-                {o.origin_peer_display} · likelihood {o.p_origin.toFixed(3)} · runner-up {o.runner_up_display}
+                AS{o.attribution.asn} · {o.attribution.geo_country} · operator likelihood{" "}
+                {(o.attribution.p_asn * 100).toFixed(2)}% · shortlist of {o.shortlist.length}
               </>
             )}
           </dd>

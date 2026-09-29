@@ -104,12 +104,16 @@ def normalise_run(sealed: Path, out: Path, vendor: Path | None = None) -> Path:
     announcement_table = normalise.announcements(base, peer_table)
     transaction_table = normalise.transactions(rows)
     address_table = normalise.addresses(transaction_table, normalise.declared_script_types(rows))
+    asn_rollup_table = normalise.asn_rollup(peer_table, announcement_table)
+    arrival_table = normalise.arrival(rows)
 
     tables = {
         "announcements.parquet": announcement_table,
         "transactions.parquet": transaction_table,
         "addresses.parquet": address_table,
         "peers.parquet": peer_table,
+        "asn_rollup.parquet": asn_rollup_table,
+        "arrival.parquet": arrival_table,
     }
     out_dir = out / OUT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)

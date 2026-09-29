@@ -22,13 +22,19 @@ from chakravyuh.api import serialize
 from chakravyuh.api.app import BIND_HOST, BIND_PORT, RUN_ENV, app, resolve_run, set_run_dir
 
 FIXTURES = Path("data/fixtures/ui")
-REFERENCE_RUN = Path("data/generated/_sweep-0.10")
+# The run the committed fixtures are exported from (`make fixtures-ui` with AGENCY_RUN). It has to
+# be the same run on both sides of the parity test: the shape of a payload is run-dependent at the
+# edges — whether the first edge in a capped view happens to be one that carries satoshis, for one
+# — so comparing a fixture from one world against the API on another fails on the values the test
+# deliberately does not pin. It is also the only run that can answer /alerts and /packets at all:
+# the `_sweep-*` runs stop after scoring, one stage short of VAANI.
+REFERENCE_RUN = Path("data/generated/agency-v2")
 
 # Skipped, not failed, when the reference run has not been generated: the API tests need a
 # real pipeline run, and `make fixtures` alone does not produce one. CI and every gate run
 # generate it first.
 pytestmark = pytest.mark.skipif(
-    not REFERENCE_RUN.is_dir(), reason="reference run _sweep-0.10 not generated"
+    not REFERENCE_RUN.is_dir(), reason=f"reference run {REFERENCE_RUN.name} not generated"
 )
 
 
@@ -144,6 +150,58 @@ def test_graph_address_matches_fixture(client: TestClient) -> None:
     assert _shape(client.get("/graph?detail=address").json()) == _shape(_fixture("graph-address"))
 
 
+def test_graph_actor_matches_fixture(client: TestClient) -> None:
+    assert _shape(client.get("/graph?detail=actor").json()) == _shape(_fixture("graph-actor"))
+
+
+def test_the_actor_view_holds_only_owners_and_names_what_it_left_out(client: TestClient) -> None:
+    """The ownership floor is addresses and clusters, and it says so in numbers.
+
+    Everything else is on the other floor, and a view that dropped the money edges without saying
+    so would let an analyst read an ownership graph as a complete one.
+    """
+    body = client.get("/graph?detail=actor&cap=200").json()
+
+    assert {node["kind"] for node in body["nodes"]} <= {"address", "cluster"}
+    assert {edge["kind"] for edge in body["edges"]} <= {"SAME_OWNER", "MEMBER_OF"}
+    aggregated = body["aggregated"]
+    assert aggregated["omitted_edge_kinds"] and aggregated["omitted_node_kinds"]
+    assert aggregated["addresses"] <= aggregated["total_addresses"]
+    assert aggregated["clusters"] <= aggregated["total_clusters"]
+    assert len(body["nodes"]) <= 200
+    # Anti-vacuity: the run really does have owners to show, so the caps above are not the empty
+    # set satisfying a bound.
+    assert aggregated["total_addresses"] > 0 and body["nodes"]
+    # Every node carries the scores, and null is a distinct answer from zero.
+    for node in body["nodes"]:
+        assert set(node["scores"]) == {
+            "degree",
+            "weakest_confidence",
+            "strongest_confidence",
+            "cluster_id",
+            "n_transactions",
+            "n_coinjoin",
+            "n_peel_hops",
+            "peel_chains",
+        }
+    assert all(
+        node["scores"]["cluster_id"] is None for node in body["nodes"] if node["kind"] == "cluster"
+    )
+
+
+def test_a_focused_actor_returns_its_neighbourhood(client: TestClient) -> None:
+    """Focus shows what the node is attached to, not just the node."""
+    body = client.get("/graph?detail=actor&cap=200").json()
+    cluster = next(node["node_id"] for node in body["nodes"] if node["kind"] == "cluster")
+
+    focused = client.get(f"/graph?detail=actor&focus={cluster}").json()
+    assert focused["focus"] == cluster
+    assert {node["node_id"] for node in focused["nodes"]} >= {cluster}
+    assert all(node["kind"] in {"address", "cluster"} for node in focused["nodes"])
+    # Anti-vacuity: the cluster has members in this run, so the neighbourhood is more than itself.
+    assert len(focused["nodes"]) > 1
+
+
 def test_graph_caps_its_nodes(client: TestClient) -> None:
     body = client.get("/graph?detail=address&cap=25").json()
     assert len(body["nodes"]) <= 25
@@ -180,9 +238,17 @@ def test_display_fields_are_truncated(client: TestClient) -> None:
     for one in tx:
         assert "…" in one["txid_display"]
         assert len(one["txid_display"]) < len(one["txid"])
-    lanes = client.get(f"/origin/{_fixture('origin')['txid']}").json()["lanes"]
-    for lane in lanes:
-        assert lane["peer_ip_display"].endswith("x.x") or "…" in lane["peer_ip_display"]
+    # The origin payload's display fields are the ones the console actually renders (the shortlist
+    # replaced the per-lane view when the estimator went to a ranked set), and the test reads the
+    # full field beside each one: a display form that equals its raw value is the failure this is
+    # looking for, not a formatting convention.
+    origin = client.get(f"/origin/{_fixture('origin')['txid']}").json()
+    assert origin["origin_peer_display"].endswith("x.x")
+    for lane in origin["shortlist"]:
+        # Both families, because the capture carries a v6 peer on purpose: v4 masks to
+        # `198.18.x.x` and v6 to `2001:db8:x:x`, so the tail is two fields either way.
+        assert lane["peer_ip_display"].endswith(("x.x", ":x:x")), lane["peer_ip_display"]
+        assert lane["peer_ip_display"] != lane["peer_ip"]
 
 
 def test_confidence_never_appears_without_interval(client: TestClient) -> None:

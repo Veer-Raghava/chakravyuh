@@ -372,6 +372,16 @@ def test_every_output_matches_contract_section_eight(workspace: Path) -> None:
         assert got == contract, f"{name} does not match contract section 8"
     assert alerts.height > 0, "the fixture should alert on something"
     assert set(alerts["severity"].unique().to_list()) <= {"high", "medium", "low"}
+    # `alerts.parquet` carries no score, so the band has to be checked against the table it came
+    # from: each severity has to agree with its subject's risk score.
+    scores = pl.read_parquet(
+        run / "scores" / "wallet_scores.parquet", columns=["subject_id", "risk_score"]
+    )
+    joined = alerts.join(scores, on="subject_id", how="inner")
+    bands = {"high": (0.65, 1.01), "medium": (0.40, 0.65), "low": (0.0, 0.40)}
+    for name, (lo, high) in bands.items():
+        rows = joined.filter(pl.col("severity") == name)
+        assert rows.height == 0 or ((rows["risk_score"] > lo) & (rows["risk_score"] <= high)).all()
     assert alerts["rank"].is_sorted()
 
 

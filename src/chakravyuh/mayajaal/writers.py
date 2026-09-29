@@ -31,7 +31,7 @@ from pathlib import Path
 import polars as pl
 
 from chakravyuh import buildinfo
-from chakravyuh.mayajaal import export, preflight
+from chakravyuh.mayajaal import export, network, preflight
 from chakravyuh.mayajaal.adversary import Campaign
 from chakravyuh.mayajaal.chain import Run
 from chakravyuh.mayajaal.config import Config
@@ -210,6 +210,10 @@ CAMPAIGN_SCHEMA: dict[str, pl.DataType] = {
 ORIGIN_SCHEMA: dict[str, pl.DataType] = {
     "txid": TEXT,
     "true_origin_ip": TEXT,
+    "true_origin_asn": pl.Int32(),
+    "true_origin_as_org": TEXT,
+    "true_origin_net_class": TEXT,
+    "true_origin_country": TEXT,
     "true_origin_entity_id": TEXT,
     "broadcast_us": pl.Int64(),
     "used_tor": pl.Boolean(),
@@ -323,13 +327,20 @@ def _campaigns(run: Run, records: Sequence[Campaign]) -> pl.DataFrame:
     )
 
 
-def _origins(run: Run, net: Network) -> pl.DataFrame:
+def _origins(cfg: Config, run: Run, net: Network) -> pl.DataFrame:
     """Exactly one row per announced transaction: who really sent it, and from which node.
 
     `true_origin_ip` is the node the transaction entered the network from, so for a Tor or VPN
     broadcast it is the exit rather than the sender's own address. That is the IP an attribution
     method could conceivably recover; naming an address the transaction never crossed the
     network from would make the metric unwinnable.
+
+    The L1 columns (`true_origin_asn`, `true_origin_as_org`, `true_origin_net_class`,
+    `true_origin_country`) are the operator-level answer key: the granularity attribution
+    legally stops at and the demo headlines. They are read from the region table and node kind
+    by `network.origin_l1`, never from the node's own masked `asn`/`country`, so a null in the
+    capture's view of a node does not blank the truth it is scored against. `true_origin_ip`
+    stays as the L0 host-level key, no longer the headline.
 
     Coinbase transactions are absent, because they are never gossiped and so have no
     originating peer to name. The transaction each row answers for is read back through
@@ -340,12 +351,29 @@ def _origins(run: Run, net: Network) -> pl.DataFrame:
     an answer key is worth checking twice.
     """
     people = run.population.entities
+    regions = run.population.regions
     nodes = net.topology.nodes
     origins = net.origins
+    tor_asn = cfg.network.tor_asn
+    vpn_asn = cfg.network.vpn_asn
+    l1 = [
+        network.origin_l1(
+            nodes[one.node],
+            people[owner] if (owner := nodes[one.node].owner) is not None else None,
+            regions,
+            tor_asn,
+            vpn_asn,
+        )
+        for one in origins
+    ]
     return pl.DataFrame(
         {
             "txid": [run.txs[one.tx_index].txid for one in origins],
             "true_origin_ip": [nodes[one.node].ip for one in origins],
+            "true_origin_asn": [fact[0] for fact in l1],
+            "true_origin_as_org": [fact[1] for fact in l1],
+            "true_origin_net_class": [fact[2] for fact in l1],
+            "true_origin_country": [fact[3] for fact in l1],
             "true_origin_entity_id": [people[one.entity].entity_id for one in origins],
             "broadcast_us": [one.broadcast_us for one in origins],
             "used_tor": [one.used_tor for one in origins],
@@ -497,7 +525,9 @@ def write_run(
         _emit(_chain_txs(run), roots.truth, "chain_txs.parquet", CHAIN_TX_SCHEMA),
     ]
     if net is not None:
-        quarantined.append(_emit(_origins(run, net), roots.truth, "origins.parquet", ORIGIN_SCHEMA))
+        quarantined.append(
+            _emit(_origins(cfg, run, net), roots.truth, "origins.parquet", ORIGIN_SCHEMA)
+        )
         _write_capture(
             cfg,
             run,

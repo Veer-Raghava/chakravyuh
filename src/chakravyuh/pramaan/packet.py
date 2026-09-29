@@ -129,47 +129,42 @@ def build(run_dir: Path, alert_id: str, seed: int, replay_command: str) -> dict[
             cluster_id = subject_id
             addresses = hit["addresses"].to_list()[0]
 
+    # The attribution block leads with L1 (the network operator), the hero of the reframe: the
+    # exact host is winnable on a minority of transactions, the operator on most. The operator
+    # fields come from `origin_l1.parquet`, the one row per transaction SHASTRA committed to; the
+    # L3 shortlist is the ranked candidate peers, redacted for display. The full host IP and port
+    # stay in the block because this is a machine artifact for an authorised officer, but they are
+    # last and marked officer-only: no PDF or screen renders them.
     attribution: dict[str, Any] = {
-        "peer_ip": "",
-        "peer_port": 0,
-        "observed_at_utc": "",
-        "p_origin": 0.0,
-        "margin": 0.0,
-        "runner_up_peer_ip": "",
         "asn": None,
         "as_org": "",
-        "geo_country": "",
         "net_class": "",
+        "geo_country": "",
+        "p_asn": 0.0,
+        "margin": 0.0,
+        "shortlist": [],
+        "observed_at_utc": "",
+        "peer_ip": "",  # OFFICER-ONLY, full
+        "peer_port": 0,  # OFFICER-ONLY
     }
     origin_txid = alert["origin_txid"]
     if origin_txid is not None:
-        peer_ip = str(alert["origin_peer_ip"])
-        announcements = pl.read_parquet(
-            run_dir / "normalised" / "announcements.parquet",
-            columns=["txid", "peer_ip", "peer_port", "seen_us"],
-        )
-        anchor = announcements.filter(
-            (pl.col("txid") == origin_txid) & (pl.col("peer_ip") == peer_ip)
-        ).sort("seen_us")
-        if anchor.height:
-            first = anchor.head(1).iter_rows(named=True).__next__()
-            attribution["peer_ip"] = peer_ip
-            attribution["peer_port"] = int(first["peer_port"])
-            attribution["observed_at_utc"] = _utc(int(first["seen_us"]))
-            attribution["p_origin"] = float(alert["origin_p"])
-            attribution["margin"] = _margin(run_dir, str(origin_txid), peer_ip)
-        peers = pl.read_parquet(
-            run_dir / "normalised" / "peers.parquet",
-            columns=["peer_ip", "asn", "as_org", "geo_country", "net_class"],
-        )
-        prow = peers.filter(pl.col("peer_ip") == peer_ip)
-        if prow.height:
-            p = prow.iter_rows(named=True).__next__()
-            attribution["asn"] = p["asn"]
-            attribution["as_org"] = p["as_org"] or ""
-            attribution["geo_country"] = p["geo_country"] or ""
-            attribution["net_class"] = p["net_class"] or ""
-        attribution["runner_up_peer_ip"] = _runner_up(run_dir, str(origin_txid), peer_ip)
+        attribution.update(_l1_attribution(run_dir, str(origin_txid)))
+        attribution["shortlist"] = _shortlist(run_dir, str(origin_txid))
+        peer_ip = str(alert["origin_peer_ip"]) if alert["origin_peer_ip"] is not None else ""
+        if peer_ip:
+            announcements = pl.read_parquet(
+                run_dir / "normalised" / "announcements.parquet",
+                columns=["txid", "peer_ip", "peer_port", "seen_us"],
+            )
+            anchor = announcements.filter(
+                (pl.col("txid") == origin_txid) & (pl.col("peer_ip") == peer_ip)
+            ).sort("seen_us")
+            if anchor.height:
+                first = anchor.head(1).iter_rows(named=True).__next__()
+                attribution["peer_ip"] = peer_ip
+                attribution["peer_port"] = int(first["peer_port"])
+                attribution["observed_at_utc"] = _utc(int(first["seen_us"]))
 
     scores = pl.read_parquet(
         run_dir / "scores" / "wallet_scores.parquet",
@@ -200,6 +195,7 @@ def build(run_dir: Path, alert_id: str, seed: int, replay_command: str) -> dict[
             "addresses_redacted": [_redact_subject(f"addr:{one}") for one in sorted(addresses)],
             "cluster_id": cluster_id,
         },
+        "attribution_ready": bool(alert["attribution_ready"]),
         "attribution": attribution,
         "findings": [
             {
@@ -243,33 +239,74 @@ def _utc(seen_us: int) -> str:
     return datetime.fromtimestamp(seen_us / 1_000_000, tz=UTC).isoformat()
 
 
-def _margin(run_dir: Path, txid: str, peer_ip: str) -> float:
-    """The rank-1 margin of the anchor's txid, from the ensemble's own rows."""
-    origin = pl.read_parquet(
-        run_dir / "signals" / "origin_estimates.parquet",
-        columns=["txid", "peer_ip", "p_origin", "rank", "margin", "estimator"],
-    )
-    top1 = origin.filter(
-        (pl.col("estimator") == "ensemble") & (pl.col("txid") == txid) & (pl.col("rank") == 1)
-    )
-    if not top1.height:
-        return 0.0
-    return float(top1["margin"][0]) if str(top1["peer_ip"][0]) == peer_ip else 0.0
+def _l1_attribution(run_dir: Path, txid: str) -> dict[str, Any]:
+    """The L1 operator headline for the origin transaction, from `origin_l1.parquet`.
+
+    One ensemble row per transaction: the ASN SHASTRA committed candidate mass to, its
+    org/class/country, the capped operator probability and the rank-1 margin. Empty dict
+    when the file or row is absent, so the caller keeps the neutral defaults.
+    """
+    path = run_dir / "signals" / "origin_l1.parquet"
+    if not path.is_file():
+        return {}
+    l1 = pl.read_parquet(
+        path,
+        columns=[
+            "txid",
+            "origin_asn",
+            "as_org",
+            "net_class",
+            "p_asn",
+            "origin_country",
+            "margin",
+            "estimator",
+        ],
+    ).filter((pl.col("txid") == txid) & (pl.col("estimator") == "ensemble"))
+    if not l1.height:
+        return {}
+    r = l1.iter_rows(named=True).__next__()
+    return {
+        "asn": None if r["origin_asn"] is None else int(r["origin_asn"]),
+        "as_org": r["as_org"] or "",
+        "net_class": r["net_class"] or "",
+        "geo_country": r["origin_country"] or "",
+        "p_asn": float(r["p_asn"]),
+        "margin": float(r["margin"]),
+    }
 
 
-def _runner_up(run_dir: Path, txid: str, peer_ip: str) -> str:
-    """The rank-2 peer for the anchor txid, truncated like any rendered identifier."""
-    origin = pl.read_parquet(
-        run_dir / "signals" / "origin_estimates.parquet",
-        columns=["txid", "peer_ip", "rank", "estimator"],
-    )
-    r2 = origin.filter(
-        (pl.col("estimator") == "ensemble") & (pl.col("txid") == txid) & (pl.col("rank") == 2)
-    )
-    if not r2.height:
-        return ""
-    ip = str(r2["peer_ip"][0])
-    return ip if ip == peer_ip else redact.redact_ip(ip)
+def _shortlist(run_dir: Path, txid: str) -> list[dict[str, Any]]:
+    """The ranked L3 candidate peers for the origin transaction, redacted for display.
+
+    From the ensemble rows of `origin_estimates.parquet`, ordered by rank. Ports come from
+    the announcement each peer sent for this transaction; the IP is truncated through the
+    same law the screen uses, since the shortlist is rendered.
+    """
+    path = run_dir / "signals" / "origin_estimates.parquet"
+    if not path.is_file():
+        return []
+    est = pl.read_parquet(
+        path, columns=["txid", "peer_ip", "p_origin", "rank", "estimator"]
+    ).filter((pl.col("txid") == txid) & (pl.col("estimator") == "ensemble"))
+    if not est.height:
+        return []
+    ports = pl.read_parquet(
+        run_dir / "normalised" / "announcements.parquet",
+        columns=["txid", "peer_ip", "peer_port"],
+    ).filter(pl.col("txid") == txid)
+    port_by_peer = {
+        str(row["peer_ip"]): int(row["peer_port"])
+        for row in ports.sort("peer_port").iter_rows(named=True)
+    }
+    return [
+        {
+            "peer_ip_display": redact.redact_ip(str(row["peer_ip"])),
+            "peer_port": port_by_peer.get(str(row["peer_ip"]), 0),
+            "p_origin": float(row["p_origin"]),
+            "rank": int(row["rank"]),
+        }
+        for row in est.sort("rank").iter_rows(named=True)
+    ]
 
 
 def _method(run_dir: Path, model: str) -> str:

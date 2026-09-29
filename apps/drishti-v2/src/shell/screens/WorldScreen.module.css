@@ -13,6 +13,22 @@
 .tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--riso-blue); }
 .gloss { font-family: var(--font-text); font-size: var(--t-sub); line-height: 1.55; color: var(--ink-soft); margin: 0.7rem 0 0; max-width: 40rem; }
 
+/* ── headline numbers ──────────────────────────────────── */
+.headline { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.9rem; }
+.hCard {
+  display: flex; flex-direction: column; gap: 0.15rem;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--line); border-left: 3px solid var(--riso-blue);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--riso-blue) 4%, var(--paper));
+}
+.hCardReal { border-left-color: var(--coral); background: color-mix(in srgb, var(--coral) 5%, var(--paper)); }
+.hVal { font-family: var(--font-display); font-size: 2.4rem; font-weight: 600; line-height: 1; color: var(--ink); }
+.hCardReal .hVal { color: var(--coral); }
+.hKey { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+.hNote { font-family: var(--font-text); font-size: 0.84rem; line-height: 1.45; color: var(--ink-soft); margin: 0.45rem 0 0; }
+.hNote strong { color: var(--ink); }
+
 /* ── funnel ────────────────────────────────────────────── */
 .funnel { display: flex; align-items: stretch; gap: 0.5rem; flex-wrap: wrap; }
 .fStep {
@@ -23,6 +39,7 @@
   background: color-mix(in srgb, var(--riso-blue) 4%, var(--paper));
 }
 .fNum { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.25rem; font-weight: 700; color: var(--ink); }
+.fLayer { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.1em; color: var(--riso-blue); }
 .fLabel { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.04em; color: var(--ink-soft); }
 
 /* ── curve ─────────────────────────────────────────────── */
@@ -39,11 +56,16 @@
 .axis { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-soft); }
 .baselineLabel { font-family: var(--font-mono); font-size: 9px; fill: var(--ink-soft); }
 
+.legend { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.lgItem { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.04em; color: var(--ink-soft); }
+.lgSw { width: 0.9rem; height: 3px; border-radius: 2px; }
+
 .range { width: 100%; margin-top: 0.6rem; accent-color: var(--coral); cursor: pointer; }
 .curveNote { font-family: var(--font-text); font-size: 0.84rem; line-height: 1.5; color: var(--ink-soft); margin: 0.8rem 0 0; }
 .curveNote strong { color: var(--ink); }
 
 /* ── defences ──────────────────────────────────────────── */
+.defenceBlock { display: flex; flex-direction: column; gap: 0.6rem; }
 .defences { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
 .defence { border: 1px solid var(--line); border-left: 3px solid var(--butter); border-radius: 10px; padding: 0.9rem 1rem; }
 .defKey { display: block; font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--riso-blue); margin-bottom: 0.35rem; }

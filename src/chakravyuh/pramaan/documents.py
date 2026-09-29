@@ -96,26 +96,32 @@ def packet_pdf(packet: dict[str, Any]) -> bytes:
 
     attribution = packet["attribution"]
     cur.heading("ATTRIBUTION")
-    if attribution["peer_ip"]:
-        cur.field("Attributed peer", _redact_ip(str(attribution["peer_ip"])))
-        cur.field("Source port", str(attribution["peer_port"]))
-        cur.field("Observed at", str(attribution["observed_at_utc"]))
-        cur.field("Probability", f"{float(attribution['p_origin']):.3f}")
+    if packet.get("attribution_ready") and attribution.get("asn") is not None:
+        cur.field(
+            "Network operator (ASN)",
+            f"AS{attribution['asn']} {attribution['as_org']}".strip(),
+        )
+        cur.field("Network class", str(attribution["net_class"]) or "-")
+        cur.field("Region", str(attribution["geo_country"]) or "-")
+        cur.field("Operator probability", f"{float(attribution['p_asn']):.3f}")
         cur.field("Margin to runner-up", f"{float(attribution['margin']):.3f}")
-        if attribution["runner_up_peer_ip"]:
-            cur.field("Runner-up peer", _redact_ip(str(attribution["runner_up_peer_ip"])))
-        cur.field("Network", str(attribution["as_org"]) or str(attribution["net_class"]) or "-")
-        cur.field("Country", str(attribution["geo_country"]) or "-")
+        if attribution.get("observed_at_utc"):
+            cur.field("Observed at", str(attribution["observed_at_utc"]))
+        # The exact host is officer-only: rendered only in the redacted first-octet form, and
+        # only when present. The full IP/port never leave the packet's JSON.
+        if attribution.get("peer_ip"):
+            cur.field("Host address (officer-only)", _redact_ip(str(attribution["peer_ip"])))
+            cur.field("Source port (officer-only)", str(attribution["peer_port"]))
         cur.para(
-            "The probability is the estimator's own mass on this peer, not a share of "
-            "certainty: the mass does not sum to one, because the true originator may not "
-            "have been observed at all."
+            "The probability is the estimator's own mass on this operator, not a share of "
+            "certainty: the mass does not sum to one, because the operator that broadcast the "
+            "transaction may not have been observed at all."
         )
     else:
         cur.para(
-            "No origin attribution is stated for this subject. The estimator declined to "
-            "rank a peer for every transaction this subject sent, and the packet records "
-            "no peer rather than an invented one."
+            "No origin attribution is stated for this subject. The operator, network class "
+            "and a precise observation time are not all present, so the packet records no "
+            "attribution rather than an unready one."
         )
 
     cur.heading("CONFIDENCE")

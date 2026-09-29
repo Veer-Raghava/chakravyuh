@@ -16,20 +16,32 @@ import { panel, prose, kicker, datum } from "./panelStyle";
  * coral, and a beam snaps up to the transaction: THIS one, most likely, is where
  * it began. The rest settle back, dim and blue — considered, not chosen.
  *
- * The ★ moment is the ceiling bar: only 41.5% of transactions even contain a
- * recoverable answer, so a full-width bar splits 41.5% "possible" (coral) from
- * 58.5% "unknowable" (calm grey), with a dignified grey "no answer available"
- * card beside it — abstention is a correct output, not a failure (§6).
+ * The ★ moment is the ceiling bar, and it now states the reframe instead of the old
+ * hard-coded 41.5%. Three segments, all from world.json: the share we actually NAME at
+ * operator level (coral), the rest of the share that is recoverable but not yet named
+ * (butter), and the share that is genuinely dark — no estimator could reach it, because
+ * no observer ever heard the announcing operator (grey). Alongside the dignified grey
+ * "no answer available" card: abstention is a correct output, not a failure (§6).
  */
 const SLICE = STATIONS[4].slice;
-const CEIL_POSSIBLE = 0.415;
+// Every number below is this run's own measurement (FRONTEND-HANDOFF-V2 §1). The bar's
+// whole width is 100% of transactions; the segments are named ÷ recoverable ÷ dark.
+const NAMED = fixtures.world.headline.l1_top1; // what the ensemble actually named
+const CEILING = fixtures.world.ceilings?.l1_asn ?? null; // the most any estimator could score
+// No ceiling measured → we cannot honestly split reachable from dark, so we show the whole
+// bar as unnamed rather than invent a boundary.
+const REACHABLE = CEILING ?? 0;
+const NAMED_PCT = (NAMED * 100).toFixed(1);
+const CEIL_PCT = CEILING != null ? (CEILING * 100).toFixed(1) : null;
+const DARK_PCT = CEILING != null ? ((1 - CEILING) * 100).toFixed(1) : null;
+const CAPTURED_PCT = CEILING ? ((NAMED / CEILING) * 100).toFixed(0) : null;
 const BAR_W = 3.4;
 const MAXC = 7;
 
 type Cand = { ip: string; p: number; rank: number; asn: number; geo: string; port: number; x: number; lead: boolean };
 
 function buildCands() {
-  const lanes = [...fixtures.origin.lanes].sort((a, b) => a.rank - b.rank).slice(0, MAXC);
+  const lanes = [...fixtures.origin.shortlist].sort((a, b) => a.rank - b.rank).slice(0, MAXC);
   const pmax = Math.max(...lanes.map((l) => l.p_origin));
   const n = lanes.length;
   // order along the bench by rank so the scan reveals a tidy descending row
@@ -50,7 +62,7 @@ function buildCands() {
 
 const BENCH_Y = -0.15;
 const TX = new THREE.Vector3(0, 1.5, 0);
-const LEAD_P = (fixtures.origin.lanes.find((l) => l.rank === 1)?.p_origin ?? 0).toFixed(3);
+const LEAD_P = (fixtures.origin.shortlist.find((l) => l.rank === 1)?.p_origin ?? 0).toFixed(3);
 const dimBlue = new THREE.Color(C.risoBlue).multiplyScalar(0.5);
 const litBlue = new THREE.Color(C.risoBlue);
 const litCoral = new THREE.Color(C.coral);
@@ -63,6 +75,7 @@ export function Shastra({ reduced }: { reduced: boolean }) {
   const beamRef = useRef<THREE.Mesh>(null);
   const compRefs = useRef<(THREE.Group | null)[]>([]);
   const coralSeg = useRef<THREE.Mesh>(null);
+  const reachSeg = useRef<THREE.Mesh>(null);
   const greySeg = useRef<THREE.Mesh>(null);
   const { progress } = useScroll();
   const [active, setActive] = useState(false);
@@ -81,6 +94,7 @@ export function Shastra({ reduced }: { reduced: boolean }) {
       scan: new THREE.MeshBasicMaterial({ color: C.coral, transparent: true, opacity: 0 }),
       beam: new THREE.MeshStandardMaterial({ color: C.coral, emissive: C.coral, emissiveIntensity: 0.3, roughness: 0.5, transparent: true }),
       possible: new THREE.MeshStandardMaterial({ color: C.coral, roughness: 0.6, transparent: true }),
+      reachable: new THREE.MeshStandardMaterial({ color: C.butter, roughness: 0.6, transparent: true }),
       unknowable: new THREE.MeshStandardMaterial({ color: C.line, roughness: 0.9, transparent: true }),
     }),
     [],
@@ -147,19 +161,25 @@ export function Shastra({ reduced }: { reduced: boolean }) {
       mats.beam.opacity = vis * liftK;
     }
 
-    // ★ the ceiling bar — 41.5% possible | 58.5% unknowable
+    // ★ the ceiling bar — named | reachable-but-unnamed | dark, all from world.json
     const kCeil = reduced ? 1 : THREE.MathUtils.clamp((t - 0.5) / 0.3, 0, 1);
-    const coralW = CEIL_POSSIBLE * BAR_W;
-    const greyW = (1 - CEIL_POSSIBLE) * BAR_W;
+    const namedW = NAMED * BAR_W;
+    const reachW = Math.max(REACHABLE - NAMED, 0) * BAR_W;
+    const darkW = Math.max(1 - REACHABLE, 0) * BAR_W;
     if (coralSeg.current) {
-      coralSeg.current.scale.set(coralW * kCeil + 0.0001, 0.16, 0.1);
-      coralSeg.current.position.x = -BAR_W / 2 + (coralW * kCeil) / 2;
+      coralSeg.current.scale.set(namedW * kCeil + 0.0001, 0.16, 0.1);
+      coralSeg.current.position.x = -BAR_W / 2 + (namedW * kCeil) / 2;
+    }
+    if (reachSeg.current) {
+      reachSeg.current.scale.set(reachW * kCeil + 0.0001, 0.16, 0.1);
+      reachSeg.current.position.x = -BAR_W / 2 + namedW + (reachW * kCeil) / 2;
     }
     if (greySeg.current) {
-      greySeg.current.scale.set(greyW * kCeil + 0.0001, 0.16, 0.1);
-      greySeg.current.position.x = -BAR_W / 2 + coralW + (greyW * kCeil) / 2;
+      greySeg.current.scale.set(darkW * kCeil + 0.0001, 0.16, 0.1);
+      greySeg.current.position.x = -BAR_W / 2 + namedW + reachW + (darkW * kCeil) / 2;
     }
     mats.possible.opacity = vis * kCeil;
+    mats.reachable.opacity = vis * kCeil;
     mats.unknowable.opacity = vis * kCeil;
   });
 
@@ -203,8 +223,11 @@ export function Shastra({ reduced }: { reduced: boolean }) {
         </group>
       ))}
 
-      {/* ★ the ceiling bar — 41.5% possible | 58.5% unknowable */}
+      {/* ★ the ceiling bar — named | reachable-but-unnamed | dark */}
       <mesh ref={coralSeg} position={[0, -1.65, 0]} material={mats.possible}>
+        <boxGeometry args={[1, 1, 1]} />
+      </mesh>
+      <mesh ref={reachSeg} position={[0, -1.65, 0]} material={mats.reachable}>
         <boxGeometry args={[1, 1, 1]} />
       </mesh>
       <mesh ref={greySeg} position={[0, -1.65, 0]} material={mats.unknowable}>
@@ -231,13 +254,27 @@ export function Shastra({ reduced }: { reduced: boolean }) {
               </div>
             </div>
           </Html>
-          {/* ceiling-bar labels */}
-          <Html position={[-0.995, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>41.5% possible</div>
+          {/* ceiling-bar labels — named | recoverable | dark */}
+          <Html position={[-1.2, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>{NAMED_PCT}% named</div>
           </Html>
-          <Html position={[0.705, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>58.5% unknowable</div>
+          <Html position={[0.35, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
+            <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>
+              {CEIL_PCT != null ? `${CEIL_PCT}% recoverable` : "ceiling not measured"}
+            </div>
           </Html>
+          {DARK_PCT != null && (
+            <Html position={[1.55, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
+              <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>{DARK_PCT}% dark</div>
+            </Html>
+          )}
+          {CAPTURED_PCT != null && (
+            <Html position={[0, -2.45, 0]} center distanceFactor={6} pointerEvents="none">
+              <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink)" }}>
+                capturing {CAPTURED_PCT}% of the theoretical maximum
+              </div>
+            </Html>
+          )}
           {/* the dignified grey "no answer" card — abstention as a correct output */}
           <Html position={[-2.55, 0.7, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...panel, width: 158, color: "var(--ink-soft)" }}>

@@ -12,6 +12,7 @@ import {
   type GlobeTx,
   type GlobePoint,
 } from "../../data/globe";
+import { fixtures } from "../../data/loader";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import { useShell } from "../ShellContext";
 import { GlobeDetail } from "./GlobeDetail";
@@ -409,7 +410,7 @@ export function GlobeScreen() {
         <div className={styles.head}>
           <div className={styles.titleRow}>
             <h1 className={styles.title}>Globe</h1>
-            <span className={styles.count}>1,000,000 signals</span>
+            <span className={styles.count}>{fixtures.world.funnel[0].count.toLocaleString("en-US")} signals</span>
           </div>
           <p className={styles.gloss}>the world of transactions — each dot is an IP we heard</p>
         </div>

@@ -24,7 +24,7 @@ export function UntangleScreen() {
   const meanPerTx = col.mean_announcements_per_tx.toFixed(1);
 
   // the six real announcing peers for this one transaction = echo, made concrete.
-  const lanes = [...o.lanes].sort((a, b) => (a.announcements_ms[0] ?? 0) - (b.announcements_ms[0] ?? 0));
+  const lanes = [...o.shortlist].sort((a, b) => (a.announcements_ms[0] ?? 0) - (b.announcements_ms[0] ?? 0));
   const heardAt = (ms: number) => usToIST(o.first_seen_us + ms * 1000);
 
   useGSAP(
@@ -103,7 +103,7 @@ export function UntangleScreen() {
               <span>the IP that told us</span>
               <span>port</span>
               <span className={styles.tipCol}>
-                operator (ASN)
+                network operator (ASN)
                 <span className={styles.tip} tabIndex={0} role="note" aria-label="null is not unknown">
                   ?
                   <span className={styles.tipBody}>

@@ -3,7 +3,8 @@ import type { CSSProperties, ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { fixtures } from "../../data/loader";
-import { AlertCard } from "../../components/AlertCard";
+import { ownerGroupLabel, scrubOwnerWords } from "../../data/jaal";
+import { AlertCard, SEVERITY_COLOR } from "../../components/AlertCard";
 import { useShell } from "../ShellContext";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import styles from "./LeadsScreen.module.css";
@@ -17,8 +18,12 @@ import styles from "./LeadsScreen.module.css";
  */
 type QueueAlert = (typeof fixtures.alerts.alerts)[number];
 
-const RISK: Record<string, string> = { high: "var(--coral)", med: "var(--butter)", low: "var(--riso-blue)" };
 const SHOWN = 20;
+
+/** Risk → fill width, so the spread inside the queue is visible at a glance. The backend's
+ *  own tier (SEVERITY_COLOR) sets the hue; the number sets the length. */
+const barW = (x: number) => `${Math.max(0, Math.min(1, x)) * 100}%`;
+const sevColor = (s: string) => SEVERITY_COLOR[s] ?? "var(--ink-soft)";
 
 type SortKey = "risk" | "confidence" | "cluster";
 const SORTS: { key: SortKey; label: string }[] = [
@@ -27,14 +32,12 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: "cluster", label: "group size" },
 ];
 
-/** Display-layer rename (§3 kill-list: "cluster" never on the officer screen). The
- *  backend id `cluster:616` is a likely-same-owner group; we render it as "group 616"
- *  and keep the "likely same owner" gloss on the badge. Same data, plain word. */
-const subjectLabel = (s: string) => (s.startsWith("cluster:") ? `group ${s.slice(8)}` : s);
+/** Display-layer rename (§3 kill-list) — the rule itself lives in data/jaal.ts so the
+ *  leads queue, the proof and the landing card cannot drift apart on it. */
+const subjectLabel = ownerGroupLabel;
 
-/** Same kill-list rename applied inside backend-authored prose: the bare word
- *  "cluster" → "owner group" (never "clustering", guarded by \b). Display-only. */
-const scrub = (s: string) => s.replace(/\bcluster\b/gi, "owner group");
+/** Same kill-list rename applied inside backend-authored prose. Display-only. */
+const scrub = scrubOwnerWords;
 
 function sortAlerts(list: QueueAlert[], key: SortKey): QueueAlert[] {
   const copy = [...list];
@@ -51,17 +54,29 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
   return (
     <div className={styles.summary}>
       <div className={styles.sumHead}>
-        <span className={styles.sumScore} style={{ color: RISK[a.severity] }}>{a.risk_score.toFixed(2)}</span>
-        <span className={styles.sumSeverity} style={{ color: RISK[a.severity], borderColor: RISK[a.severity] }}>
+        <span className={styles.sumScore} style={{ color: sevColor(a.severity) }}>{a.risk_score.toFixed(3)}</span>
+        <span className={styles.sumSeverity} style={{ color: sevColor(a.severity), borderColor: sevColor(a.severity) }}>
           {a.severity.toUpperCase()}
         </span>
         <span className={styles.sumSubject}>{subjectLabel(a.subject_display)}</span>
       </div>
+      <div className={styles.band}>
+        <span className={styles.bandLabel}>risk</span>
+        <span className={styles.bandTrack}>
+          <span className={styles.bandFill} style={{ width: barW(a.risk_score), background: sevColor(a.severity) }} />
+        </span>
+      </div>
+      <div className={styles.band}>
+        <span className={styles.bandLabel}>confidence</span>
+        <span className={styles.bandTrack}>
+          <span className={styles.bandRange} style={{ left: barW(a.conf_low), width: barW(a.conf_high - a.conf_low) }} />
+        </span>
+      </div>
       <p className={styles.sumHeadline}>{scrub(a.headline)}</p>
       <dl className={styles.sumRows}>
-        <div className={styles.sumRow}><dt>network operator (ASN)</dt><dd>{a.origin_asn ?? "—"} · {a.origin_country ?? "—"}</dd></div>
+        <div className={styles.sumRow}><dt>network operator (ASN)</dt><dd>{a.origin_asn ?? "—"} · {a.origin_country ?? "—"}{a.origin_net_class ? ` · ${a.origin_net_class}` : ""}</dd></div>
         <div className={styles.sumRow}><dt>likely same owner</dt><dd>{a.cluster_size > 1 ? `${a.cluster_size} addresses` : "single address"}</dd></div>
-        <div className={styles.sumRow}><dt>confidence band</dt><dd>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}</dd></div>
+        <div className={styles.sumRow}><dt>confidence band</dt><dd>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}{a.p_asn != null ? ` · operator p ${(a.p_asn * 100).toFixed(1)}%` : ""}</dd></div>
         <div className={styles.sumRow}>
           <dt>attribution</dt>
           <dd className={a.attribution_ready ? styles.ready : styles.notReady}>
@@ -164,12 +179,16 @@ export function LeadsScreen() {
             <button
               className={styles.row}
               type="button"
-              style={{ "--risk": RISK[a.severity] } as CSSProperties}
+              style={{ "--risk": sevColor(a.severity) } as CSSProperties}
               onClick={() => openRow(a)}
             >
               <span className={styles.edge} aria-hidden />
               <span className={styles.rank}>#{a.rank}</span>
-              <span className={styles.rowScore}>{a.risk_score.toFixed(2)}</span>
+              <span className={styles.rowScore} style={{ color: sevColor(a.severity) }}>{a.risk_score.toFixed(2)}</span>
+              {/* the risk fill: two rows at 0.80 and 0.99 must not read alike */}
+              <span className={styles.rowBar} aria-hidden>
+                <span className={styles.rowBarFill} style={{ width: barW(a.risk_score), background: sevColor(a.severity) }} />
+              </span>
               <span className={styles.rowMain}>
                 <span className={styles.rowHeadline}>{scrub(a.headline)}</span>
                 <span className={styles.rowMeta}>
@@ -177,6 +196,11 @@ export function LeadsScreen() {
                   {a.cluster_size > 1 && <span className={styles.cluster}> · likely same owner ·{a.cluster_size}</span>}
                 </span>
               </span>
+              {/* the conformal band, low→high — a range, never a single overconfident number */}
+              <span className={styles.rowBand} aria-hidden>
+                <span className={styles.rowBandRange} style={{ left: barW(a.conf_low), width: barW(a.conf_high - a.conf_low) }} />
+              </span>
+              <span className={styles.rowConf}>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}</span>
               {a.attribution_ready && <span className={styles.readyDot} title="attribution ready" aria-label="attribution ready" />}
             </button>
           </li>

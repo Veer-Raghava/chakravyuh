@@ -34,6 +34,13 @@ BASELINES = ("first_seen", "payer_linkage")
 TRAFFIC = ("clear", "vpn", "tor")
 WINDOWS = ("train", "holdout")
 
+# The granularities the reframe reports, coarsest last. A ceiling cannot fall as the granularity
+# coarsens: an operator is recoverable on every transaction its exact host is, plus the ones a
+# sibling peer in the same ASN carries. The gate asserts that ordering, so a rollup that lost mass
+# somewhere shows up as an L1 ceiling below L0's rather than as a plausible-looking number.
+GRAIN_ORDER = ("l0_host", "l1_asn", "l2_region")
+HERO = "l1_asn"
+
 # The parity pair is two implementations of one rule, so they agree exactly or the difference is a
 # tie-break. A tie moves one transaction, and the run is thousands, so anything above this is a
 # pipeline defect rather than a tie-break and the message says which.
@@ -55,6 +62,83 @@ def _window_top1(score: dict[str, Any], window: str) -> tuple[float, int, int]:
         int(node.get("n_correct", 0)),
         int(node.get("n_transactions", 0)),
     )
+
+
+def _check_granularity(report: dict[str, Any]) -> list[str]:
+    """The reframe's bar: L1 is the hero, so it is gated the way L0 is, plus two honesty checks.
+
+    The per-granularity block is what the console leads with, so a wrong number here misleads more
+    than a wrong L0 number an officer never sees. Four things:
+
+    1. The hero bar. `ensemble` beats both trivial rules at L1, the operator granularity, the same
+       comparison the L0 bar makes but on the number the product actually sells.
+    2. No estimator scores above its own granularity's ceiling, at every granularity.
+    3. Ceilings do not fall as granularity coarsens (L0 <= L1 <= L2). A rollup that dropped mass
+       shows up here as an operator less recoverable than its own host, which cannot be true.
+    4. The shipped headline equals the re-derived L1. `l1_headline` is scored off origin_l1.parquet
+       and `by_granularity.l1_asn` is rolled up independently in metrics.py; a gap means the file
+       shipped a different operator than its own candidate mass implies.
+    """
+    grain = report.get("by_granularity")
+    if not isinstance(grain, dict):
+        return ["no by_granularity in the report, so the L1 hero the reframe sells is unmeasured"]
+
+    problems: list[str] = []
+    hero = grain.get(HERO, {})
+    hero_scores = hero.get("scores")
+    if not isinstance(hero_scores, dict) or ESTIMATOR not in hero_scores:
+        problems.append(
+            f"by_granularity.{HERO} scores no {ESTIMATOR}. It is the hero granularity, so it has "
+            "to be measured or the run's ground truth predates true_origin_asn; regenerate it."
+        )
+        return problems
+    bar = max(float(hero_scores[name]["top1"]) for name in BASELINES if name in hero_scores)
+    best = max(
+        (name for name in BASELINES if name in hero_scores),
+        key=lambda name: float(hero_scores[name]["top1"]),
+    )
+    if float(hero_scores[ESTIMATOR]["top1"]) <= bar:
+        problems.append(
+            f"{ESTIMATOR} scores {hero_scores[ESTIMATOR]['top1']} top-1 at {HERO} and the best "
+            f"trivial rule ({best}) scores {bar}. The operator attribution is the product; it has "
+            "to beat what an investigator already has for free."
+        )
+
+    for gname in GRAIN_ORDER:
+        node = grain.get(gname, {})
+        ceiling = node.get("recoverable_ceiling")
+        node_scores = node.get("scores")
+        if ceiling is None or not isinstance(node_scores, dict):
+            continue
+        for name, score in sorted(node_scores.items()):
+            if float(score.get("top1", 0.0)) > float(ceiling) + 1e-9:
+                problems.append(
+                    f"{name} scores {score['top1']} top-1 at {gname} against a ceiling of "
+                    f"{ceiling}. No estimator can be right about a key no observer heard."
+                )
+
+    ceilings = [
+        (gname, grain[gname]["recoverable_ceiling"])
+        for gname in GRAIN_ORDER
+        if gname in grain and "recoverable_ceiling" in grain[gname]
+    ]
+    for (coarser_name, coarser), (finer_name, finer) in zip(ceilings[1:], ceilings, strict=False):
+        if float(coarser) < float(finer) - 1e-9:
+            problems.append(
+                f"{coarser_name} ceiling {coarser} is below {finer_name} ceiling {finer}. A "
+                "coarser granularity cannot be less recoverable, so the rollup dropped mass."
+            )
+
+    headline = grain.get("l1_headline")
+    if isinstance(headline, dict):
+        shipped = float(headline.get("top1", 0.0))
+        derived = float(hero_scores[ESTIMATOR]["top1"])
+        if abs(shipped - derived) > PARITY_TOLERANCE:
+            problems.append(
+                f"l1_headline scores {shipped} but by_granularity.{HERO} re-derives {derived} for "
+                f"{ESTIMATOR}. The shipped operator and its own candidate mass disagree."
+            )
+    return problems
 
 
 def check(report: dict[str, Any]) -> list[str]:
@@ -129,6 +213,7 @@ def check(report: dict[str, Any]) -> list[str]:
             "no observer_fraction in the report. Every number here is conditional on it and "
             "quoting one without it is the trap the sweep target exists to avoid."
         )
+    problems += _check_granularity(report)
     return problems
 
 

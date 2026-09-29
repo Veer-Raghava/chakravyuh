@@ -71,8 +71,29 @@ ENTITY_TYPES: tuple[tuple[str, pl.DataType], ...] = (
     ("exempt_from_scoring", pl.Boolean()),
 )
 
-ESTIMATORS = {"first_spy", "weighted_first_seen", "bayes_peer_prior", "ensemble"}
+# The L1/L2 headline, one row per transaction, in contract section 6's column order. Enrichment
+# columns (origin_asn, as_org, net_class, origin_country) may be null when no vendor list resolved
+# the operator, so only their presence and type are fixed here, not their nullability.
+ORIGIN_L1: tuple[tuple[str, pl.DataType | type[pl.DataType]], ...] = (
+    ("txid", pl.String()),
+    ("origin_asn", pl.Int32()),
+    ("as_org", pl.String()),
+    ("net_class", pl.String()),
+    ("p_asn", pl.Float64()),
+    ("origin_country", pl.String()),
+    ("p_country", pl.Float64()),
+    ("margin", pl.Float64()),
+    ("shortlist_size", pl.Int32()),
+    ("abstain", pl.Boolean()),
+    ("abstain_reason", pl.String()),
+    ("estimator", pl.String()),
+)
+
+ESTIMATORS = {"first_spy", "timing_mle", "asn_rollup", "ensemble"}
 ABSTAIN_REASONS = {"tor_present", "single_observer", "margin_below_floor", "too_few_announcements"}
+# The L1 headline can refuse for every per-candidate reason plus one of its own: the shortlist mass
+# is split across operators, so no single ASN carries the transaction.
+L1_ABSTAIN_REASONS = ABSTAIN_REASONS | {"cross_asn_ambiguous"}
 TYPOLOGIES = {
     "peel_chain",
     "structuring",
@@ -299,10 +320,58 @@ def _coverage(normalised: Path, estimates: pl.DataFrame) -> list[str]:
     return problems
 
 
+def _l1(l1: pl.DataFrame) -> list[str]:
+    """The L1/L2 headline: one row per transaction, capped un-renormalised probabilities, refusal.
+
+    Not a sum check like `_sums`: L1 is already one row per transaction, so the rule that the escape
+    mass is never renormalised away shows up as `p_asn` and `p_country` each strictly below one, and
+    the closed vocabularies and abstain/reason agreement are the same shape the per-candidate file
+    is held to. Empty is legitimate — a run with no ASN substrate writes the schema with no rows —
+    so the value checks run only when there is something to check.
+    """
+    problems: list[str] = []
+    if l1.is_empty():
+        return problems
+
+    per_tx = l1.group_by("txid").agg(pl.len().alias("n")).filter(pl.col("n") > 1)
+    if per_tx.height:
+        problems.append(
+            f"{per_tx.height} transactions have more than one origin_l1 row; the headline is "
+            "one operator per transaction"
+        )
+    stray = set(l1["estimator"].drop_nulls().to_list()) - ESTIMATORS
+    if stray:
+        problems.append(f"origin_l1 estimator values outside contract section 6: {sorted(stray)}")
+    stray_reasons = set(l1["abstain_reason"].drop_nulls().to_list()) - L1_ABSTAIN_REASONS
+    if stray_reasons:
+        problems.append(
+            f"origin_l1 abstain_reason values outside contract section 6: {sorted(stray_reasons)}"
+        )
+    disagree = l1.filter(pl.col("abstain") != pl.col("abstain_reason").is_not_null()).height
+    if disagree:
+        problems.append(f"{disagree} origin_l1 rows where abstain and abstain_reason disagree")
+    for column in ("p_asn", "p_country"):
+        bad = l1.filter((pl.col(column) < 0.0) | (pl.col(column) > 1.0 + EPSILON)).height
+        if bad:
+            problems.append(f"{bad} origin_l1 rows whose {column} is outside 0 and 1")
+        renormalised = l1.filter(pl.col(column) > 1.0 - EPSILON).height
+        if renormalised == l1.height:
+            problems.append(
+                f"origin_l1: every {column} is one, so the escape mass was renormalised away; the "
+                "shortfall is how the file says the operator may be one no observer heard"
+            )
+    return problems
+
+
 def check(normalised: Path, signals: Path) -> list[str]:
     """Every way `signals/` fails contract section 6. Empty means it holds."""
     problems: list[str] = []
-    for name in ("origin_estimates.parquet", "typology_hits.parquet", "entity_types.parquet"):
+    for name in (
+        "origin_estimates.parquet",
+        "origin_l1.parquet",
+        "typology_hits.parquet",
+        "entity_types.parquet",
+    ):
         if not (signals / name).is_file():
             problems.append(f"no {name} in {signals}, which section 6 requires")
     if problems:
@@ -324,6 +393,12 @@ def check(normalised: Path, signals: Path) -> list[str]:
     problems += _ranking(estimates)
     problems += _margins(estimates)
     problems += _coverage(normalised, estimates)
+
+    l1 = pl.read_parquet(signals / "origin_l1.parquet")
+    l1_schema_problems = _schema(l1, ORIGIN_L1, "origin_l1.parquet")
+    problems += l1_schema_problems
+    if not l1_schema_problems:
+        problems += _l1(l1)
 
     hits = pl.read_parquet(signals / "typology_hits.parquet")
     problems += _schema(hits, TYPOLOGY_HITS, "typology_hits.parquet")

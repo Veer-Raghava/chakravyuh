@@ -1,0 +1,10 @@
+uv run python scripts/make_vendor_lists.py --out vendor/
+make_vendor_lists: writing into the repository's own vendor/ will turn `make verify-s04` red, because that gate asserts SETU's absent-vendor warnings and its null enrichment columns. Remove the directory again before running it.
+  GeoLite2-ASN-Blocks-IPv4.csv: 40 rows
+  GeoLite2-ASN-Blocks-IPv6.csv: 8 rows
+  GeoLite2-Country-Blocks-IPv4.csv: 40 rows
+  GeoLite2-Country-Blocks-IPv6.csv: 8 rows
+  GeoLite2-Country-Locations-en.csv: 7 rows
+  exit-addresses.txt: 256 rows
+make_vendor_lists: 6 files under /home/void/chakravyuh/vendor, 8 regions over 6 pools
+uv run python -m chakravyuh.mayajaal --txs 24000 --set network.observer_regime=agency --out data/generated/agency-v2

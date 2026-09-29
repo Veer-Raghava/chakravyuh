@@ -389,10 +389,17 @@ def _quarantine_disagreeing(
 
 
 def _frame(rows: list[dict[str, object]], schema: dict[str, pl.DataType]) -> pl.DataFrame:
-    """A DataFrame with the declared schema, correct even when there are no rows."""
+    """A DataFrame with the declared schema, correct even when there are no rows.
+
+    Built column by column rather than from the list of dicts: Polars boxes and re-infers every
+    row when handed `list[dict]`, which on a large seal spikes to several times the size of the
+    rows themselves. Transposing to one Python list per column first hands Polars the arrays it
+    would have had to build anyway, and produces a byte-identical Parquet file.
+    """
     if not rows:
         return pl.DataFrame(schema=schema)
-    return pl.DataFrame(rows, schema=schema)
+    columns = {name: [row[name] for row in rows] for name in schema}
+    return pl.DataFrame(columns, schema=schema)
 
 
 def _write_parquet(frame: pl.DataFrame, path: Path) -> str:
@@ -470,6 +477,19 @@ def seal(target: Path, out: Path) -> Path:
         [text for row in every_row if (text := _as_text(row.get("timestamp"))) is not None]
     )
 
+    # Everything the manifest needs from each source, captured now while the sources are still
+    # around, so the raw row objects can be freed after coercion rather than kept alive to the
+    # end of the function only to have their length read.
+    source_stats = [
+        {
+            "name": source.path.name,
+            "spellings": dict(sorted(source.headers.items())),
+            "encoding": f"{source.encoding.value}/{source.container.value}",
+            "rows": len(source.rows),
+        }
+        for source in sources
+    ]
+
     books = Accounting(rows_read=len(every_row))
     sealed_rows: list[dict[str, object]] = []
     rejected_rows: list[dict[str, object]] = []
@@ -494,6 +514,13 @@ def seal(target: Path, out: Path) -> Path:
         )
     sealed_rows = kept
 
+    # Two full copies of the capture have been alive since coercion: the raw rows and the
+    # coerced rows. Nothing past the quarantine reads the raw rows again, and the manifest was
+    # already given the per-source facts it needs (`source_stats`), so release them here rather
+    # than carry them through the duplicate scan and the parquet write.
+    del every_row
+    sources = []
+
     rejected_rows.sort(key=lambda row: int(str(row["row_id"])))
 
     books.rows_sealed = len(sealed_rows)
@@ -501,7 +528,7 @@ def seal(target: Path, out: Path) -> Path:
     for bad in rejected_rows:
         reason = str(bad["reject_reason"])
         books.reject_reasons[reason] = books.reject_reasons.get(reason, 0) + 1
-    seen: set[tuple[object, ...]] = set()
+    seen: set[bytes] = set()
 
     # The circuit breaker (S10): a seal that rejects more than one row in a hundred is not a
     # seal, it is a mangling, and downstream stages must not consume it. Stop before writing
@@ -521,14 +548,20 @@ def seal(target: Path, out: Path) -> Path:
         )
 
     for kept_row in sealed_rows:
-        key = tuple(
-            tuple(value) if isinstance(value, list) else value
-            for column, value in sorted(kept_row.items())
-            if column != "row_id"
-        )
-        if key in seen:
+        # A 16-byte digest of the row's non-id columns, not the columns themselves: this set
+        # exists only to count exact duplicates for the manifest, and holding one nested tuple
+        # per sealed row was a second copy of the whole capture kept alive just to be counted.
+        key = repr(
+            tuple(
+                tuple(value) if isinstance(value, list) else value
+                for column, value in sorted(kept_row.items())
+                if column != "row_id"
+            )
+        ).encode("utf-8")
+        digest = hashlib.blake2b(key, digest_size=16).digest()
+        if digest in seen:
             books.duplicate_rows += 1
-        seen.add(key)
+        seen.add(digest)
 
     if naive_stamps:
         books.warnings.append(f"{naive_stamps} timestamps carried no timezone and were read as UTC")
@@ -551,7 +584,9 @@ def seal(target: Path, out: Path) -> Path:
         if column not in present:
             books.warnings.append(f"nullable column {column} is absent and is sealed as all-null")
 
-    rows_hash = _write_parquet(_frame(sealed_rows, SEALED_SCHEMA), sealed_dir / "rows.parquet")
+    sealed_frame = _frame(sealed_rows, SEALED_SCHEMA)
+    del sealed_rows  # the Arrow frame now owns the data; free the Python dicts before the write
+    rows_hash = _write_parquet(sealed_frame, sealed_dir / "rows.parquet")
     rejected_hash = _write_parquet(
         _frame(rejected_rows, REJECTED_SCHEMA), sealed_dir / "rejected.parquet"
     )
@@ -592,13 +627,8 @@ def seal(target: Path, out: Path) -> Path:
         "columns_present": sorted(present),
         "columns_missing_optional": columns_missing_optional,
         "column_status": {column: status[column] for column in PS_COLUMNS},
-        "column_spellings": {
-            source.path.name: dict(sorted(source.headers.items())) for source in sources
-        },
-        "encodings_detected": {
-            source.path.name: f"{source.encoding.value}/{source.container.value}"
-            for source in sources
-        },
+        "column_spellings": {stat["name"]: stat["spellings"] for stat in source_stats},
+        "encodings_detected": {stat["name"]: stat["encoding"] for stat in source_stats},
         # A copy, not the list itself. The manifest is hashed the moment it is written, and an
         # alias that something appends to afterwards makes that hash a statement about a dict
         # nobody ever wrote to disk.
@@ -643,13 +673,13 @@ def seal(target: Path, out: Path) -> Path:
             {
                 "path": file.path.resolve().relative_to(Path.cwd().resolve()).as_posix(),
                 "sha256": file.sha256,
-                # Rows as this shard delivered them, before coercion. `sources` is built from
-                # `paths` in order and `files` from the same list, so index i is one file.
+                # Rows as this shard delivered them, before coercion. `source_stats` is built
+                # from `sources` in order and `files` from the same list, so index i is one file.
                 # Summing this column gives `counts.in`, which is what makes a shard that
                 # silently read short visible in the manifest rather than only in the total.
-                "rows": len(source.rows),
+                "rows": stat["rows"],
             }
-            for file, source in zip(files, sources, strict=True)
+            for file, stat in zip(files, source_stats, strict=True)
         ],
         "outputs": [
             {"path": "sealed/rows.parquet", "sha256": rows_hash, "rows": books.rows_sealed},

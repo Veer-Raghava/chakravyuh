@@ -7,12 +7,15 @@
 }
 
 /* Tall empty scroll spacer that provides the scroll distance (§5.2).
-   Hero + 8 stations (MAYAJAAL…PRAMAAN); ~960vh gives each station roughly a
-   full viewport to breathe (JAAL and PRAMAAN, the widest slices, get more). */
+   Hero + 8 stations (MAYAJAAL…PRAMAAN); 1240vh gives each station roughly a
+   full viewport to breathe (JAAL and PRAMAAN, the widest slices, get more).
+   It was 960vh, which put the hero's whole escape inside one trackpad flick —
+   the signal crossed the maze faster than the eye could follow. The extra
+   distance buys the movement time; no station's own timing changed. */
 .spacer {
   position: relative;
   width: 100%;
-  height: 960vh;
+  height: 1240vh;
   pointer-events: none;
   z-index: 1;
 }

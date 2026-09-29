@@ -75,6 +75,10 @@ _STAMP_FORMAT = "%Y-%m-%dT%H:%M:%S%.f%:z"
 # partial list is worse than no list, because it reports "none" while a label walks past it.
 TRUTH_COLUMNS: tuple[str, ...] = (
     "true_origin_ip",
+    "true_origin_asn",
+    "true_origin_as_org",
+    "true_origin_net_class",
+    "true_origin_country",
     "true_origin_entity_id",
     "broadcast_us",
     "used_tor",

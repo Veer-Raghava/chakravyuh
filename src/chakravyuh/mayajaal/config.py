@@ -160,6 +160,7 @@ class NetworkSpec:
     latency_matrix: Path
     n_observers: int
     observer_fraction: float
+    observer_placement: str
     tor_share: float
     vpn_share: float
     bucket_penalty: float
@@ -367,6 +368,7 @@ def _network(node: Mapping[str, Any], anchor: Path) -> NetworkSpec:
         latency_matrix=anchor / _str(node, "network.", "latency_matrix"),
         n_observers=_int(node, "network.", "n_observers"),
         observer_fraction=_float(node, "network.", "observer_fraction"),
+        observer_placement=_str(node, "network.", "observer_placement"),
         tor_share=_float(node, "network.", "tor_share"),
         vpn_share=_float(node, "network.", "vpn_share"),
         bucket_penalty=_float(node, "network.", "bucket_penalty"),
@@ -534,6 +536,41 @@ def _apply_overrides(root: dict[str, Any], overrides: Mapping[str, str]) -> None
         node[leaf] = _coerce(node[leaf], path, text)
 
 
+# The observer-placement strategies network.py knows how to build. A regime names one of these;
+# a name outside the set is a config error rather than a silent fall-through to uniform.
+_PLACEMENTS: frozenset[str] = frozenset({"asn_ixp_biased", "uniform"})
+
+
+def _resolve_regime(root: dict[str, Any]) -> None:
+    """Expand the selected observer regime into the three leaves the rest of the loader reads.
+
+    A regime is a named capability tier (`agency`, `stealth`) rather than a bare fraction, so the
+    demo default and the honesty curve are one word each instead of three numbers that can drift
+    out of agreement. The chosen preset's `observer_fraction`, `n_observers` and `placement` are
+    written back into `network` as the leaves `_network` then parses, and are therefore what
+    `config.effective.json` records: a run states the tier it ran and the numbers that tier
+    resolved to, in one file.
+
+    Run before `_apply_overrides`, so an explicit `--set network.observer_fraction=X` still wins
+    over the tier it names — which is exactly what the observer-fraction sweep depends on.
+    """
+    net = root.get("network")
+    if not isinstance(net, dict):
+        raise TypeError("run_config.json: network must be an object")
+    name = _str(net, "network.", "observer_regime")
+    regimes = _obj(net, "network.", "observer_regimes")
+    if name not in regimes:
+        raise KeyError(
+            f"run_config.json: network.observer_regime is {name!r}, which is not one of "
+            f"network.observer_regimes ({sorted(regimes)})"
+        )
+    path = f"network.observer_regimes.{name}."
+    preset = _obj(regimes, "network.observer_regimes.", name)
+    net["observer_fraction"] = _float(preset, path, "observer_fraction")
+    net["n_observers"] = _int(preset, path, "n_observers")
+    net["observer_placement"] = _str(preset, path, "placement")
+
+
 def load(
     path: Path,
     *,
@@ -563,8 +600,21 @@ def load(
     if not isinstance(raw, dict):
         raise TypeError(f"{path} must hold a JSON object")
     root: dict[str, Any] = raw
-    if overrides:
-        _apply_overrides(root, overrides)
+    extra = dict(overrides) if overrides else {}
+    # The regime selector is honoured before it is expanded, so a --set that picks a different
+    # tier changes which preset resolves. Everything else in --set is applied after resolution
+    # and therefore overrides the tier's own numbers — which is how the sweep sets the fraction.
+    regime_pick = extra.pop("network.observer_regime", None)
+    if regime_pick is not None:
+        net = root.get("network")
+        if not isinstance(net, dict) or "observer_regime" not in net:
+            raise KeyError(
+                "--set network.observer_regime: run_config.json has no network.observer_regime"
+            )
+        net["observer_regime"] = regime_pick
+    _resolve_regime(root)
+    if extra:
+        _apply_overrides(root, extra)
 
     resolved_seed = _int(root, "", "seed") if seed is None else seed
     mean_announcements = _int(root, "", "mean_announcements_per_tx")
@@ -674,6 +724,11 @@ def _check(
         )
     if network.n_observers < 1:
         raise ValueError("network.n_observers must be at least one, or nothing is ever recorded")
+    if network.observer_placement not in _PLACEMENTS:
+        raise ValueError(
+            f"network.observer_placement must be one of {sorted(_PLACEMENTS)}, got "
+            f"{network.observer_placement!r}"
+        )
     if network.outbound_per_node < 1 or network.flood_frontier < 2:
         raise ValueError("network.outbound_per_node and flood_frontier must allow propagation")
     if set(adversary.move_weights) != set(_MOVES):

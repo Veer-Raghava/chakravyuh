@@ -14,6 +14,7 @@ import {
 import { buildLead, rankLeads } from "../three/leadModel";
 import { buildOverview } from "../three/overviewModel";
 import { buildGraph } from "../three/graphModel";
+import { buildActor, assertActorInvariants } from "../three/actorModel";
 
 const raw = fixtures.graphAddress as { nodes: RawNode[]; edges: RawEdge[] };
 
@@ -31,6 +32,17 @@ export const buildOverviewAll = () => buildOverview(raw);
 // THE main view: the whole run as one graph — every tx over time, linked by the money
 // that moved between them. Click a node → its LEAD flow.
 export const buildGraphAll = () => buildGraph(raw);
+
+// The OWNER-level reading of the same run (`detail=actor`): addresses on one floor, height
+// = how wide their owner group is, coral arcs = the same-owner claims. Built once, like the
+// others — the fixture is static, so there is nothing to recompute per render.
+const actorRaw = fixtures.graphActor as unknown as {
+  nodes: RawNode[];
+  edges: RawEdge[];
+  aggregated?: Record<string, unknown>;
+};
+export const actor = buildActor(actorRaw);
+if (import.meta.env.DEV) assertActorInvariants(actor); // the actor floor's grammar, guarded
 
 export const counts = {
   address: jaal.nodes.filter((n) => n.kind === "address").length,
@@ -66,3 +78,16 @@ export function usToIST(us: number): string {
     }).format(new Date(us / 1000)) + " IST"
   );
 }
+
+/**
+ * Display-layer rename (§3 kill-list): the bare word "cluster" never reaches the screen.
+ * The backend's own id `cluster:616` is a likely-same-owner group, so it renders as
+ * "owner group 616". One helper, because the same id turns up on the leads queue, the
+ * proof and the landing card — three copies of this rule is three places to drift.
+ */
+export const ownerGroupLabel = (s: string): string =>
+  s.startsWith("cluster:") ? `owner group ${s.slice(8)}` : s;
+
+/** The same rename applied inside backend-authored prose. Display-only, guarded by \b so
+ *  "clustering" is not mangled into nonsense. */
+export const scrubOwnerWords = (s: string): string => s.replace(/\bcluster\b/gi, "owner group");

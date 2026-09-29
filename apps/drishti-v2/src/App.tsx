@@ -4,6 +4,7 @@ import { LandingScenes } from "./landing/LandingScenes";
 import { FunnelCounter } from "./landing/FunnelCounter";
 import { StationCopy } from "./landing/StationCopy";
 import { HeroText } from "./landing/Hero/HeroText";
+import { Chakravyuh } from "./landing/Hero/Chakravyuh";
 import { DiyaHint } from "./landing/Diya/DiyaHint";
 import { Login } from "./auth/Login";
 import { ShellProvider } from "./shell/ShellContext";
@@ -56,10 +57,12 @@ function Landing({ onEnter }: { onEnter: () => void }) {
 
   return (
     <Stage
-      scene={<LandingScenes reduced={reduced} diyaOn={diyaOn} />}
+      scene={<LandingScenes reduced={reduced} />}
       fallback={<HeroFallback />}
       overlay={
         <>
+          {/* station zero: the living formation. Pure SVG, in the DOM, behind the copy. */}
+          <Chakravyuh reduced={reduced} />
           <FunnelCounter />
           <HeroText dimmed={!nearTop} />
           <StationCopy />
@@ -80,9 +83,9 @@ function Landing({ onEnter }: { onEnter: () => void }) {
 }
 
 export default function App() {
-  // VERIFY-TEMP: default "app" (other session's post-login work); open
-  // localhost:5173/#landing to preview the landing stations.
-  const [phase, setPhase] = useState<Phase>(window.location.hash === "#landing" ? "landing" : "app");
+  // The landing is the front door. `#app` jumps straight to the post-login
+  // workstation shell for working on a screen without replaying the scroll.
+  const [phase, setPhase] = useState<Phase>(window.location.hash === "#app" ? "app" : "landing");
 
   if (phase === "login") return <Login onSuccess={() => setPhase("app")} />;
   if (phase === "app")

@@ -46,7 +46,7 @@ from chakravyuh.mayajaal.regions import Regions
 CANDIDATE_MULTIPLE = 4
 
 # Redraws allowed when an observer address collides with one already taken. The observer pool is
-# a /24 against sixteen observers, so a collision is rare and a run of this many is impossible
+# a /24 against a few dozen observers, so a collision is rare and a run of this many is impossible
 # unless the pool has been shrunk below the observer count, which is the case worth failing on.
 _IP_DRAW_LIMIT = 64
 
@@ -54,6 +54,50 @@ NO_OBSERVER = -1
 PEER = "peer"
 TOR_EXIT = "tor_exit"
 VPN = "vpn"
+
+# The operator label for the two infrastructure ASNs. Peers take their operator from the region
+# table; a Tor exit and a commercial VPN are not in it, so their names live here beside the kind
+# constants they pair with. Both are the single source for `true_origin_as_org` of those kinds.
+TOR_ORG = "Tor anonymising relay"
+VPN_ORG = "Commercial VPN provider"
+
+# Entity types that run their traffic from datacentre address space rather than a home line. The
+# rest of the closed net_class vocabulary (tor_exit, vpn_suspect) is decided by node kind, and
+# mobile is decided by CGNAT membership, so only the hosting/residential split reads the type.
+_HOSTING_TYPES = frozenset({"exchange", "service", "mining_pool", "mixer"})
+
+
+def origin_l1(
+    node: Node,
+    owner: entities.Entity | None,
+    regions: Regions,
+    tor_asn: int,
+    vpn_asn: int,
+) -> tuple[int, str, str, str]:
+    """The true operator-level attribution for one origin node: (asn, as_org, net_class, country).
+
+    Read from the region table and the node's kind, never from `node.asn`/`node.country`: those
+    are the capture's masked view and may be null, and the answer key must carry the truth an
+    attribution method is trying to recover. A Tor or VPN origin is an infrastructure node with
+    no owning entity, so its class comes from the kind; a peer's class is mobile when its owner
+    sits behind CGNAT, hosting for operator types, and residential otherwise.
+    """
+    country = regions.countries[node.region]
+    if node.kind == TOR_EXIT:
+        return tor_asn, TOR_ORG, "tor_exit", country
+    if node.kind == VPN:
+        return vpn_asn, VPN_ORG, "vpn_suspect", country
+    asn = regions.asns[node.region]
+    org = regions.orgs[node.region]
+    if owner is None:
+        net_class = "unknown"
+    elif owner.behind_cgnat:
+        net_class = "mobile"
+    elif owner.entity_type in _HOSTING_TYPES:
+        net_class = "hosting"
+    else:
+        net_class = "residential"
+    return asn, org, net_class, country
 
 
 def observer_id(index: int) -> str:
@@ -262,6 +306,51 @@ def _peers(cfg: Config, nodes: list[Node], table: Regions, rng: random.Random) -
     return out
 
 
+# The two observer-placement strategies config.py's regime presets select between. `_check`
+# rejects any other value before a build begins, so `build` only ever sees one of these.
+OBSERVER_UNIFORM = "uniform"
+
+
+def _place_observers(cfg: Config, outbound: list[list[int]], rng: random.Random) -> list[int]:
+    """Which nodes a listening observer dialled, and which observer each one dialled.
+
+    Coverage (`observer_fraction`) sets how many nodes are watched; placement sets which ones.
+    `uniform` draws them at random — the stealthy academic attacker who peers with whatever it
+    happens to find, and the model the observer-fraction literature measures. `asn_ixp_biased`
+    draws them weighted by degree, so the well-connected nodes are watched first: a monitor at an
+    IXP or a large ISP peers the hubs, not a random tail. Coverage is held identical across the
+    two, so the only thing placement changes is whose announcements a fixed number of sensors see.
+
+    A watched node still dials exactly one observer, chosen uniformly, for the reason the caller
+    gives: node indices run in entity-type order, so dealing observers out in sequence would make
+    `observer_id` a proxy for entity type.
+
+    ponytail: degree is the proxy for an IXP vantage. Real ASN/IXP peering topology (peer with the
+    nodes in the largest transit networks) is the upgrade if the proxy ever stops being enough.
+    """
+    net = cfg.network
+    total = len(outbound)
+    reach = min(total, round(net.observer_fraction * total))
+    if net.observer_placement == OBSERVER_UNIFORM:
+        chosen: list[int] = rng.sample(range(total), reach)
+    else:
+        # Degree is dominated by inbound: outbound is near-constant, so the nodes many peers
+        # dialled are the hubs. Sampled without replacement by the exponential-key method, the
+        # same device `_owners` uses, because a rejection loop weighted this heavily would spend
+        # most of its draws rediscovering the same few hubs. A node's own out-slots are counted
+        # too so an isolated node still carries a positive weight rather than a zero one.
+        degree = [1] * total
+        for adjacent in outbound:
+            for target in adjacent:
+                degree[target] += 1
+        keys = sorted((rng.random() ** (1.0 / degree[node]), node) for node in range(total))
+        chosen = [node for _, node in keys[total - reach :]]
+    watched = [NO_OBSERVER] * total
+    for node in chosen:
+        watched[node] = rng.randrange(net.n_observers)
+    return watched
+
+
 def _topology(cfg: Config, pop: Population, rng: random.Random) -> Topology:
     """Build the node set, wire it up, and decide which links we get to watch."""
     net = cfg.network
@@ -342,12 +431,7 @@ def _topology(cfg: Config, pop: Population, rng: random.Random) -> Topology:
         home.append(rng.randrange(n_peers) if found is None else found)
 
     outbound = _peers(cfg, nodes, table, rng)
-    watched = [NO_OBSERVER] * len(nodes)
-    reach = min(len(nodes), round(net.observer_fraction * len(nodes)))
-    for node in rng.sample(range(len(nodes)), reach):
-        # Drawn per node rather than round robin: node indices run in entity-type order, so
-        # dealing observers out in sequence would make `observer_id` a proxy for entity type.
-        watched[node] = rng.randrange(net.n_observers)
+    watched = _place_observers(cfg, outbound, rng)
     # A monitored node spends one of its eight outbound slots on the observer, so it has one
     # fewer ordinary peer. Adding a ninth connection instead would make the monitored quarter of
     # the network measurably better connected than the rest.
