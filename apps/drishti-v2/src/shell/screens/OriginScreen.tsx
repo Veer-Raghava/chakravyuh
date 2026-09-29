@@ -4,6 +4,7 @@ import { AdaptiveDpr } from "@react-three/drei";
 import * as THREE from "three";
 import { C } from "../../styles/palette";
 import { fixtures } from "../../data/loader";
+import { useRun } from "../../data/RunContext";
 import { usToIST } from "../../data/jaal";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import styles from "./OriginScreen.module.css";
@@ -42,15 +43,7 @@ const DISC_R = 2.35;
 //   · accuracy = what this run's ensemble actually scored (world.headline.l1_top1, 0.459).
 // The gauge is accuracy ÷ ceiling at the SAME grain: 49% of the theoretical maximum. Dividing
 // the operator accuracy by the host ceiling (or by a host accuracy) would be a category error
-// and would flatter us either way.
-const OF = fixtures.world.observer_fraction;
-const L1_CEIL = fixtures.world.ceilings?.l1_asn ?? null;
-const L0_CEIL = fixtures.world.ceilings?.l0_host ?? null;
-const L1_TOP1 = fixtures.world.headline.l1_top1;
-const L0_TOP1 = fixtures.world.headline.l0_top1;
-const NAIVE = fixtures.world.naive_first_seen_top1;
-const LIFT = NAIVE ? L1_TOP1 / NAIVE : null; // 2.46× the free baseline
-const CAPTURED = L1_CEIL ? (L1_TOP1 / L1_CEIL) * 100 : null; // 49.1% of the maximum
+// and would flatter us either way. These are derived per-run inside the component (useRun).
 
 /** Plain words for a backend abstain reason — the reason is DATA, so we gloss it, not invent it. */
 const REASON_GLOSS: Record<string, string> = {
@@ -175,6 +168,16 @@ function Fallback({ placed }: { placed: Placed[] }) {
 
 export function OriginScreen() {
   const reduced = usePrefersReducedMotion();
+  const { fixtures } = useRun();
+  const w = fixtures.world;
+  const OF = w.observer_fraction;
+  const L1_CEIL = w.ceilings?.l1_asn ?? null;
+  const L0_CEIL = w.ceilings?.l0_host ?? null;
+  const L1_TOP1 = w.headline.l1_top1;
+  const L0_TOP1 = w.headline.l0_top1;
+  const NAIVE = w.naive_first_seen_top1;
+  const LIFT = NAIVE ? L1_TOP1 / NAIVE : null; // 2.46× the free baseline
+  const CAPTURED = L1_CEIL ? (L1_TOP1 / L1_CEIL) * 100 : null; // 49.1% of the maximum
   const [showAbstain, setShowAbstain] = useState(false);
   const data: Origin = showAbstain ? (fixtures.originAbstain as Origin) : fixtures.origin;
   const abstain = data.abstain;

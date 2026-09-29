@@ -84,8 +84,8 @@ export const STATIONS: Station[] = [
     // Station zero is the CHAKRAVYUH hero (Hero/Chakravyuh.tsx). It owns the
     // opening beat: the walk, the gate, and the escape all finish, and the walls
     // fully dissolve, before this slice starts — so the world rises into a stage
-    // the signal has already left. The counter holds 1,000,000 across the whole
-    // hero, then counts down.
+    // the signal has already left. The counter holds the run's first count across
+    // the whole hero, then counts down.
     slice: [0.142, 0.247],
     title: "A world we built to test this.",
     body:

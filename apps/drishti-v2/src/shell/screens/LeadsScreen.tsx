@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { fixtures } from "../../data/loader";
+import { useRun } from "../../data/RunContext";
 import { ownerGroupLabel, scrubOwnerWords } from "../../data/jaal";
 import { AlertCard, SEVERITY_COLOR } from "../../components/AlertCard";
 import { useShell } from "../ShellContext";
@@ -76,7 +77,7 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
       <dl className={styles.sumRows}>
         <div className={styles.sumRow}><dt>network operator (ASN)</dt><dd>{a.origin_asn ?? "—"} · {a.origin_country ?? "—"}{a.origin_net_class ? ` · ${a.origin_net_class}` : ""}</dd></div>
         <div className={styles.sumRow}><dt>likely same owner</dt><dd>{a.cluster_size > 1 ? `${a.cluster_size} addresses` : "single address"}</dd></div>
-        <div className={styles.sumRow}><dt>confidence band</dt><dd>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}{a.p_asn != null ? ` · operator p ${(a.p_asn * 100).toFixed(1)}%` : ""}</dd></div>
+        <div className={styles.sumRow}><dt>confidence band</dt><dd>{a.conf_low.toFixed(3)}–{a.conf_high.toFixed(3)}{a.p_asn != null ? ` · operator p ${(a.p_asn * 100).toFixed(1)}%` : ""}</dd></div>
         <div className={styles.sumRow}>
           <dt>attribution</dt>
           <dd className={a.attribution_ready ? styles.ready : styles.notReady}>
@@ -96,6 +97,7 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
 export function LeadsScreen() {
   const { goTo, openDrawer } = useShell();
   const reduced = usePrefersReducedMotion();
+  const { fixtures } = useRun();
   const [sort, setSort] = useState<SortKey>("risk");
   const [ready, setReady] = useState(false);
   const [clustered, setClustered] = useState(false);
@@ -108,7 +110,7 @@ export function LeadsScreen() {
     if (ready) list = list.filter((a) => a.attribution_ready);
     if (clustered) list = list.filter((a) => a.cluster_size > 1);
     return sortAlerts(list, sort).slice(0, SHOWN);
-  }, [sort, ready, clustered, featuredId]);
+  }, [sort, ready, clustered, featuredId, fixtures]);
 
   useGSAP(
     () => {
@@ -184,7 +186,9 @@ export function LeadsScreen() {
             >
               <span className={styles.edge} aria-hidden />
               <span className={styles.rank}>#{a.rank}</span>
-              <span className={styles.rowScore} style={{ color: sevColor(a.severity) }}>{a.risk_score.toFixed(2)}</span>
+              {/* three decimals, not two: at 2dp a 0.9973 and a 0.9968 both print "1.00",
+                  and a queue of identical 1's reads as broken rather than as ranked */}
+              <span className={styles.rowScore} style={{ color: sevColor(a.severity) }}>{a.risk_score.toFixed(3)}</span>
               {/* the risk fill: two rows at 0.80 and 0.99 must not read alike */}
               <span className={styles.rowBar} aria-hidden>
                 <span className={styles.rowBarFill} style={{ width: barW(a.risk_score), background: sevColor(a.severity) }} />
@@ -200,7 +204,7 @@ export function LeadsScreen() {
               <span className={styles.rowBand} aria-hidden>
                 <span className={styles.rowBandRange} style={{ left: barW(a.conf_low), width: barW(a.conf_high - a.conf_low) }} />
               </span>
-              <span className={styles.rowConf}>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}</span>
+              <span className={styles.rowConf}>{a.conf_low.toFixed(3)}–{a.conf_high.toFixed(3)}</span>
               {a.attribution_ready && <span className={styles.readyDot} title="attribution ready" aria-label="attribution ready" />}
             </button>
           </li>

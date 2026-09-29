@@ -36,6 +36,19 @@ const CEIL_PCT = CEILING != null ? (CEILING * 100).toFixed(1) : null;
 const DARK_PCT = CEILING != null ? ((1 - CEILING) * 100).toFixed(1) : null;
 const CAPTURED_PCT = CEILING ? ((NAMED / CEILING) * 100).toFixed(0) : null;
 const BAR_W = 3.4;
+// The bar sits right of centre: the station's DOM copy owns the left half of the screen,
+// and a bar drawn under the body text is a bar nobody reads.
+const BAR_X = 1.05;
+/** A segment of the bar: its width, its left edge, and its centre at rest — the labels
+ *  anchor to `cx`, so a fixture whose numbers move slides the labels with it. */
+const seg = (from: number, to: number) => {
+  const w = Math.max(to - from, 0) * BAR_W;
+  const left = BAR_X - BAR_W / 2 + from * BAR_W;
+  return { w, left, cx: left + w / 2 };
+};
+const SEG_NAMED = seg(0, NAMED);
+const SEG_REACH = seg(NAMED, REACHABLE);
+const SEG_DARK = seg(REACHABLE, 1);
 const MAXC = 7;
 
 type Cand = { ip: string; p: number; rank: number; asn: number; geo: string; port: number; x: number; lead: boolean };
@@ -163,21 +176,15 @@ export function Shastra({ reduced }: { reduced: boolean }) {
 
     // ★ the ceiling bar — named | reachable-but-unnamed | dark, all from world.json
     const kCeil = reduced ? 1 : THREE.MathUtils.clamp((t - 0.5) / 0.3, 0, 1);
-    const namedW = NAMED * BAR_W;
-    const reachW = Math.max(REACHABLE - NAMED, 0) * BAR_W;
-    const darkW = Math.max(1 - REACHABLE, 0) * BAR_W;
-    if (coralSeg.current) {
-      coralSeg.current.scale.set(namedW * kCeil + 0.0001, 0.16, 0.1);
-      coralSeg.current.position.x = -BAR_W / 2 + (namedW * kCeil) / 2;
-    }
-    if (reachSeg.current) {
-      reachSeg.current.scale.set(reachW * kCeil + 0.0001, 0.16, 0.1);
-      reachSeg.current.position.x = -BAR_W / 2 + namedW + (reachW * kCeil) / 2;
-    }
-    if (greySeg.current) {
-      greySeg.current.scale.set(darkW * kCeil + 0.0001, 0.16, 0.1);
-      greySeg.current.position.x = -BAR_W / 2 + namedW + reachW + (darkW * kCeil) / 2;
-    }
+    const grow = (mesh: THREE.Mesh | null, s: { w: number; left: number }) => {
+      if (!mesh) return;
+      // grows out of its own left edge, so the three segments never trade places mid-animation
+      mesh.scale.set(s.w * kCeil + 0.0001, 0.16, 0.1);
+      mesh.position.x = s.left + (s.w * kCeil) / 2;
+    };
+    grow(coralSeg.current, SEG_NAMED);
+    grow(reachSeg.current, SEG_REACH);
+    grow(greySeg.current, SEG_DARK);
     mats.possible.opacity = vis * kCeil;
     mats.reachable.opacity = vis * kCeil;
     mats.unknowable.opacity = vis * kCeil;
@@ -224,13 +231,13 @@ export function Shastra({ reduced }: { reduced: boolean }) {
       ))}
 
       {/* ★ the ceiling bar — named | reachable-but-unnamed | dark */}
-      <mesh ref={coralSeg} position={[0, -1.65, 0]} material={mats.possible}>
+      <mesh ref={coralSeg} position={[SEG_NAMED.cx, -1.65, 0]} material={mats.possible}>
         <boxGeometry args={[1, 1, 1]} />
       </mesh>
-      <mesh ref={reachSeg} position={[0, -1.65, 0]} material={mats.reachable}>
+      <mesh ref={reachSeg} position={[SEG_REACH.cx, -1.65, 0]} material={mats.reachable}>
         <boxGeometry args={[1, 1, 1]} />
       </mesh>
-      <mesh ref={greySeg} position={[0, -1.65, 0]} material={mats.unknowable}>
+      <mesh ref={greySeg} position={[SEG_DARK.cx, -1.65, 0]} material={mats.unknowable}>
         <boxGeometry args={[1, 1, 1]} />
       </mesh>
 
@@ -254,22 +261,22 @@ export function Shastra({ reduced }: { reduced: boolean }) {
               </div>
             </div>
           </Html>
-          {/* ceiling-bar labels — named | recoverable | dark */}
-          <Html position={[-1.2, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
+          {/* ceiling-bar labels — named | recoverable | dark, anchored to their own segment */}
+          <Html position={[SEG_NAMED.cx, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>{NAMED_PCT}% named</div>
           </Html>
-          <Html position={[0.35, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
+          <Html position={[SEG_REACH.cx, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>
               {CEIL_PCT != null ? `${CEIL_PCT}% recoverable` : "ceiling not measured"}
             </div>
           </Html>
           {DARK_PCT != null && (
-            <Html position={[1.55, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
+            <Html position={[SEG_DARK.cx + 0.5, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
               <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>{DARK_PCT}% dark</div>
             </Html>
           )}
           {CAPTURED_PCT != null && (
-            <Html position={[0, -2.45, 0]} center distanceFactor={6} pointerEvents="none">
+            <Html position={[BAR_X, -1.25, 0]} center distanceFactor={6} pointerEvents="none">
               <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink)" }}>
                 capturing {CAPTURED_PCT}% of the theoretical maximum
               </div>

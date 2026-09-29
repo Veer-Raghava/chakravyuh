@@ -12,7 +12,7 @@ import {
   type GlobeTx,
   type GlobePoint,
 } from "../../data/globe";
-import { fixtures } from "../../data/loader";
+import { useRun } from "../../data/RunContext";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import { useShell } from "../ShellContext";
 import { GlobeDetail } from "./GlobeDetail";
@@ -323,6 +323,7 @@ function Fallback() {
 
 export function GlobeScreen() {
   const { openDrawer } = useShell();
+  const { fixtures } = useRun();
   const reduced = usePrefersReducedMotion();
   const [selectedTx, setSelectedTx] = useState<GlobeTx | null>(null);
   const [focus, setFocus] = useState<GlobePoint | null>(null);

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { fixtures } from "../../data/loader";
+import { useRun } from "../../data/RunContext";
 import { usToIST, ownerGroupLabel, scrubOwnerWords } from "../../data/jaal";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import styles from "./ProofScreen.module.css";
@@ -16,7 +16,6 @@ import styles from "./ProofScreen.module.css";
  * Identifiers are truncated to the backend display format; hashes stay whole. The
  * full IPs live only in the downloaded packet.json (the officer's machine artifact).
  */
-const p = fixtures.packet;
 
 /** DATA-CONTRACTS §9 display format — first two octets, rest masked. Never a full IP. */
 const maskIp = (ip: string) =>
@@ -33,15 +32,15 @@ const scrub = scrubOwnerWords;
  *  on the kill-list. This screen says what the interval IS; the token never renders. */
 const METHOD_GLOSS: Record<string, string> = { plain_conformal: "shortlist interval" };
 
-// attribution_ready is a real backend field (§6): the packet is court-ready only when the
-// backend says so — we no longer derive it from the presence of peer IP/port/timestamp.
-const a = p.attribution;
-const READY = p.attribution_ready;
-
-const clearing = p.counter_findings.find((c) => c.would_clear);
-
 export function ProofScreen() {
   const reduced = usePrefersReducedMotion();
+  const { fixtures } = useRun();
+  const p = fixtures.packet;
+  // attribution_ready is a real backend field (§6): the packet is court-ready only when the
+  // backend says so — we no longer derive it from the presence of peer IP/port/timestamp.
+  const a = p.attribution;
+  const READY = p.attribution_ready;
+  const clearing = p.counter_findings.find((c) => c.would_clear);
   const [sealed, setSealed] = useState(reduced);
   const linkRef = useRef<HTMLAnchorElement>(null);
 

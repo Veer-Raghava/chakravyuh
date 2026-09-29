@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { fixtures } from "../data/loader";
+import { useRun } from "../data/RunContext";
 import styles from "./AlertCard.module.css";
 
 /**
@@ -39,6 +39,7 @@ function utcMicrosToUTC(us: number): string {
 }
 
 export function AlertCard({ footer }: { footer?: ReactNode }) {
+  const { fixtures } = useRun();
   const a = fixtures.alert;
   const o = a.origin;
   const risk = SEVERITY_COLOR[a.severity] ?? "var(--ink-soft)";
@@ -52,7 +53,7 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
       <div className={styles.severityEdge} />
 
       <header className={styles.head}>
-        <span className={styles.score}>{score.toFixed(2)}</span>
+        <span className={styles.score}>{score.toFixed(3)}</span>
         <span className={styles.severity}>{a.severity.toUpperCase()}</span>
         <span className={styles.subject}>{a.subject_display}</span>
       </header>
@@ -74,7 +75,7 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
             style={{ left: pctWidth(a.conf_low), width: pctWidth(a.conf_high - a.conf_low) }}
           />
         </span>
-        <span className={styles.meterVal}>{a.conf_low.toFixed(2)}–{a.conf_high.toFixed(2)}</span>
+        <span className={styles.meterVal}>{a.conf_low.toFixed(3)}–{a.conf_high.toFixed(3)}</span>
       </div>
 
       <p className={styles.headline}>{a.headline}</p>

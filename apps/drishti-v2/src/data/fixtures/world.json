@@ -74,6 +74,30 @@
     0.11,
     0.6
   ],
+  "model_intelligence": {
+    "ours": {
+      "elliptic_f1": 0.766174,
+      "elliptic_pr_auc": 0.778296,
+      "elliptic_roc_auc": 0.936546,
+      "precision_at_20": 0.6
+    },
+    "published_bands": {
+      "gnn_f1": [
+        0.7,
+        0.82
+      ],
+      "rf_f1": [
+        0.6,
+        0.7
+      ]
+    },
+    "rejected_leg": {
+      "gate": "baseline_not_beaten",
+      "with_embeddings_pr_auc": 0.0357,
+      "without_embeddings_pr_auc": 0.0373
+    },
+    "shipped_model": "gbm_v2"
+  },
   "naive_first_seen_top1": 0.186753,
   "observer_fraction": 0.6,
   "observer_regime": "agency",

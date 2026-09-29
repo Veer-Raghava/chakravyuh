@@ -402,7 +402,7 @@
   "tool_version": "0.1.0",
   "verification": {
     "hash_verified": true,
-    "replay_matched": true,
+    "replay_matched": false,
     "signature_valid": true
   }
 }

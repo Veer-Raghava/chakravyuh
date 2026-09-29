@@ -1350,6 +1350,24 @@ DEFENCES: tuple[str, ...] = (
     "parameter holdout",
 )
 
+# The phase-3 graph-embedding leg as the audit recorded it. This run did NOT run the leg —
+# `eval_report.embedding_leg` says `reason: embeddings_not_requested` — so there is no file to
+# read them from and no honest way to recompute them here. The two numbers are the recorded
+# result of that one throwaway run, published in docs/REMODEL-AUDIT-P0-P3.md §3.1, and they are
+# stated as a citation rather than dressed up as this run's measurement. `gate` is the word the
+# pipeline's own checker wrote: the leg scored every subject and still lost, so the columns are
+# wired off and a checker turns red if anyone ships them.
+REJECTED_LEG: dict[str, Any] = {
+    "with_embeddings_pr_auc": 0.0357,
+    "without_embeddings_pr_auc": 0.0373,
+    "gate": "baseline_not_beaten",
+}
+# Published Elliptic F1 ranges for the two alternatives, cited and never measured by us
+# (Grinsztajn et al., NeurIPS 2022; Weber et al., 2019). The console draws our own 0.766 against
+# these, so the payload has to keep them apart from `ours` — a band we did not produce is not a
+# number we get to own.
+PUBLISHED_BANDS: dict[str, list[float]] = {"gnn_f1": [0.70, 0.82], "rf_f1": [0.60, 0.70]}
+
 # The pipeline, one row per landing layer, each count read from the artifact that proves the
 # stage ran. `label` is the plain word the console prints; the story's round 1,000,000 is never
 # faked — these are the run's real counts, so a small demo run reads as a small run, honestly.
@@ -1558,6 +1576,51 @@ def _funnel(run_dir: Path, report: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
+def _shipped_model(run_dir: Path) -> str:
+    """The model tag that actually scored this run's rows, or "" when nothing recorded one.
+
+    Read from eval's external copy, which is the artifact that carries `params`; the stage's own
+    `scores/eval_report.json` does not. The panel names what shipped from here rather than from a
+    string typed into the frontend, so a run scored by a different booster cannot be mislabelled
+    by a stale component.
+    """
+    params = _model_report(run_dir).get("params", {})
+    return str(params.get("model", "")) if isinstance(params, dict) else ""
+
+
+def _model_intelligence(run_dir: Path) -> dict[str, Any]:
+    """The model-comparison panel's numbers, each one labelled by where it came from.
+
+    Four different kinds of claim sit on one panel and the console must not blur them, so the
+    payload keeps them under separate keys rather than flattening them into one scoreboard:
+
+    `ours` — this run's own measurements (the external Elliptic replication and the wallet
+    model's precision@20), read from the eval report like every other number here. Null when the
+    leg that produces one did not run: an absent measurement is not a zero.
+
+    `shipped_model` — the model tag the report recorded, so the panel names what actually ships
+    instead of a name typed into the frontend.
+
+    `rejected_leg` / `published_bands` — a recorded result and cited literature, both constants
+    above. They are here so the frontend holds no numbers of its own; a figure the console prints
+    is traceable to this file or to an artifact, never to a component.
+    """
+    report = _run_eval_report(run_dir)
+    model = report.get("wallet_model", {})
+    precision_at_20 = model.get("precision_at_20") if isinstance(model, dict) else None
+    return {
+        "ours": {
+            "elliptic_f1": _elliptic_f1(run_dir),
+            "elliptic_pr_auc": _elliptic_metric(run_dir, "pr_auc"),
+            "elliptic_roc_auc": _elliptic_metric(run_dir, "roc_auc"),
+            "precision_at_20": None if precision_at_20 is None else float(precision_at_20),
+        },
+        "shipped_model": _shipped_model(run_dir),
+        "rejected_leg": dict(REJECTED_LEG),
+        "published_bands": {key: list(band) for key, band in PUBLISHED_BANDS.items()},
+    }
+
+
 def world(run_dir: Path) -> dict[str, Any]:
     """WORLD/ceiling payload: the run's pipeline, origin curve and headline numbers.
 
@@ -1600,4 +1663,5 @@ def world(run_dir: Path) -> dict[str, Any]:
             "pair_precision": _pair_precision(run_dir),
         },
         "defences": list(DEFENCES),
+        "model_intelligence": _model_intelligence(run_dir),
     }

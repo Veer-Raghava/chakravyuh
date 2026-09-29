@@ -1,15 +1,15 @@
-import { fixtures } from "../data/loader";
 import { useShell } from "./ShellContext";
+import { RunSwitcher } from "./RunSwitcher";
 import styles from "./TopStrip.module.css";
 
 /**
- * The thin top strip above the thread (§11.0) — case + run id (mono), the offline
- * badge (§12.1), and the diya glyph (clicking it opens the Aperture, the same as
- * pressing space). Deliberately quiet: no breadcrumbs, no menus, no settings gear.
+ * The thin top strip above the thread (§11.0) — case id (mono), the run switcher
+ * + run badge (§12.1), the offline badge, and the diya glyph (clicking it opens
+ * the Aperture, the same as pressing space). Deliberately quiet: no breadcrumbs,
+ * no menus, no settings gear.
  */
 export function TopStrip() {
   const { setApertureOpen } = useShell();
-  const runId = fixtures.manifest.run_id;
 
   return (
     <div className={styles.strip}>
@@ -19,9 +19,7 @@ export function TopStrip() {
         <span className={styles.id}>
           <span className={styles.idLabel}>case</span> SIH-26146
         </span>
-        <span className={styles.id}>
-          <span className={styles.idLabel}>run</span> {runId}
-        </span>
+        <RunSwitcher />
       </div>
 
       <div className={styles.right}>

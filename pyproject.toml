@@ -50,6 +50,9 @@ select = ["E", "F", "I", "UP", "B", "SIM", "ANN", "T20"]
 # demo_smoke.py prints check results to stdout and one FAIL line to stderr; it is the S11
 # cold-start gate's reporter and writes no data rows, only pass/fail status.
 "scripts/demo_smoke.py" = ["T20"]
+# generate_headlines.py prints its before/after headline counts so a run that stopped varying
+# the prose is visible; it writes prose into one fixture, never a data row.
+"scripts/generate_headlines.py" = ["T20"]
 "tests/*" = ["T20"]
 
 [tool.mypy]

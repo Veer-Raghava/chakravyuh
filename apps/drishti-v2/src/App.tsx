@@ -8,6 +8,7 @@ import { Chakravyuh } from "./landing/Hero/Chakravyuh";
 import { DiyaHint } from "./landing/Diya/DiyaHint";
 import { Login } from "./auth/Login";
 import { ShellProvider } from "./shell/ShellContext";
+import { RunProvider } from "./data/RunContext";
 import { Shell } from "./shell/Shell";
 import { useScroll } from "./scroll/ScrollContext";
 import { usePrefersReducedMotion } from "./scroll/usePrefersReducedMotion";
@@ -91,7 +92,9 @@ export default function App() {
   if (phase === "app")
     return (
       <ShellProvider>
-        <Shell />
+        <RunProvider>
+          <Shell />
+        </RunProvider>
       </ShellProvider>
     );
   return <Landing onEnter={() => setPhase("login")} />;

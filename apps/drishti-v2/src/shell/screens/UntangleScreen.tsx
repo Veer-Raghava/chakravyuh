@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { fixtures } from "../../data/loader";
+import { useRun } from "../../data/RunContext";
 import { usToIST } from "../../data/jaal";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import styles from "./UntangleScreen.module.css";
@@ -16,6 +16,7 @@ import styles from "./UntangleScreen.module.css";
 export function UntangleScreen() {
   const reduced = usePrefersReducedMotion();
   const root = useRef<HTMLDivElement>(null);
+  const { fixtures } = useRun();
 
   const col = fixtures.collapse;
   const o = fixtures.alert.origin;

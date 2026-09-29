@@ -3,6 +3,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { fixtures } from "../../data/loader";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
+import { ModelIntelligence } from "./ModelIntelligence";
 import styles from "./WorldScreen.module.css";
 
 /**
@@ -365,6 +366,9 @@ export function WorldScreen() {
           ))}
         </div>
       </div>
+
+      {/* ── model intelligence — the related-work section, collapsible ── */}
+      <ModelIntelligence />
 
       {/* ── about / offline ───────────────────────────────── */}
       <div className={styles.about}>

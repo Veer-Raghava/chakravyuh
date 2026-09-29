@@ -550,6 +550,80 @@ Known issues / notes:
   - Deviation worth knowing: v2 runs R3F v8 / drei v9 / three 0.171, while CLAUDE.md specifies
     R3F v9 / drei v10. Pre-existing, not introduced here.
 
+### B4 — numbers credibility: read the run's own measurements, never hand-type them — DONE
+  - **Backend (serialize.py), so the UI owns no constant.** The ceiling and the external-replication
+    scores the UI needed did not exist in `world.json`. Rather than paste 93.4 / 0.937 into a
+    component, `world()` now emits `ceilings` (per grain: l0_host 0.482405, l1_asn 0.934491,
+    l2_region 0.959333, l3_shortlist_topk 0.482405) and the Elliptic block's
+    `elliptic_roc_auc` 0.936546 / `elliptic_precision` 0.892052, via `_elliptic_metric` /
+    `_ceiling_by_granularity`. Absent grains report `None`, never 0.0 (null ≠ 0).
+    Re-ran `make fixtures-ui && make sync-fixtures`; diff verified **purely additive to world.json**
+    — no other fixture moved.
+  - **World screen.** The observer curve is now the fixture's `origin_curve` at three granularities
+    (L1 operator thick/blue = hero, L0 host teal, L3 shortlist butter) with a legend and a handle on
+    L1; the naive first-seen line is `naive_first_seen_top1` from the fixture, not a typed 22.1. The
+    funnel is the run's real branch (906,560 → … → 4 proof-side / 9 on the VAANI leg), animated by
+    GSAP (per-step number counters), skipped under reduced motion. DEFENCES' first entry is labelled
+    from the fixture ceiling, not the retired hard-coded 41.5%.
+  - **New headline strip** (3 cards): operator named 45.9% — "49% of the theoretical maximum — the
+    operator ceiling is 93.4% · 2.46× the naive first-seen guess (18.7%)"; campaign recall 95.4%;
+    Elliptic F1 76.6% — "tested on real data — F1 76.6% · ROC-AUC 93.7% on the Elliptic dataset".
+  - **Origin screen — the fix was a category error, not a restyle.** The old `OP_CEIL`/`HOST_CEIL`
+    were interpolated *accuracies* labelled "ceilings", so the gauge was dividing by a number it had
+    invented. Now accuracy ÷ the ceiling of the SAME grain, from the fixture: gauge reads
+    "49.2% of the theoretical maximum" with the 93.4% operator ceiling, 2.46× the naive baseline,
+    and an L0 sub-line. Per-transaction: "the leading candidate's own likelihood is 27.00% —
+    8.6× more likely than random" (random = one of the 32 peers that announced it, 3.13% each);
+    the multiplier is computed from the record (`p × n`), so it cannot drift from the data. Abstain
+    states carry a plain reason gloss (Tor exit / single observer / margin below floor / too few
+    announcements / cross-operator split) in calm grey. Rings (radius = inverse likelihood) kept.
+  - **Landing SHASTRA.** The ★ ceiling bar is three segments straight from `world.json` — 45.9%
+    named (coral) | 93.4% recoverable (butter) | 6.6% dark (grey) — each growing from its own left
+    edge, labels anchored to their own segment's centre, and the line "capturing 49% of the
+    theoretical maximum" above it. Station title/body read from the same constants ("We name the
+    sender's network for 45.9% of these. That is 49% of what physics allows.").
+  - **Alerts — severity colour + ranges.** One shared `SEVERITY_COLOR` map exported from `AlertCard`
+    (critical coral / high butter / medium ink-soft / low riso-blue / informational teal) consumed by
+    both the card and the leads list. Score now reads `confidence.score` (the detail payload carries
+    no `risk_score`); risk meter width = score; confidence is drawn as a **band** (conf_low →
+    conf_high, e.g. 0.85–1.00), not a single number, in the card and in every list row.
+  - Verified: `npm run typecheck` clean; Playwright pass over world / origin / leads / landing.
+  - **Reported to the user, not fixed (backend facts, not UI bugs):** alert severity is 3-tier and
+    all 200 alerts are `high` — there is no critical/informational to colour, and queue `risk_score`
+    spans only 0.798–0.997 (top 20 ≈0.997), so the bars read near-uniform until the backend varies
+    them. `high = Butter` was implemented as asked but conflicts with CLAUDE.md's "risk high = Coral"
+    — flagged for a decision. The 45.9% hero is a forced-ranking number; the shipped L1 *answer*
+    rate is 0.018% (the strategy doc's CRITICAL GAP 1) — still a backend fix.
+
+### B5 — Model intelligence + lead-number precision — DONE
+  - **New `ModelIntelligence` panel on the World screen** (`shell/screens/ModelIntelligence.tsx` +
+    `.module.css`), a native `<details open>` section so it collapses with no JS and stays keyboard
+    reachable. Four blocks: (1) three model cards — LightGBM / GNN-GCN / Random Forest — each with
+    five axis bars plus its measured figures; (2) "Tested, measured, rejected", the Phase-3 negative
+    result as two 0-based bars (0.0373 without embeddings vs 0.0357 with) and the
+    `baseline_not_beaten` gate badge; (3) "Where 0.766 sits" — our Elliptic F1 marked against the
+    published GCN (0.70–0.82) and RF (0.60–0.70) bands, with the inductive-vs-transductive protocol
+    named; (4) a four-step first-year roadmap.
+  - **Numbers, not vibes.** New `world.model_intelligence` in `world.json`, every field traceable:
+    elliptic F1 0.766174 / PR-AUC 0.778296 / ROC-AUC 0.936546 and `inductive_time_ordered` from
+    `measurements/<run>/elliptic_external.json`; precision@20 0.60 and the
+    `rank_by_total_value_received` baseline 0.00 from `model_report.json`; the rejected leg's
+    0.0357/0.0373 from `REMODEL-AUDIT-P0-P3.md §3.1` + `measurements/_gnn-a/model_report.json`.
+    Rewrote the file with `sort_keys` round-trip-verified byte-identical first, so the diff is purely
+    additive.
+  - **The one non-measurement is labelled as such.** The axis bars are an engineering assessment, so
+    the panel says so on screen and derives a word (`strong/workable/limited/weak`) from the value
+    rather than printing a fake score. The published GCN/RF bands are marked "published", not ours.
+  - **Lead number precision (the "everything reads 1.00" bug).** Queue and card risk/confidence were
+    `.toFixed(2)`, so 0.9973 and 0.9968 both printed `1.00` and the top of the queue read as a column
+    of identical 1's — the number looked invented. Now 3dp everywhere (`LeadsScreen` row + drawer,
+    `AlertCard` score + band): 0.997 / 0.848–1.000. Display-layer only. Honest caveat: ranks 1–10
+    share one `risk_score` by fixture construction, so those ten still render alike — that is the
+    data, not the formatter, and it needs a backend fix to vary.
+  - Verified: `npm run typecheck` clean (no `lint` script exists in this package); Playwright pass
+    over World at 1440px and 700px — bars measured in the DOM at their intended widths, no console
+    errors. Not committed.
+
 Fixture paths: apps/drishti-v2/src/data/fixtures/*.json (loader: src/data/loader.ts).
 Demo machine: <fill in>
 Last commit that ran green + offline: —

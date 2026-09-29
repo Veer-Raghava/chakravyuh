@@ -7,7 +7,7 @@ import styles from "./Sutra.module.css";
  * visible, workflow-ordered. The current stage is enlarged + lit; past stages
  * carry a wax-seal tick (done); stages ahead stay quiet ink-soft (reachable, not
  * yet run). World (MAYAJAAL) is pinned far right, outside the funnel order. The
- * funnel bead rides the thread, carrying the run's 1,000,000 → 1 counter.
+ * funnel bead rides the thread, carrying the run's signal-count → 1 counter.
  * Reduced-motion: the bead jumps instead of sliding (handled by the global
  * reduced-motion rule zeroing transitions).
  */

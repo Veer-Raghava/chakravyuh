@@ -1,0 +1,114 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  cursor: pointer;
+  font-family: var(--font-text);
+}
+.trigger:hover {
+  border-color: color-mix(in srgb, var(--riso-blue) 45%, var(--line));
+}
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--riso-blue);
+  letter-spacing: 0.01em;
+}
+.cov {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  color: var(--ink-soft);
+}
+.caret {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--ink-soft);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 15rem;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--ink) 30%, transparent);
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+.option:hover {
+  background: var(--paper-deep);
+}
+.optDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+  flex: 0 0 auto;
+}
+.optLabel {
+  flex: 1;
+  font-family: var(--font-text);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.optCov {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  color: var(--ink-soft);
+}
+/* active run — Riso Blue; others stay ink-soft */
+.active .optDot {
+  background: var(--riso-blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--riso-blue) 20%, transparent);
+}
+.active .optLabel {
+  color: var(--riso-blue);
+  font-weight: 600;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+.badgeLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 0.3rem;
+}
+
+@media (max-width: 680px) {
+  .badge {
+    display: none;
+  }
+}

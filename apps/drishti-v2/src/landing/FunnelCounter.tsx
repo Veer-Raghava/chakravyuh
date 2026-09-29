@@ -5,8 +5,9 @@ import styles from "./FunnelCounter.module.css";
 
 /**
  * The funnel — the descending counter that is the spine of the whole landing
- * (§7: craft-move #2, 3D that IS the data, expressed as the page). Starts at
- * 1,000,000 raw signals and counts down as each station settles.
+ * (§7: craft-move #2, 3D that IS the data, expressed as the page). Starts at the
+ * run's own first count (world.json — 906,560 signals in the agency run) and
+ * counts down as each station settles.
  *
  * It polls the shared scroll ref in its own rAF loop and writes the DOM node
  * directly — the number changes every frame, so routing it through React state

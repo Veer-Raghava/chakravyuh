@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { fixtures } from "../../data/loader";
+import { useRun } from "../../data/RunContext";
 import { useShell } from "../ShellContext";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import styles from "./IntakeScreen.module.css";
@@ -44,6 +44,7 @@ function Tally({ to, phase, reduced, delay = 0 }: { to: number; phase: Phase; re
 export function IntakeScreen() {
   const { goTo } = useShell();
   const reduced = usePrefersReducedMotion();
+  const { fixtures } = useRun();
   const m = fixtures.manifest;
   const [phase, setPhase] = useState<Phase>("idle");
 
