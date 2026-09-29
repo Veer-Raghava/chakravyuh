@@ -13,13 +13,18 @@ import {
 } from "../three/jaalLayout";
 import { buildLead, rankLeads } from "../three/leadModel";
 import { buildOverview } from "../three/overviewModel";
-import { buildGraph } from "../three/graphModel";
-import { buildActor, assertActorInvariants } from "../three/actorModel";
 
 const raw = fixtures.graphAddress as { nodes: RawNode[]; edges: RawEdge[] };
 
 export const jaal = layoutJaal(raw.nodes, raw.edges);
 if (import.meta.env.DEV) assertJaalInvariants(jaal); // the two-floor grammar, guarded
+
+// The likely-same-owner claims, raw — the graph's owner layer (§10.4). In this run they
+// are 73 change-loop PAIRS, every one at confidence 0.36 (no spectrum), so the map draws
+// them as soft teal ties revealed on focus and surfaces 0.36 as the honest bar (§6), not
+// a fake merge/split gradient. The confidence dial gates them: raise it past 0.36 → none
+// survive, which is the true, teachable shape of the data.
+export const sameOwnerEdges = raw.edges.filter((e) => e.kind === "SAME_OWNER");
 
 // The focused-lead seam (the readable default view): a ranked list of transactions
 // that tell a whole money-in → money-out story, and a builder for any one of them.
@@ -29,20 +34,8 @@ export const buildLeadFor = (txId: string) => buildLead(raw, txId);
 // The calm global: every tellable tx laid out as one clean spiral (no clustering).
 export const buildOverviewAll = () => buildOverview(raw);
 
-// THE main view: the whole run as one graph — every tx over time, linked by the money
-// that moved between them. Click a node → its LEAD flow.
-export const buildGraphAll = () => buildGraph(raw);
-
-// The OWNER-level reading of the same run (`detail=actor`): addresses on one floor, height
-// = how wide their owner group is, coral arcs = the same-owner claims. Built once, like the
-// others — the fixture is static, so there is nothing to recompute per render.
-const actorRaw = fixtures.graphActor as unknown as {
-  nodes: RawNode[];
-  edges: RawEdge[];
-  aggregated?: Record<string, unknown>;
-};
-export const actor = buildActor(actorRaw);
-if (import.meta.env.DEV) assertActorInvariants(actor); // the actor floor's grammar, guarded
+// THE main view: the whole run as one two-floor graph — peers on the wire above, money
+// below, pink announce threads the only thing crossing between. Click a tx → its LEAD flow.
 
 export const counts = {
   address: jaal.nodes.filter((n) => n.kind === "address").length,

@@ -3,50 +3,34 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { AdaptiveDpr } from "@react-three/drei";
 import gsap from "gsap";
 import { C } from "../../styles/palette";
-import { leadIds, buildLeadFor, buildOverviewAll, buildGraphAll, actor, satsToBTC } from "../../data/jaal";
+import { jaal, counts, leadIds, buildLeadFor, buildOverviewAll, satsToBTC } from "../../data/jaal";
+import type { LaidNode } from "../../three/jaalLayout";
 import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import { useShell } from "../ShellContext";
 import { LeadScene, LeadDetail, type LeadSelection } from "./LeadView";
 import { OverviewScene } from "./OverviewScene";
-import { GraphScene } from "./GraphScene";
-import { ActorScene, ActorDetail } from "./ActorScene";
-import type { ActorNode } from "../../three/actorModel";
+import { GraphScene, GraphDetail } from "./GraphScene";
 import styles from "./MapScreen.module.css";
 
 /**
  * MAP · JAAL — the visual investigation tool (§10, readability-first). The MAIN view is
- * the GRAPH: the whole run as one field of transactions over time, linked by the money
- * that flowed between them (§10 signature moment #2). Calmer companions ride alongside:
- *   GRAPH     the product — many txs + their money relations, read iso / top / front.
- *   OWNERS    the same run read at owner level (`detail=actor`): which addresses are one
- *             person — the money-trail clues and the CoinJoin greys, on one floor.
- *   OVERVIEW  a side view — the ranked leads alone as a calm spiral, no edges.
- *   LEAD      click any node and it opens as a lit diorama: WHO → SENT WHAT → TO WHOM →
+ * the GRAPH: the whole run as ONE two-floor diorama — every announcing peer ▲ on the wire
+ * above, every transaction ◆ on the money floor below, and the pink announce threads the
+ * only thing crossing between (§10 signature moment #2). It stays calm at rest and REVEALS
+ * on touch: hover/focus a tx and its coins fan out, its money flows light, its pink threads
+ * rain up to the peers that saw it; focus a peer and its threads drop onto every tx it saw;
+ * focus an address and its likely-same-owner ties show as honest teal links, gated by a dial.
+ *   GRAPH     the product — the whole run, read iso / top / front, owners folded in as a dial.
+ *   OVERVIEW  a calm side view — the ranked leads alone as a spiral, no edges.
+ *   LEAD      click any ◆ and it opens as a lit diorama: WHO → SENT WHAT → TO WHOM →
  *             WHICH IPs saw it → WHY. The individual, in full.
  * Every view drills into LEAD; LEAD steps through the ranked leads.
  */
 
-type View = "graph" | "actor" | "overview" | "lead";
+type View = "graph" | "overview" | "lead";
 type LeadPreset = "side" | "iso" | "top";
 type OvMode = "iso" | "top" | "flat";
 type GraphMode = "iso" | "top" | "front";
-
-/**
- * The map's reading is LINKABLE: `?detail=actor#app` opens the console straight on the owner
- * floor (`#app` is the phase machine's own deep-link, see App.tsx). An evaluator can be
- * handed the exact reading we mean rather than talked through the clicks, and a screenshot
- * URL says which floor it shows. No router in this app — one query param, one replaceState.
- */
-const viewFromUrl = (): View =>
-  new URLSearchParams(window.location.search).get("detail") === "actor" ? "actor" : "graph";
-
-/** Keep the URL in step with the view without pushing history entries for a view toggle. */
-const syncUrl = (v: View) => {
-  const url = new URL(window.location.href);
-  if (v === "actor") url.searchParams.set("detail", "actor");
-  else url.searchParams.delete("detail");
-  window.history.replaceState(null, "", url);
-};
 
 const PRESETS: Record<"iso" | "side" | "top", [number, number, number]> = {
   iso: [4.6, 4.4, 7.0], // depth visible — fans, floors and the spiral all legible
@@ -54,12 +38,13 @@ const PRESETS: Record<"iso" | "side" | "top", [number, number, number]> = {
   top: [0, 8.6, 0.001], // collapses to a clean flow / bird's-eye field
 };
 
-// GRAPH camera — a money-over-time field: "money × time" reads it straight-on, isometric
-// adds the signal/noise depth, top-down separates the money-trail band from the lone marks.
-const GRAPH_PRESETS: Record<"front" | "iso" | "top", { pos: [number, number, number]; targetY: number }> = {
-  front: { pos: [0, 1.35, 9.6], targetY: 1.2 },
-  iso: { pos: [5.8, 4.3, 7.8], targetY: 1.1 },
-  top: { pos: [0, 9.5, 0.001], targetY: 0 },
+// GRAPH camera — the two-floor diorama centred on y=0 (wire at +1.5, money at −1.5):
+// front reads it as the pitch shot (wire above / money below), iso adds the depth of the
+// lanes, top separates the money floor into a clean flow field.
+const GRAPH_PRESETS: Record<GraphMode, { pos: [number, number, number]; targetY: number }> = {
+  front: { pos: [0, 0.2, 9.4], targetY: 0 },
+  iso: { pos: [5.8, 4.6, 8.0], targetY: 0 },
+  top: { pos: [0, 9.6, 0.001], targetY: 0 },
 };
 
 /** Presets only — no free-fly. GSAP-tweens between fixed viewpoints; reduced motion
@@ -105,56 +90,60 @@ function CameraRig({
 export function MapScreen() {
   const { openDrawer, closeDrawer } = useShell();
   const reduced = usePrefersReducedMotion();
-  const [view, setView] = useState<View>(viewFromUrl);
+  const [view, setView] = useState<View>("graph");
   const [leadPreset, setLeadPreset] = useState<LeadPreset>("iso");
   const [ovMode, setOvMode] = useState<OvMode>("iso");
   const [graphMode, setGraphMode] = useState<GraphMode>("front");
   const [leadTxId, setLeadTxId] = useState<string>(leadIds[0]);
   const [leadSel, setLeadSel] = useState<LeadSelection | null>(null);
+  const [focusId, setFocusId] = useState<string | null>(null); // pinned graph node (peer/addr)
   const [hovering, setHovering] = useState(false);
 
   const overview = useMemo(() => buildOverviewAll(), []);
-  const graph = useMemo(() => buildGraphAll(), []);
   const lead = useMemo(() => buildLeadFor(leadTxId), [leadTxId]);
   const leadRank = leadIds.indexOf(leadTxId); // -1 when the tx isn't a ranked lead
 
-  const clearSel = () => {
+  const clearLead = () => {
     setLeadSel(null);
     closeDrawer();
   };
-
-  // every way of changing the view goes through here, so the URL can never drift from it
-  const go = (v: View) => {
-    setView(v);
-    syncUrl(v);
+  const clearFocus = () => {
+    setFocusId(null);
+    closeDrawer();
   };
 
-  // drill into any transaction's flow — works for a ranked lead or any node in the graph
+  // drill into any transaction's flow — works for a ranked lead or any ◆ in the graph
   const openTx = (txId: string) => {
     setLeadTxId(txId);
     setLeadSel({ type: "tx" });
-    go("lead");
+    setView("lead");
     setLeadPreset("iso");
     openDrawer("transaction", <LeadDetail lead={buildLeadFor(txId)} sel={{ type: "tx" }} />);
   };
 
-  // an address on the owner floor opens the drawer; its "flow" is the group it sits in,
-  // so the actor floor does not pretend to drill into a transaction it doesn't have
-  const openActor = (n: ActorNode) => {
-    openDrawer(n.label.replace(/^addr:/, ""), <ActorDetail node={n} />);
+  // pin a peer/address on the graph — spotlight it and read its properties (no flow of its
+  // own, so it opens the drawer rather than pretending to drill into a transaction)
+  const onFocus = (node: LaidNode | null) => {
+    if (!node || node.kind === "transaction") {
+      clearFocus();
+      return;
+    }
+    setFocusId(node.id);
+    const title =
+      node.kind === "peer"
+        ? `the IP that told us · ${node.label.replace(/^peer:/, "")}`
+        : `address · ${node.label.replace(/^addr:/, "")}`;
+    openDrawer(title, <GraphDetail node={node} jaal={jaal} />);
   };
 
   const toGraph = () => {
-    go("graph");
-    clearSel();
-  };
-  const toActor = () => {
-    go("actor");
-    clearSel();
+    setView("graph");
+    clearLead();
   };
   const toOverview = () => {
-    go("overview");
-    clearSel();
+    setView("overview");
+    clearLead();
+    clearFocus();
   };
 
   // prev / next cycles the ranked leads; if we're on an off-list tx, start at its neighbours
@@ -162,7 +151,7 @@ export function MapScreen() {
     const at = leadIds.indexOf(leadTxId);
     const next = at < 0 ? (d > 0 ? 0 : leadIds.length - 1) : (at + d + leadIds.length) % leadIds.length;
     setLeadTxId(leadIds[next]);
-    clearSel();
+    clearLead();
   };
 
   const onLeadSelect = (sel: LeadSelection) => {
@@ -176,16 +165,11 @@ export function MapScreen() {
     openDrawer(title, <LeadDetail lead={lead} sel={sel} />);
   };
 
-  // the owner floor has no bird's-eye (see the switcher note) — entering it from a top-down
-  // graph lands on the isometric reading instead of a view we deliberately don't offer
-  const camMode: GraphMode = view === "actor" && graphMode === "top" ? "iso" : graphMode;
-
-  const flat = view === "overview" && ovMode === "flat";
   const camPos: [number, number, number] =
     view === "lead"
       ? PRESETS[leadPreset]
-      : view === "graph" || view === "actor"
-        ? GRAPH_PRESETS[camMode].pos
+      : view === "graph"
+        ? GRAPH_PRESETS[graphMode].pos
         : ovMode === "iso"
           ? PRESETS.iso
           : PRESETS.top;
@@ -196,21 +180,20 @@ export function MapScreen() {
         : leadPreset === "side"
           ? 0.2
           : 0
-      : view === "graph" || view === "actor"
-        ? GRAPH_PRESETS[camMode].targetY
+      : view === "graph"
+        ? GRAPH_PRESETS[graphMode].targetY
         : 0;
+
+  const flat = view === "overview" && ovMode === "flat";
 
   const headline =
     view === "lead"
       ? lead.why
       : view === "graph"
-        ? `${graph.count} transactions across the run · ${graph.bridged} linked by the money that moved between them`
-        : view === "actor"
-          ? `${actor.count} addresses · ${actor.claimed} pulled into ${actor.rosettes.length} same-owner groups · ${actor.peeled} on a money trail, ${actor.mixed} greyed by a CoinJoin`
-          : `${overview.count} transactions worth a look · the loudest was seen by ${overview.loudest} IPs on the wire`;
+        ? `${counts.transaction} transactions, ${counts.peer} IPs that saw them`
+        : `${overview.count} worth a look`;
 
-  const title =
-    view === "graph" ? "Graph" : view === "actor" ? "Owners" : view === "overview" ? "Leads" : "Trace";
+  const title = view === "graph" ? "Graph" : view === "overview" ? "Leads" : "Trace";
 
   return (
     <section className={styles.screen}>
@@ -224,7 +207,10 @@ export function MapScreen() {
           gl={{ alpha: true, antialias: true }}
           camera={{ position: PRESETS.iso, fov: 42 }}
           fallback={<div className={styles.fallback}>This view needs WebGL. The transaction data is listed below the canvas.</div>}
-          onPointerMissed={() => view === "lead" && clearSel()}
+          onPointerMissed={() => {
+            if (view === "lead") clearLead();
+            else if (view === "graph") clearFocus();
+          }}
         >
           <Suspense fallback={null}>
             <CameraRig pos={camPos} targetY={targetY} reduced={reduced} />
@@ -232,9 +218,14 @@ export function MapScreen() {
             <directionalLight position={[4, 6, 5]} intensity={1.05} castShadow />
             <directionalLight position={[-5, 3, -2]} intensity={0.35} color={C.risoBlue} />
             {view === "graph" ? (
-              <GraphScene data={graph} reduced={reduced} onPick={openTx} onHover={setHovering} />
-            ) : view === "actor" ? (
-              <ActorScene data={actor} onPick={openActor} onHover={setHovering} />
+              <GraphScene
+                jaal={jaal}
+                reduced={reduced}
+                focusId={focusId}
+                onFocus={onFocus}
+                onPickTx={openTx}
+                onHover={setHovering}
+              />
             ) : view === "overview" ? (
               <OverviewScene
                 data={overview}
@@ -258,21 +249,12 @@ export function MapScreen() {
             {view === "lead" && leadRank >= 0 && <span className={styles.count}>lead {leadRank + 1} of {leadIds.length}</span>}
           </div>
           <p className={styles.why}>{headline}</p>
-          {view === "graph" && (
-            <p className={styles.gloss}>the whole run as one graph · blue threads are value moving from one transaction to the next · click any ◆ to open its flow</p>
-          )}
-          {view === "actor" && (
-            <p className={styles.gloss}>
-              the same run read at owner level · height is how many addresses we can tie to one owner ·
-              a coral ring is one same-owner claim, drawn only as strong as the claim is · click any ● to read it
-            </p>
-          )}
           {view === "overview" && (
-            <p className={styles.gloss}>a calm map of the whole run · click any mark to open it in full</p>
+            <p className={styles.gloss}>click any mark to open it in full</p>
           )}
           {view === "lead" && (
             <p className={styles.gloss}>
-              {satsToBTC(lead.totalInSats)} in from {lead.senders.length}, out to {lead.receivers.length} · seen by {lead.announcers.length} IPs on the wire
+              {satsToBTC(lead.totalInSats)} in from {lead.senders.length}, out to {lead.receivers.length} · seen by {lead.announcers.length} IPs
             </p>
           )}
         </div>
@@ -289,13 +271,6 @@ export function MapScreen() {
           </button>
           <button
             type="button"
-            className={`${styles.viewBtn} ${view === "actor" ? styles.viewOn : ""}`}
-            onClick={toActor}
-          >
-            ◍ owners
-          </button>
-          <button
-            type="button"
             className={`${styles.viewBtn} ${view === "overview" ? styles.viewOn : ""}`}
             onClick={toOverview}
           >
@@ -304,7 +279,7 @@ export function MapScreen() {
           <button
             type="button"
             className={`${styles.viewBtn} ${view === "lead" ? styles.viewOn : ""}`}
-            onClick={() => go("lead")}
+            onClick={() => setView("lead")}
           >
             ◆ trace
           </button>
@@ -321,26 +296,17 @@ export function MapScreen() {
           </div>
         )}
 
-        {/* camera / dimensionality — graph & overview each read three ways, lead keeps its three shots.
-            The owner floor gets ONE FEWER: its meaning lives on the height axis (how wide a group
-            is), so a bird's-eye of it flattens the marks into lines and shows nothing. We don't
-            offer a reading of this floor that cannot be read. */}
+        {/* camera / dimensionality — graph & overview each read three ways, lead keeps its three shots. */}
         <div className={styles.presets} style={{ pointerEvents: "auto" }}>
-          {view === "graph" || view === "actor"
-            ? ((view === "actor" ? ["front", "iso"] : ["front", "iso", "top"]) as GraphMode[]).map((m) => (
+          {view === "graph"
+            ? (["front", "iso", "top"] as GraphMode[]).map((m) => (
                 <button
                   key={m}
                   type="button"
-                  className={`${styles.preset} ${camMode === m ? styles.presetOn : ""}`}
+                  className={`${styles.preset} ${graphMode === m ? styles.presetOn : ""}`}
                   onClick={() => setGraphMode(m)}
                 >
-                  {m === "front"
-                    ? view === "actor"
-                      ? "◈ time × group"
-                      : "◈ money × time"
-                    : m === "iso"
-                      ? "◈ isometric"
-                      : "◈ top-down"}
+                  {m === "front" ? "◈ wire × money" : m === "iso" ? "◈ isometric" : "◈ top-down"}
                 </button>
               ))
             : view === "overview"
@@ -366,43 +332,17 @@ export function MapScreen() {
                 ))}
         </div>
 
-        {view === "lead" && (
-          <div className={styles.legend} style={{ pointerEvents: "auto" }}>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.risoBlue }} /> sender</span>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.coral }} /> the transaction</span>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.butter }} /> receiver</span>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.inkSoft }} /> change · back to self</span>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.fluoroPink }} /> the IP that told us</span>
-          </div>
-        )}
-
-        {view === "actor" && (
-          <div className={styles.legend} style={{ pointerEvents: "auto" }}>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.risoBlue }} /> an address</span>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.coral }} /> on a peel chain · the money-trail shape</span>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.inkSoft }} /> CoinJoin'd · link not evidence</span>
-            <span className={styles.key}><span className={styles.ring} /> a same-owner claim · ring opacity = its confidence</span>
-            <span className={styles.keyPlain}>
-              height = how many addresses we tied to one owner · left → right = time ·{" "}
-              {actor.sample.addresses.toLocaleString("en-US")} of {actor.sample.totalAddresses.toLocaleString("en-US")} addresses
-              resolve to {actor.sample.groups.toLocaleString("en-US")} of the run's {actor.sample.totalGroups.toLocaleString("en-US")} owner groups · this floor is a capture, not the whole run
-              {actor.both > 0 && ` · ${actor.both} sit on a chain AND passed a mix, greyed because a mix severs the link`}
-            </span>
-          </div>
-        )}
-
         {view === "graph" && (
           <div className={styles.legend} style={{ pointerEvents: "auto" }}>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.coral }} /> a transaction</span>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.risoBlue }} /> value moved tx → tx</span>
-            <span className={styles.keyPlain}>left → right = time · taller = more IPs saw it · bright = part of a money chain</span>
+            <span className={styles.key}><span className={styles.dot} style={{ background: C.coral }} /> transaction</span>
+            <span className={styles.key}><span className={styles.dot} style={{ background: C.fluoroPink }} /> IP that saw it</span>
           </div>
         )}
 
         {view === "overview" && (
           <div className={styles.legend} style={{ pointerEvents: "auto" }}>
-            <span className={styles.key}><span className={styles.dot} style={{ background: C.coral }} /> a transaction</span>
-            <span className={styles.keyPlain}>bigger = more money · taller = more IPs saw it · centre = most suspicious</span>
+            <span className={styles.key}><span className={styles.dot} style={{ background: C.coral }} /> transaction</span>
+            <span className={styles.keyPlain}>bigger is more money, taller saw more IPs, centre is most suspicious</span>
           </div>
         )}
       </div>
@@ -410,23 +350,13 @@ export function MapScreen() {
       {/* all data reachable in the DOM (§5.5), not trapped in the canvas */}
       <ul className={styles.srList} aria-label="Map data">
         {view === "graph" &&
-          graph.nodes.map((n) => (
-            <li key={n.id}>
-              transaction {n.label.replace(/^tx:/, "")}, {satsToBTC(n.inSats)} in, seen by {n.announcers} IPs{n.connected ? ", linked to another transaction" : ""}
-            </li>
-          ))}
+          jaal.nodes
+            .filter((n) => n.kind === "transaction")
+            .map((n) => <li key={n.id}>transaction {n.label.replace(/^tx:/, "")}</li>)}
         {view === "overview" &&
           overview.nodes.map((n) => (
             <li key={n.txId}>
               transaction {n.label.replace(/^tx:/, "")}, {satsToBTC(n.inSats)} in, seen by {n.announcers} IPs
-            </li>
-          ))}
-        {view === "actor" &&
-          actor.nodes.map((n) => (
-            <li key={n.id}>
-              address {n.label.replace(/^addr:/, "")}, {n.groupLabel}, {n.txs} transactions
-              {n.chains > 0 ? `, on a peel chain (${n.hops} hops)` : ""}
-              {n.coinjoin > 0 ? `, passed ${n.coinjoin} CoinJoin${n.coinjoin > 1 ? "s" : ""}, so the link is not evidence` : ""}
             </li>
           ))}
         {view === "lead" && (

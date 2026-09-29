@@ -16,6 +16,36 @@
   pointer-events: none;
   padding: 2rem 2.25rem;
 }
+/* soft paper scrims so overlay text always reads over the busy diorama, marks fade behind */
+.overlay::before,
+.overlay::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+.overlay::before {
+  top: 0;
+  height: 11rem;
+  background: linear-gradient(to bottom, var(--paper) 0%, rgba(246, 239, 224, 0.7) 34%, rgba(246, 239, 224, 0) 100%);
+}
+.overlay::after {
+  bottom: 0;
+  height: 10rem;
+  background: linear-gradient(to top, var(--paper) 0%, rgba(246, 239, 224, 0.6) 38%, rgba(246, 239, 224, 0) 100%);
+}
+.head {
+  position: relative;
+  z-index: 1;
+}
+.views,
+.stepper,
+.presets,
+.legend,
+.dial {
+  z-index: 1;
+}
 .head {
   max-width: 34rem;
 }
@@ -185,6 +215,48 @@
   color: var(--ink-soft);
   max-width: 22rem;
   line-height: 1.5;
+}
+
+/* the owners layer, folded into the graph as one honest dial (§6, §10.4) — bottom-centre,
+   clear of the legend (left) and the presets (right) */
+.dial {
+  position: absolute;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: min(24rem, 40vw);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.65rem 0.85rem;
+}
+.dialRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+.dialLabel {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.dialInput {
+  width: 100%;
+  accent-color: var(--teal);
+  cursor: pointer;
+}
+.dialNote {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-label);
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+  color: var(--ink-soft);
 }
 
 /* screen-reader / no-WebGL data path (§5.5) */

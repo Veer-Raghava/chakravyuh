@@ -1,33 +1,38 @@
-import { useMemo, useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Html, Line, QuadraticBezierLine, ContactShadows } from "@react-three/drei";
-import * as THREE from "three";
+import { useMemo, useState } from "react";
+import { Html, Line, ContactShadows } from "@react-three/drei";
 import { C } from "../../styles/palette";
-import { satsToBTC } from "../../data/jaal";
-import type { Graph, GraphNode, GraphLink } from "../../three/graphModel";
+import { satsToBTC, usToIST, peerStats } from "../../data/jaal";
+import { Bead, Arrow } from "./LeadView";
+import { FLOOR_Y, type Jaal, type LaidNode, type Vec3 } from "../../three/jaalLayout";
 import styles from "./LeadView.module.css";
 
 /**
- * GRAPH — the whole run as one readable field (§10, signature moment #2), laid out the way
- * forensic analysts already read bitcoin: money over time. Left→right is time; a mark's
- * HEIGHT is how much value went through it; SIZE is how many IPs saw it. The transactions
- * that chain together (an output of one spent into the next) sit forward and bright — the
- * money trails — while lone transactions recede and fade. The only edges are those value
- * bridges, drawn as soft blue arcs with a packet flowing the way the money went. Hover a
- * mark to light up what it connects to; click to trace that transaction in full.
+ * GRAPH · JAAL — the whole run as ONE two-floor diorama (§10, signature moment #2), in the
+ * exact visual language of the LEAD trace so the two feel like one world:
+ *   • THE WIRE (upper floor)  — every announcing peer ▲, a calm sky of relays.
+ *   • THE BLOCKCHAIN (lower floor) — every transaction ◆, resting on the money floor.
+ *   • the fusion is REVEALED, never dumped: hover / focus a tx and its pink announce
+ *     threads rain UP to the peers that saw it, its coins fan out, its money flows light.
+ *   • focus a peer and its pink threads drop DOWN onto every tx it announced.
+ *   • focus an address and its money flows light up on the floor.
+ * Nothing crosses the floor gap except the pink threads — the thesis, made physical.
  */
 
-// value height guides — three faint rungs so "higher = more money" reads without a manual
-const RUNGS: { y: number; label: string }[] = [
-  { y: 0.08, label: "0" },
-  { y: 1.29, label: "~0.05 ₿" },
-  { y: 2.5, label: "~4 ₿" },
-];
+const WIRE_Y = FLOOR_Y;
+const MONEY_Y = -FLOOR_Y;
+const EXT_X = 3.85; // a hair beyond the layout's half-width, for the floor frames
+const EXT_Z = 1.9;
+
+type AddrRef = { id: string; pos: Vec3; label: string; sats: number };
+type Reveal = { inputs: AddrRef[]; outputs: AddrRef[]; peers: { id: string; pos: Vec3; label: string }[] };
 
 const istDate = (us: number) =>
   new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short" }).format(new Date(us / 1000));
 
-function Node({
+/** A transaction ◆ resting on the money floor — the same coral block as the trace view.
+ *  Calm at rest; lifts and labels when hovered/focused; recedes when another node owns
+ *  the frame. Click opens its full flow in TRACE. */
+function Tx({
   node,
   active,
   dim,
@@ -35,20 +40,18 @@ function Node({
   onOver,
   onOut,
 }: {
-  node: GraphNode;
+  node: LaidNode;
   active: boolean;
-  dim: boolean; // another node is hovered and this one isn't in its chain — recede
+  dim: boolean;
   onPick: () => void;
   onOver: () => void;
   onOut: () => void;
 }) {
   const [hot, setHot] = useState(false);
   const open = hot || active;
-  const linked = node.connected;
-  // linked txs (money trails) read solid & lit; lone txs sit faint so the trails lead the eye
-  const emissive = open ? 0.85 : linked ? 0.5 : 0.12;
-  const opacity = open ? 1 : linked ? 0.96 : dim ? 0.14 : 0.42;
-  const scale = (open ? 1.45 : linked ? 1 : 0.82) as number;
+  const emissive = open ? 0.5 : 0.16;
+  const opacity = open ? 1 : dim ? 0.16 : 0.9;
+  const scale = open ? 1.4 : 1;
   return (
     <group position={node.pos}>
       <mesh
@@ -69,103 +72,229 @@ function Node({
           onOut();
         }}
       >
-        <octahedronGeometry args={[node.r]} />
+        <boxGeometry args={[0.17, 0.17, 0.17]} />
         <meshStandardMaterial
           color={C.coral}
           emissive={C.coral}
           emissiveIntensity={emissive}
           transparent
           opacity={opacity}
-          roughness={0.44}
+          roughness={0.45}
           metalness={0.05}
         />
       </mesh>
       {open && (
-        <Html position={[0, node.r + 0.2, 0]} center className={styles.coinTag} pointerEvents="none" zIndexRange={[60, 0]}>
+        <Html position={[0, 0.24, 0]} center className={styles.coinTag} pointerEvents="none" zIndexRange={[60, 0]}>
           <span className={styles.addr}>{node.label.replace(/^tx:/, "")}</span>
-          <span className={styles.amt}>{node.inSats > 0 ? satsToBTC(node.inSats) : "no tracked value in"}</span>
-          <span className={styles.role} style={{ color: C.fluoroPink }}>
-            {node.announcers} {node.announcers === 1 ? "IP saw it" : "IPs saw it"}
-          </span>
+          {node.firstUs != null && <span className={styles.amt}>{istDate(node.firstUs)}</span>}
+          <span className={styles.role} style={{ color: C.risoBlue }}>click to trace</span>
         </Html>
       )}
     </group>
   );
 }
 
-// a point along a quadratic bezier (for a packet that rides the arc, not a straight chord)
-const qbez = (a: THREE.Vector3, m: THREE.Vector3, b: THREE.Vector3, t: number, out: THREE.Vector3) => {
-  const u = 1 - t;
-  return out.set(
-    u * u * a.x + 2 * u * t * m.x + t * t * b.x,
-    u * u * a.y + 2 * u * t * m.y + t * t * b.y,
-    u * u * a.z + 2 * u * t * m.z + t * t * b.z,
+/** An announcing peer ▲ on the wire floor — a quiet pink pin (beacon + down-tip), the same
+ *  object as the trace view's IP pin. A calm sky of relays at rest; brightens when it or a
+ *  tx it announced is in focus. Click pins it and drops its threads onto every tx it saw. */
+function Peer({
+  node,
+  active,
+  dim,
+  onPick,
+  onOver,
+  onOut,
+}: {
+  node: LaidNode;
+  active: boolean;
+  dim: boolean;
+  onPick: () => void;
+  onOver: () => void;
+  onOut: () => void;
+}) {
+  const [hot, setHot] = useState(false);
+  const open = hot || active;
+  const emissive = open ? 0.6 : 0.18;
+  const opacity = open ? 1 : dim ? 0.12 : 0.5;
+  const scale = open ? 1.4 : 0.82;
+  return (
+    <group position={node.pos}>
+      <group
+        scale={scale}
+        onClick={(e) => {
+          e.stopPropagation();
+          onPick();
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHot(true);
+          onOver();
+        }}
+        onPointerOut={() => {
+          setHot(false);
+          onOut();
+        }}
+      >
+        <mesh>
+          <sphereGeometry args={[0.085, 16, 16]} />
+          <meshStandardMaterial color={C.fluoroPink} emissive={C.fluoroPink} emissiveIntensity={emissive} transparent opacity={opacity} roughness={0.4} />
+        </mesh>
+        <mesh position={[0, -0.12, 0]}>
+          <coneGeometry args={[0.06, 0.16, 14]} />
+          <meshStandardMaterial color={C.fluoroPink} emissive={C.fluoroPink} emissiveIntensity={emissive * 0.6} transparent opacity={opacity} roughness={0.5} />
+        </mesh>
+      </group>
+      {open && (
+        <Html position={[0, 0.22, 0]} center className={styles.pinTag} pointerEvents="none" zIndexRange={[70, 0]}>
+          <span className={styles.addr}>{node.label.replace(/^peer:/, "")}</span>
+        </Html>
+      )}
+    </group>
   );
-};
+}
 
-/** A value bridge: a soft blue arc bowing up between two transactions, with a packet
- *  riding it in the direction the money moved. Lights up when either end is hovered. */
-function Bridge({ link, active, reduced, phase }: { link: GraphLink; active: boolean; reduced: boolean; phase: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const a = useMemo(() => new THREE.Vector3(...link.from), [link.from]);
-  const b = useMemo(() => new THREE.Vector3(...link.to), [link.to]);
-  const mid = useMemo(() => {
-    const m = a.clone().lerp(b, 0.5);
-    m.y += 0.35 + a.distanceTo(b) * 0.12; // bow up, more for longer reaches
-    m.z += 0.25;
-    return m;
-  }, [a, b]);
-  const scratch = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ clock }) => {
-    if (!ref.current) return;
-    const t = (clock.elapsedTime * 0.26 + phase) % 1;
-    qbez(a, mid, b, t, scratch);
-    ref.current.position.copy(scratch);
-  });
+/** A revealed wallet ● — small coin fanned out around a focused tx. Blue = funded it,
+ *  butter = paid by it, teal = the likely-same-owner tie. Click opens its properties. */
+function Coin({ a, color, onPick }: { a: AddrRef; color: string; onPick: () => void }) {
+  const [hot, setHot] = useState(false);
+  return (
+    <group position={a.pos}>
+      <mesh
+        scale={hot ? 1.3 : 1}
+        castShadow
+        onClick={(e) => {
+          e.stopPropagation();
+          onPick();
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHot(true);
+        }}
+        onPointerOut={() => setHot(false)}
+      >
+        <cylinderGeometry args={[0.11, 0.11, 0.06, 24]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={hot ? 0.5 : 0.14} roughness={0.5} metalness={0.05} />
+      </mesh>
+      {hot && (
+        <Html position={[0, 0.2, 0]} center className={styles.coinTag} pointerEvents="none" zIndexRange={[60, 0]}>
+          <span className={styles.addr}>{a.label.replace(/^addr:/, "")}</span>
+          {a.sats > 0 && <span className={styles.amt}>{satsToBTC(a.sats)}</span>}
+        </Html>
+      )}
+    </group>
+  );
+}
+
+/** A money flow addr↔tx: a quiet line with a packet riding the way value moved. */
+function Flow({ from, to, color, reduced, phase }: { from: Vec3; to: Vec3; color: string; reduced: boolean; phase: number }) {
   return (
     <>
-      <QuadraticBezierLine
-        start={link.from}
-        mid={[mid.x, mid.y, mid.z]}
-        end={link.to}
-        color={C.risoBlue}
-        lineWidth={active ? 2.6 : 1.4}
-        transparent
-        opacity={active ? 0.95 : 0.4}
-      />
-      {!reduced && (
-        <mesh ref={ref}>
-          <sphereGeometry args={[active ? 0.07 : 0.05, 12, 12]} />
-          <meshStandardMaterial color={C.risoBlue} emissive={C.risoBlue} emissiveIntensity={0.9} roughness={0.3} />
-        </mesh>
-      )}
+      <Line points={[from, to]} color={color} lineWidth={1.8} transparent opacity={0.7} />
+      {reduced ? <Arrow from={from} to={to} color={color} /> : <Bead from={from} to={to} color={color} phase={phase} />}
     </>
   );
 }
 
+/** The fusion, made physical: a pink announce thread from a tx up to a peer, packet rising. */
+function Thread({ from, to, reduced, phase }: { from: Vec3; to: Vec3; reduced: boolean; phase: number }) {
+  return (
+    <>
+      <Line points={[from, to]} color={C.fluoroPink} lineWidth={1.5} transparent opacity={0.85} />
+      {!reduced && <Bead from={from} to={to} color={C.fluoroPink} phase={phase} speed={0.5} size={0.045} />}
+    </>
+  );
+}
+
+/** A hairline floor frame + soft breathing so the two shelves read as real surfaces. */
+function FloorFrame({ y }: { y: number }) {
+  return (
+    <Line
+      points={[
+        [-EXT_X, y, -EXT_Z],
+        [EXT_X, y, -EXT_Z],
+        [EXT_X, y, EXT_Z],
+        [-EXT_X, y, EXT_Z],
+        [-EXT_X, y, -EXT_Z],
+      ]}
+      color={C.line}
+      lineWidth={1}
+      transparent
+      opacity={0.4}
+    />
+  );
+}
 export function GraphScene({
-  data,
+  jaal,
   reduced,
-  onPick,
+  focusId,
+  onFocus,
+  onPickTx,
   onHover,
 }: {
-  data: Graph;
+  jaal: Jaal;
   reduced: boolean;
-  onPick: (txId: string) => void;
+  focusId: string | null;
+  onFocus: (node: LaidNode | null) => void;
+  onPickTx: (txId: string) => void;
   onHover: (on: boolean) => void;
 }) {
   const [hoverId, setHoverId] = useState<string | null>(null);
 
-  // which nodes are lit while hovering: the hovered one + everything it bridges to
-  const litSet = useMemo(() => {
-    if (!hoverId) return null;
-    const s = new Set<string>([hoverId]);
-    for (const l of data.links) {
-      if (l.fromId === hoverId) s.add(l.toId);
-      if (l.toId === hoverId) s.add(l.fromId);
+  const { txs, peers } = useMemo(
+    () => ({
+      txs: jaal.nodes.filter((n) => n.kind === "transaction"),
+      peers: jaal.nodes.filter((n) => n.kind === "peer"),
+    }),
+    [jaal],
+  );
+
+  // reveal index — for a tx: its funding/paid addresses + the peers that announced it;
+  // and the reverse maps so a focused peer or address can light everything it touches.
+  const index = useMemo(() => {
+    const byTx = new Map<string, Reveal>();
+    const peerTxs = new Map<string, string[]>();
+    const addrTxs = new Map<string, string[]>();
+    const get = (id: string) => byTx.get(id) ?? byTx.set(id, { inputs: [], outputs: [], peers: [] }).get(id)!;
+    const push = (m: Map<string, string[]>, k: string, v: string) => (m.get(k) ?? m.set(k, []).get(k)!).push(v);
+    for (const e of jaal.edges) {
+      if (e.kind === "input") {
+        const addr = jaal.byId.get(e.src);
+        if (addr) get(e.dst).inputs.push({ id: addr.id, pos: addr.pos, label: addr.label, sats: e.sats ?? 0 });
+        push(addrTxs, e.src, e.dst);
+      } else if (e.kind === "output") {
+        const addr = jaal.byId.get(e.dst);
+        if (addr) get(e.src).outputs.push({ id: addr.id, pos: addr.pos, label: addr.label, sats: e.sats ?? 0 });
+        push(addrTxs, e.dst, e.src);
+      } else if (e.kind === "announce") {
+        const peer = jaal.byId.get(e.dst);
+        if (peer) get(e.src).peers.push({ id: peer.id, pos: peer.pos, label: peer.label });
+        push(peerTxs, e.dst, e.src);
+      }
+    }
+    return { byTx, peerTxs, addrTxs };
+  }, [jaal]);
+
+  // likely-same-owner partners at the current dial. In this run every claim is 0.36, so
+  // the dial is a single honest bar: at/under 0.36 the ties show, above it none survive.
+  const activeId = hoverId ?? focusId;
+  const activeNode = activeId ? jaal.byId.get(activeId) ?? null : null;
+
+  // which nodes stay lit while something owns the frame — everything else recedes
+  const lit = useMemo(() => {
+    if (!activeNode) return null;
+    const s = new Set<string>([activeNode.id]);
+    if (activeNode.kind === "transaction") {
+      const r = index.byTx.get(activeNode.id);
+      r?.peers.forEach((p) => s.add(p.id));
+      r?.inputs.forEach((a) => s.add(a.id));
+      r?.outputs.forEach((a) => s.add(a.id));
+    } else if (activeNode.kind === "peer") {
+      (index.peerTxs.get(activeNode.id) ?? []).forEach((t) => s.add(t));
+    } else {
+      (index.addrTxs.get(activeNode.id) ?? []).forEach((t) => s.add(t));
     }
     return s;
-  }, [hoverId, data.links]);
+  }, [activeNode, index]);
 
   const over = (id: string) => {
     setHoverId(id);
@@ -176,58 +305,160 @@ export function GraphScene({
     onHover(false);
   };
 
+  const txReveal = () => {
+    if (activeNode?.kind !== "transaction") return null;
+    const r = index.byTx.get(activeNode.id);
+    if (!r) return null;
+    const txPos = activeNode.pos;
+    return (
+      <group>
+        {r.inputs.map((a, i) => (
+          <Flow key={`fi${a.id}`} from={a.pos} to={txPos} color={C.risoBlue} reduced={reduced} phase={i * 0.13} />
+        ))}
+        {r.outputs.map((a, i) => (
+          <Flow key={`fo${a.id}`} from={txPos} to={a.pos} color={C.butter} reduced={reduced} phase={i * 0.17} />
+        ))}
+        {r.peers.map((p, i) => (
+          <Thread key={`th${p.id}`} from={txPos} to={p.pos} reduced={reduced} phase={i * 0.11} />
+        ))}
+        {r.inputs.map((a) => (
+          <Coin key={`ci${a.id}`} a={a} color={C.risoBlue} onPick={() => onFocus(jaal.byId.get(a.id) ?? null)} />
+        ))}
+        {r.outputs.map((a) => (
+          <Coin key={`co${a.id}`} a={a} color={C.butter} onPick={() => onFocus(jaal.byId.get(a.id) ?? null)} />
+        ))}
+      </group>
+    );
+  };
+
+  const peerReveal = () => {
+    if (activeNode?.kind !== "peer") return null;
+    return (
+      <group>
+        {(index.peerTxs.get(activeNode.id) ?? []).map((tid, i) => {
+          const t = jaal.byId.get(tid);
+          return t ? <Thread key={tid} from={t.pos} to={activeNode.pos} reduced={reduced} phase={i * 0.09} /> : null;
+        })}
+      </group>
+    );
+  };
+
+  const addrReveal = () => {
+    if (activeNode?.kind !== "address") return null;
+    return (
+      <group>
+        {(index.addrTxs.get(activeNode.id) ?? []).map((tid, i) => {
+          const t = jaal.byId.get(tid);
+          return t ? <Flow key={tid} from={activeNode.pos} to={t.pos} color={C.risoBlue} reduced={reduced} phase={i * 0.13} /> : null;
+        })}
+        <Coin a={{ id: activeNode.id, pos: activeNode.pos, label: activeNode.label, sats: 0 }} color={C.risoBlue} onPick={() => onFocus(activeNode)} />
+      </group>
+    );
+  };
+
   return (
     <group>
-      <ContactShadows position={[0, -0.02, 0]} scale={13} blur={2.8} opacity={0.16} far={5} />
+      <ContactShadows position={[0, MONEY_Y - 0.12, 0]} scale={11} blur={2.6} opacity={0.18} far={5} />
 
-      {/* value rungs — faint horizontal guides so height reads as money */}
-      {RUNGS.map((r) => (
-        <group key={r.label}>
-          <Line
-            points={[
-              [-data.xw, r.y, 0],
-              [data.xw, r.y, 0],
-            ]}
-            color={C.line}
-            lineWidth={1}
-            transparent
-            opacity={0.28}
-            dashed
-            dashScale={10}
-          />
-          <Html position={[-data.xw - 0.15, r.y, 0]} className={styles.axisTag} pointerEvents="none">
-            <span>{r.label}</span>
-          </Html>
-        </group>
-      ))}
-      <Html position={[-data.xw - 0.15, 2.5 + 0.34, 0]} className={styles.axisCap} pointerEvents="none">
-        <span>value ↑</span>
+      <FloorFrame y={WIRE_Y} />
+      <FloorFrame y={MONEY_Y} />
+
+      <Html position={[-EXT_X, WIRE_Y + 0.4, 0]} className={styles.floorTag} pointerEvents="none">
+        <span>the wire</span>
       </Html>
-
-      {/* time ticks along the baseline */}
-      {data.ticks.map((t, i) => (
-        <Html key={i} position={[t.x, -0.12, 0]} center className={styles.axisTime} pointerEvents="none">
-          <span>{istDate(t.us)}</span>
-        </Html>
-      ))}
-      <Html position={[data.xw, -0.34, 0]} center className={styles.axisTime} pointerEvents="none">
+      <Html position={[-EXT_X, MONEY_Y - 0.5, 0]} className={styles.floorTag} pointerEvents="none">
+        <span>the money</span>
+      </Html>
+      <Html position={[EXT_X, MONEY_Y - 0.5, 0]} center className={styles.axisTime} pointerEvents="none">
         <span>time →</span>
       </Html>
 
-      {data.links.map((l, i) => (
-        <Bridge key={i} link={l} active={hoverId === l.fromId || hoverId === l.toId} reduced={reduced} phase={i * 0.11} />
-      ))}
-      {data.nodes.map((n) => (
-        <Node
+      {peers.map((n) => (
+        <Peer
           key={n.id}
           node={n}
-          active={hoverId === n.id}
-          dim={litSet != null && !litSet.has(n.id)}
-          onPick={() => onPick(n.id)}
+          active={activeId === n.id}
+          dim={lit != null && !lit.has(n.id)}
+          onPick={() => onFocus(n)}
           onOver={() => over(n.id)}
           onOut={out}
         />
       ))}
+      {txs.map((n) => (
+        <Tx
+          key={n.id}
+          node={n}
+          active={activeId === n.id}
+          dim={lit != null && !lit.has(n.id)}
+          onPick={() => onPickTx(n.id)}
+          onOver={() => over(n.id)}
+          onOut={out}
+        />
+      ))}
+
+      {txReveal()}
+      {peerReveal()}
+      {addrReveal()}
     </group>
+  );
+}
+
+/** Properties-drawer body for a node focused on the GRAPH (a peer ▲ or an address ●).
+ *  Trace handles transactions; this covers the two nodes that have no flow of their own:
+ *  a peer (the relay warning) and an address (the transactions it appears in). */
+export function GraphDetail({
+  node,
+  jaal,
+}: {
+  node: LaidNode;
+  jaal: Jaal;
+}) {
+  if (node.kind === "peer") {
+    const s = peerStats.get(node.id);
+    return (
+      <div className={styles.detail}>
+        <span className={styles.dLabel} style={{ color: C.fluoroPink }}>the IP that told us ▲</span>
+        <dl className={styles.rows}>
+          <div className={styles.row}>
+            <dt>announcing IP</dt>
+            <dd className={styles.mono}>{node.label.replace(/^peer:/, "")}</dd>
+          </div>
+          <div className={styles.row}>
+            <dt>network operator (ASN)</dt>
+            <dd className={styles.mono}>{s?.asn ?? "—"}</dd>
+          </div>
+          <div className={styles.row}>
+            <dt>transactions announced</dt>
+            <dd className={styles.mono}>{s?.announced ?? 0}</dd>
+          </div>
+          <div className={styles.row}>
+            <dt>earliest heard</dt>
+            <dd className={styles.mono}>{s?.earliestUs != null ? usToIST(s.earliestUs) : "—"}</dd>
+          </div>
+        </dl>
+        <p className={styles.warn}>An IP that told us, usually a relay, not the sender.</p>
+      </div>
+    );
+  }
+
+  // address ● — the transactions it appears in
+  const txCount = new Set(
+    jaal.edges.filter((e) => (e.kind === "input" && e.src === node.id) || (e.kind === "output" && e.dst === node.id)).map((e) => (e.kind === "input" ? e.dst : e.src)),
+  ).size;
+  return (
+    <div className={styles.detail}>
+      <span className={styles.dLabel} style={{ color: C.risoBlue }}>an address ●</span>
+      <dl className={styles.rows}>
+        <div className={styles.row}>
+          <dt>address</dt>
+          <dd className={styles.mono}>{node.label.replace(/^addr:/, "")}</dd>
+        </div>
+        <div className={styles.row}>
+          <dt>appears in</dt>
+          <dd className={styles.mono}>{txCount} transaction{txCount === 1 ? "" : "s"}</dd>
+        </div>
+      </dl>
+      <p className={styles.honest}>A wallet address in the run. Focus it to light the transactions it touches.</p>
+    </div>
   );
 }
