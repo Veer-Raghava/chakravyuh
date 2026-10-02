@@ -1,0 +1,201 @@
+{
+  "source": "research/bitcoin/results/drishti-r47-graph-training/report.json",
+  "models": [
+    {
+      "name": "Local XGBoost",
+      "ap": 0.05378719747060974,
+      "p20": 0.55,
+      "observation": "Our tabular control."
+    },
+    {
+      "name": "Static typed GNN",
+      "ap": 0.2601945828096873,
+      "p20": 0.8,
+      "observation": "Aligned relation context improved AP over the local control."
+    },
+    {
+      "name": "Temporal typed GNN + GRU",
+      "ap": 0.2879465984554304,
+      "p20": 0.95,
+      "observation": "Selected using validation, with inter-window address memory."
+    },
+    {
+      "name": "Shuffled-relation GNN",
+      "ap": 0.0777607654538502,
+      "p20": 0.45,
+      "observation": "Disrupting graph alignment substantially reduced AP."
+    },
+    {
+      "name": "Temporal GNN \u2192 XGBoost",
+      "ap": 0.2675229218358317,
+      "p20": 0.9,
+      "observation": "Combined learned temporal embeddings with local features; validation selected the direct GRU head in this replay."
+    }
+  ],
+  "seconds": 26.35762336500011,
+  "richSource": "research/bitcoin/results/relational-summary-controls/report.json",
+  "richModels": [
+    {
+      "name": "Address XGBoost + graph context",
+      "ap": 0.31480729542780783,
+      "p20": 1.0,
+      "observation": "329 engineered inputs; one subject per address."
+    },
+    {
+      "name": "Address LightGBM + graph context",
+      "ap": 0.20106430501726827,
+      "p20": 0.4,
+      "observation": "Same 329-input recipe and address representation."
+    },
+    {
+      "name": "Grouped XGBoost + graph context",
+      "ap": 0.3228382214929648,
+      "p20": 0.9,
+      "observation": "Common-input ownership groups; different evaluation subjects."
+    },
+    {
+      "name": "Grouped LightGBM + graph context",
+      "ap": 0.2846858326342816,
+      "p20": 0.95,
+      "observation": "329 inputs on common-input ownership groups."
+    }
+  ],
+  "ellipticSource": "research/bitcoin/results/elliptic-graph-benchmark.json",
+  "ellipticModels": [
+    {
+      "name": "LightGBM + graph features",
+      "ap": 0.6566006800389258,
+      "p20": 1.0,
+      "observation": "188 local and neighbor inputs; strongest AP among these tested configurations."
+    },
+    {
+      "name": "GCN embeddings \u2192 LightGBM",
+      "ap": 0.6464386007327577,
+      "p20": 1.0,
+      "observation": "Trained neural representation combined with local transaction features."
+    },
+    {
+      "name": "Local LightGBM",
+      "ap": 0.6366366782627713,
+      "p20": 1.0,
+      "observation": "Matched 93-input local-feature control."
+    },
+    {
+      "name": "Local XGBoost",
+      "ap": 0.6431852730336163,
+      "p20": 1.0,
+      "observation": "Matched local-feature tree alternative."
+    }
+  ],
+  "recoverySource": "research/bitcoin/results/ranking-recovery-analysis/report.json",
+  "recoveryModels": [
+    {
+      "name": "Graph-context XGBoost",
+      "ap": 0.31480729542780783,
+      "budgets": {
+        "20": {
+          "reviewed": 20,
+          "hits": 20,
+          "precision": 1.0,
+          "recall": 0.06779661016949153
+        },
+        "50": {
+          "reviewed": 50,
+          "hits": 43,
+          "precision": 0.86,
+          "recall": 0.14576271186440679
+        },
+        "100": {
+          "reviewed": 100,
+          "hits": 68,
+          "precision": 0.68,
+          "recall": 0.2305084745762712
+        },
+        "500": {
+          "reviewed": 500,
+          "hits": 115,
+          "precision": 0.23,
+          "recall": 0.3898305084745763
+        },
+        "1000": {
+          "reviewed": 1000,
+          "hits": 154,
+          "precision": 0.154,
+          "recall": 0.5220338983050847
+        }
+      }
+    },
+    {
+      "name": "Temporal GNN",
+      "ap": 0.2879465984554304,
+      "budgets": {
+        "20": {
+          "reviewed": 20,
+          "hits": 19,
+          "precision": 0.95,
+          "recall": 0.06440677966101695
+        },
+        "50": {
+          "reviewed": 50,
+          "hits": 45,
+          "precision": 0.9,
+          "recall": 0.15254237288135594
+        },
+        "100": {
+          "reviewed": 100,
+          "hits": 55,
+          "precision": 0.55,
+          "recall": 0.1864406779661017
+        },
+        "500": {
+          "reviewed": 500,
+          "hits": 114,
+          "precision": 0.228,
+          "recall": 0.3864406779661017
+        },
+        "1000": {
+          "reviewed": 1000,
+          "hits": 130,
+          "precision": 0.13,
+          "recall": 0.4406779661016949
+        }
+      }
+    },
+    {
+      "name": "75% tree + 25% GNN",
+      "ap": 0.3380725022937689,
+      "budgets": {
+        "20": {
+          "reviewed": 20,
+          "hits": 20,
+          "precision": 1.0,
+          "recall": 0.06779661016949153
+        },
+        "50": {
+          "reviewed": 50,
+          "hits": 41,
+          "precision": 0.82,
+          "recall": 0.13898305084745763
+        },
+        "100": {
+          "reviewed": 100,
+          "hits": 68,
+          "precision": 0.68,
+          "recall": 0.2305084745762712
+        },
+        "500": {
+          "reviewed": 500,
+          "hits": 128,
+          "precision": 0.256,
+          "recall": 0.43389830508474575
+        },
+        "1000": {
+          "reviewed": 1000,
+          "hits": 158,
+          "precision": 0.158,
+          "recall": 0.535593220338983
+        }
+      }
+    }
+  ]
+}

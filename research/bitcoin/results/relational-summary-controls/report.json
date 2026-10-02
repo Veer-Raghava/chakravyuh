@@ -1,0 +1,322 @@
+{
+  "features": 329,
+  "limitations": [
+    "Consumed synthetic world; supplementary strong baseline, not new confirmation.",
+    "Two-hop input/announcement context includes self contributions and collaborator addresses.",
+    "All statistics label-free; float64 accumulation, fit-only base type scaling.",
+    "Distributions summarized by four moments/extrema, not complete neighbor identities/order.",
+    "Controller/workload projection required before production comparison."
+  ],
+  "models": {
+    "address": {
+      "lightgbm_distribution_features": {
+        "score_artifact": "research/bitcoin/results/relational-summary-controls/address/lightgbm_distribution_features-scores.parquet",
+        "score_sha256": "abadbaff1549e3a4b6b77ae397d03b6471922ba13289f1b7d5e4b2e9fcbc8b27",
+        "test": {
+          "ap": 0.20106430501726827,
+          "auc": 0.9060958472935358,
+          "brier": 0.005646177324517707,
+          "hits_at_20": 8,
+          "hits_at_50": 31,
+          "n": 57105,
+          "p_at_20": 0.4,
+          "p_at_50": 0.62,
+          "positives": 295,
+          "prevalence": 0.005165922423605639,
+          "r_at_20": 0.02711864406779661,
+          "r_at_50": 0.10508474576271186
+        },
+        "test_by_window": {
+          "7": {
+            "ap": 0.08227723564538313,
+            "auc": 0.8971731554706833,
+            "brier": 0.0074510859542443065,
+            "hits_at_20": 4,
+            "hits_at_50": 4,
+            "n": 16167,
+            "p_at_20": 0.2,
+            "p_at_50": 0.08,
+            "positives": 108,
+            "prevalence": 0.006680274633512711,
+            "r_at_20": 0.037037037037037035,
+            "r_at_50": 0.037037037037037035
+          },
+          "8": {
+            "ap": 0.4586325435818992,
+            "auc": 0.9118789351596156,
+            "brier": 0.006916722893481144,
+            "hits_at_20": 20,
+            "hits_at_50": 38,
+            "n": 20762,
+            "p_at_20": 1.0,
+            "p_at_50": 0.76,
+            "positives": 187,
+            "prevalence": 0.009006839418167807,
+            "r_at_20": 0.10695187165775401,
+            "r_at_50": 0.20320855614973263
+          },
+          "9": {
+            "ap": null,
+            "auc": null,
+            "brier": 0.0028924588015394755,
+            "hits_at_20": 0,
+            "hits_at_50": 0,
+            "n": 20176,
+            "p_at_20": 0.0,
+            "p_at_50": 0.0,
+            "positives": 0,
+            "prevalence": 0.0,
+            "r_at_20": null,
+            "r_at_50": null
+          }
+        },
+        "validation": {
+          "ap": 0.2526400839791407,
+          "auc": 0.8918892677309369,
+          "brier": 0.010428908263679051,
+          "hits_at_20": 4,
+          "hits_at_50": 26,
+          "n": 16726,
+          "p_at_20": 0.2,
+          "p_at_50": 0.52,
+          "positives": 201,
+          "prevalence": 0.012017218701422935,
+          "r_at_20": 0.01990049751243781,
+          "r_at_50": 0.12935323383084577
+        }
+      },
+      "xgboost_distribution_features": {
+        "score_artifact": "research/bitcoin/results/relational-summary-controls/address/xgboost_distribution_features-scores.parquet",
+        "score_sha256": "92e359e29927b88f8d8d656a386df7d01e96853528a5d4b0c80b490a16aa218f",
+        "test": {
+          "ap": 0.31480729542780783,
+          "auc": 0.9366933190921867,
+          "brier": 0.005575529063008068,
+          "hits_at_20": 20,
+          "hits_at_50": 43,
+          "n": 57105,
+          "p_at_20": 1.0,
+          "p_at_50": 0.86,
+          "positives": 295,
+          "prevalence": 0.005165922423605639,
+          "r_at_20": 0.06779661016949153,
+          "r_at_50": 0.14576271186440679
+        },
+        "test_by_window": {
+          "7": {
+            "ap": 0.10295477763097247,
+            "auc": 0.9266008099761759,
+            "brier": 0.007091963427818894,
+            "hits_at_20": 2,
+            "hits_at_50": 5,
+            "n": 16167,
+            "p_at_20": 0.1,
+            "p_at_50": 0.1,
+            "positives": 108,
+            "prevalence": 0.006680274633512711,
+            "r_at_20": 0.018518518518518517,
+            "r_at_50": 0.046296296296296294
+          },
+          "8": {
+            "ap": 0.5455155117280557,
+            "auc": 0.943458197152715,
+            "brier": 0.006791263645567569,
+            "hits_at_20": 20,
+            "hits_at_50": 49,
+            "n": 20762,
+            "p_at_20": 1.0,
+            "p_at_50": 0.98,
+            "positives": 187,
+            "prevalence": 0.009006839418167807,
+            "r_at_20": 0.10695187165775401,
+            "r_at_50": 0.2620320855614973
+          },
+          "9": {
+            "ap": null,
+            "auc": null,
+            "brier": 0.003109367495849217,
+            "hits_at_20": 0,
+            "hits_at_50": 0,
+            "n": 20176,
+            "p_at_20": 0.0,
+            "p_at_50": 0.0,
+            "positives": 0,
+            "prevalence": 0.0,
+            "r_at_20": null,
+            "r_at_50": null
+          }
+        },
+        "validation": {
+          "ap": 0.32871098421757483,
+          "auc": 0.9117259391394014,
+          "brier": 0.009790497078688247,
+          "hits_at_20": 13,
+          "hits_at_50": 34,
+          "n": 16726,
+          "p_at_20": 0.65,
+          "p_at_50": 0.68,
+          "positives": 201,
+          "prevalence": 0.012017218701422935,
+          "r_at_20": 0.06467661691542288,
+          "r_at_50": 0.1691542288557214
+        }
+      }
+    },
+    "cioh": {
+      "lightgbm_distribution_features": {
+        "score_artifact": "research/bitcoin/results/relational-summary-controls/cioh/lightgbm_distribution_features-scores.parquet",
+        "score_sha256": "7b9de1eb285ea74cbfcfe02be6709806bb30d3a8bb718f5e9d76452c946360ae",
+        "test": {
+          "ap": 0.2846858326342816,
+          "auc": 0.8823507189451714,
+          "brier": 0.005728709022872335,
+          "hits_at_20": 19,
+          "hits_at_50": 30,
+          "n": 42006,
+          "p_at_20": 0.95,
+          "p_at_50": 0.6,
+          "positives": 223,
+          "prevalence": 0.005308765414464601,
+          "r_at_20": 0.08520179372197309,
+          "r_at_50": 0.13452914798206278
+        },
+        "test_by_window": {
+          "7": {
+            "ap": 0.11500505711880654,
+            "auc": 0.8432275528214933,
+            "brier": 0.007507479163110793,
+            "hits_at_20": 7,
+            "hits_at_50": 10,
+            "n": 12206,
+            "p_at_20": 0.35,
+            "p_at_50": 0.2,
+            "positives": 87,
+            "prevalence": 0.007127642143208259,
+            "r_at_20": 0.08045977011494253,
+            "r_at_50": 0.11494252873563218
+          },
+          "8": {
+            "ap": 0.5208836297384681,
+            "auc": 0.9133171062194594,
+            "brier": 0.006751709045613175,
+            "hits_at_20": 20,
+            "hits_at_50": 45,
+            "n": 15352,
+            "p_at_20": 1.0,
+            "p_at_50": 0.9,
+            "positives": 136,
+            "prevalence": 0.008858780614903595,
+            "r_at_20": 0.14705882352941177,
+            "r_at_50": 0.33088235294117646
+          },
+          "9": {
+            "ap": null,
+            "auc": null,
+            "brier": 0.0031389550997779256,
+            "hits_at_20": 0,
+            "hits_at_50": 0,
+            "n": 14448,
+            "p_at_20": 0.0,
+            "p_at_50": 0.0,
+            "positives": 0,
+            "prevalence": 0.0,
+            "r_at_20": null,
+            "r_at_50": null
+          }
+        },
+        "validation": {
+          "ap": 0.2697126508471545,
+          "auc": 0.8937832055315488,
+          "brier": 0.011317913268448642,
+          "hits_at_20": 10,
+          "hits_at_50": 24,
+          "n": 12388,
+          "p_at_20": 0.5,
+          "p_at_50": 0.48,
+          "positives": 165,
+          "prevalence": 0.013319341298030352,
+          "r_at_20": 0.06060606060606061,
+          "r_at_50": 0.14545454545454545
+        }
+      },
+      "xgboost_distribution_features": {
+        "score_artifact": "research/bitcoin/results/relational-summary-controls/cioh/xgboost_distribution_features-scores.parquet",
+        "score_sha256": "40dccf6949c73deef72567c73d51af5f84fb552a048037554324a6d4dcf6de5d",
+        "test": {
+          "ap": 0.3228382214929648,
+          "auc": 0.9116140739539511,
+          "brier": 0.00577179539157468,
+          "hits_at_20": 18,
+          "hits_at_50": 36,
+          "n": 42006,
+          "p_at_20": 0.9,
+          "p_at_50": 0.72,
+          "positives": 223,
+          "prevalence": 0.005308765414464601,
+          "r_at_20": 0.08071748878923767,
+          "r_at_50": 0.16143497757847533
+        },
+        "test_by_window": {
+          "7": {
+            "ap": 0.10572613578631722,
+            "auc": 0.8964374360389737,
+            "brier": 0.007408030912165493,
+            "hits_at_20": 5,
+            "hits_at_50": 9,
+            "n": 12206,
+            "p_at_20": 0.25,
+            "p_at_50": 0.18,
+            "positives": 87,
+            "prevalence": 0.007127642143208259,
+            "r_at_20": 0.05747126436781609,
+            "r_at_50": 0.10344827586206896
+          },
+          "8": {
+            "ap": 0.6022447966110013,
+            "auc": 0.9280701042246551,
+            "brier": 0.006554697044983585,
+            "hits_at_20": 20,
+            "hits_at_50": 46,
+            "n": 15352,
+            "p_at_20": 1.0,
+            "p_at_50": 0.92,
+            "positives": 136,
+            "prevalence": 0.008858780614903595,
+            "r_at_20": 0.14705882352941177,
+            "r_at_50": 0.3382352941176471
+          },
+          "9": {
+            "ap": null,
+            "auc": null,
+            "brier": 0.0035575791022983134,
+            "hits_at_20": 0,
+            "hits_at_50": 0,
+            "n": 14448,
+            "p_at_20": 0.0,
+            "p_at_50": 0.0,
+            "positives": 0,
+            "prevalence": 0.0,
+            "r_at_20": null,
+            "r_at_50": null
+          }
+        },
+        "validation": {
+          "ap": 0.354156795716086,
+          "auc": 0.8984024157140414,
+          "brier": 0.010296402999052752,
+          "hits_at_20": 11,
+          "hits_at_50": 33,
+          "n": 12388,
+          "p_at_20": 0.55,
+          "p_at_50": 0.66,
+          "positives": 165,
+          "prevalence": 0.013319341298030352,
+          "r_at_20": 0.06666666666666667,
+          "r_at_50": 0.2
+        }
+      }
+    }
+  },
+  "seconds": 33.974648760000036,
+  "source_sha256": "aebf6cf734879ee5914e4e4650e20b761812e3a9cf012d0a2a934cdca4b5847f"
+}

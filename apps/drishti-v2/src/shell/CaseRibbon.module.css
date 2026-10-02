@@ -1,0 +1,10 @@
+.ribbon { display: flex; gap: 2rem; align-items: center; padding: 1rem 2rem; border-bottom: 1px solid var(--line); background: var(--paper-deep); }
+.intent { flex: 1; }
+.layer { display: inline-block; font: 600 .92rem var(--font-mono); letter-spacing: .1em; color: var(--riso-blue); margin-right: 1rem; }
+.intent strong { font: 600 1.25rem var(--font-display); }
+.intent p { margin: .4rem 0 0; color: var(--ink-soft); font: .9rem var(--font-text); }
+.context { display: grid; gap: .3rem; font: .76rem var(--font-mono); border-left: 1px solid var(--line); padding-left: 1rem; }
+.context span { color: var(--ink-soft); }
+.context button { border: none; background: transparent; color: var(--riso-blue); text-align: left; padding: 0; cursor: pointer; font: .8rem var(--font-text); }
+.actions button { border: 1px solid var(--riso-blue); background: var(--riso-blue); color: var(--paper); border-radius: 5px; padding: .7rem 1rem; cursor: pointer; font: 600 .85rem var(--font-text); }
+@media(max-width: 850px) { .ribbon { flex-wrap: wrap; gap: .7rem; padding: .85rem 1rem; } .intent { flex-basis: 100%; } .intent p { font-size: .8rem; } .context { flex: 1; border: none; padding: 0; } }

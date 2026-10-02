@@ -1,0 +1,1197 @@
+{
+  "checkpoint": "R46",
+  "python": "3.11.16",
+  "node": "v26.7.0",
+  "artifacts": [
+    {
+      "path": "PROGRESS.md",
+      "bytes": 78993,
+      "sha256": "051237f1a70a5ec547bbf78fcf291d7470ab9d604fd634602fffd2c4d0ae0b19"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/README.md",
+      "bytes": 1063,
+      "sha256": "30296d196da4b859555ffd095095f91407999cd551ed87b64a4afbc40630047f"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/_sweep-0.02-CPhALWK_.js",
+      "bytes": 1722962,
+      "sha256": "b2e7b418cb22a72b3498e20e60367c7cb0f2d701994a86e500859db2c2dff0e8"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/_sweep-0.05-CrtBdHoL.js",
+      "bytes": 2034418,
+      "sha256": "4105d76bb082482682aeb959def43cd44ee1863790ae877faf2aefcc918f1e80"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/_sweep-0.10-DE4gr50h.js",
+      "bytes": 2485116,
+      "sha256": "23a403da7775c4f45b591710d5e377f1c81f2d9f34f18a84e7f5c0b1af848a85"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/_sweep-0.25-S7qX1gwm.js",
+      "bytes": 2830989,
+      "sha256": "99454c06e548866aca9e05d9ce755fa2520a3f079b48b0f7a6b8a9deee84d0ea"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/_sweep-0.50-Cr8XJUjY.js",
+      "bytes": 3490558,
+      "sha256": "79baec4fbc31d01e243105cff26e635d5e6344d3eb2bd04c04ab83dcb40dbda4"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/_sweep-0.60-DW0igxJj.js",
+      "bytes": 3674994,
+      "sha256": "a53f1243a55334c963f780dc48f82a0e6c065b54be84cbd3f127316a751d6832"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/_sweep-0.70-DbvpE7Q6.js",
+      "bytes": 3866119,
+      "sha256": "5e80fbd66071451eb3a077c8fa670acde48da56235a9e1d6bac47fefd7a38f2e"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/geo/coastline-110m.geojson",
+      "bytes": 139907,
+      "sha256": "851f581ff5ffb844deed8ae1a9ce22e3c4bb3d74fa342cadb5d8e39b41ae7c3c"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/index-BdqM_aE6.js",
+      "bytes": 8166602,
+      "sha256": "907357f393b389c46a4b94de0ab52429c6f66b26e634285e7101572dd06e4c8c"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/index-Dn4CtG96.css",
+      "bytes": 94289,
+      "sha256": "464178f2b3a207d91f45ec1d026872d739f34fe7868b5e74058da2b073e9f9e1"
+    },
+    {
+      "path": "apps/drishti-v2/dist/assets/models/diya-placeholder.ts",
+      "bytes": 971,
+      "sha256": "233d5c998492a0554a23346749a9ee7c5de1a7b22b14ca3817b72611c597c7b5"
+    },
+    {
+      "path": "apps/drishti-v2/dist/favicon.svg",
+      "bytes": 417,
+      "sha256": "e3b01250a7cbf31f88013f78da7a09052138a0558ecc98b59b26e27a4b468dbf"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/Fraunces-400.woff2",
+      "bytes": 17968,
+      "sha256": "e558f39453a9c611908be04294b50dea5f21ae6c49b41c6e47f4115e91f90209"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/Fraunces-600.woff2",
+      "bytes": 18096,
+      "sha256": "3a1de7711d147bad4422825045f87597fd77cca72e7c96d3b0a81735d00dda82"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/Hanken-400.woff2",
+      "bytes": 13460,
+      "sha256": "787b3fdd0b7e6d59ae7ce14ce7a41d1a44616584b4c919b527da951972d5d87d"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/Hanken-500.woff2",
+      "bytes": 13796,
+      "sha256": "31f666af7bff625900c46aa34a05d8620482ba2db37db7b63749b693ab0c72ec"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/Hanken-600.woff2",
+      "bytes": 13780,
+      "sha256": "58f23b7ae3e13b21a4dca4c05360be87b3531d60fc1cbff89732cac8fb3019ae"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/IBMPlexMono-Medium.woff2",
+      "bytes": 14988,
+      "sha256": "756026ff72eb76fd971ac4b7504cec55eef62109d2684c2cad8da32170b80b37"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/IBMPlexMono-Regular.woff2",
+      "bytes": 14812,
+      "sha256": "3c5a451f9ec27a354b0c2bcca636c6ec17a651281aabf29f8427e210a1d31e85"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/IBMPlexMono-SemiBold.woff2",
+      "bytes": 15704,
+      "sha256": "c4d3deb734a27e6d0dc7a6b464779f70ba1c272e26287860a14e35e85acb5b76"
+    },
+    {
+      "path": "apps/drishti-v2/dist/fonts/fonts.css",
+      "bytes": 1564,
+      "sha256": "aa49a4ee599082b4785c7606377536d672afe915df70edc39e3b9c157d5a0812"
+    },
+    {
+      "path": "apps/drishti-v2/dist/index.html",
+      "bytes": 628,
+      "sha256": "58d53298eed01089a1eae9c06d8d72c0267bf0efd85967feb29cf22d9e8afff1"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/.jpg",
+      "bytes": 101242,
+      "sha256": "2dc6b5edd4cc128adeb0f36c1dda1915b4d0a71e285070c0443cd0772e258312"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/README.md",
+      "bytes": 480,
+      "sha256": "fd0a50c0b80c3f8f5c04e284cc42f57ac553ebc4db1298a8272182027e978403"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/chakravyuh.jpg",
+      "bytes": 101242,
+      "sha256": "2dc6b5edd4cc128adeb0f36c1dda1915b4d0a71e285070c0443cd0772e258312"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/packet-BEFORE.png.png",
+      "bytes": 639255,
+      "sha256": "89b15d733c2407cc7f19e9c1cd75ea7a7567e75ed5f21a1f44f7bdd98ef8e981"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-1.png",
+      "bytes": 368812,
+      "sha256": "949cc0f86f10d32a02859855ff0f77e40fb021d699a51dd482cf8bf8fdc62a39"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-10.png",
+      "bytes": 186016,
+      "sha256": "79726a6ad9318c7491851f1cd894a0822ca626519584856d02b51b616da82e9f"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-2.png",
+      "bytes": 262240,
+      "sha256": "7777730bbe890a20b3d61398f7cea4be817b6a69cf4377ae7456321cb12fec73"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-3.png",
+      "bytes": 1108460,
+      "sha256": "eff4bc6605c396e3e89e8d4d607cad52e3a94523899f7f2cb8a3026153135cfa"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-4.png",
+      "bytes": 338266,
+      "sha256": "641ec4dee00a590a0155af144427875113d4d5a662701188a105c0d51c32b5b4"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-5.png",
+      "bytes": 117816,
+      "sha256": "e4931bc60fb61eb792a4ade22c9d22f7a36c1edc03611bd8b9ac8b20b32c72f5"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-6.png",
+      "bytes": 174782,
+      "sha256": "dfe5f14a2a7b3d990726269f69b5032b05fb954a65d79a5f6dc6ef322fbe156f"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-7.png",
+      "bytes": 141374,
+      "sha256": "d8a9ec02b551e826357d8a65b6cb7a115d6a17a42f3a056b32f6ee546c06fc03"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-8.png",
+      "bytes": 854448,
+      "sha256": "3ba1e1b686e76dcfe53a7c8906e6a7c9e623b14288beebaaff8cc02dc47c6948"
+    },
+    {
+      "path": "apps/drishti-v2/dist/refs/study-9.png",
+      "bytes": 449751,
+      "sha256": "aefdb8a2cc42549c73fc8a9d3751a324a5bc38ea2b430c926fd5fe9ea97dbde0"
+    },
+    {
+      "path": "apps/drishti-v2/package-lock.json",
+      "bytes": 93221,
+      "sha256": "c562fafff6680a1fc6c64455c3d5a01d1b66eb3af20239391f31133ff4952f05"
+    },
+    {
+      "path": "apps/drishti-v2/package.json",
+      "bytes": 700,
+      "sha256": "7b46a3847c6ca78089f240da29b3008fcd117b169f548091d8edad58ba9e333f"
+    },
+    {
+      "path": "apps/drishti-v2/src/App.module.css",
+      "bytes": 752,
+      "sha256": "890aaa4e87337b78732c0f9a700692be68f234aaa52873d398d1ecf5c651c7f2"
+    },
+    {
+      "path": "apps/drishti-v2/src/App.tsx",
+      "bytes": 3605,
+      "sha256": "73c532363b4201c2a427600e13f4180cad986e94ac964d060e42fb4d53b5051c"
+    },
+    {
+      "path": "apps/drishti-v2/src/auth/Login.module.css",
+      "bytes": 3636,
+      "sha256": "9ef18f35bf9630cf766f2f3ecc82235d9c23d0cbb3ca4ca0e8c1b2ca97a874d3"
+    },
+    {
+      "path": "apps/drishti-v2/src/auth/Login.tsx",
+      "bytes": 2921,
+      "sha256": "4c374e89c2523fbb531c2f103a1878ed2608ebaa06837924419eef4c8ee20262"
+    },
+    {
+      "path": "apps/drishti-v2/src/auth/LoginLensBackdrop.tsx",
+      "bytes": 1066,
+      "sha256": "2cb5c9833d1d49cac803bf6bd148efb16fa2d08726f3a84029ebabcb23bb55f8"
+    },
+    {
+      "path": "apps/drishti-v2/src/auth/fixtureUser.ts",
+      "bytes": 492,
+      "sha256": "ea97fa7ed874ef8b54ef723910ec14e56327cae48cb9c01542e6b761386f277b"
+    },
+    {
+      "path": "apps/drishti-v2/src/components/AlertCard.module.css",
+      "bytes": 4033,
+      "sha256": "f3a03bb7217ac2a120e5355c570a20afe7e9b670e51129fc9c9308a4d5976de4"
+    },
+    {
+      "path": "apps/drishti-v2/src/components/AlertCard.tsx",
+      "bytes": 5753,
+      "sha256": "7568c4060a2f14fda776387c4258935d53ef925e7b7a8d7ff3654d84376d3542"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/RunContext.tsx",
+      "bytes": 6268,
+      "sha256": "405c5d1bc7fc5298dfa62a5df453ee2ef828e15ab8c255d7e6c43effcafe92a4"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/alert.json",
+      "bytes": 17230,
+      "sha256": "11fffee95daf82799acdd95409d2d9c5745c7e2016133b3f20e2fc27215a9ca8"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/alerts.json",
+      "bytes": 151301,
+      "sha256": "d7dbc6581d429e6c4ec8590ce3e940143ab4255da915103834fb557caaa23c9c"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/collapse.json",
+      "bytes": 21191,
+      "sha256": "38766bcc996cef230bd8adce1eea0c0b0365c51b36f7d30b057d3e7a0e0aed0f"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/graph-actor.json",
+      "bytes": 1148455,
+      "sha256": "1137b21b4eaf4fa64d06bf27a4e87e6edb6d84575bad7583b97f73c94d247db9"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/graph-address.json",
+      "bytes": 330642,
+      "sha256": "6c0309da4d67e3c44999698a34e6330e140449e610905cbc4c045f5b4b84ed32"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/graph.json",
+      "bytes": 1265352,
+      "sha256": "e7e20c637e8c7a1a0a8c8ba5530be49e5b428eb103902cd1ce2f78ceb68931e8"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/manifest.json",
+      "bytes": 4339,
+      "sha256": "5f772e2e2e8eb0f7fd41671b6bf5d45b71d4f8e3fb801660e5e7e90832970db6"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/origin-abstain.json",
+      "bytes": 12156,
+      "sha256": "5acd84957ac5baf14ea5e4637c030738be1ccf5a72ebd1a6216b23980cc282ad"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/origin.json",
+      "bytes": 14967,
+      "sha256": "82976fa616b38b328aba0f888e6be671fc3656bb04116a358abf52a9d73b9c11"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/packet.json",
+      "bytes": 13667,
+      "sha256": "420f9fab252e35860fbcb0e1c906a9cd100345cac6024c928fa6f438fd991628"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/research-leads-window7.json",
+      "bytes": 164636,
+      "sha256": "249b7051cd57c4edabbaba5c5a03363b3256bc0babbf5dc504113b6c46b58a33"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/research-leads-window9.json",
+      "bytes": 177613,
+      "sha256": "e27b00e19e207454d43051320d8f036589154fd430f304c6dcaaa0f0b4e0d6dc"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/research-leads.json",
+      "bytes": 125355,
+      "sha256": "e4aebb7ad5ed889e55ff2e03e8dc747c5775b6e72868aee22bcf27c9c8ae8ad2"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/research-progress.json",
+      "bytes": 363,
+      "sha256": "086eda70174ff5782c86e11e912c1d723147dd1fe9a1716cc6d9f94d57a6d346"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/_sweep-0.02.json",
+      "bytes": 1876554,
+      "sha256": "4049ecac98f1d9dd855bff6d32e94b95df25137651e7cfef17f64cce7b530a7c"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/_sweep-0.05.json",
+      "bytes": 2216788,
+      "sha256": "1b4d06dc44806c0316e2e4960cc26c11cf4d0206344a3f0d541346ed074b99ef"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/_sweep-0.10.json",
+      "bytes": 2716599,
+      "sha256": "295be65c35bd48c13fd082e37ed8e5cb8973e6ff770bb22f504c39f9aeaddf91"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/_sweep-0.25.json",
+      "bytes": 3095047,
+      "sha256": "5710de68fabf43c828a77b3ddbf85a6a1dd9eccf2acba46d8951006fda832fdf"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/_sweep-0.50.json",
+      "bytes": 3821164,
+      "sha256": "1a3b010309234f949fbb54c3df88ef3c822bd3fe72eb89e8dd9e6e96cf3006ca"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/_sweep-0.60.json",
+      "bytes": 4024399,
+      "sha256": "8cc2576d951aafcc837b7e877decd267b5bdbc0e44e8f094ecf7ba360b388724"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/_sweep-0.70.json",
+      "bytes": 4234492,
+      "sha256": "8eacce77bcdd11a9d7645ae65a6df57d721016c9c2c74490b9ad808248e1e4fd"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/agency-v2.json",
+      "bytes": 4894011,
+      "sha256": "57ccbcd2ab4224148171669f2045b74b0b797f9dca89d6bd6c8823c35cd6cc79"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/catalog.json",
+      "bytes": 11965,
+      "sha256": "475edce0f04d4a9fc146c3c33a9fd544d1735a3f4d1f9a547c6233087c11fd31"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/run-A.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/run-a.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/s04-demo.json",
+      "bytes": 2325250,
+      "sha256": "55ca8a8c1eae2e2cae784a7b9ceecc75b43103070403039461e6a979327e46fd"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/s10-canonical.json",
+      "bytes": 3709656,
+      "sha256": "ad8e787c0cca48128015a971f049f02ee9d5714efa7e00d584d4e9a14ead8971"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/s10-demo.json",
+      "bytes": 3613743,
+      "sha256": "5ab544cda05ea5891d69654e3345c99d3f7f93bad862e4bd7229d7ac0dea87fc"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/s11-demo.json",
+      "bytes": 2870580,
+      "sha256": "01056271ed7698a9cf03d4af4459f3d64363d74ecce4df1ca0a33626289da048"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/s11-test.json",
+      "bytes": 2292467,
+      "sha256": "530aefc17e3c9c0052fc26ea426a621ab7067c2ce9e797107728ecab73c475a2"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/runs/s12-canonical.json",
+      "bytes": 3592076,
+      "sha256": "6c4c9a8ecec5964b0cf1c4cca054f1d4dbccc719aaec7dd3b85ccf62f3120104"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/stealth/origin-abstain.json",
+      "bytes": 3435,
+      "sha256": "5c569a445c3f2c74da1eaafb34cf4ca6500a66ccba17cf5adedf680c838be06f"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/stealth/origin.json",
+      "bytes": 5877,
+      "sha256": "449728939b832ad858e9c40290872035d82e99a7efc18e72090c52dc4127c193"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/stealth/world.json",
+      "bytes": 4118,
+      "sha256": "41603b28dc2786e20f6842d2ac8805a8bf837c0da7d697fa7c10fcaf4565d574"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/transactions.json",
+      "bytes": 84117,
+      "sha256": "f98b3b9a54bee1a62ba5b7cbd3d89683bf04f9c4a14cc7446181a09ee940f290"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/fixtures/world.json",
+      "bytes": 4195,
+      "sha256": "7801d19985aa9c26334f12767d8e16b71edad0bdb3989206faccb9d788697a7e"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/globe.ts",
+      "bytes": 7386,
+      "sha256": "4729c29e3d88036782e3dad785ad8c9a658dead760f6298c7653c86e5d2e504d"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/jaal.ts",
+      "bytes": 3078,
+      "sha256": "d94847aaa6f711b8b658d424e30e31017d12fe35fec15764d642dd472d4b21e3"
+    },
+    {
+      "path": "apps/drishti-v2/src/data/loader.ts",
+      "bytes": 2009,
+      "sha256": "6190c1cb6c5f60ff2c618c255e874a3f2333ccccf114bd6c9d967e1f19e0435f"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Diya/Diya.tsx",
+      "bytes": 1840,
+      "sha256": "704c0bace612562d16b1d7fe614e0773e3ba59fa612cd30a3fc55c989d5d74fd"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Diya/DiyaHint.module.css",
+      "bytes": 1469,
+      "sha256": "5f623093e0e3dbe80a0ca0acb5ad4598a6cef55aeff6a1c8b1f8c28745f30a9b"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Diya/DiyaHint.tsx",
+      "bytes": 827,
+      "sha256": "3a4df4d21142ab9d508159482d01a6e8883579099dfaacd8ce4bbbc53d37297e"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/FunnelCounter.module.css",
+      "bytes": 987,
+      "sha256": "6002f95e17072161af3f6dc1ff10d9dd891f854ca7751f7eda5c77d8ff82eaee"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/FunnelCounter.tsx",
+      "bytes": 2462,
+      "sha256": "7e775c100bedcd1ab9b2c80a09e72a2d2be583c85e8d4d1950eaf107793b5796"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Hero/Chakravyuh.module.css",
+      "bytes": 1021,
+      "sha256": "c59a6b080a0adcfd353bc3da5f89b08c209b840434a98f08abc189c10eecb02f"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Hero/Chakravyuh.tsx",
+      "bytes": 35282,
+      "sha256": "32230de10970f3608cff548917fd75ed59b9b3890b5df89d82b1e184611d75b7"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Hero/HeroText.module.css",
+      "bytes": 2024,
+      "sha256": "7218da91a8de95097a3017c3f18e9efbc1588ee10d66a7d635e4a1ed364da62d"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Hero/HeroText.tsx",
+      "bytes": 754,
+      "sha256": "e8e31c999beca1280a5d8e3adf352da3a6bb2e6229aec406d08ac27510d1131a"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/Hero/Lens.tsx",
+      "bytes": 2170,
+      "sha256": "06abf75e72f62d2d1ad6b8c624a74b40a487fc1de15868e1b0fa86789ee76e95"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/LandingScenes.tsx",
+      "bytes": 1708,
+      "sha256": "5e38c5268d89a684772ccd3ba166a5e9813c8c0756e8e2b198ae0c400dfad26e"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/StationCopy.module.css",
+      "bytes": 2056,
+      "sha256": "8fa9e681c823c0df8be031ef46c9909812d4a66004f1a0c5025b39d5a23a2bfa"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/StationCopy.tsx",
+      "bytes": 2214,
+      "sha256": "ef694382c942f0f5bddf3af8eb6db418daee072a5508bcbc990d4e3529b552c8"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Buddhi.tsx",
+      "bytes": 7296,
+      "sha256": "641628bbd0d1cc48da68ef385d66e349ffd3e7ae5cb025cc12878df974cae6d3"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Jaal.tsx",
+      "bytes": 11357,
+      "sha256": "1df0bb03f510a30fa8394d702ccdfccfecc4eef87890b66532feab46f4d72853"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Kavach.tsx",
+      "bytes": 11023,
+      "sha256": "9ec7c7ca4f177cc4e0c64800ecff102875d88ecd656c28bc41ff02c2a9502207"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Mayajaal.tsx",
+      "bytes": 25090,
+      "sha256": "b4ee94917029196618c1a513cb10979958376c17730877f99a39fef2b0f94dfd"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Pramaan.tsx",
+      "bytes": 12923,
+      "sha256": "fd6705e402f8c0739f08481f36d03bbd26b4b68b72933ab62fe51d7b58c658c8"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Setu.tsx",
+      "bytes": 6020,
+      "sha256": "282ca685aa51b17d345ea472c3959e0c0e9b25925013eef610766cc5d5f78143"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Shastra.tsx",
+      "bytes": 13915,
+      "sha256": "9be02dfbb84e6ece09303ff2cc6e91b377c017274ef6c8c46ceacafa51e74822"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/Vaani.tsx",
+      "bytes": 8153,
+      "sha256": "d2e6faaf1456e8510092379602e5316e20ca13e3e26717b9cd3b842062bfa5ac"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations/panelStyle.ts",
+      "bytes": 1978,
+      "sha256": "5876ce7ff31fde1fd7446ef45fd9f8249ce34418f125249aa795558b4c98664e"
+    },
+    {
+      "path": "apps/drishti-v2/src/landing/stations.ts",
+      "bytes": 13021,
+      "sha256": "91ef23009c411b46439f0ee85ff04b028c3979e305b3036bdb45be09266f128a"
+    },
+    {
+      "path": "apps/drishti-v2/src/main.tsx",
+      "bytes": 341,
+      "sha256": "cc67f1d33afd3ae4ba2d22f7a6c2185012d09513ac6b7c717dacc20f8e023415"
+    },
+    {
+      "path": "apps/drishti-v2/src/nav/stages.ts",
+      "bytes": 2556,
+      "sha256": "ff77a751aa01667961198bdfcefdaaedbcc8f98ed90064e30d5cae8b020a61b3"
+    },
+    {
+      "path": "apps/drishti-v2/src/scroll/ScrollContext.tsx",
+      "bytes": 1515,
+      "sha256": "291c41965d26e67866ee32da45ef09fd9767604d24fdcbc93c41669f4fbd522b"
+    },
+    {
+      "path": "apps/drishti-v2/src/scroll/usePrefersReducedMotion.ts",
+      "bytes": 735,
+      "sha256": "c9c02b61747099a5570189d227a3224e35a32d197c5c8d7014ceab1434c522a2"
+    },
+    {
+      "path": "apps/drishti-v2/src/scroll/useSmoothScroll.ts",
+      "bytes": 1899,
+      "sha256": "de1f346ed0e3a02d71e2b09dbede6eeff5002be62b5a0f1e94dcd9a0f7c7f373"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/Aperture.module.css",
+      "bytes": 1970,
+      "sha256": "52fd816ed6e5510409e492e44db3447a4e9b4d8982ab4086e8e70cf87762bea1"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/Aperture.tsx",
+      "bytes": 3395,
+      "sha256": "d97d253af7abe774146b2be3bd31de42615c6a3aedb50c7c02d3f288a8757f59"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/CaseRibbon.module.css",
+      "bytes": 1182,
+      "sha256": "08590bd4a06f2407effffea8bafb56fd1f3501aa3d72b8b5f44b00dbc30def0f"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/CaseRibbon.tsx",
+      "bytes": 3516,
+      "sha256": "74efa8d60255f04d1287e22abdf71d9f1f7a0f0d2a4d63a2c6a5b3ab9ef9214a"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/PropertiesDrawer.module.css",
+      "bytes": 1053,
+      "sha256": "749f17535bf57ed5ab0a7fb5bc87ab09fed9bf88b76a2b0aa60f5f4bd845323f"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/PropertiesDrawer.tsx",
+      "bytes": 1310,
+      "sha256": "8f8c7491efa5446ad5f8fe365fdebaaf85d0e28fa6bef61a2e90fbfcc558b939"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/RunSwitcher.module.css",
+      "bytes": 3108,
+      "sha256": "b9d80de027ef3e0c6a85d6a4b9a0b025a6fd6a91a759cbe9541a57624155528e"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/RunSwitcher.tsx",
+      "bytes": 3282,
+      "sha256": "517559b9fd04e7beecdef02df7f898fec3f8c7a08e3d0407f67d163f78b0802f"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/Shell.module.css",
+      "bytes": 185,
+      "sha256": "10b36e025fb4f9bc4b54cd925b4ab4cbf03e17755c0501048ff87ccaae511196"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/Shell.tsx",
+      "bytes": 1918,
+      "sha256": "b8112c1470ed017af71962074605b0dff03a6d7c6f03f01c0a8d10f102899327"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/ShellContext.tsx",
+      "bytes": 1954,
+      "sha256": "98fe41257daf584b7f84bea1a8f6b8275fe7df01a6bb0f9d49dabf5b65086aa4"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/Sutra.module.css",
+      "bytes": 3435,
+      "sha256": "66bc45fda9d66d42b81803f595de205dffb2e51a181287d748afbca57a22ed19"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/Sutra.tsx",
+      "bytes": 3006,
+      "sha256": "eeefd86fe11362be7fa1c7ef34c8cc959fcea4072d33fa64b0dd0b31a547a9c5"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/TopStrip.module.css",
+      "bytes": 1768,
+      "sha256": "79eb05c8c1e7d0a52bc1fcc649845a64b538ef48c1c7fe837746e9446a97c8e4"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/TopStrip.tsx",
+      "bytes": 1164,
+      "sha256": "8cacefbd4c07f2e317860773a7ed44e55fd7bf619e6d39ba58a7d8f7f7b1115e"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/FlowAtlas.module.css",
+      "bytes": 4732,
+      "sha256": "a8711f5447f699c0dbaf3c728562248e350c7b1d42079ab2955dc0296cd9573c"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/FlowAtlas.tsx",
+      "bytes": 13947,
+      "sha256": "44015d34753b0c5314aadde92c2557f8a957baa6d17b7f50e08459f3c6803249"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/GlobeDetail.module.css",
+      "bytes": 3564,
+      "sha256": "0a283e3e0522670b88c187b4e549bc5a1ea134532c53c3bc197be2e8d4ca8b87"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/GlobeDetail.tsx",
+      "bytes": 5693,
+      "sha256": "860b5edbe07392691d0e2d91244a5b9eab8986aa142be989a61a5f412a0d37ce"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/GlobeScreen.module.css",
+      "bytes": 5247,
+      "sha256": "6091fe340865c40e1eeca687b465e9ef0f7d15dd4114721f7c584d6a57ec2481"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/GlobeScreen.tsx",
+      "bytes": 20007,
+      "sha256": "e9b34914d591f8980388951eb2343b79e3948d42bfe72db583f16864e10ed1e3"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/GraphScene.tsx",
+      "bytes": 16724,
+      "sha256": "1c0c607983dcc266bb841b2f698b3af17b2af4f3065ef3e3a8fc0883aa51ecf1"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/IntakeScreen.module.css",
+      "bytes": 6169,
+      "sha256": "803d2c21d1e07c676307068468570cc05d84df87fb5f787130b15141d2b976d3"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/IntakeScreen.tsx",
+      "bytes": 6758,
+      "sha256": "02eb9ba69af8ebaca91988b23fa06490ca5ffbe5da0777065f58aa74905de3a6"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/InvestigationPreview.tsx",
+      "bytes": 17662,
+      "sha256": "f1d15aad07784ff03b531363313d7232674d2f43f4299fb861225af1b424a929"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/LeadView.module.css",
+      "bytes": 5193,
+      "sha256": "ca4989a2f3193532ad19a0990d347b20eb93a09ea6f68c716673282730a859b7"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/LeadView.tsx",
+      "bytes": 16497,
+      "sha256": "c157b56e2c798cde2b99543326987ce3672cefaa9dff1ac75db7a0ab0181e450"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/LeadsScreen.module.css",
+      "bytes": 8064,
+      "sha256": "1c2393280c54f59e7bfe36aba0f313adb679e3a4d01be485ffa32b3564b321a0"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/LeadsScreen.tsx",
+      "bytes": 10689,
+      "sha256": "f2df75dc1a90078b634871d424ea686bdf8e31a42055c39cee36c51629363baf"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/MapScreen.module.css",
+      "bytes": 5819,
+      "sha256": "2c65e817eee845282871421be4fbb4f5b1a950cbb0bf8a1701be679ae8683c3b"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/MapScreen.tsx",
+      "bytes": 15785,
+      "sha256": "b92fce5ce5b6e9124801756bdc103a57941ac860e6b99c1f40747d4265576c30"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/ModelIntelligence.module.css",
+      "bytes": 6630,
+      "sha256": "af8da6923abf042a61864c1f0d4ea38d132f3ec90065ea7f9736ee6dc8bf4292"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/ModelIntelligence.tsx",
+      "bytes": 4451,
+      "sha256": "46c9e42544ed41083d32fb33310646d35b76127a26ee14ba5d378442690fa857"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/OriginScreen.module.css",
+      "bytes": 7026,
+      "sha256": "7ea919e4b1e623fc99e1888d36c400f1bcf66cfa18f64e2555c1e7f191865001"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/OriginScreen.tsx",
+      "bytes": 20805,
+      "sha256": "b6e2c97f17b87487e2d6374b7b81ebab2e3a12b4a7dbeff212e0505e0b5d44b7"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/OverviewScene.tsx",
+      "bytes": 3483,
+      "sha256": "2e74606b27b9ef172ed45ea18208a48735bfc94b14cd52c80dd2ea5cde73db9d"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/ProofScreen.module.css",
+      "bytes": 9671,
+      "sha256": "376a44b871ddbfcf48c5130f30889b9c2eb95537936ec4e37c0d0fe8b228894d"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/ProofScreen.tsx",
+      "bytes": 12912,
+      "sha256": "abbefb8cc0fd2197c50b6058636b3406e34f144ea534a9871bfae1c6d1241f9d"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/Screens.module.css",
+      "bytes": 1814,
+      "sha256": "cc5153cbb71959679f5fd97fdd172b1860b1b405ba815ae1a78678a067b35d34"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/Screens.tsx",
+      "bytes": 6093,
+      "sha256": "c583a3192c8c0526575d091a34d401267f9b072c962b237ffa9998ce546e50c2"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/UntangleScreen.module.css",
+      "bytes": 7570,
+      "sha256": "90e7d5fe49136759de4f9dee76f2bac8a3897607a37b5759d9624eefe84da115"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/UntangleScreen.tsx",
+      "bytes": 8562,
+      "sha256": "adb40e7716b741332ba0b3d2c030365eea015de445cd1ab4985b114f7a13ba6e"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/WorldScreen.module.css",
+      "bytes": 6614,
+      "sha256": "87ddae1aefcf6eb074c0ac3098af3ed06b96d57eb4a6679adf86db490c602fde"
+    },
+    {
+      "path": "apps/drishti-v2/src/shell/screens/WorldScreen.tsx",
+      "bytes": 19967,
+      "sha256": "6d27fb8e08a3b80291b9ec563f35f8203a527a4698c52c01afb15a7e6c65d7f1"
+    },
+    {
+      "path": "apps/drishti-v2/src/stage/Stage.module.css",
+      "bytes": 1681,
+      "sha256": "7e9fb052f583e7ab9b046bec1135d1492b5218862022e0d069575c823905ecf2"
+    },
+    {
+      "path": "apps/drishti-v2/src/stage/Stage.tsx",
+      "bytes": 1444,
+      "sha256": "a0e05a6c9d0357eb2ea4cc557fd3a61700070587e6cef6a60166c169a93dcaa7"
+    },
+    {
+      "path": "apps/drishti-v2/src/styles/global.css",
+      "bytes": 1017,
+      "sha256": "b31dc62e43d9f97496db4d4e0920f30d922708e7765515cf5896a3157fd45893"
+    },
+    {
+      "path": "apps/drishti-v2/src/styles/palette.ts",
+      "bytes": 366,
+      "sha256": "639ab242d990a1e5941836cb1329e19098e4d459987e77a2f2276bd89e743755"
+    },
+    {
+      "path": "apps/drishti-v2/src/styles/tokens.css",
+      "bytes": 1346,
+      "sha256": "09c079c3e59ee9a9c0da16df160436fc525c22ca294d98bc28a404f7a0c42fd9"
+    },
+    {
+      "path": "apps/drishti-v2/src/three/diyaGeometry.ts",
+      "bytes": 779,
+      "sha256": "b11ccaecf6ffd83a6694271c7d7f993c1fac882e1bd4d96df88b79adb6c00896"
+    },
+    {
+      "path": "apps/drishti-v2/src/three/globe.ts",
+      "bytes": 14335,
+      "sha256": "41a0756d7d265578fe45027aac0d360b7402926e770ff816b55e0d281bdbc959"
+    },
+    {
+      "path": "apps/drishti-v2/src/three/globeGeo.ts",
+      "bytes": 3527,
+      "sha256": "29d4a31314e6ad6b729de3574fd74601077c1fb10a6c3cfc8b57a6841be07044"
+    },
+    {
+      "path": "apps/drishti-v2/src/three/jaalLayout.ts",
+      "bytes": 9007,
+      "sha256": "8fe1709c9edb63cd3510c4bd29ee999d041b0aaed154d6b3178259a4d9ef655e"
+    },
+    {
+      "path": "apps/drishti-v2/src/three/leadModel.ts",
+      "bytes": 8050,
+      "sha256": "f44d72b11f97acf9fef6ab1ba0199c05d1c97271bb1bf9cfbb4087b150c7533e"
+    },
+    {
+      "path": "apps/drishti-v2/src/three/overviewModel.ts",
+      "bytes": 2808,
+      "sha256": "6903d83803942dd7630f378bf6a8f16ec521a146d8dd9ee1fcd32e8df0ef6a3a"
+    },
+    {
+      "path": "apps/drishti-v2/src/vite-env.d.ts",
+      "bytes": 38,
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    },
+    {
+      "path": "data/generated/_sweep-0.02/graph/clusters.parquet",
+      "bytes": 35278,
+      "sha256": "cc0df9af07b05d8187c36e887d609bd4d9a2a4c980b40547a1657b7f5ed13aee"
+    },
+    {
+      "path": "data/generated/_sweep-0.02/graph/edges.parquet",
+      "bytes": 1068541,
+      "sha256": "a1045e34f89cf4cf00952deac9ca19383affa528b172fee8c07d1cb9988cf427"
+    },
+    {
+      "path": "data/generated/_sweep-0.02/graph/nodes.parquet",
+      "bytes": 574750,
+      "sha256": "7986e411d7a15b0f870e52ae8bcfec8bd9376748139292e07597e3dfa6453524"
+    },
+    {
+      "path": "data/generated/_sweep-0.05/graph/clusters.parquet",
+      "bytes": 39805,
+      "sha256": "c5440c1e3538f392358c6034aa1f3ce0e397cf7960438346c194a07c892a2874"
+    },
+    {
+      "path": "data/generated/_sweep-0.05/graph/edges.parquet",
+      "bytes": 1430785,
+      "sha256": "68e7489d87d869c413cf0eef942837fe5de469505b36abf065dbd22218654b4e"
+    },
+    {
+      "path": "data/generated/_sweep-0.05/graph/nodes.parquet",
+      "bytes": 708110,
+      "sha256": "c15e180c52e488c55b0993474c48820eae931d35b45b88af22f8de73feaab162"
+    },
+    {
+      "path": "data/generated/_sweep-0.10/graph/clusters.parquet",
+      "bytes": 40468,
+      "sha256": "469ccd0efeb0f8a56a08285c5bade227ff61736dc5f2e07f84dcbb65d14c74d7"
+    },
+    {
+      "path": "data/generated/_sweep-0.10/graph/edges.parquet",
+      "bytes": 1661593,
+      "sha256": "b694215c0aeffee57387e7882dd4bc63f011f88545d9308477395af55468b265"
+    },
+    {
+      "path": "data/generated/_sweep-0.10/graph/nodes.parquet",
+      "bytes": 743325,
+      "sha256": "878c849d727dcb3f99a0dfbb804c3bbd1af4ed447d05d1efe18407af299b11ce"
+    },
+    {
+      "path": "data/generated/_sweep-0.10/graph/peel_chains.parquet",
+      "bytes": 42814,
+      "sha256": "87c08b929c719c64a0645fd94e6509faca534e88af7a46ae34cc1310e2398c29"
+    },
+    {
+      "path": "data/generated/_sweep-0.25/graph/clusters.parquet",
+      "bytes": 40579,
+      "sha256": "2be5c0e0fe5e238a33fcfcff17b3373a9c7886f4c81982339a4a56ee24345575"
+    },
+    {
+      "path": "data/generated/_sweep-0.25/graph/edges.parquet",
+      "bytes": 2180787,
+      "sha256": "0721794dac861f3a48a14a349d785fa4a88f5b9dfad5603a1962342af21ec432"
+    },
+    {
+      "path": "data/generated/_sweep-0.25/graph/nodes.parquet",
+      "bytes": 745523,
+      "sha256": "e1d2d9035f53a3048fe012724dc5e9a83072d384f2a656e916fd8e3a3e84611a"
+    },
+    {
+      "path": "data/generated/_sweep-0.50/graph/clusters.parquet",
+      "bytes": 40747,
+      "sha256": "2f3affc7e37df07b6132e9d838b68f6e09cca935bda2fffd5be2152231bff2c2"
+    },
+    {
+      "path": "data/generated/_sweep-0.50/graph/edges.parquet",
+      "bytes": 2821540,
+      "sha256": "a4d2b013a8f8acb1455cc301716714412ff92b596bec45cf34d15dc819a4fa0f"
+    },
+    {
+      "path": "data/generated/_sweep-0.50/graph/nodes.parquet",
+      "bytes": 755322,
+      "sha256": "48c95976c2843b581ad420c58f5149a2ab3e10237b7a43de7fdb70ba711a10d0"
+    },
+    {
+      "path": "data/generated/_sweep-0.60/graph/clusters.parquet",
+      "bytes": 40700,
+      "sha256": "9a793333edfda88ac0caa0866150f55897ab4b18a4e2c44c2db4fbf4c82a89ff"
+    },
+    {
+      "path": "data/generated/_sweep-0.60/graph/edges.parquet",
+      "bytes": 2559237,
+      "sha256": "e38408fc82bea4ea7edf6700ba5465677e4653124ffe27e31948b2e5f89037d6"
+    },
+    {
+      "path": "data/generated/_sweep-0.60/graph/nodes.parquet",
+      "bytes": 753238,
+      "sha256": "6dc91a58539f4f799dc0ed017094a09c85d070c5721f9b1e6af244028ba55929"
+    },
+    {
+      "path": "data/generated/_sweep-0.70/graph/clusters.parquet",
+      "bytes": 40709,
+      "sha256": "95fb8be2b6d671343f96b4665a824c32ca2c9f897bf693ae5bfac299035a8959"
+    },
+    {
+      "path": "data/generated/_sweep-0.70/graph/edges.parquet",
+      "bytes": 2682632,
+      "sha256": "65a3f1b58e6293333489a71f4285912519b492ccc680522904d08eb874678c25"
+    },
+    {
+      "path": "data/generated/_sweep-0.70/graph/nodes.parquet",
+      "bytes": 754974,
+      "sha256": "c05e4b363035b36c45886cae2b6b6694a3eae123a275b4ee6fef55cc066d6388"
+    },
+    {
+      "path": "data/generated/agency-v2/graph/clusters.parquet",
+      "bytes": 189689,
+      "sha256": "5750dc43b8d4502a219acd4696d2dbced81026642b8410f538aaf008493cb25f"
+    },
+    {
+      "path": "data/generated/agency-v2/graph/edges.parquet",
+      "bytes": 11741535,
+      "sha256": "606f20692708b682df6c56047a356f1f5b5fe297c265a3a7833b54b95bb4aaf3"
+    },
+    {
+      "path": "data/generated/agency-v2/graph/nodes.parquet",
+      "bytes": 3417469,
+      "sha256": "937e1733c4cc1206e7094903aef9eda082c1b8b21f150ffadf737e9a835a8bdb"
+    },
+    {
+      "path": "data/generated/agency-v2/graph/peel_chains.parquet",
+      "bytes": 64110,
+      "sha256": "4f418f936f54411ba25cf3135d2e2b2b9acb7e34cea8f2c4cfa39e56b7ed14d5"
+    },
+    {
+      "path": "docs/research/DRISHTI-INVESTIGATION-WORKSPACE.md",
+      "bytes": 9392,
+      "sha256": "64ec9110da97bcfa60dd1c3b34071a77500f229651b5da145fc33f7b51d2ed88"
+    },
+    {
+      "path": "docs/research/EXPERIMENT-JOURNAL.md",
+      "bytes": 85968,
+      "sha256": "7d2aa26bc2fef43744f92358e8bbacfd016e892f06c814b671794537de911226"
+    },
+    {
+      "path": "docs/research/events.jsonl",
+      "bytes": 183813,
+      "sha256": "3d3b063b8d0a34d9d5bba126df93adab98021f36cc557f4b4d29f36f0eb2500d"
+    },
+    {
+      "path": "research/bitcoin/project_drishti_nodes.cjs",
+      "bytes": 1172,
+      "sha256": "6acf38709a12b2163160bf62f4b26bcefa40980c447cf2bae5d15b42781bf3be"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/atlas-first.png",
+      "bytes": 191165,
+      "sha256": "55962489800f3f7d3936b3e882b0f344fd4f2576755a426ba12b8aa1a1777002"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/atlas-mobile.png",
+      "bytes": 127409,
+      "sha256": "dd0f2d4a9839b92c5a0e7b879e22744c6cdf81ffeb4ccbd85ed1e08fcc6d7158"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/atlas.png",
+      "bytes": 216187,
+      "sha256": "1b16f0a36034d2ab5f40508b5209782f16c3b67ad72e3a3d4a720caf4d8d009d"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/export-report.json",
+      "bytes": 698,
+      "sha256": "e679e42265e5e67d2cc19d903a95dde729c0eda86351c5499625772d10e0c73e"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/globe-first.png",
+      "bytes": 216408,
+      "sha256": "2a304a263a5892e8b1d8de2ca93e206043773ac209a4cfa53134b58a68c3968b"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/globe-mobile.png",
+      "bytes": 76182,
+      "sha256": "5a474b242e9a1063f613b111139835a1929405f53e6ecee69c7a1cf6a10e98d9"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/globe.png",
+      "bytes": 152098,
+      "sha256": "2cdf7bd65851b252b0b956cd7b24d96017ec1ee4396a43d90a365faad86d5220"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/graph-debug.png",
+      "bytes": 154925,
+      "sha256": "24b757b707c8fc973161a4f63f6789ee7cd7e6e2be5946e7a6adc4e25df161de"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/initial-inspection-source.py",
+      "bytes": 1033,
+      "sha256": "14084783cb9c879c91c8710fb5b640dee20ea2609e36bad6a1fc5c8fcd18bcb7"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/initial-projection-source.cjs",
+      "bytes": 1134,
+      "sha256": "2265321973a8c43b24901aea4d77166eed099d9d3978b731730acbfabb300ad8"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/intake.png",
+      "bytes": 72653,
+      "sha256": "ecc4b1f7d446c173750687788f22573497e8c0bb786188a5a5be0f74c7ca7735"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/inventory-source.py",
+      "bytes": 2159,
+      "sha256": "8d2f0df9ebdbca6da59735d36f59a56a0a28713a2dca9c469aef1cdc6b43ea82"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/leads.png",
+      "bytes": 280977,
+      "sha256": "b9f90f599536f53f494f9b68aadf18218191f510c21ba77f8b26ebd939b1577e"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/origin.png",
+      "bytes": 515976,
+      "sha256": "46bc54f33713ef3e4471ced2824e71141a5e1dc8b9fe66f2b2e0fad4e1119d99"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/packet.json",
+      "bytes": 13655,
+      "sha256": "bbcfb33eff23afd82493f0cd538970d5fc5c019c2d3e5e25fb9f53d2eadd8638"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/proof.png",
+      "bytes": 289021,
+      "sha256": "405707747415babe0889b86d0c42c71dff1ab2bce161ad5abc6bde83097ab59b"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/queue-regression/desktop.png",
+      "bytes": 133178,
+      "sha256": "b98426e83a5ae22abf82de6fdab1f2c1a7368247330db8665ce64b8cb11c2b0e"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/queue-regression/downloaded-evidence.json",
+      "bytes": 201145,
+      "sha256": "35f8673bf2a5f620f43f63739c1a94c2376e8c562423c3a65be5ebb78a81cbdc"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/queue-regression/executed-verifier.py",
+      "bytes": 3946,
+      "sha256": "ccd1011d89c3da086e9cf36d276d48068a4ef8c7fdde3af3b048ac192b2d79b6"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/queue-regression/graph.png",
+      "bytes": 54769,
+      "sha256": "b9b6af8021dc888495f54f1f1c35fa9e7357b3b26a59449f9251616421c5cb68"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/queue-regression/imported-roundtrip.json",
+      "bytes": 163796,
+      "sha256": "104646df680b65599a2008c7b0d6bd4916f9a5092a586119471d06381b2fd4b3"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/queue-regression/mobile.png",
+      "bytes": 50558,
+      "sha256": "240101d41be383b38c2f7a9818848da05da9e645b45a0a9948e4af816acaaaee"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/queue-regression/report.json",
+      "bytes": 274,
+      "sha256": "029530ad2a5d67e8fc29a2b20368efaab83b36bc13a5f5a5529e3a8229d1127e"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/report-before-mobile-refinement.json",
+      "bytes": 785,
+      "sha256": "0eddb6f8c2ed66e227a9e06c14ffaf9d2195353323254465cca11141424f4c79"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/report.json",
+      "bytes": 785,
+      "sha256": "0eddb6f8c2ed66e227a9e06c14ffaf9d2195353323254465cca11141424f4c79"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/spatial-trace.png",
+      "bytes": 233640,
+      "sha256": "4e466bdcd2d18342ec97008c02241a7e584316a42824d23a0686715fbeed0347"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/untangle.png",
+      "bytes": 281361,
+      "sha256": "5a1ae3a58e668ffea89d386b1db62f45534fc348008aa1f7a9f75e4e7a30eef6"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/world-mobile.png",
+      "bytes": 496944,
+      "sha256": "34a838e7e50c3f2dfce35c0bc87dcca2c787978ff75f827c79c407e5bdb837ee"
+    },
+    {
+      "path": "research/bitcoin/results/drishti-redesign/world.png",
+      "bytes": 606653,
+      "sha256": "f00c7226ac88dff0953d3ace5268c725367d9aa9427970945942688d87d08dc3"
+    },
+    {
+      "path": "research/bitcoin/source-snapshots/R46-initial/export_drishti_runs.py",
+      "bytes": 7184,
+      "sha256": "d7a4bc17b49dcd1b727c6e5acc9787322bfb13e4e271914d2e07ffe12eeee540"
+    },
+    {
+      "path": "research/bitcoin/source-snapshots/R46-initial/verify_drishti_exports.py",
+      "bytes": 2154,
+      "sha256": "ec956f25af57379e5b05ad65e64cbee4513cd7c63bb4a82c1ef67296acfd3c36"
+    },
+    {
+      "path": "research/bitcoin/source-snapshots/R46-initial/verify_drishti_redesign.py",
+      "bytes": 9091,
+      "sha256": "0009409887fd1a49f4652184111d7f58a0a9ae32545aa43bf1379280025ea308"
+    },
+    {
+      "path": "research/bitcoin/verify_drishti_exports.py",
+      "bytes": 2378,
+      "sha256": "ac8c9fd1a38880de946cd1e7f8e38679a6d1980414e67b030081d75ba4b61f93"
+    },
+    {
+      "path": "research/bitcoin/verify_drishti_redesign.py",
+      "bytes": 9496,
+      "sha256": "1e4caee23d772736df8f25d4331d4c09600f74052010ba9c2564f1ef95f96605"
+    },
+    {
+      "path": "scripts/export_drishti_runs.py",
+      "bytes": 8462,
+      "sha256": "e6864df9d052443c8925055d377d983800caa0903151ff28a5330e2e274c9287"
+    },
+    {
+      "path": "src/chakravyuh/api/serialize.py",
+      "bytes": 73042,
+      "sha256": "fd190393dbbefea723d691f5936d1dae4c62eec892c4b50dd1d8a0e3c2d842be"
+    }
+  ]
+}

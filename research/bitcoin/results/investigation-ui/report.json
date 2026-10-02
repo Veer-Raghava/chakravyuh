@@ -1,0 +1,18 @@
+{
+  "lead_buttons": 20,
+  "selection_works": true,
+  "graph_renders": true,
+  "details_open": true,
+  "download_leads": 20,
+  "offline_interactions": true,
+  "local_import_roundtrip": true,
+  "invalid_import_rejected": true,
+  "external_requests": [],
+  "page_errors": [],
+  "verification_source_sha256": "394ab3e14ef6c2379a1b703be421f274464798ccf57dadf1db5feb95d3071830",
+  "verification_environment": {
+    "playwright": "1.63.0",
+    "chromium": "153.0.8010.12",
+    "browser_cache": "temporary testing dependency"
+  }
+}

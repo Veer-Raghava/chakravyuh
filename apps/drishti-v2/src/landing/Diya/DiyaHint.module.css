@@ -6,7 +6,7 @@
   transform: translateX(-50%);
   bottom: clamp(1.25rem, 4vh, 2.5rem);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.6rem;
   max-width: 18rem;
   transition: opacity 0.6s var(--ease-in-confident);
@@ -16,18 +16,32 @@
   pointer-events: none;
 }
 
-.line {
-  font-family: var(--font-text);
-  font-size: 0.95rem;
-  line-height: 1.35;
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
   color: var(--ink);
   background: var(--paper-deep);
   border: 1px solid var(--line);
-  border-radius: 0.75rem;
-  padding: 0.6rem 0.85rem;
-  margin: 0;
   /* the diya's glow, hinted */
   box-shadow: 0 0 0 3px rgba(245, 197, 66, 0.12);
+  animation: nudge 1.8s var(--ease-in-confident) infinite;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0.28rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrow {
+    animation: none;
+  }
 }
 
 .dismiss {

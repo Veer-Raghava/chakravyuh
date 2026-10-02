@@ -67,7 +67,7 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
         <span className={styles.meterVal}>{score.toFixed(3)}</span>
       </div>
       {/* the conformal range — a band, not a point. A wide band is an honest "we're not sure". */}
-      <div className={styles.meter}>
+      {a.confidence.interval_available !== false && <div className={styles.meter}>
         <span className={styles.meterLabel}>confidence</span>
         <span className={styles.meterTrack}>
           <span
@@ -78,10 +78,12 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
         <span className={styles.meterVal}>{a.conf_low.toFixed(3)}–{a.conf_high.toFixed(3)}</span>
       </div>
 
+      }
+      {a.confidence.interval_available === false && <p className={styles.counter}>Review ranking · ownership and source assessed separately</p>}
       <p className={styles.headline}>{a.headline}</p>
 
       {/* the {operator · region · UTC} hero — gated by attribution_ready (§6) */}
-      {a.attribution_ready ? (
+      {a.attribution_ready && o ? (
         <div className={styles.attribution}>
           <span className={styles.attrLabel}>attribution ready</span>
           <span className={styles.attrValue}>
@@ -99,7 +101,7 @@ export function AlertCard({ footer }: { footer?: ReactNode }) {
         <div className={styles.row}>
           <dt>origin</dt>
           <dd>
-            {o.abstain ? (
+            {!o || o.abstain ? (
               <span className={styles.abstain}>No answer available</span>
             ) : (
               <>

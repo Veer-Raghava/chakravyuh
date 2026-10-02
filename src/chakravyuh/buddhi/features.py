@@ -9,12 +9,15 @@ be asked about, and leaving them unscored would silently drop most of the captur
 **The window rule, which is the whole point of this file.** A subject is train if its earliest
 activity in the capture is before the split boundary, holdout otherwise. A train subject's
 features are computed over pre-boundary transactions only; a holdout subject's, over
-post-boundary transactions only. Not one feature is computed over the full time range, because
+post-boundary transactions only. Transaction activity is sliced by that boundary, because
 `normalised/addresses.parquet` already carries whole-capture aggregates and a subject that trains
 on its own future is the leak the brief names. Cluster shape is windowed with the same rule: a
 cluster's late-arriving members are future information about its early self, so only members
 active inside the window count, and `min_edge_confidence` is the weakest link among edges whose
-both ends were active in the window.
+both ends were active in the window. This does not make full-capture cluster membership causal:
+a later ownership edge can still determine the supplied subject partition. Global upstream
+origin scores and typology detections can also include later information. The opt-in snapshot
+API supplies a point-in-time partition and excludes those upstream artifacts.
 
 Every column here is observable. Nothing is read from a sibling tree and nothing is derived from
 a label, which is what lets `stage.py` stay a pure read of directories under `data/`.
@@ -401,19 +404,17 @@ def cluster_shape(
         "confidence",
         "evidence",
     )
-    member_pairs = active_members.select(
-        pl.col("subject_id"), pl.col("address").alias("left")
+    # Join actual evidence endpoints rather than materializing every possible member pair.
+    # Large exchange subjects otherwise require O(n_addresses ** 2) intermediate rows.
+    held_pairs = pairs.join(
+        active_members.select("subject_id", pl.col("address").alias("left")), on="left"
     ).join(
-        active_members.select(pl.col("subject_id"), pl.col("address").alias("right")),
-        on="subject_id",
+        active_members.select("subject_id", pl.col("address").alias("right")),
+        on=["subject_id", "right"],
     )
-    weakest = (
-        pairs.join(member_pairs, on=["left", "right"], how="inner")
-        .group_by("subject_id", maintain_order=True)
-        .agg(
-            pl.col("confidence").min().alias("min_edge_confidence"),
-            pl.col("evidence").n_unique().alias("n_heuristics"),
-        )
+    weakest = held_pairs.group_by("subject_id", maintain_order=True).agg(
+        pl.col("confidence").min().alias("min_edge_confidence"),
+        pl.col("evidence").n_unique().alias("n_heuristics"),
     )
     return sizes.join(weakest, on="subject_id", how="full", coalesce=True)
 
@@ -517,7 +518,8 @@ def typology_load(hits: pl.DataFrame, sent_pairs: pl.DataFrame) -> pl.DataFrame:
     to `sent_pairs` — which is already restricted to each subject's train-or-holdout window — keeps
     only the flagged transactions that fall in the window this subject is measured over. A hit
     whose transactions all sit on the wrong side of the boundary contributes nothing, so the
-    feature cannot smuggle future behaviour into a training row.
+    join restricts hit overlap, but cannot undo future observations used by the upstream detector.
+    A prospective evaluation must recompute those detections at the decision cutoff.
     """
     if hits.is_empty():
         return pl.DataFrame(
@@ -637,7 +639,7 @@ def build(
     *,
     use_embeddings: bool = False,
 ) -> pl.DataFrame:
-    """The subject table: one row per wallet subject, windowed features, no future data.
+    """The subject table: windowed activity given the caller's partition and upstream evidence.
 
     The window rule is applied exactly once, here. A subject whose earliest activity is before
     `boundary_us` is a train subject and is aggregated over pre-boundary transactions; every

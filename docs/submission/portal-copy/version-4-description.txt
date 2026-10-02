@@ -1,0 +1,47 @@
+1. The operational objective
+
+CHAKRAVYUH is designed for the problem statement's offline investigation workflow: ingest bulk Bitcoin metadata, correlate blockchain and network observations, apply trained ML, produce prioritized explainable leads and show supporting evidence. DRISHTI is the local interface; PRAMAAN is the case-artifact layer. The proposal focuses on what an officer can inspect and retain after a model flags an address or transaction.
+
+2. Evidence starts at ingestion
+
+Before parsing, KAVACH records SHA-256 hashes of the delivered files and preserves their original bytes. It accepts CSV, JSON/JSONL and XML, coerces records into typed local tables, and accounts for every accepted or rejected row. Rejections have reasons; parsing does not silently erase the evidence of what was delivered.
+
+SETU normalizes UTC timestamps and integer-satoshi amounts. It separates unique transaction bodies from announcements. The same TXID observed many times is one payment with many network observations. Local GeoIP/ASN and network-class lists supply context without live lookup requests. Unresolved information remains null rather than being turned into a made-up location.
+
+3. A graph with explicit evidence meanings
+
+JAAL connects addresses to input transactions, transactions to output addresses, peers to announced transactions and peers to network operators. Amounts are retained on money edges. Captured peer/port/time rows remain network evidence. Common-input and change heuristics add likely ownership relationships while retaining the underlying address nodes.
+
+A derived owner grouping is useful for link analysis, but the system can also detect activity at address level. This prevents the entire workflow from depending on a single uncertain clustering decision. SHASTRA source estimates are similarly separate: a relay observation is not identity, and an insufficient source answer does not destroy the transaction evidence.
+
+4. Trained, explainable detection
+
+The main BUDDHI stage uses LightGBM with 33 engineered activity, flow, fee, temporal, ownership and available network/typology features. SHAP explains the features driving its score. VAANI creates ranked leads with readable evidence and mandatory counter-evidence, so the officer can see supporting reasons and plausible challenges together.
+
+A working optional engine uses a frozen 329-feature CPU XGBoost model built from local address behaviour and typed transaction/announcer context. It validates artifact hashes and feature order, uses saved transformations and calibration parameters, and outputs signed positive/negative TreeSHAP contributions. The contributions reconstruct the raw model margin; the observed graph and amounts provide the factual context for reviewing them.
+
+The optional engine has an executable CLI and local World-screen viewer. It has not silently replaced the default LightGBM stage or borrowed its signed packets. That explicit status makes model provenance maintainable as the application evolves.
+
+5. Tests behind the implementation
+
+MAYAJAAL is our configurable synthetic-world harness with separate answer keys. We used it to evaluate ownership rules, chronological features, observer coverage, tabular models, actual graph/temporal models and embedding/tree hybrids. Public Elliptic experiments remain a separate transaction-classification task.
+
+The portable graph-context inference port reproduced engineered features and scores exactly for 324,395 rows in 20 checks. An isolated replay with only observation Parquets and model files, no answer keys and blocked Torch imports, reproduced the 20-lead packet. The measured repeat took 2.69 seconds with 788.8 MiB peak process RSS on the tested capture. These checks demonstrate a usable CPU inference path rather than relying on an assumed GPU deployment.
+
+We also tested queue overlap control. In two synthetic transfer worlds, a frozen evidence-diversity policy increased suspicious controller-window retrieval from 11 to 33 and 9 to 16 across three future windows. The outcome concerns review slots and repeated-window retrieval, not verified human identities.
+
+On public Elliptic Bitcoin data, our separately trained graph-feature LightGBM achieved average precision 0.6566 and 20 illicit transactions among its pooled top 20, versus AP 0.6366 for matched local-feature LightGBM. The temporal test comprised 11,184 labeled transactions, including 636 illicit; unknown labels remained graph context. Public transaction classification and synthetic address-window detection are separate experiments with different targets and prevalence.
+
+6. Analyst review and signed handover
+
+DRISHTI links the globe, ingestion record, transaction/network map, paged Trace, source candidates, leads and Proof. It provides local visual exploration alongside textual evidence. The graph retains all endpoints for displayed transactions, and bounded views record what context is omitted. Run identity and saved engine results remain distinguishable.
+
+PRAMAAN assembles a canonical case JSON, PDF evidence document, notice template, Ed25519 signature and input/custody hashes. A Merkle-root log and replay checks support artifact verification. Full machine fields and redacted presentation fields have different roles. A signature verifies artifact authorship/integrity under a trusted key; it does not turn a model hypothesis into a legal finding.
+
+The current UI exports original archived signed packets for main-pipeline cases. New research queues are exported separately. The next release adds their own signed-case adapter rather than presenting an old artifact as a new engine's proof.
+
+7. Offline deployment and continuation
+
+The stack uses Python, Polars/Arrow, rustworkx, CPU tree models and a React/TypeScript/Three.js frontend with local assets. The API is read-only and loopback. Browser checks ran offline with zero external requests; inference does not depend on cloud compute or CUDA. A full clean-host offline installer remains the packaging gate.
+
+The release direction is to connect the frozen decision-window scorer, evidence-diverse queue and active case routing, then validate end-to-end reproduction and packaging. The trained temporal graph model remains available for measured future comparison. This gives the project a practical core today and a controlled route to richer modelling without sacrificing evidence traceability.

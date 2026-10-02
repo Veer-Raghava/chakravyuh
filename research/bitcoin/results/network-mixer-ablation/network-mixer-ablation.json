@@ -1,0 +1,162 @@
+{
+  "elapsed_seconds": 1.5269929099995352,
+  "hashes": {
+    "data/generated/agency-v2/normalised/addresses.parquet": "6d6029bbefbbc7e211bae1f2ba9ebc74124f6e2293c3201c674ed59b2f198d07",
+    "data/generated/agency-v2/normalised/announcements.parquet": "9ff1031e419b557efd88d794434ffcdd89299b73bf8215115732a9028a9880a6",
+    "data/generated/agency-v2/normalised/transactions.parquet": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098",
+    "ground_truth/agency-v2/chain_txs.parquet": "e9968913192e8715def3671295b8449fda01ae2f3a8d024b7d96b9d0509cdc5f"
+  },
+  "limitations": [
+    "Single synthetic seed; no real Bitcoin propagation ground truth.",
+    "Five-second post-first-seen aggregation is a bounded latency snapshot, not instantaneous detection.",
+    "Synthetic observer placement and peer behavior may couple to labels or simplify real propagation.",
+    "Target is any multiple-owner input spend, not a specific collaborative protocol.",
+    "Class-weighted scores are not calibrated probabilities."
+  ],
+  "models": {
+    "chain_only": {
+      "feature_importance_gain": {
+        "equal_output_count": 312.8351821899414,
+        "equal_output_fraction": 3486.0236558914185,
+        "fee_fraction": 3866.2112951278687,
+        "has_equal_outputs": 0.0,
+        "input_amount_cv": 250385.62633943558,
+        "log_total_in": 7673.89128112793,
+        "log_total_out": 1427.7808847427368,
+        "max_input_fraction": 14094.90468788147,
+        "max_output_fraction": 10135.61705493927,
+        "n_in": 18647.584285736084,
+        "n_out": 59482.32433414459,
+        "output_amount_cv": 5636.126832962036,
+        "round_output_count": 77.48640060424805,
+        "same_script_input_fraction": 1055.1166486740112
+      },
+      "test": {
+        "ap": 0.7630782056090459,
+        "auc": 0.9779014248759206,
+        "brier": 0.058090690965125265,
+        "hits_at_20": 19,
+        "hits_at_50": 48,
+        "n": 6913,
+        "p_at_20": 0.95,
+        "p_at_50": 0.96,
+        "positives": 332,
+        "prevalence": 0.04802545927961811,
+        "r_at_20": 0.0572289156626506,
+        "r_at_50": 0.14457831325301204
+      },
+      "test_at_validation_cut": {
+        "f1": 0.5585215605749486,
+        "fn": 196,
+        "fp": 19,
+        "precision": 0.8774193548387097,
+        "recall": 0.40963855421686746,
+        "tn": 6562,
+        "tp": 136
+      },
+      "validation": {
+        "ap": 0.6980414270728433,
+        "auc": 0.9730076272063348,
+        "brier": 0.06050084800145255,
+        "hits_at_20": 20,
+        "hits_at_50": 47,
+        "n": 5562,
+        "p_at_20": 1.0,
+        "p_at_50": 0.94,
+        "positives": 278,
+        "prevalence": 0.04998202085580726,
+        "r_at_20": 0.07194244604316546,
+        "r_at_50": 0.16906474820143885
+      },
+      "validation_precision_target_cut": 0.9400000000000001
+    },
+    "chain_plus_network_5s": {
+      "feature_importance_gain": {
+        "announcements_first_5s": 806.1948719024658,
+        "asns_first_5s": 575.3363523483276,
+        "countries_first_5s": 398.1147985458374,
+        "equal_output_count": 247.91969776153564,
+        "equal_output_fraction": 3499.8993158340454,
+        "fee_fraction": 4037.5809841156006,
+        "has_equal_outputs": 0.0,
+        "input_amount_cv": 249486.63057613373,
+        "log_total_in": 6814.585695266724,
+        "log_total_out": 1514.2325162887573,
+        "max_input_fraction": 13305.407835960388,
+        "max_output_fraction": 8819.332200050354,
+        "n_in": 17311.884343147278,
+        "n_out": 59302.62887096405,
+        "observers_first_5s": 0.0,
+        "output_amount_cv": 5517.869292259216,
+        "peer_seen_max_first_5s": 1674.0670375823975,
+        "peers_first_5s": 903.9005966186523,
+        "propagation_spread_first_5s": 3403.4979305267334,
+        "round_output_count": 158.89410018920898,
+        "same_script_input_fraction": 1416.8410062789917
+      },
+      "test": {
+        "ap": 0.765039679010249,
+        "auc": 0.9778911268840748,
+        "brier": 0.05604230487869895,
+        "hits_at_20": 20,
+        "hits_at_50": 48,
+        "n": 6913,
+        "p_at_20": 1.0,
+        "p_at_50": 0.96,
+        "positives": 332,
+        "prevalence": 0.04802545927961811,
+        "r_at_20": 0.060240963855421686,
+        "r_at_50": 0.14457831325301204
+      },
+      "test_at_validation_cut": {
+        "f1": 0.5783132530120482,
+        "fn": 188,
+        "fp": 22,
+        "precision": 0.8674698795180723,
+        "recall": 0.43373493975903615,
+        "tn": 6559,
+        "tp": 144
+      },
+      "validation": {
+        "ap": 0.6860705242749114,
+        "auc": 0.971620924305219,
+        "brier": 0.05954031148343625,
+        "hits_at_20": 20,
+        "hits_at_50": 47,
+        "n": 5562,
+        "p_at_20": 1.0,
+        "p_at_50": 0.94,
+        "positives": 278,
+        "prevalence": 0.04998202085580726,
+        "r_at_20": 0.07194244604316546,
+        "r_at_50": 0.16906474820143885
+      },
+      "validation_precision_target_cut": 0.93
+    }
+  },
+  "network_feature_coverage": {
+    "transactions_total": 32787,
+    "transactions_with_any_announcement_in_5s": 32787
+  },
+  "network_features": [
+    "announcements_first_5s",
+    "peers_first_5s",
+    "observers_first_5s",
+    "asns_first_5s",
+    "countries_first_5s",
+    "peer_seen_max_first_5s",
+    "propagation_spread_first_5s"
+  ],
+  "network_protocol": "only announcement events in [first_seen, first_seen + 5 seconds] are used",
+  "rows": {
+    "fit": 20312,
+    "test": 6913,
+    "validation": 5562
+  },
+  "run": "agency-v2",
+  "split_us": [
+    1767519555825316,
+    1767617601829850
+  ],
+  "target": "more than one synthetic input owner; not protocol-labeled CoinJoin"
+}

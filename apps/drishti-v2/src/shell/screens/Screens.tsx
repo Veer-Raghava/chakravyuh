@@ -1,3 +1,6 @@
+import { useRun } from "../../data/RunContext";
+import { useShell } from "../ShellContext";
+import type { Fixtures } from "../../data/loader";
 import type { ReactNode } from "react";
 import { STAGES, type StageId } from "../../nav/stages";
 import { GlobeScreen } from "./GlobeScreen";
@@ -42,17 +45,83 @@ function StageHeader({ id, children }: { id: StageId; children?: ReactNode }) {
 }
 
 const COPY: Record<StageId, string> = {
-  globe: "The establishing shot: a paper-matte planet with announcement points where IPs geolocate. Click a point to see who was talking to whom. The 3D globe lands in a later milestone.",
-  intake: "Pick a capture file and watch it get sealed: rows in, rows sealed, rows set aside with reasons. The file's full SHA-256 is printed here in full, the one identifier the law never lets us hide.",
-  untangle: "The rename that defuses the trap: src_ip becomes the IP that told us. A spatial before/after across a centre seam shows network pulled apart from money.",
+  globe:
+    "The establishing shot: a paper-matte planet with announcement points where IPs geolocate. Click a point to see who was talking to whom. The 3D globe lands in a later milestone.",
+  intake:
+    "Pick a capture file and watch it get sealed: rows in, rows sealed, rows set aside with reasons. The file's full SHA-256 is printed here in full, the one identifier the law never lets us hide.",
+  untangle:
+    "The rename that defuses the trap: src_ip becomes the IP that told us. A spatial before/after across a centre seam shows network pulled apart from money.",
   map: "The centrepiece: two floors in 3D. Peers on the wire above, addresses and transactions below, and the fluoro-pink announce threads are the only edges crossing between them. Built in a later milestone.",
-  origin: "Candidate IPs on concentric rings where radius is inverse likelihood, so nearest the centre is most likely. A confidence shell holds the shortlist; a calm grey fog-dome means no answer available.",
-  leads: "The ranked queue. Twenty leads, not a thousand maybes. Each is the reusable Alert card, showing evidence and its own doubts at the same moment.",
-  proof: "One lead pressed into a signed, hash-chained document: an IP, a source port and an exact timestamp, the three values an ISP needs to name one subscriber.",
-  world: "MAYAJAAL, the synthetic world we built so we can grade ourselves honestly. The observer-fraction curve and the measuring-stick flex live here.",
+  origin:
+    "Candidate IPs on concentric rings where radius is inverse likelihood, so nearest the centre is most likely. A confidence shell holds the shortlist; a calm grey fog-dome means no answer available.",
+  leads:
+    "The ranked queue. Twenty leads, not a thousand maybes. Each is the reusable Alert card, showing evidence and its own doubts at the same moment.",
+  proof:
+    "One lead pressed into a signed, hash-chained document: an IP, a source port and an exact timestamp, the three values an ISP needs to name one subscriber.",
+  world:
+    "MAYAJAAL, the synthetic world we built so we can grade ourselves honestly. The observer-fraction curve and the measuring-stick flex live here.",
 };
 
+const required: Record<StageId, (keyof Fixtures)[]> = {
+  globe: ["origin", "graph", "transactions"],
+  intake: ["manifest"],
+  untangle: ["collapse", "origin"],
+  map: ["graphAddress"],
+  origin: ["origin", "world"],
+  leads: ["alerts"],
+  proof: ["packet"],
+  world: ["world"],
+};
 export function StageScreen({ id }: { id: StageId }) {
+  const { has, run, selectTx, selectAlert, selectedTx, selectedAlert } =
+    useRun();
+  const { goTo } = useShell();
+  if (
+    !required[id].every((key) =>
+      id === "globe" ? run.payload[key] != null : has(key),
+    )
+  )
+    return (
+      <section className={styles.screen}>
+        <header className={styles.header}>
+          <span className={styles.tag}>
+            {STAGES.find((s) => s.id === id)?.tag}
+          </span>
+          <h1 className={styles.title}>This evidence is not in this run.</h1>
+          <p className={styles.gloss}>
+            {run.label} has {run.stages.length} generated pipeline stages.{" "}
+            {id === "proof"
+              ? "No signed packet was exported for this case."
+              : id === "origin" && selectedTx
+                ? "The selected transaction has no exported origin estimate."
+                : "This stage has not produced the artifacts needed for this view."}
+          </p>
+        </header>
+        <div className={styles.content}>
+          <p className={styles.note}>
+            You can explore the available observations or return to this run’s
+            featured case.
+          </p>
+          <div className={styles.emptyActions}>
+            <button type="button" onClick={() => goTo("map")}>
+              Explore the map →
+            </button>
+            {(selectedTx || selectedAlert) && (
+              <button
+                type="button"
+                onClick={() => {
+                  selectTx(null);
+                  selectAlert(null);
+                }}
+              >
+                Open the featured case
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+
   if (id === "globe") {
     return <GlobeScreen />;
   }

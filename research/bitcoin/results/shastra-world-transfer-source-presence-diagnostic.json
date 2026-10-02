@@ -1,0 +1,50 @@
+{
+  "rows": [
+    {
+      "world": "canonical",
+      "groups": {
+        "source_peer_present": {
+          "answered": 395,
+          "correct": 392,
+          "precision": 0.9924050632911392
+        },
+        "source_peer_absent": {
+          "answered": 91,
+          "correct": 67,
+          "precision": 0.7362637362637363
+        }
+      }
+    },
+    {
+      "world": 1337,
+      "groups": {
+        "source_peer_present": {
+          "answered": 553,
+          "correct": 548,
+          "precision": 0.9909584086799277
+        },
+        "source_peer_absent": {
+          "answered": 87,
+          "correct": 45,
+          "precision": 0.5172413793103449
+        }
+      }
+    },
+    {
+      "world": 2026,
+      "groups": {
+        "source_peer_present": {
+          "answered": 394,
+          "correct": 383,
+          "precision": 0.9720812182741116
+        },
+        "source_peer_absent": {
+          "answered": 135,
+          "correct": 76,
+          "precision": 0.562962962962963
+        }
+      }
+    }
+  ],
+  "note": "Truth-dependent diagnostic only; not an available production gate. Absence refers to five-second observed candidate set, not person non-presence."
+}

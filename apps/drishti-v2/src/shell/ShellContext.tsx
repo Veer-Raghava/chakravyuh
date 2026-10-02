@@ -36,6 +36,7 @@ export function ShellProvider({ children }: { children: ReactNode }) {
   const goTo = useCallback((id: StageId) => {
     setStage(id);
     setApertureOpen(false);
+    setDrawer(previous => ({ ...previous, open: false }));
   }, []);
   const openDrawer = useCallback(
     (title: string, content: ReactNode) => setDrawer({ open: true, title, content }),

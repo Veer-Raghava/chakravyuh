@@ -7,7 +7,7 @@
 .header { border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; margin-bottom: 1.6rem; }
 .titleRow { display: flex; align-items: baseline; gap: 0.9rem; }
 .title { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 600; line-height: 1; color: var(--ink); margin: 0; }
-.tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--riso-blue); }
+.tag { font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.18em; color: var(--riso-blue); }
 .gloss { font-family: var(--font-text); font-size: var(--t-sub); line-height: 1.55; color: var(--ink-soft); margin: 0.7rem 0 0; max-width: 40rem; }
 .caseRow { display: flex; gap: 1.6rem; flex-wrap: wrap; margin-top: 0.9rem; font-family: var(--font-mono); font-size: var(--t-mono-label); color: var(--ink-soft); }
 .caseRow strong { color: var(--ink); font-weight: 600; }
@@ -113,3 +113,12 @@
   .exhibit { grid-template-columns: 1fr; }
   .screen { padding: 1.75rem 1.25rem 2.5rem; }
 }
+.inventory { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; align-items: flex-start; padding: 1.3rem; margin-bottom: 2rem; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-deep); }
+.inventory span { font: .85rem var(--font-mono); color: var(--riso-blue); }
+.inventory h2 { font: 1.2rem var(--font-mono); overflow-wrap: anywhere; }
+.inventory p { font: .85rem var(--font-text); color: var(--ink-soft); }
+.inventory label { display: grid; gap: .5rem; font: .85rem var(--font-text); min-width: 0; }
+.inventory select { max-width: min(360px, 80vw); padding: .7rem; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); font: .75rem var(--font-mono); }
+.inventory details { flex-basis: 100%; font: .85rem var(--font-text); }
+.inventory summary { cursor: pointer; }
+.inventory code { display: block; margin-top: .7rem; overflow-wrap: anywhere; font: .75rem var(--font-mono); }

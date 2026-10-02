@@ -1,0 +1,17 @@
+{
+  "worlds": [
+    {
+      "seed": 70017,
+      "before": 11,
+      "after": 33
+    },
+    {
+      "seed": 80029,
+      "before": 9,
+      "after": 16
+    }
+  ],
+  "unit": "controller-window retrieval across three test windows",
+  "source": "research/bitcoin/results/evidence-diversity-transfer/report.json",
+  "model": "address-xgboost_distribution_features"
+}

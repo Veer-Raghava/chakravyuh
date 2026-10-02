@@ -1,0 +1,260 @@
+{
+  "autoencoder": {
+    "batch_size": 2048,
+    "epochs": 40,
+    "layers": [
+      23,
+      64,
+      8,
+      64,
+      23
+    ],
+    "learning_rate": 0.001,
+    "parameters": 4127,
+    "weight_decay": 0.001
+  },
+  "hashes": {
+    "/home/void/chakravyuh/research/bitcoin/aml_anomaly_benchmark.py": "550e4cafc9d81f2d2b00cef3e59b79ac5d7eeb4edd5ee87f4c1bf899846a880a",
+    "research/bitcoin/results/buddhi-world-transfer/frozen-canonical-xgboost.joblib": "c5b7457926afd5209ed5b13779e81a2caa3d37caaa5921ff63201b8497f39c26"
+  },
+  "limitations": [
+    "Consumed canonical synthetic world, no independent anomaly confirmation.",
+    "High reconstruction/IF score means unusual features, not illicitness.",
+    "Known-negative IF uses training labels; all-data IF/AE do not filter by labels.",
+    "Fusion fit uses later cal labels and raw parent scores, not recycled Platt outputs.",
+    "No claim that source absence and AML novelty are the same task.",
+    "No canonical anomaly/default/model promotion."
+  ],
+  "models": {
+    "autoencoder_all": {
+      "test": {
+        "ap": 0.02035687287703209,
+        "auc": 0.7028209704871711,
+        "hits_at_20": 0,
+        "hits_at_50": 0,
+        "n": 42006,
+        "p_at_20": 0.0,
+        "p_at_50": 0.0,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.0,
+        "r_at_50": 0.0
+      },
+      "validation": {
+        "ap": 0.03453882590643234,
+        "auc": 0.6498955025176084,
+        "hits_at_20": 0,
+        "hits_at_50": 0,
+        "n": 12388,
+        "p_at_20": 0.0,
+        "p_at_50": 0.0,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.0,
+        "r_at_50": 0.0
+      }
+    },
+    "isolation_all": {
+      "test": {
+        "ap": 0.013526602831265921,
+        "auc": 0.6770636651527233,
+        "hits_at_20": 0,
+        "hits_at_50": 0,
+        "n": 42006,
+        "p_at_20": 0.0,
+        "p_at_50": 0.0,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.0,
+        "r_at_50": 0.0
+      },
+      "validation": {
+        "ap": 0.029846836620398023,
+        "auc": 0.6404210641141018,
+        "hits_at_20": 0,
+        "hits_at_50": 0,
+        "n": 12388,
+        "p_at_20": 0.0,
+        "p_at_50": 0.0,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.0,
+        "r_at_50": 0.0
+      }
+    },
+    "isolation_known_negative": {
+      "test": {
+        "ap": 0.013782969736208841,
+        "auc": 0.6834642342257546,
+        "hits_at_20": 0,
+        "hits_at_50": 0,
+        "n": 42006,
+        "p_at_20": 0.0,
+        "p_at_50": 0.0,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.0,
+        "r_at_50": 0.0
+      },
+      "validation": {
+        "ap": 0.03185248617957927,
+        "auc": 0.6515166390237976,
+        "hits_at_20": 0,
+        "hits_at_50": 0,
+        "n": 12388,
+        "p_at_20": 0.0,
+        "p_at_50": 0.0,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.0,
+        "r_at_50": 0.0
+      }
+    },
+    "parent_ae": {
+      "coefficients": [
+        [
+          0.7437806725502014,
+          0.21835221350193024
+        ]
+      ],
+      "test": {
+        "ap": 0.10751643263104443,
+        "auc": 0.7600848565334734,
+        "brier": 0.005603187090860819,
+        "hits_at_20": 5,
+        "hits_at_50": 13,
+        "n": 42006,
+        "p_at_20": 0.25,
+        "p_at_50": 0.26,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.02242152466367713,
+        "r_at_50": 0.05829596412556054
+      },
+      "validation": {
+        "ap": 0.1485715680156633,
+        "auc": 0.6590350035576249,
+        "brier": 0.01231152234336242,
+        "hits_at_20": 14,
+        "hits_at_50": 19,
+        "n": 12388,
+        "p_at_20": 0.7,
+        "p_at_50": 0.38,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.08484848484848485,
+        "r_at_50": 0.11515151515151516
+      }
+    },
+    "parent_if": {
+      "coefficients": [
+        [
+          0.6699183411285448,
+          0.37277846863883163
+        ]
+      ],
+      "test": {
+        "ap": 0.11674759965532912,
+        "auc": 0.7701528364197296,
+        "brier": 0.005527274646812161,
+        "hits_at_20": 9,
+        "hits_at_50": 15,
+        "n": 42006,
+        "p_at_20": 0.45,
+        "p_at_50": 0.3,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.04035874439461883,
+        "r_at_50": 0.06726457399103139
+      },
+      "validation": {
+        "ap": 0.17732431892955164,
+        "auc": 0.6814634110060765,
+        "brier": 0.012111971029796189,
+        "hits_at_20": 16,
+        "hits_at_50": 22,
+        "n": 12388,
+        "p_at_20": 0.8,
+        "p_at_50": 0.44,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.09696969696969697,
+        "r_at_50": 0.13333333333333333
+      }
+    },
+    "parent_if_ae": {
+      "coefficients": [
+        [
+          0.6742379984907573,
+          0.28849466274203317,
+          0.10361088749582813
+        ]
+      ],
+      "test": {
+        "ap": 0.11978486407892729,
+        "auc": 0.7712171652620323,
+        "brier": 0.005557806704885067,
+        "hits_at_20": 9,
+        "hits_at_50": 15,
+        "n": 42006,
+        "p_at_20": 0.45,
+        "p_at_50": 0.3,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.04035874439461883,
+        "r_at_50": 0.06726457399103139
+      },
+      "validation": {
+        "ap": 0.17262827811505835,
+        "auc": 0.6819974266100421,
+        "brier": 0.012150626384066913,
+        "hits_at_20": 15,
+        "hits_at_50": 21,
+        "n": 12388,
+        "p_at_20": 0.75,
+        "p_at_50": 0.42,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.09090909090909091,
+        "r_at_50": 0.12727272727272726
+      }
+    },
+    "parent_only": {
+      "coefficients": [
+        [
+          0.7937692999839783
+        ]
+      ],
+      "test": {
+        "ap": 0.12400417185574591,
+        "auc": 0.7481696752890146,
+        "brier": 0.005393843920029335,
+        "hits_at_20": 10,
+        "hits_at_50": 13,
+        "n": 42006,
+        "p_at_20": 0.5,
+        "p_at_50": 0.26,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.04484304932735426,
+        "r_at_50": 0.05829596412556054
+      },
+      "validation": {
+        "ap": 0.1665728853117322,
+        "auc": 0.6403972639757636,
+        "brier": 0.012243990895500568,
+        "hits_at_20": 15,
+        "hits_at_50": 25,
+        "n": 12388,
+        "p_at_20": 0.75,
+        "p_at_50": 0.5,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.09090909090909091,
+        "r_at_50": 0.15151515151515152
+      }
+    }
+  },
+  "seconds": 23.35697204399912,
+  "validation_selected_fusion": "parent_if"
+}

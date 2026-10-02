@@ -64,7 +64,7 @@ export function Login({ onSuccess }: { onSuccess: () => void }) {
           <span className={styles.badge}>
             <span className={styles.dot} /> OFFLINE
           </span>
-          <span className={styles.mono}>127.0.0.1</span>
+          <span className={styles.mono}>private workstation</span>
           <span className={styles.mono}>no external calls</span>
         </div>
       </main>

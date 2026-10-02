@@ -1,0 +1,64 @@
+{
+  "windows": [
+    {
+      "window": 0,
+      "rows": 15064,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 1,
+      "rows": 12136,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 2,
+      "rows": 15390,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 3,
+      "rows": 16596,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 4,
+      "rows": 13314,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 5,
+      "rows": 16150,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 6,
+      "rows": 12388,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 7,
+      "rows": 12206,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 8,
+      "rows": 15352,
+      "max_score_error": 0.0
+    },
+    {
+      "window": 9,
+      "rows": 14448,
+      "max_score_error": 0.0
+    }
+  ],
+  "seconds": 27.62180234099651,
+  "source_sha256": "9426dcce2c43672233c75ffe58a6a771dfb8be502bfefef6ba1d56a3fcccd755",
+  "inference_sha256": "846f70ba3747a20b17fc839e5439fb7b4f4ba66df836a736422d19fe189651d9",
+  "model_manifest_sha256": "4583f53f3ad931abd4a9108d4224e65143baa103d210317c77e23158ef75879e",
+  "tree_shap_margin_sums_checked_by_inference": true,
+  "empty_window_checked": true,
+  "limitations": [
+    "Exact score replay is implementation verification, not independent model evaluation.",
+    "Standard stages/dashboard remain unchanged; optional XGBoost dependency required."
+  ]
+}

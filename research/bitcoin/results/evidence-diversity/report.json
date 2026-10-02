@@ -1,0 +1,345 @@
+{
+  "limitations": [
+    "Canonical consumed world; new-world confirmation still required.",
+    "Ground truth measures retrieval after selection; deployment cannot count true controllers.",
+    "TX overlap indicates repetitive evidence, not verified common ownership.",
+    "Twenty leads per window; sums can repeat a controller across windows.",
+    "Candidate pool and nonempty-evidence eligibility fixed across policies.",
+    "No claims about precision guarantees or optimal diversification."
+  ],
+  "results": {
+    "typed_static": {
+      "validation_selected_policy": "jaccard_025",
+      "windows": [
+        {
+          "distinct_controllers": 3,
+          "distinct_positive_controllers": 3,
+          "model": "typed_static",
+          "phase": "val",
+          "policy": "score_only",
+          "positive_addresses": 20,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 15,
+          "distinct_positive_controllers": 6,
+          "model": "typed_static",
+          "phase": "val",
+          "policy": "jaccard_050",
+          "positive_addresses": 11,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 19,
+          "distinct_positive_controllers": 7,
+          "model": "typed_static",
+          "phase": "val",
+          "policy": "jaccard_025",
+          "positive_addresses": 8,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 19,
+          "distinct_positive_controllers": 7,
+          "model": "typed_static",
+          "phase": "val",
+          "policy": "disjoint",
+          "positive_addresses": 8,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 11,
+          "distinct_positive_controllers": 3,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "score_only",
+          "positive_addresses": 12,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 17,
+          "distinct_positive_controllers": 6,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "jaccard_050",
+          "positive_addresses": 9,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 4,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "jaccard_025",
+          "positive_addresses": 4,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 4,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "disjoint",
+          "positive_addresses": 4,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 6,
+          "distinct_positive_controllers": 5,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "score_only",
+          "positive_addresses": 19,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 16,
+          "distinct_positive_controllers": 9,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "jaccard_050",
+          "positive_addresses": 11,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 8,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "jaccard_025",
+          "positive_addresses": 8,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 8,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "disjoint",
+          "positive_addresses": 8,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 17,
+          "distinct_positive_controllers": 0,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "score_only",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        },
+        {
+          "distinct_controllers": 15,
+          "distinct_positive_controllers": 0,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "jaccard_050",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 0,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "jaccard_025",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 0,
+          "model": "typed_static",
+          "phase": "test",
+          "policy": "disjoint",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        }
+      ]
+    },
+    "xgboost_distribution_features": {
+      "validation_selected_policy": "jaccard_025",
+      "windows": [
+        {
+          "distinct_controllers": 12,
+          "distinct_positive_controllers": 5,
+          "model": "xgboost_distribution_features",
+          "phase": "val",
+          "policy": "score_only",
+          "positive_addresses": 13,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 13,
+          "distinct_positive_controllers": 7,
+          "model": "xgboost_distribution_features",
+          "phase": "val",
+          "policy": "jaccard_050",
+          "positive_addresses": 14,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 19,
+          "distinct_positive_controllers": 10,
+          "model": "xgboost_distribution_features",
+          "phase": "val",
+          "policy": "jaccard_025",
+          "positive_addresses": 11,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 19,
+          "distinct_positive_controllers": 10,
+          "model": "xgboost_distribution_features",
+          "phase": "val",
+          "policy": "disjoint",
+          "positive_addresses": 11,
+          "returned": 20,
+          "window": 6
+        },
+        {
+          "distinct_controllers": 14,
+          "distinct_positive_controllers": 2,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "score_only",
+          "positive_addresses": 2,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 3,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "jaccard_050",
+          "positive_addresses": 3,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 3,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "jaccard_025",
+          "positive_addresses": 3,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 3,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "disjoint",
+          "positive_addresses": 3,
+          "returned": 20,
+          "window": 7
+        },
+        {
+          "distinct_controllers": 5,
+          "distinct_positive_controllers": 5,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "score_only",
+          "positive_addresses": 20,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 16,
+          "distinct_positive_controllers": 11,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "jaccard_050",
+          "positive_addresses": 15,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 7,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "jaccard_025",
+          "positive_addresses": 7,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 7,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "disjoint",
+          "positive_addresses": 7,
+          "returned": 20,
+          "window": 8
+        },
+        {
+          "distinct_controllers": 13,
+          "distinct_positive_controllers": 0,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "score_only",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        },
+        {
+          "distinct_controllers": 19,
+          "distinct_positive_controllers": 0,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "jaccard_050",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 0,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "jaccard_025",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        },
+        {
+          "distinct_controllers": 20,
+          "distinct_positive_controllers": 0,
+          "model": "xgboost_distribution_features",
+          "phase": "test",
+          "policy": "disjoint",
+          "positive_addresses": 0,
+          "returned": 20,
+          "window": 9
+        }
+      ]
+    }
+  },
+  "seconds": 2.15546395399997,
+  "selector_sha256": "7b47060d9b184a9a7465e81c52fff5430064231f8d2c78d04f097839653a92dd",
+  "source_sha256": "acd23cb38f255ec63cd10f0ce749d2f3e753ae2bccce98fde4b1454c4d28ec2e"
+}

@@ -1,0 +1,14 @@
+{
+  "focused_suite": {
+    "passed": 111,
+    "skipped": 3,
+    "warnings": 10,
+    "seconds": 53.95
+  },
+  "strict_mypy": "changed snapshot/feature/loader source and tests pass",
+  "ruff": "changed production/tests and research scripts pass (research annotation exemption)",
+  "quarantine": "fails existing API measurements-tree read",
+  "full_pytest": "interrupted after stall, exit130; no success claim",
+  "canonical_artifacts_rewritten": false,
+  "commits_created": 0
+}

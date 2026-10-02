@@ -72,15 +72,15 @@ export function IntakeScreen() {
           <span className={styles.tag}>KAVACH · सील</span>
         </div>
         <p className={styles.gloss}>
-          Pick a capture and watch it get sealed. We hash the raw bytes <em>before</em> we read them,
+          Inspect the selected run’s capture and its existing seal. We hash the raw bytes <em>before</em> we read them,
           so a court can prove nothing changed.
         </p>
       </header>
 
       {phase === "idle" ? (
-        <button className={styles.dropzone} type="button" onClick={seal} aria-label="Select and seal the capture">
+        <button className={styles.dropzone} type="button" onClick={seal} aria-label="Inspect the capture seal">
           <span className={styles.dropRing} aria-hidden />
-          <span className={styles.dropTitle}>Drop a capture, or click to select</span>
+          <span className={styles.dropTitle}>Inspect the sealed capture</span>
           <span className={styles.dropMeta}>
             {file?.name} · {file?.bytes != null ? `${(file.bytes / 1e6).toFixed(1)} MB` : "—"}
           </span>

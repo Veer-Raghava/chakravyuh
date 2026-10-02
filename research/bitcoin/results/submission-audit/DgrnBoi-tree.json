@@ -1,0 +1,215 @@
+{
+  "sha": "0da80f75963d266a2c8810599f17fbb103ecb549",
+  "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/trees/0da80f75963d266a2c8810599f17fbb103ecb549",
+  "tree": [
+    {
+      "path": ".gitignore",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4dad1177e1cfc4bfd8c485419dfd5b21db95c20f",
+      "size": 132,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/4dad1177e1cfc4bfd8c485419dfd5b21db95c20f"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a479aad228a0d163cac5aaef69b2a9719382efbf",
+      "size": 1074,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/a479aad228a0d163cac5aaef69b2a9719382efbf"
+    },
+    {
+      "path": "README.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d8dc75f05e83c94833dda2989b81604123ce7acb",
+      "size": 6011,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/d8dc75f05e83c94833dda2989b81604123ce7acb"
+    },
+    {
+      "path": "SIH_2023_Presentation_Clean.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1ac54e4cc97f80d4b3a7813818489d282a5fcf05",
+      "size": 1151417,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/1ac54e4cc97f80d4b3a7813818489d282a5fcf05"
+    },
+    {
+      "path": "SIH_2023_SMARTIrrIS_AI_Valves_Regulation.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2c32806a39173b8d0b64f1baa6a42a59eea32bc7",
+      "size": 1231388,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/2c32806a39173b8d0b64f1baa6a42a59eea32bc7"
+    },
+    {
+      "path": "SIH_2023_Techies_Travel_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "60cd86aaf89ad249e3d138e80bbb8a2ee3c8401b",
+      "size": 1253518,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/60cd86aaf89ad249e3d138e80bbb8a2ee3c8401b"
+    },
+    {
+      "path": "SIH_2024_AK11_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fccd11da59b0a2e12cf899bd5cfe32e277c8c0da",
+      "size": 1465312,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/fccd11da59b0a2e12cf899bd5cfe32e277c8c0da"
+    },
+    {
+      "path": "SIH_2024_Cannon_Crew_Air_Gapped_Security_Alternative.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "77a414b379b85ee2fafa2f6d28fac742a31f6e97",
+      "size": 1309936,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/77a414b379b85ee2fafa2f6d28fac742a31f6e97"
+    },
+    {
+      "path": "SIH_2024_Cannon_Crew_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "45340a4c43890f51b520e908a18814b2b995611d",
+      "size": 1961832,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/45340a4c43890f51b520e908a18814b2b995611d"
+    },
+    {
+      "path": "SIH_2024_CleanCoders_Waste_Management.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4a4cee13e9e721f86a0f19620705f92a91945bb7",
+      "size": 1570413,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/4a4cee13e9e721f86a0f19620705f92a91945bb7"
+    },
+    {
+      "path": "SIH_2024_DevWise_Rural_Education.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "73bfa973fa7ac5c3312276e322629d9635e812a8",
+      "size": 1278425,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/73bfa973fa7ac5c3312276e322629d9635e812a8"
+    },
+    {
+      "path": "SIH_2024_FitFusion_FitMitra.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8706b0fbede830f177d12226bb5130d2b3a6d5cb",
+      "size": 1118667,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/8706b0fbede830f177d12226bb5130d2b3a6d5cb"
+    },
+    {
+      "path": "SIH_2024_Heritage_Bytes_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "37a8320b5e9003ee74b6a5a9bfbfb38cd41556ff",
+      "size": 2276092,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/37a8320b5e9003ee74b6a5a9bfbfb38cd41556ff"
+    },
+    {
+      "path": "SIH_2024_Laksh_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "39dfd778195b5856a2fc86ec8f5da632882f50d8",
+      "size": 2244112,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/39dfd778195b5856a2fc86ec8f5da632882f50d8"
+    },
+    {
+      "path": "SIH_2024_Presentation_High_Quality_Clean.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "deef9624eefa434eb456fcebc6c5352fb9247cfb",
+      "size": 1866366,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/deef9624eefa434eb456fcebc6c5352fb9247cfb"
+    },
+    {
+      "path": "SIH_2024_Shokha_Baba_Buffet_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "99cc6160583870df57fff01dc2a7bd87a2c791e7",
+      "size": 2197283,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/99cc6160583870df57fff01dc2a7bd87a2c791e7"
+    },
+    {
+      "path": "SIH_2024_TechAkshara_Nexus_SKHydroLink.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4592bd743a245ecf73a5d7316224d2e74afefc26",
+      "size": 2320527,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/4592bd743a245ecf73a5d7316224d2e74afefc26"
+    },
+    {
+      "path": "SIH_2024_Tech_Busters_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "391750b6fdcbb55502bb3717ee43961bdc129911",
+      "size": 1830689,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/391750b6fdcbb55502bb3717ee43961bdc129911"
+    },
+    {
+      "path": "SIH_2024_Tech_Titans_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f55fe71bdf38db212dd3905c579e7498deb106d9",
+      "size": 2256509,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/f55fe71bdf38db212dd3905c579e7498deb106d9"
+    },
+    {
+      "path": "SIH_2024_Techbyte_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c0be32801082af1b4326d86bb62395e31477b9c3",
+      "size": 1614462,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/c0be32801082af1b4326d86bb62395e31477b9c3"
+    },
+    {
+      "path": "SIH_2025_Framework_Fanatics_KMRL_Document_Automation.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2ed3d2050e0c5a75ca91c36550acbcce3f017abe",
+      "size": 1381255,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/2ed3d2050e0c5a75ca91c36550acbcce3f017abe"
+    },
+    {
+      "path": "SIH_2025_GeoGuards_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8c61de650374ecdd925c63acb9f6fee2a477622e",
+      "size": 1916477,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/8c61de650374ecdd925c63acb9f6fee2a477622e"
+    },
+    {
+      "path": "SIH_2025_Pillowmasters_SwachSetu_Waste_Management.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a8a37c4a432ee528a4c1505ae902ba593e213003",
+      "size": 1059250,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/a8a37c4a432ee528a4c1505ae902ba593e213003"
+    },
+    {
+      "path": "SIH_2025_Tech_Pioneers_High_Quality.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b4ed1a13298cfa6b4fe4024c69a005be5d2d038f",
+      "size": 2263641,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/b4ed1a13298cfa6b4fe4024c69a005be5d2d038f"
+    },
+    {
+      "path": "SIH_2026_Idea_Presentation_Template.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2d7868e9a6a5b108674b644829efa7a1c03c2802",
+      "size": 450532,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/2d7868e9a6a5b108674b644829efa7a1c03c2802"
+    },
+    {
+      "path": "Vadodara_Hackathon_6_0_Anonymous_Bits.pdf",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1874b7db9b45a84a0b30721a969a1dfa2116ecc3",
+      "size": 902733,
+      "url": "https://api.github.com/repos/DgrnBoi/SIH-Past-PPTS-2024/git/blobs/1874b7db9b45a84a0b30721a969a1dfa2116ecc3"
+    }
+  ],
+  "truncated": false
+}

@@ -17,13 +17,14 @@
 }
 
 .brand {
-  font-family: var(--font-mono);
-  font-size: clamp(1.5rem, 3vw, 2.4rem);
-  font-weight: 500;
-  letter-spacing: 0.22em;
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3.8vw, 3rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
   margin: 0 0 0.5rem;
+  font-variation-settings: "opsz" 120, "SOFT" 30, "WONK" 0;
 }
 
 .tag {
@@ -41,7 +42,7 @@
   font-weight: 600;
   /* Deliberately under --t-display: the formation shares the stage, so the hero
      line is sized to its own measure rather than the full-bleed display scale. */
-  font-size: clamp(3rem, 8.6vw, 7.25rem);
+  font-size: clamp(2.4rem, 5.6vw, 4.5rem);
   line-height: 0.95;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -69,7 +70,7 @@
     max-width: min(46rem, 84vw);
   }
   .headline {
-    font-size: var(--t-display);
+    font-size: clamp(2.2rem, 7vw, 3.4rem);
   }
   .sub {
     max-width: 34rem;

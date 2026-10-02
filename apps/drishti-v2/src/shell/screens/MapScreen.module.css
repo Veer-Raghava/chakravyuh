@@ -278,3 +278,12 @@
   font-size: 0.85rem;
   line-height: 1.7;
 }
+.tracePages { position: absolute; bottom: 4.5rem; left: 1.5rem; display: flex; flex-wrap: wrap; gap: .65rem; max-width: calc(100% - 3rem); pointer-events: auto; }
+.tracePages > div { display: flex; align-items: center; gap: .55rem; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: .5rem .7rem; font: .75rem var(--font-mono); }
+.tracePages strong { color: var(--riso-blue); }
+.tracePages button { background: var(--paper-deep); border: 1px solid var(--line); border-radius: 4px; width: 28px; height: 28px; cursor: pointer; }
+.tracePages button:disabled { opacity: .3; cursor: default; }
+.tracePages small { width: 100%; font: .72rem var(--font-text); color: var(--ink-soft); }
+@media(max-width: 640px) { .tracePages { bottom: 5.5rem; left: .7rem; gap: .3rem; } .tracePages > div { font-size: .65rem; padding: .3rem; } }
+.views { top: 10rem; left: 2.25rem; transform: none; flex-wrap: wrap; }
+@media(max-width: 640px) { .views { top: 10.5rem; left: 1rem; right: 1rem; gap: .25rem; } .viewBtn { padding: .4rem .5rem; } }

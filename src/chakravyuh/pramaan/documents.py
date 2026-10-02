@@ -124,15 +124,27 @@ def packet_pdf(packet: dict[str, Any]) -> bytes:
             "attribution rather than an unready one."
         )
 
-    cur.heading("CONFIDENCE")
+    cur.heading("DETECTION SCORE" if packet.get("detection") else "CONFIDENCE")
     conf = packet["confidence"]
-    cur.para(
-        f"The calibrated interval for this subject's risk is [{float(conf['low']):.2f}, "
-        f"{float(conf['high']):.2f}], built at coverage target "
-        f"{float(conf['coverage_target']):.2f} "
-        f"by the {conf['method']} method. The claim is that the interval covers the true "
-        "risk the stated fraction of the time; it is not a probability of guilt."
-    )
+    if conf.get("method") == "ranking_only":
+        cur.field("Engine", str(packet["detection"]["engine"]["engine"]))
+        cur.field("Model SHA-256", str(packet["detection"]["engine"]["model_sha256"]))
+        cur.field("Ranking score", f"{float(conf['risk_score']):.4f}")
+        cur.para(
+            
+                "The score prioritizes activity for review. No confidence interval or "
+                "probability of guilt is asserted. The signed JSON includes the model "
+                "provenance and observed evidence graph."
+            
+        )
+    else:
+        cur.para(
+            f"The calibrated interval for this subject's risk is [{float(conf['low']):.2f}, "
+            f"{float(conf['high']):.2f}], built at coverage target "
+            f"{float(conf['coverage_target']):.2f} "
+            f"by the {conf['method']} method. The claim is that the interval covers the true "
+            "risk the stated fraction of the time; it is not a probability of guilt."
+        )
 
     cur.heading("FINDINGS")
     for one in packet["findings"]:

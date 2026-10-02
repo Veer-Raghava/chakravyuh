@@ -1,317 +1,251 @@
-import { fixtures } from "../../data/loader";
+import graphTests from "../../data/fixtures/graph-experiments.json";
+import research from "../../data/fixtures/research-progress.json";
+import { useRun } from "../../data/RunContext";
+import { InvestigationPreview } from "./InvestigationPreview";
 import styles from "./ModelIntelligence.module.css";
 
-/**
- * Model intelligence — the related-work section, rendered (World · MAYAJAAL).
- *
- * Every NUMBER on this panel is read from `world.model_intelligence`, and each one is
- * traceable to a committed artifact:
- *   · elliptic F1 / PR-AUC / ROC-AUC, and the inductive protocol
- *       -> measurements/<run>/elliptic_external.json + world.headline
- *   · precision@20 (0.60) and the rank-by-value baseline (0.00)
- *       -> measurements/<run>/model_report.json: wallet_model.precision_at_20 / baseline
- *   · rejected leg 0.0357 vs 0.0373 and its `baseline_not_beaten` reason
- *       -> docs/REMODEL-AUDIT-P0-P3.md §3.1 + measurements/_gnn-a/model_report.json
- *   · the published GCN / RF F1 bands are LITERATURE, not our measurements, and are
- *     labelled as such on screen (Grinsztajn et al., NeurIPS 2022; Weber et al., 2019).
- *
- * The one thing that is NOT a measurement is the axis bars, and the panel says so out
- * loud — they are an engineering assessment, because no artifact scores "court-readiness".
- * Mixing the two silently is exactly how a dashboard starts lying.
- */
+type ComparisonRow = { name: string; ap: number; p20: number; observation: string };
 
-const AXES = [
-  { id: "accuracy", label: "accuracy", gloss: "discrimination on held-out data" },
-  { id: "interpretability", label: "interpretability", gloss: "can an officer read why it fired" },
-  { id: "speed", label: "speed", gloss: "cost per subject scored" },
-  { id: "deployability", label: "deployability", gloss: "air-gapped, no GPU, no network" },
-  { id: "court", label: "court", gloss: "explainable under BSA 2023" },
-] as const;
-
-type AxisId = (typeof AXES)[number]["id"];
-
-/** Assessment, not measurement — see the header note. Words are derived from the value so
- *  the screen never shows a bare made-up decimal as if it were a score we computed. */
-const SCORES: Record<string, Record<AxisId, number>> = {
-  lightgbm: { accuracy: 0.95, interpretability: 1, speed: 1, deployability: 1, court: 1 },
-  gnn: { accuracy: 0.85, interpretability: 0.2, speed: 0.3, deployability: 0.2, court: 0.15 },
-  rf: { accuracy: 0.7, interpretability: 0.65, speed: 0.8, deployability: 0.9, court: 0.6 },
-};
-
-const word = (v: number) =>
-  v >= 0.9 ? "strong" : v >= 0.6 ? "workable" : v >= 0.35 ? "limited" : "weak";
-
-/** Positioning scale — a window wide enough to hold both published bands and our mark. */
-const PD_LO = 0.55;
-const PD_HI = 0.85;
-const posPct = (v: number) => `${((v - PD_LO) / (PD_HI - PD_LO)) * 100}%`;
-
-const ROADMAP = [
-  {
-    when: "0–3 months",
-    what: "Real-time streaming ingestion",
-    why: "Move off batch capture onto a live feed, so a lead lands while the funds are still moving. This is a deployment change, not a research one, and the model itself does not move.",
-  },
-  {
-    when: "3–6 months",
-    what: "Temporal pre-training on the unlabelled graph",
-    why: "Learn structure from the ~99% of traffic we never label, then fine-tune on the labelled slice. The honest next accuracy step, and the one our own phase-3 gate will judge.",
-  },
-  {
-    when: "6–9 months",
-    what: "Multi-chain tracing",
-    why: "Ethereum and the bridges that move value between chains. The money already leaves Bitcoin; the map should not stop at the edge of one ledger.",
-  },
-  {
-    when: "9–12 months",
-    what: "Federated learning across agencies",
-    why: "Each agency keeps its captures and its labels. Only model updates travel. Attribution improves without a single force handing another its raw intelligence.",
-  },
-];
+function ComparisonTable({ rows }: { rows: ComparisonRow[] }) {
+  return (
+    <div className={styles.tableScroll}>
+      <table>
+        <thead><tr><th>Model we tested</th><th>Test AP</th><th>Top-20 precision</th><th>What we observed</th></tr></thead>
+        <tbody>{rows.map((m) => (
+          <tr key={m.name}><td>{m.name}</td><td>{m.ap.toFixed(4)}</td><td>{(m.p20 * 100).toFixed(0)}%</td><td>{m.observation}</td></tr>
+        ))}</tbody>
+      </table>
+    </div>
+  );
+}
 
 export function ModelIntelligence() {
-  // Model-level, run-INVARIANT: which model ships, the rejected GNN leg, and the
-  // Elliptic external replication are properties of the shipped model, not of a
-  // capture's observer coverage — so this panel reads the canonical fixtures, not
-  // the active run. (A sparse run like stealth never scores these; reading the run
-  // here would show nulls for a fact the coverage doesn't change.)
-  const mi = fixtures.world.model_intelligence;
-
-  const MODELS = [
-    {
-      id: "lightgbm",
-      tech: "LightGBM",
-      name: "the risk model",
-      role: "ours · ships",
-      chip: "shipped",
-      measured: [
-        ["Elliptic F1", mi.ours.elliptic_f1.toFixed(3)],
-        ["precision@20", mi.ours.precision_at_20.toFixed(2)],
-      ],
-      line: `Gradient-boosted trees on 33 morphological features. ${mi.shipped_model} is the shipped row value; every lead carries a SHAP reason and a counter-reason.`,
-    },
-    {
-      id: "gnn",
-      tech: "GNN / GCN",
-      name: "the graph neural net",
-      role: "tested in phase 3 · rejected by our own gate",
-      chip: "rejected",
-      measured: [
-        ["holdout PR-AUC", mi.rejected_leg.with_embeddings_pr_auc.toFixed(4)],
-        ["baseline PR-AUC", mi.rejected_leg.without_embeddings_pr_auc.toFixed(4)],
-      ],
-      line: "Ran as extra columns over the confidence-weighted graph. It scored every one of the subjects and still lost, so the gate refused the leg.",
-    },
-    {
-      id: "rf",
-      tech: "Random Forest",
-      name: "the standard alternative",
-      role: "not shipped · no axis where it decides a case",
-      chip: "not shipped",
-      measured: [
-        ["published F1", `${mi.published_bands.rf_f1[0].toFixed(2)}–${mi.published_bands.rf_f1[1].toFixed(2)}`],
-        ["our precision@20", mi.ours.precision_at_20.toFixed(2)],
-      ],
-      line: "Same family, weaker fit, and no interpretability or deployment advantage over boosting. Published Elliptic band, cited rather than measured by us.",
-    },
-  ] as const;
-
-  const BANDS = [
-    {
-      key: "gnn",
-      label: "published GCN range",
-      lo: mi.published_bands.gnn_f1[0],
-      hi: mi.published_bands.gnn_f1[1],
-      note: "mostly transductive: the test nodes were visible during training",
-    },
-    {
-      key: "rf",
-      label: "published RF range",
-      lo: mi.published_bands.rf_f1[0],
-      hi: mi.published_bands.rf_f1[1],
-      note: "same dataset, same task, easier split",
-    },
-  ];
-
-  /** Where the mark sits, in words — read off the numbers, never asserted. */
-  const IN_GCN =
-    mi.ours.elliptic_f1 >= mi.published_bands.gnn_f1[0] &&
-    mi.ours.elliptic_f1 <= mi.published_bands.gnn_f1[1];
-
-  const delta = (
-    mi.rejected_leg.without_embeddings_pr_auc - mi.rejected_leg.with_embeddings_pr_auc
-  ).toFixed(4);
-  const barMax = 0.04; // 0-based: the two bars must look as close as they actually are
-  const barW = (v: number) => `${(v / barMax) * 100}%`;
-
+  const { fixtures } = useRun();
+  const integrated = fixtures.world.model_intelligence.shipped_model === "causal-relational-xgboost";
   return (
     <details className={styles.wrap} open>
       <summary className={styles.summary}>
-        <span className={styles.summaryTitle}>Model intelligence</span>
-        <span className={styles.summaryTag}>why this model · and what we rejected</span>
+        <span className={styles.summaryTitle}>
+          From graph intelligence to investigative leads
+        </span>
+        <span className={styles.summaryTag}>CPU · offline · explainable</span>
       </summary>
-
       <p className={styles.intro}>
-        Four questions decide which model goes to court: does it score well, can an officer read
-        why, does it run on an air-gapped machine, and can it be defended line by line. One model
-        wins all four. The alternative we tried lost its own gate and was not shipped.
+        Follow the money, connect it to captured network observations, and open
+        the evidence behind each model-ranked lead. The working research engine
+        uses typed graph context while keeping address ownership as a separate
+        investigative hypothesis.
       </p>
-
-      {/* ── 1 · the comparison ─────────────────────────────── */}
       <div className={styles.cards}>
-        {MODELS.map((m) => (
-          <article key={m.id} className={`${styles.card} ${m.chip === "shipped" ? styles.cardOurs : ""}`}>
-            <span className={styles.cardTech}>{m.tech}</span>
-            <h3 className={styles.cardName}>{m.name}</h3>
-            <span className={`${styles.chip} ${m.chip === "shipped" ? styles.chipOn : ""}`}>{m.chip}</span>
-            <p className={styles.cardRole}>{m.role}</p>
-
-            <dl className={styles.axes}>
-              {AXES.map((ax) => {
-                const v = SCORES[m.id][ax.id];
-                return (
-                  <div key={ax.id} className={styles.axisRow}>
-                    <dt className={styles.axisLabel} title={ax.gloss}>{ax.label}</dt>
-                    <span className={styles.axisTrack} aria-hidden>
-                      <span
-                        className={styles.axisFill}
-                        style={{ width: `${v * 100}%`, background: m.chip === "shipped" ? "var(--riso-blue)" : "var(--ink-soft)" }}
-                      />
-                    </span>
-                    <dd
-                      className={styles.axisWord}
-                      role="img"
-                      aria-label={`${m.tech} ${ax.label}: ${word(v)}`}
-                    >
-                      {word(v)}
-                    </dd>
-                  </div>
-                );
-              })}
-            </dl>
-
-            <dl className={styles.measured}>
-              {m.measured.map(([k, v]) => (
-                <div key={k} className={styles.measuredRow}>
-                  <dt>{k}</dt>
-                  <dd>{v}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className={styles.cardLine}>{m.line}</p>
-          </article>
-        ))}
-      </div>
-
-      <p className={styles.axisNote}>
-        Bar lengths are our assessment on each axis; the figures under each card are measurements,
-        and the published bands are cited rather than produced here. We score no axis we cannot
-        argue for.
-      </p>
-
-      {/* ── 2 · tested and rejected ────────────────────────── */}
-      <div className={styles.rejected}>
-        <div className={styles.rejHead}>
-          <span className={styles.rejTitle}>Tested, measured, rejected</span>
-          <span className={styles.rejBadge}>gate verdict: {mi.rejected_leg.gate}</span>
-        </div>
-
-        <div className={styles.rejBars}>
-          <div className={styles.rejRow}>
-            <span className={styles.rejLabel}>without embeddings</span>
-            <span className={styles.rejTrack} aria-hidden>
-              <span
-                className={styles.rejFill}
-                style={{ width: barW(mi.rejected_leg.without_embeddings_pr_auc), background: "var(--riso-blue)" }}
-              />
-            </span>
-            <span className={styles.rejVal}>{mi.rejected_leg.without_embeddings_pr_auc.toFixed(4)}</span>
-          </div>
-          <div className={styles.rejRow}>
-            <span className={styles.rejLabel}>with embeddings</span>
-            <span className={styles.rejTrack} aria-hidden>
-              <span
-                className={styles.rejFill}
-                style={{ width: barW(mi.rejected_leg.with_embeddings_pr_auc), background: "var(--coral)" }}
-              />
-            </span>
-            <span className={styles.rejVal}>{mi.rejected_leg.with_embeddings_pr_auc.toFixed(4)}</span>
-          </div>
-        </div>
-
-        <p className={styles.rejLine}>
-          <strong>{delta} lower</strong> than the booster it was meant to improve, on the same
-          holdout, scored over every subject, so the loss is not a coverage artifact. The columns are
-          wired off, the row vocabulary records the loss, and a checker turns red if anyone ever
-          ships them. The pipeline rejected its own improvement. No human override.
-        </p>
-      </div>
-
-      {/* ── 3 · where we sit ───────────────────────────────── */}
-      <div className={styles.positioning}>
-        <span className={styles.posTitle}>Where 0.766 sits</span>
-
-        <div className={styles.posPlot}>
-          <div className={styles.posAxis} aria-hidden>
-            {[0.55, 0.7, 0.85].map((t) => (
-              <span key={t} className={styles.posTick} style={{ left: posPct(t) }}>{t.toFixed(2)}</span>
-            ))}
-          </div>
-
-          {BANDS.map((b) => (
-            <div key={b.key} className={styles.posRow}>
-              <span className={styles.posLabel}>{b.label}</span>
-              <span className={styles.posTrack} aria-hidden>
-                <span
-                  className={styles.posBand}
-                  style={{ left: posPct(b.lo), width: `calc(${posPct(b.hi)} - ${posPct(b.lo)})` }}
-                />
-              </span>
-              <span className={styles.posRange}>
-                {b.lo.toFixed(2)}–{b.hi.toFixed(2)}
-              </span>
-            </div>
-          ))}
-
-          <div className={styles.posRow}>
-            <span className={`${styles.posLabel} ${styles.posLabelOurs}`}>our Elliptic F1</span>
-            <span className={styles.posTrack} aria-hidden>
-              <span className={styles.posMark} style={{ left: posPct(mi.ours.elliptic_f1) }}>
-                <span className={styles.posTickMark} />
-              </span>
-            </span>
-            <span className={styles.posOurs}>{mi.ours.elliptic_f1.toFixed(3)}</span>
-          </div>
-        </div>
-
-        <p className={styles.posNote}>
-          <strong>{mi.ours.elliptic_f1.toFixed(3)}</strong> is ours
-          {IN_GCN && <>, inside the published GCN band</>}. The protocol underneath is{" "}
-          <strong>inductive</strong>: trained on the past, tested on the unseen future, with no test
-          node ever visible during training. Most published results use the easier transductive
-          split, where the test nodes were already in the graph. The same 0.766 under the harder
-          protocol is the claim we make, and we name the protocol every time we make it.
-          ROC-AUC {mi.ours.elliptic_roc_auc.toFixed(3)} · PR-AUC {mi.ours.elliptic_pr_auc.toFixed(3)},
-          measured on a dataset whose labels are not ours.
-        </p>
-      </div>
-
-      {/* ── 4 · the first year, if deployed ────────────────── */}
-      <div className={styles.roadmap}>
-        <span className={styles.roadTitle}>the first year, if this is deployed</span>
-        <ol className={styles.steps}>
-          {ROADMAP.map((s) => (
-            <li key={s.what} className={styles.step}>
-              <span className={styles.stepWhen}>{s.when}</span>
-              <span className={styles.stepDot} aria-hidden />
-              <div className={styles.stepBody}>
-                <span className={styles.stepWhat}>{s.what}</span>
-                <p className={styles.stepWhy}>{s.why}</p>
+        <article className={`${styles.card} ${styles.cardOurs}`}>
+          <span className={styles.cardTech}>Current application engine</span>
+          <h3 className={styles.cardName}>{integrated ? "XGBoost + typed graph context" : "LightGBM + graph features"}</h3>
+          <span className={`${styles.chip} ${styles.chipOn}`}>CPU default</span>
+          <p className={styles.cardLine}>
+            {integrated ? "329 engineered address, transaction and announcing-peer inputs. A frozen CPU model feeds evidence-diverse Leads and newly signed Proof packets." : "33 engineered transaction, graph and network inputs. Signed SHAP contributions and graph evidence support this archived run's risk queue."}
+          </p>
+        </article>
+        <article className={styles.card}>
+          <span className={styles.cardTech}>Implemented graph-context engine</span>
+          <h3 className={styles.cardName}>329 graph-context inputs</h3>
+          <span className={styles.chip}>Portable CPU model</span>
+          <p className={styles.cardLine}>
+            XGBoost learns from address activity, incoming and outgoing
+            transaction neighborhoods, funding addresses and announcing peers.
+            Native TreeSHAP explains its predictions.
+          </p>
+          <p className={styles.cardLine}>
+            The portable implementation reproduced both research representations
+            across all ten windows exactly. The integrated graph run now routes its own
+            leads, evidence and signatures through the main investigation views.
+          </p>
+        </article>
+        <article className={styles.card}>
+          <span className={styles.cardTech}>Measured research result</span>
+          <h3 className={styles.cardName}>More distinct leads to review</h3>
+          <dl className={styles.measured}>
+            {research.worlds.map((w) => (
+              <div key={w.seed} className={styles.measuredRow}>
+                <dt>Synthetic world {w.seed}</dt>
+                <dd>
+                  {w.before} → {w.after}
+                </dd>
               </div>
-            </li>
-          ))}
-        </ol>
+            ))}
+          </dl>
+          <p className={styles.cardLine}>
+            We tested a frozen transaction-evidence diversity policy. It
+            increased suspicious controller-window retrieval across three test
+            windows for the graph-context XGBoost model. A controller can recur
+            across windows.
+          </p>
+          <p className={styles.cardLine}>
+            This trades address precision for wider investigative coverage.
+            These are research measurements, not metrics for the active capture.
+          </p>
+        </article>
       </div>
+      <section className={styles.graphTests}>
+        <span className={styles.cardTech}>Public Bitcoin data · completed experiment</span>
+        <h3 className={styles.sectionTitle}>Graph context helped on Elliptic, too.</h3>
+        <p className={styles.body}>
+          We compared trained graph models, embedding hybrids and feature-based
+          trees on 203,769 Bitcoin transaction nodes and 234,355 flow edges.
+          Graph-feature LightGBM achieved 0.6566 average precision and 20 positive
+          transactions in its pooled top 20, improving AP over matched local LightGBM.
+        </p>
+        <ComparisonTable rows={graphTests.ellipticModels} />
+        <p className={styles.body}>
+          Earlier time steps trained the models; steps 40–49 supplied the test.
+          Only labeled transactions were scored: 636 illicit among 11,184
+          test transactions (5.69%). Unknown labels remained graph context.
+          This public-data comparison is separate from our synthetic experiments
+          and from metrics for the active capture.
+        </p>
+        <p className={styles.note}>Source: {graphTests.ellipticSource} · 300 tree rounds · up to 240 neural epochs · exploratory comparison</p>
+      </section>
+      <section className={styles.graphTests}>
+        <span className={styles.cardTech}>Synthetic Bitcoin + network evidence · stronger tree controls</span>
+        <h3 className={styles.sectionTitle}>We tested rich graph features with both tree engines.</h3>
+        <p className={styles.body}>
+          These earlier R37 experiments use 329 inputs describing local activity,
+          incoming and outgoing transaction neighborhoods, funding subjects and
+          captured announcing peers. Address XGBoost reached AP 0.3148 with 20
+          positives among its pooled top 20.
+        </p>
+        <ComparisonTable rows={graphTests.richModels} />
+        <p className={styles.body}>
+          Address and common-input-grouped rows score different subjects; their
+          metrics are not interchangeable. These are research models, distinct
+          from the application's 33-input LightGBM default. They were not newly
+          trained as part of the later R47 neural replay.
+        </p>
+        <p className={styles.note}>Source: {graphTests.richSource} · 300 rounds per model · chronological fit/calibration/validation/test</p>
+      </section>
+      <section className={styles.graphTests}>
+        <span className={styles.cardTech}>Understanding the measurements</span>
+        <h3 className={styles.sectionTitle}>A strong first queue and complete recovery are different goals.</h3>
+        <div className={styles.metricGrid}>
+          <article className={styles.metricCard}>
+            <strong>19 / 20</strong>
+            <h4>Relevant decisions in the GNN's first 20</h4>
+            <p>95% pooled Precision@20: relevance at a small review budget.</p>
+          </article>
+          <article className={styles.metricCard}>
+            <strong>0.2879 AP</strong>
+            <h4>Quality across the whole ranking</h4>
+            <p>Average precision rewards finding positives early throughout the list. It is not 28.79% accuracy.</p>
+          </article>
+          <article className={styles.metricCard}>
+            <strong>0.52%</strong>
+            <h4>Positive prevalence in this test</h4>
+            <p>295 positive decisions among 57,105. A random ranking has an approximate AP reference of 0.0052.</p>
+          </article>
+        </div>
+        <p className={styles.body}>
+          The first 19 positives recover 6.44% of all positives. Recovering more
+          requires reviewing farther down the list while controlling false
+          alerts. Address-window decisions can repeat an actor; they are not
+          distinct people or verified identities.
+        </p>
+        <details className={styles.controls}>
+          <summary>How we tested the graph benefit · GNNs and relationship controls</summary>
+          <p className={styles.body}>
+            R47 used the same synthetic test windows 7–9 for these models.
+            Validation selected the temporal GRU. Disrupting graph alignment
+            reduced its AP from 0.2879 to 0.0778, supporting the value of real
+            relationships beyond local features.
+          </p>
+          <ComparisonTable rows={graphTests.models} />
+          <p className={styles.body}>
+            Temporal GNN per-window P@20 was 65%, 100% and 0%; the last window
+            contained no positives. Pooled top-20 performance is not a promise
+            of 95% precision in every window. These custom typed mean/GRU models
+            ran on CPU; they are not canonical TGN, TGAT or HGT reproductions.
+          </p>
+          <p className={styles.note}>Source: {graphTests.source} · 60-epoch budget · consumed synthetic world</p>
+        </details>
+      </section>
+      <section className={styles.graphTests}>
+        <span className={styles.cardTech}>New exploratory test · saved-score blend</span>
+        <h3 className={styles.sectionTitle}>Can trees and temporal memory work together?</h3>
+        <p className={styles.body}>
+          We tested five blend weights using saved predictions. Validation AP
+          selected 75% graph-context XGBoost + 25% temporal GNN. Its test AP
+          increased to 0.3381. This combines two existing models; it does not
+          retrain a new encoder or establish calibrated blend probabilities.
+        </p>
+        <div className={styles.tableScroll}>
+          <table>
+            <thead><tr><th>Model</th><th>Test AP</th><th>Hits / 20 reviews</th><th>Hits / 50</th><th>Hits / 100</th><th>Hits / 500</th></tr></thead>
+            <tbody>{graphTests.recoveryModels.map((m) => (
+              <tr key={m.name}>
+                <td>{m.name}</td><td>{m.ap.toFixed(4)}</td>
+                <td>{m.budgets["20"].hits} / 20</td><td>{m.budgets["50"].hits} / 50</td>
+                <td>{m.budgets["100"].hits} / 100</td><td>{m.budgets["500"].hits} / 500</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+        <p className={styles.body}>
+          At 500 reviews the blend retrieves 128 of 295 positives (43.39%),
+          compared with 115 for the tree and 114 for the GNN. At 50 reviews the
+          GNN alone retrieves more. There is no single winner at every workload.
+          The next promotion test is a complete matched benchmark across
+          independent worlds, with actor diversity and review cost measured.
+        </p>
+        <p className={styles.note}>Source: {graphTests.recoverySource} · repeated actors possible · exploratory reused-test analysis · production engine unchanged</p>
+      </section>
+      <InvestigationPreview />
+      <section className={styles.roadmap}>
+        <h3 className={styles.sectionTitle}>The investigation workflow</h3>
+        <ol className={styles.steps}>
+          <li className={styles.step}>
+            <span className={styles.stepWhen}>Observe</span>
+            <div>
+              <span className={styles.stepTitle}>
+                Keep transaction and network evidence connected
+              </span>
+              <p className={styles.body}>
+                Inputs, outputs, amounts and timed announcements form the
+                evidence graph. Address-level detection can operate without
+                first merging wallets into an owner.
+              </p>
+            </div>
+          </li>
+          <li className={styles.step}>
+            <span className={styles.stepWhen}>Prioritize</span>
+            <div>
+              <span className={styles.stepTitle}>
+                Learn patterns, then reduce repeated evidence
+              </span>
+              <p className={styles.body}>
+                A trained model ranks leads. The queue compares their supporting
+                transactions so repeated evidence does not consume every review
+                slot.
+              </p>
+            </div>
+          </li>
+          <li className={styles.step}>
+            <span className={styles.stepWhen}>Investigate</span>
+            <div>
+              <span className={styles.stepTitle}>
+                Explain, trace and export
+              </span>
+              <p className={styles.body}>
+                Open signed feature contributions, exact transaction amounts and
+                observed peer links. Export a structured evidence queue for
+                further investigation.
+              </p>
+            </div>
+          </li>
+        </ol>
+        <p className={styles.note}>
+          The preview is an executed synthetic research snapshot. Full stage
+          integration and validation under new observation regimes are the next
+          engineering milestones.
+        </p>
+      </section>
     </details>
   );
 }

@@ -1,0 +1,257 @@
+{
+  "hashes": {
+    "/home/void/chakravyuh/research/bitcoin/typed_lightgbm_controls.py": "d221b65e804257d5d189efb70fc536dd7edb10fc7e96e43c7594286cfc50a51a",
+    "research/bitcoin/results/temporal-hetero-extended/typed_temporal_gru.pt": "ec7431a1f6fa5b9ab226ccb8cc425ac2eb38d7c50ea056842bc5fbe0eba6a24d"
+  },
+  "limitations": [
+    "Consumed synthetic world; supplementary comparison, not new confirmation.",
+    "Encoder is frozen from the validation-selected180epoch temporal run.",
+    "Same-fit supervised embeddings, not an out-of-fold stack.",
+    "No independent-world LightGBM transfer/policy validation here."
+  ],
+  "models": {
+    "lightgbm_local": {
+      "score_artifact": "research/bitcoin/results/typed-lightgbm-controls/lightgbm_local-scores.parquet",
+      "score_sha256": "5375eae3ba01e1b00269ead201aca8f8e65c11c7fbb8ab4317bc209589a687ea",
+      "test": {
+        "ap": 0.05473762263133604,
+        "auc": 0.6681847778759551,
+        "brier": 0.005505002833215911,
+        "hits_at_20": 9,
+        "hits_at_50": 13,
+        "n": 42006,
+        "p_at_20": 0.45,
+        "p_at_50": 0.26,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.04035874439461883,
+        "r_at_50": 0.05829596412556054
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.062250633446429934,
+          "auc": 0.5903345463995455,
+          "brier": 0.007241689165685521,
+          "hits_at_20": 5,
+          "hits_at_50": 5,
+          "n": 12206,
+          "p_at_20": 0.25,
+          "p_at_50": 0.1,
+          "positives": 87,
+          "prevalence": 0.007127642143208259,
+          "r_at_20": 0.05747126436781609,
+          "r_at_50": 0.05747126436781609
+        },
+        "8": {
+          "ap": 0.08240825323528413,
+          "auc": 0.7186683328694254,
+          "brier": 0.008728969392806674,
+          "hits_at_20": 8,
+          "hits_at_50": 9,
+          "n": 15352,
+          "p_at_20": 0.4,
+          "p_at_50": 0.18,
+          "positives": 136,
+          "prevalence": 0.008858780614903595,
+          "r_at_20": 0.058823529411764705,
+          "r_at_50": 0.0661764705882353
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0006121229884649806,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 14448,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.12453814350367853,
+        "auc": 0.612554820891563,
+        "brier": 0.012792173512028226,
+        "hits_at_20": 15,
+        "hits_at_50": 19,
+        "n": 12388,
+        "p_at_20": 0.75,
+        "p_at_50": 0.38,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.09090909090909091,
+        "r_at_50": 0.11515151515151516
+      }
+    },
+    "lightgbm_typed_features": {
+      "score_artifact": "research/bitcoin/results/typed-lightgbm-controls/lightgbm_typed_features-scores.parquet",
+      "score_sha256": "e13b906f5d938c85806b664fca7c181693da933bbee90ab569f559ec3ac46d4f",
+      "test": {
+        "ap": 0.1968579755982714,
+        "auc": 0.8495971981653233,
+        "brier": 0.006231957181333717,
+        "hits_at_20": 9,
+        "hits_at_50": 24,
+        "n": 42006,
+        "p_at_20": 0.45,
+        "p_at_50": 0.48,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.04035874439461883,
+        "r_at_50": 0.10762331838565023
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.04121565416679279,
+          "auc": 0.7854475683191493,
+          "brier": 0.008173986888901981,
+          "hits_at_20": 2,
+          "hits_at_50": 6,
+          "n": 12206,
+          "p_at_20": 0.1,
+          "p_at_50": 0.12,
+          "positives": 87,
+          "prevalence": 0.007127642143208259,
+          "r_at_20": 0.022988505747126436,
+          "r_at_50": 0.06896551724137931
+        },
+        "8": {
+          "ap": 0.46930610865304806,
+          "auc": 0.9026979630574627,
+          "brier": 0.007516436591739091,
+          "hits_at_20": 19,
+          "hits_at_50": 46,
+          "n": 15352,
+          "p_at_20": 0.95,
+          "p_at_50": 0.92,
+          "positives": 136,
+          "prevalence": 0.008858780614903595,
+          "r_at_20": 0.13970588235294118,
+          "r_at_50": 0.3382352941176471
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0032264379039858813,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 14448,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.1926155984494279,
+        "auc": 0.8585002441993361,
+        "brier": 0.012202642965037603,
+        "hits_at_20": 5,
+        "hits_at_50": 22,
+        "n": 12388,
+        "p_at_20": 0.25,
+        "p_at_50": 0.44,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.030303030303030304,
+        "r_at_50": 0.13333333333333333
+      }
+    },
+    "temporal_embeddings_lightgbm": {
+      "score_artifact": "research/bitcoin/results/typed-lightgbm-controls/temporal_embeddings_lightgbm-scores.parquet",
+      "score_sha256": "551fa3f3bcbee22a59264e4c473f57938597166561739e403bf984f9ccc4fc87",
+      "test": {
+        "ap": 0.26224665727935803,
+        "auc": 0.8458819209949677,
+        "brier": 0.0052701414078247235,
+        "hits_at_20": 18,
+        "hits_at_50": 34,
+        "n": 42006,
+        "p_at_20": 0.9,
+        "p_at_50": 0.68,
+        "positives": 223,
+        "prevalence": 0.005308765414464601,
+        "r_at_20": 0.08071748878923767,
+        "r_at_50": 0.15246636771300448
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.16010988530883125,
+          "auc": 0.8439483740265357,
+          "brier": 0.006593339358529672,
+          "hits_at_20": 6,
+          "hits_at_50": 17,
+          "n": 12206,
+          "p_at_20": 0.3,
+          "p_at_50": 0.34,
+          "positives": 87,
+          "prevalence": 0.007127642143208259,
+          "r_at_20": 0.06896551724137931,
+          "r_at_50": 0.19540229885057472
+        },
+        "8": {
+          "ap": 0.4254728099183161,
+          "auc": 0.8525553113595596,
+          "brier": 0.006702900221034918,
+          "hits_at_20": 19,
+          "hits_at_50": 43,
+          "n": 15352,
+          "p_at_20": 0.95,
+          "p_at_50": 0.86,
+          "positives": 136,
+          "prevalence": 0.008858780614903595,
+          "r_at_20": 0.13970588235294118,
+          "r_at_50": 0.3161764705882353
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0026298681875376595,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 14448,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.23251846593128978,
+        "auc": 0.8253845829645552,
+        "brier": 0.011567582676874508,
+        "hits_at_20": 14,
+        "hits_at_50": 28,
+        "n": 12388,
+        "p_at_20": 0.7,
+        "p_at_50": 0.56,
+        "positives": 165,
+        "prevalence": 0.013319341298030352,
+        "r_at_20": 0.08484848484848485,
+        "r_at_50": 0.1696969696969697
+      }
+    }
+  },
+  "params": {
+    "deterministic": true,
+    "force_col_wise": true,
+    "lambda_l2": 1.0,
+    "learning_rate": 0.05,
+    "min_data_in_leaf": 40,
+    "num_leaves": 31,
+    "num_threads": 4,
+    "objective": "binary",
+    "seed": 42,
+    "verbosity": -1
+  },
+  "rounds": 300,
+  "seconds": 23.905521546999807,
+  "selected_by_validation_p20_then_ap": "lightgbm_local"
+}

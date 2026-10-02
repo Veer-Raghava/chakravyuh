@@ -1,0 +1,26 @@
+[
+  {
+    "active_observers": 48,
+    "median_candidates": 26.0,
+    "median_observers_seen": 26.0,
+    "median_gap": 0.0019925610319894527,
+    "fraction_gap_ge_001": 0.08458277323958226,
+    "median_candidate_mass": 0.34652118900933404
+  },
+  {
+    "active_observers": 24,
+    "median_candidates": 13.0,
+    "median_observers_seen": 13.0,
+    "median_gap": 0.005830816237586009,
+    "fraction_gap_ge_001": 0.2888038079470199,
+    "median_candidate_mass": 0.4830730375554687
+  },
+  {
+    "active_observers": 8,
+    "median_candidates": 5.0,
+    "median_observers_seen": 5.0,
+    "median_gap": 0.04485102593144635,
+    "fraction_gap_ge_001": 0.8874831483978015,
+    "median_candidate_mass": 0.9518903233629472
+  }
+]

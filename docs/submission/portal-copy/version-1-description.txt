@@ -1,0 +1,43 @@
+1. The investigation problem
+
+The problem statement requires more than transaction classification. Blockchain records show which addresses fund and receive a transaction; captured network records show who announced that transaction to an observer, on which port and at what time. Repeated announcements are not new payments, and an announcing peer is not automatically the sender. An investigator needs both evidence layers in one view, with an ordered set of leads and enough supporting material to review each one.
+
+CHAKRAVYUH is our offline Linux solution. DRISHTI is its investigation interface. The output is a ranked, explainable case lead, with observed money movement, captured network support, ownership hypotheses where available, and a record that can be exported and checked locally.
+
+2. What happens to an input capture
+
+KAVACH accepts bulk CSV, JSON/JSONL and XML. It hashes original files before parsing, retains the originals, and records accepted and rejected rows with reasons. SETU normalizes timestamps to UTC microseconds and values to integer satoshis. It separates transaction bodies from announcement events, so many observations of one TXID remain network evidence without becoming many payments. Local ASN/GeoIP lists supply network context when available; missing information remains explicit.
+
+JAAL builds a typed graph of addresses, transactions, peers and network operators. Input and output edges retain amounts; announcement edges retain their observation meaning. Common-input and change rules propose likely shared ownership while preserving original address nodes and evidence. We do not need to erase the underlying graph to display a grouped view.
+
+3. Learned detection and network evidence
+
+The main BUDDHI pipeline uses a trained 33-feature LightGBM model. Its inputs cover activity, amounts, counterparties, fan-out, dwell, fee behaviour, ownership evidence and available source/typology summaries. SHAP supplies model-level reasons. SHASTRA separately ranks network-source candidates using arrival evidence and network history, with operator-level summaries and insufficient-evidence states. A useful AML lead can exist even when no reliable originating host can be named.
+
+Our newer optional CPU engine scores explicit address/transaction/announcer decision windows using 329 engineered inputs. It combines local behaviour with typed neighborhood distributions and frozen XGBoost artifacts, and records positive and negative TreeSHAP contributions. Its runtime consumes normalized observations and a saved model, without reading evaluation answer keys or importing neural training code. This engine is implemented as an optional CLI and a World-screen local investigation viewer; the default stage pipeline remains LightGBM while the release handoff is completed.
+
+4. A queue designed around investigator attention
+
+Simply taking the highest-scoring addresses can spend several review slots on the same underlying transaction evidence. Our optional queue compares each candidate's observed supporting TXIDs and limits overlap before choosing up to 20 leads. This selection uses evidence, not hidden owner labels. Each selected lead includes a bounded graph with complete inputs/outputs for the retained transactions, exact amounts and captured announcing-peer observations.
+
+We measured this choice in two synthetic transfer worlds. With the queue policy frozen, suspicious controller-window retrieval across three future windows improved from 11 to 33 and from 9 to 16. A controller may recur in another window; the finding is better retrieval per review budget in these tests, not verified identification of 33 people.
+
+5. Evidence-driven model selection
+
+MAYAJAAL gives us configurable transaction campaigns and captured propagation with separate ground truth. We use chronological fit, calibration, validation and test windows, graph-shuffling controls and independent generated worlds. We have actually trained tabular alternatives, typed static/temporal graph models and embedding/tree hybrids, rather than choosing a GNN because its name sounds stronger.
+
+On our canonical synthetic address-window protocol, rich graph-context XGBoost achieved average precision 0.3148 against 0.0538 for the matched local-only tree. Separate public Elliptic experiments also compare local and graph-summary features. Public Bitcoin classification and synthetic network attribution are evaluated separately because their targets, labels and splits differ. Accuracy alone is insufficient for rare suspicious activity; Precision@20/50, average precision, retrieval diversity and evidence quality matter to the investigation workflow.
+
+On public Elliptic Bitcoin data, our separately trained graph-feature LightGBM achieved average precision 0.6566 and 20 illicit transactions among its pooled top 20, versus AP 0.6366 for matched local-feature LightGBM. The temporal test comprised 11,184 labeled transactions, including 636 illicit; unknown labels remained graph context. Public transaction classification and synthetic address-window detection are separate experiments with different targets and prevalence.
+
+6. What the officer sees and retains
+
+DRISHTI connects the globe, transaction/peer map, paged money trace, origin candidates, ranked leads and proof views. A case contains model reasons and counter-evidence, including plausible benign explanations or weak source separation. The officer can examine a transaction's complete endpoints without a cluttered graph being treated as the entire evidence record. Run selection and saved research queues preserve which capture and engine produced the view.
+
+PRAMAAN creates canonical JSON, deterministic PDFs, an Ed25519 signature, custody hashes and replay metadata for legacy pipeline cases. The current interface exports archived signed packets; a new research queue remains separately identified and does not inherit an old signature. The signature protects artifact integrity; follow-up investigation determines what the observations mean.
+
+7. Practical deployment and next release
+
+Core execution is CPU-based and requires no cloud service or CUDA. A stripped replay of the optional graph-context engine produced the same 20-lead packet in 2.69 seconds with 788.8 MiB peak process memory on the tested capture. Local browser interactions have been checked offline with zero external requests. These measurements establish a working prototype workload, not a universal performance guarantee.
+
+The next release connects the frozen decision-window scorer to active VAANI cases and new PRAMAAN packets, then verifies a complete offline installation on a clean Linux host. The trained temporal graph model remains a controlled challenger until it improves the same review-budget workflow. Our contribution is a coherent investigation process: learned detection, connected evidence, explicit model effects, reviewable doubts and local artifact custody.

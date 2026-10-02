@@ -627,3 +627,140 @@ Known issues / notes:
 Fixture paths: apps/drishti-v2/src/data/fixtures/*.json (loader: src/data/loader.ts).
 Demo machine: <fill in>
 Last commit that ran green + offline: —
+
+### B6 — Bitcoin AML model architecture audit + World evidence corrections — DONE
+  - Read CLAUDE, master playbook and remodel documents against the current implementation. Added `docs/BITCOIN-AML-MODEL-AUDIT.md`: primary-paper ledger through 2026, actual 33 features/training/splits, leakage and synthetic-data risks, all requested model comparisons, decision matrix, hardware/explanation requirements, architecture and Phase 0–5 migration gates.
+  - Recommendation: retain CPU LightGBM; fix causal evaluation, score semantics and reusable label-free inference first. Benchmark LR/RF/XGBoost fairly. Isolation Forest is an auxiliary novelty trial; typed temporal neural learning is conditional research, not a promised second shipping engine.
+  - Added `scripts/audit_aml_ranking.py` and hashed diagnostic JSON: saved all-holdout P@20 0.60, diagnostic P@50 0.44, standard AP 0.065583. Kept production scores and original measurement reports unchanged.
+  - World now shows one CPU engine with provenance-separated synthetic/external results. Removed arbitrary model bars and incomparable literature F1 bands; corrected SVD trial vs trained-GNN claims, external recipe replication vs transfer, and illicit-entity hit rate vs campaign recall. Removed host-baseline/operator-score lift across different target grains. Rebuilt tracked offline frontend output.
+  - Verification: TypeScript/build passed; Ruff/format/mypy passed; diagnostic replay byte-identical; data validation 58/58. Desktop/mobile Playwright checks passed, including disclosure keyboard interaction and panel overflow; screenshots in `docs/audits/screenshots/`.
+  - Full `make verify` blocked at S00 by pre-existing `test_serialize_never_names_the_quarantine`: unchanged API serializer reads `measurements`, which the test forbids. Later stage gates were not reached. No backend model migration performed in this audit.
+
+### B7 — JAAL entity-resolution research, first controlled experiments — IN PROGRESS
+  - Added `docs/research/JAAL-ENTITY-RESOLUTION-RESEARCH.md` and extended the timestamped research log. Reviewed Bitcoin address clustering rules, change-output learning, graph communities, cluster-collapse controls, and a 2026 contrastive-GNN refinement preprint. Key caution: the recent GNN paper's main labels are heuristic-generated; its CoinJoin hard-negative result is a research lead, not proof of owner recovery.
+  - Audited JAAL implementation and synthetic generator. `agency-v2` directly controls multi-input, collaborative-input, address reuse, and round-payment behaviors, then writes ownership/change answer keys. Current scores are therefore internal simulator experiments and need independent seeds/protocol labels for transfer claims.
+  - R02: CIOH proposals are 94.4% correct, but transitive partition pair precision/recall are 79.6%/28.8%. Adding current change links raises recall to 29.8% but lowers pair precision to 58.8%. CIOH + learned LightGBM change proposals yields exploratory pair F1 0.437 vs 0.423 CIOH-only; no model promoted.
+  - R03: equal-output mixer safeguard has 1.9% recall against synthetic mixed-owner inputs. Temporal LightGBM screen AP 0.763; at validation-selected threshold, final-period eligible spend classification precision 88.9% / recall 41.0%. On final-period-only clusters, pair F1 0.925 vs 0.921 unfiltered and 0.916 with the simple shape filter. Explicit cannot-links did not add measurable score improvement. All scripts/results/hashes and caveats are in `docs/research/EXPERIMENT-JOURNAL.md` and `research/bitcoin/results/`.
+  - R04: reviewed peel-chain and mempool literature. Current tracer's 7,899 isolated peel candidates identify the exact change output 63.3% of the time; 625 unique-successor links raise precision to 72.6%, but cover only 4.5% of true-change two-output transactions. This supports evaluating chain context, with coverage stated explicitly.
+  - R05: added seven P2P announcement features using observations within five seconds of first-seen. Test AP changed 0.7631→0.7650 and ROC-AUC stayed ~0.978; the selected operating point traded 1pp precision for 2.4pp recall. P2P is useful evidence/timing context here, not identity proof; no material ranking gain established.
+  - R06/R07: independent-seed full simulator transfer attempt stopped at the pre-announced 10-minute single-core limit, with no output or metric; recorded as a runtime limitation. JAAL's source-absence output is reframed as calibrated candidate-set coverage with an explicit unknown/abstain state, never proof of a person's absence.
+  - JAAL remains in progress: protocol-adjudicated CoinJoin/PayJoin challenge set, entity-held-out evaluation, provenance-preserving candidate links, and constrained clustering remain open. Do not deploy the mixed-input classifier based on one synthetic seed.
+
+### B8 · BUDDHI uncertainty research — IN PROGRESS
+  - Audited the current CPU LightGBM path: 33 engineered features, chronological holdout, nested time fit/calibration, TreeSHAP; canonical agency-v2 actor PR-AUC .0649, P@20 .60, transaction PR-AUC .1006, campaign recall .9541. The optional `--gnn` path was not run and is fixed two-hop propagation + SVD, not a trained GNN.
+  - R08 paired rerun on the same capture compared current JAAL threshold .20 with CIOH-only .30. JAAL pair precision improved .5883→.7959 with recall .2979→.2882; BUDDHI actor P@20 .60→.90 and PR-AUC .0649→.0690, while transaction P@20 .40→.35 and campaign recall .9541→.9490. This is one-seed sensitivity, not a threshold promotion.
+  - Critical metric correction: current campaign recall is conformal class-1 set inclusion, not a workload-bounded alert. It flags 10,149 entities at .20; only 187 are illicit (1.84% precision). Report ranking, set coverage and actionable alerts separately. Full audit and provenance in `docs/research/BUDDHI-UNCERTAINTY-RESEARCH.md` and R08 of `docs/research/EXPERIMENT-JOURNAL.md`.
+  - R09 found a blocking temporal flaw: JAAL's 36,357 `SAME_OWNER` edges have no event time/TXID, and BUDDHI forms subjects from the full-capture graph before splitting. Of 373,100 early-address pairs at threshold .20, 191,656 (51.37%) rely on post-boundary graph evidence. The R08 threshold results are therefore retrospective/transductive diagnostics, not valid chronological scores. No corrected score has been estimated.
+  - R09 established that full-capture JAAL topology leaks across the nominal time split; all current BUDDHI scores are retrospective diagnostics. This blocks performance claims and promotion until edge provenance/snapshots are implemented.
+  - Next: preserve edge provenance and rebuild graph snapshots at every fit/calibration/test cutoff; rerun BUDDHI evaluation before any architecture or threshold promotion. Then define a validation-only alert workload, add false-campaign metrics/uncertainty, and repeat across independent worlds.
+
+### B9 · SHASTRA source-attribution research — IN PROGRESS
+  - Inspected the live implementation and artifacts. SHASTRA is first-spy + analytic timing-MLE + native CPU LightGBM, trained on 15 candidate-peer features; the canonical fit has 637,019 candidate rows across 23,116 transactions. It already has temporal/peer evidence, but peer-history, payer-linkage, graph-degree, and typology inputs are global/full-capture rather than strictly point-in-time.
+  - Canonical `agency-v2`: L1 candidate-set recoverability ceiling .9345; model ranking top-1 .4595/top-3 .7188; actual shipped answer coverage .0182% (six rows) and precision 2/6. Reported top-1 is not the abstaining decision result. Prior inspection found the L1 Tor abstention may be overbroad; a counterfactual is not a promoted result.
+  - Added `docs/research/SHASTRA-ATTRIBUTION-AUDIT.md` and R10 in the experiment journal. Primary literature says source inference is network-vantage/protocol-dependent; peer propagation alone cannot establish a person's identity. MAYAJAAL is valuable as a controlled, complete-label simulator, but not transfer evidence by itself.
+  - R11 same-capture ablation with 0–45% fit, 45–60% Platt calibration, 60–70% threshold validation, final 30% test: full 15-feature model L1 top-1/top-3 .459/.716 vs .426/.704 without direct peer/payer/degree features and .405/.697 with local timing/observation features only. Future/global aggregate leakage remains, so these are simulator diagnostics.
+  - Validation selected ASN margin floor .01 (137/144 = 95.1% precision); final test at that fixed floor returned 492/510 correct (96.5%) at 5.27% coverage. Production .04 floor made 1 test decision. Promising same-seed signal, not promoted: it is one synthetic seed and peer/payer/graph/ASN features still use full-capture aggregates. Script/result hashes and caveats are in R11 and `docs/research/SHASTRA-ATTRIBUTION-AUDIT.md`.
+  - Next: make features point-in-time, repeat threshold/feature ablations, then independent-world evaluation. Disk was ~262 MB free; prior full seed-1337 generator hit its 10-minute CPU cap with no output. No commit.
+
+
+### B10 · Point-in-time research foundation — IN PROGRESS (2026-10-01)
+  - R12: implemented opt-in causal SHASTRA features; actually benchmarked six classifiers and two hybrids. Source-ASN LightGBM .458 top-1; validation-selected answer policy 459/486 correct at 5.03% test coverage. Fresh-world validation pending. Missing-source classifier did not qualify for absence claims; Isolation Forest is a poor source-coverage detector in this run.
+  - R13: provenance ledger/snapshot APIs; canonical 39,137 claims retain 2,780 repeats; five snapshots match prefix rebuilds at two thresholds. 40 focused tests passed; new source APIs pass Ruff and strict mypy. BUDDHI snapshot integration and independent-world experiments remain pending.
+  - R14: user-requested 3.633-GiB cleanup commands provided, metadata manifest retained; canonical/demo/truth/results/vendor preserved. Agent did not delete these runs. No commits.
+
+  - R15: actual external trained GCN/MLP/SAGE variant/permuted graph/embedding hybrid versus graph-feature/local LightGBM and XGBoost. Final 240-epoch experiment completed; graph-feature LightGBM AP .6566 vs GCN-embedding hybrid .6464. Neural validation-to-test shift remains a key failure finding. Separate protocol/calibration/policy blocks, 93 local columns, no future fitting adjacency. Full recipe in `docs/research/EXTERNAL-GRAPH-MODEL-EXPERIMENT.md`; living conclusions in `RESEARCH-SYNTHESIS.md`. These are exploratory external transaction results, not synthetic ownership/source scores.
+
+
+### B11 · Independent-world JAAL and causal BUDDHI experiments — IN PROGRESS (2026-10-01)
+  - R16: profiled MAYAJAAL; removed redundant quadratic ownership-set reconstruction in research adapter. Three full 20,000-entity/24,000-payment seed-transfer jobs completed ~13s each. Change AP .908/.911/.920; same family only.
+  - R18: frozen learned-change threshold .95 and model improved full partition pair F1 over weak-change baseline on all three independent seeds (.431–.437 versus .391–.399). CIOH errors/low recall remain; full-chain observation differs from network-censored capture.
+  - R17/R19: new opt-in BUDDHI snapshot API, exact gross flows and opposite-side counterparties. Equivalent cluster_shape join now follows actual evidence edges instead of quadratic member pairs. Future-append/accounting/10,000-address tests pass. Labels restricted to observed campaign activity inside each window; all-capture entity labels were hindsight participation.
+  - Actual LR/RF/ExtraTrees/LightGBM/XGBoost comparison; matched windows select XGBoost from validation, pooled later P@20 .50. True-owner oracle .75 is an inaccessible research control. Last test window contains no positive campaigns.
+  - R20: validation-response threshold failed (14/15 validation →12/34 test correct; ten false decisions in empty window). No threshold or model promoted. Frozen score Parquets/hashes and source snapshots preserve evidence.
+  - Checks: 70 passed, 3 skipped; strict mypy on changed source/tests, Ruff and diff checks pass. Reports/journal updated. No commits or canonical model/graph rewrite. Next: fresh-world BUDDHI/policy and network-source confirmation, causal graph/motif/velocity improvements, pipeline uncertainty study.
+
+
+### B12 · Frozen AML transfer and selective-alert analysis — IN PROGRESS (2026-10-01)
+  - R21: exact canonical XGBoost score replay, frozen scaler/calibration/threshold. Fresh full-chain seeds 1337/2026 pooled P@20 .95/.75, fixed-policy precision .710/.400; no promotion. Seeds reused by JAAL, same generator family, different observation mode.
+  - Fresh seed 42 has zero shared TXIDs with stored canonical chain: not an observation-only replay. Historical generator/source reconstruction audit outstanding. This corrects preliminary bridge wording.
+  - R22: negative-class tail Bonferroni/BY retrieve nothing; BH retrieves 17/17 and 5/6 correct in two windows. Valid-p-value/dependence assumptions unverified, no confidence guarantee. Reviewed primary CRC/cfBH/weighted CRC/SCoRE literature; detailed report and exact source versions retained.
+  - R23: frozen causal SHASTRA estimator/policy on fresh P2P worlds started; summaries saved per completed world. No new attribution result claimed yet. No commits or canonical artifact rewrite.
+
+  - R23 complete: frozen causal SHASTRA policy fresh network worlds1337/2026 precision .9266/.8677 at coverage .0572/.0492. Canonical459/486 replay verified. Useful selectivity, not portable90% guarantee. Host-presence diagnostic reveals absent-host answer weakness; truth not a production gate.83.19sCPU/~2.33GiB; no raw export. Report/source/model/score audit saved.
+
+
+### B13 · MAYAJAAL configuration replay repair — IN PROGRESS (2026-10-01)
+  - R24: equal effective parameter values hid script-weight insertion-order changes. Original input reproduced32,787/32,787captured TXIDs and318/318campaign TXIDs. Sorted effective reload did not.
+  - Loader now sorts categorical weights and honors saved transaction counts unless explicitly overridden. Statistical weights unchanged; original-input seed realizations change, versioned in audit. No canonical artifact rewrite.
+  - Actual chain/population/campaign/P2P roundtrip tests for two seeds and override test pass; source/test Ruff and strict mypy pass. Combined layer regression running. API quarantine test remains failing on pre-existing measurements read; no full verify claim.
+
+R24 final combined layer regression: **111 passed, 3 skipped**, 10 existing MAPIE fixture warnings,53.95s. Strict mypy/Ruff checks pass for changed source/tests. Full verification remains blocked by the existing API measurements-tree quarantine violation; no overall green claim.
+
+### B14 · Actually trained typed temporal graphs, anomalies and fresh transfer — IN PROGRESS (2026-10-01)
+  - R25/R28: typed subject/TX/announcer mean-message models, causal GRUmemory and embedding→XGBoost actually trained onCPU;60/180epoch budgets preserved. Extended validation selects temporalhead, not the posthoc besttesthybrid.
+  - Four untouched newP2Pworlds tested with frozen models/scalers/calibration/policies. Extended seeds30011/40009 temporalP@20 .55/.95 vs localXGB .30/.75; AP .2491/.2263 vs .0719/.1494. All feasible90%-validationpolicy guarantees fail on transfer; no model/policy promoted.
+  - R26: learned observable correctnessgates increase SHASTRAcoverage but precision84–88%misses90%; senderabsence remains unproven.
+  - R27/R29: IF/featureAE/typedgraphAE fitted and measured. Validation-selectedIFfusion underperformsparent test. Keepnoveltyseparate.
+  - Four adversarialgraph/diagnostictests and combined16focusedtests pass. DynamicresearchRuffusesANNexemption; productiontyping unchanged. New detailedarchitecture/anomaly/literaturereports written; source/resultprovenance includes known formatting-during-execution hash distinction.
+  - R30frozenpartitionerrorpropagation running. Canonical stage migration, configuration/observer-shift confirmation, graph explanations and APIquarantine repair remain unfinished. No commits.
+
+### B15 · Usable causal scorer and uncertainty propagation — IN PROGRESS
+  - R30/R31 complete: common-controller partition sensitivity and matched local/enriched/embeddingLightGBM controls. Weak change edges damage graphAP; subject-level gains do not prove controller-level gains.
+  - R32/R33: optional label-free CPU XGBoost scorer with explicit windows, portable artifact, TreeSHAP and provenance. Ten-window score replay exact0.0; empty-window handling verified; stripped-input CLI produced12,206scores without copied evaluation labels. Standard routing remains unchanged.
+  - Verification:87passed/3skipped in focused layer suite; strictmypy/Ruff on new source/tests pass. Existing APIquarantine failure still prevents full-release claim.
+  - R34 running: direct address/TX/IP model without current ownership merges, responding to the concern that JAAL uncertainty must not contaminate every downstream task. No revolutionary or real-network claim. Full audit and final decision/migration report updated. No commits.
+
+
+### B16 · Ownership-independent evidence and controller-aware queues — research batch complete
+  - R34/R35: actually trained address-only models and frozen transfer on seeds50021/60013. Explicit snapshot address mode ignores corrupt ownership claims; defaults unchanged.
+  - R36/R37: controller/alias audit plus329-feature rich tree controls. Raw address P@20 can greatly inflate distinct lead yield.
+  - R38: identical captured observations and causal SHASTRA features from different originating hosts demonstrate constructive ambiguity; not a Bitcoin protocol benchmark.
+  - R39: six frozen models on new shared captures70017/80029; exact canonical score replay, common unique controller keys/labels checked. Primary XGB distinct-controller P@20 .90/.30; no uniform winner.
+  - R40: actual label-free TX-evidence diversity with canonical validation-frozen policy and two-world replay. Higher controller-window retrieval trades off address precision; no identity or confidence guarantee.
+  - Latest focused regression27passed; source/test strict mypy and Ruff pass. Research formatting checks run separately. Full release verification, stage/UI integration and observation-regime stress tests remain unfinished. No commits.
+
+
+### B17 · SHASTRA observation contract — stress experiment complete, policy repair pending
+  - R41 actual nested capture48/24/8observers, frozen model/policy, histories rebuilt. Precision94.4%→51.1%→26.4%; answercoverage increases5.0%→24.4%→84.0%. No portable-confidence claim.
+  - Nominal replay459/486 exact; fixed cohort/lostTXdenominator, absentsource subgroup and all executed artifacts audited. No defaultbackend migration. A validated observation-aware abstention policy remains required.
+
+
+### R41 checkpoint verification
+
+Broader focused layer suite: **92 passed, 3 skipped**, 10 existing MAPIE calibration warnings, 54.19 seconds. Includes chain/network generation, BUDDHI, causal snapshots/inference/origin, ownership provenance, config replay and research graph/summary/diversity contracts. New production snapshot/scorer sources and tests pass strict mypy and Ruff. Latest research scripts pass Ruff with explicit dynamic-research ANN exemption. `git diff --check` passes. Full release verification remains unproven because of the existing API quarantine failure; stage/dashboard migration is unfinished.
+
+SHA-256 checkpoint inventory: `research/bitcoin/source-snapshots/R25-R41-manifest.json`, 298 result artifacts, about127.3MB. Contains current source snapshots, canonical input identities and package versions. Historical executed sources and initial failed reports remain preserved. Hash identity is not scientific validation. No commits or restoration of user-deleted generated data.
+
+
+### B18 · Working SIH investigative engine — implementation batch complete
+  - R42: label-free portable329-feature CPUgraph-contexttree, nativeJSONartifact/manifest, 20window/representation exactfeature/scorereplays, nativeTreeSHAPmarginchecks and emptywindows.
+  - R43/R44: actual20-leadCLIqueues with exactamounts/timedpeerlinks/explanations/diversity/provenance. Isolated20leadpacketreplay withTorchimportsblocked andnoanswerkeyfiles.
+  - R45: Worldpanel nowshows positivecapabilities andactualpacketviewer. Localqueueimport/export, featureeffects, money/networkgraph andreviewsteps. DefaultLightGBM andactive-runmetrics unchanged.
+  - BroaderPython97passed/3skipped; strictnewsource/testtyping/lintpass; TypeScript/Vitebuildpass. Browserselection/graph/details/export/invalidimport/validroundtrippass offline withzeroexternalrequests/errors. Screenshots inspected.
+  - Fullautomaticstageintegration, dependencybundle andexistingAPIquarantine repairremainpending. NominalMAYAJAALnotchanged. No commits.
+
+### R46 — DRISHTI investigation workspace
+
+- Curated Agency/Stealth/Blind-spots demos plus all seven coverage variants; old development runs excluded from UI.
+- Actual per-run exports, shared TX/case state and missing-stage guards replace static graphs and cross-run lead/proof fallback.
+- New JAAL flow atlas retains 3D graph/trace; tooltip click fix tested on rendered mesh.
+- 758 focused transaction traces independently matched against stored graph edges; five existing Agency packets available.
+- Globe index/round markers, SETU arrival timeline, SHASTRA comparison, PRAMAAN exact-file fingerprint, three actual research queue snapshots and larger Sanskrit names implemented.
+- Audit: `docs/research/DRISHTI-INVESTIGATION-WORKSPACE.md`. Final browser/build checks and screenshots recorded under `research/bitcoin/results/drishti-redesign/`.
+- Default model and nominal generated world remain unchanged; automatic new-engine intake integration is still future work. No commits.
+
+### R47 — Trace readability and actual graph comparison
+
+Bounded all-object Trace paging, inline VAANI queue/evidence, wider SHASTRA/SETU, larger globe click targets, explicit trained-model outcomes. Corrected origin probability ordering and refreshed eight runs. Fresh address-only temporalGNN AP.2879; selected by validation, research only. Build/browser/API focused checks pass. Audit: docs/research/DRISHTI-R47-READABILITY-AND-GRAPH-RESULTS.md.
+
+### R48 — architecture audit and SIH submission documents
+
+Completed source-based production/stack audit, six-slide PPT review with replacement copy, selection/source research, four titles/abstracts/descriptions (12 copy-ready fields), and standalone detailed technical master with source-derived appendices. Start at `docs/submission/README.md`. Document checks pass; all fields are within user-supplied limits. Full Python suite: 308 passed / 3 skipped / one existing API quarantine failure. Frontend build passes with existing chunk warning. Default engine remains LightGBM; optional rich CPU inference and graph challengers are separately identified. New-engine case routing/signing and clean-host offline packaging remain release work, explicitly documented. PDF preserved; no commits or publication.
+
+### R49 — research catch-up reading guide
+
+Created `docs/research/START-HERE-RESEARCH-CATCHUP.md`: useful discoveries first, actual trained GNN outcomes, logical definitions of windows/queues/embeddings, a complete experiment map and fourteen-step reading order. Saved-result interpretation only; no new training or model promotion. Linked from the synthesis and recorded in the experiment journal.
+
+### R50 — World evidence and improved ranking experiment
+
+World includes separate public Elliptic and synthetic graph-feature tree comparisons, AP explanations, collapsible neural controls and review-budget results. Executed validation-selected saved-score blend: AP .3381; 128 positive address-window decisions within500reviews versus115 for richtree. Exploratory reused-test result, not a promoted engine. Updated all four portal abstracts/descriptions with stronger measured capabilities and separate public benchmark. Full report: `docs/research/RANKING-RECOVERY-AND-TREE-GNN-BLEND.md`.

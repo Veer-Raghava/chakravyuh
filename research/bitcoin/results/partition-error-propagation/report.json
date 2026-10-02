@@ -1,0 +1,187 @@
+{
+  "limitations": [
+    "Consumed canonical world; diagnostic, not independent confirmation.",
+    "All weights/scalers/calibrators frozen from CIOH training.",
+    "True owners used only for diagnostic projection and labels.",
+    "Threshold change is an input-distribution shift, not retraining comparison.",
+    "Controller-window decisions still repeat owners across windows."
+  ],
+  "models": {
+    "0.2": {
+      "mlp": {
+        "controller_window": {
+          "ap": 0.07782910850289604,
+          "auc": 0.6966375417068029,
+          "brier": 0.0043257539665442464,
+          "hits_at_20": 5,
+          "hits_at_50": 8,
+          "n": 21278,
+          "p_at_20": 0.25,
+          "p_at_50": 0.16,
+          "positives": 54,
+          "prevalence": 0.002537832503054798,
+          "r_at_20": 0.09259259259259259,
+          "r_at_50": 0.14814814814814814
+        },
+        "score_sha256": "d9303828b55c92234bc861425f9d42d479a35d80b13b5f5b1140e6828a4e05c6"
+      },
+      "temporal_embeddings_xgboost": {
+        "controller_window": {
+          "ap": 0.1924194135577953,
+          "auc": 0.8707237439097598,
+          "brier": 0.005422428148921373,
+          "hits_at_20": 10,
+          "hits_at_50": 15,
+          "n": 21278,
+          "p_at_20": 0.5,
+          "p_at_50": 0.3,
+          "positives": 54,
+          "prevalence": 0.002537832503054798,
+          "r_at_20": 0.18518518518518517,
+          "r_at_50": 0.2777777777777778
+        },
+        "score_sha256": "4bca769fad1ffcf8b8c7b6ba8b7c621d850cbc70cc61a80fa1193b6920e82bdf"
+      },
+      "typed_static": {
+        "controller_window": {
+          "ap": 0.16580199030246048,
+          "auc": 0.8618204757716631,
+          "brier": 0.005614237255038406,
+          "hits_at_20": 9,
+          "hits_at_50": 13,
+          "n": 21278,
+          "p_at_20": 0.45,
+          "p_at_50": 0.26,
+          "positives": 54,
+          "prevalence": 0.002537832503054798,
+          "r_at_20": 0.16666666666666666,
+          "r_at_50": 0.24074074074074073
+        },
+        "score_sha256": "d82769f702f4d4571d2d09e71f34bb05619c75c522fe774b7fcadf69c4809f7c"
+      },
+      "typed_temporal_gru": {
+        "controller_window": {
+          "ap": 0.19173472738964498,
+          "auc": 0.8862093576803339,
+          "brier": 0.005868570008417138,
+          "hits_at_20": 10,
+          "hits_at_50": 15,
+          "n": 21278,
+          "p_at_20": 0.5,
+          "p_at_50": 0.3,
+          "positives": 54,
+          "prevalence": 0.002537832503054798,
+          "r_at_20": 0.18518518518518517,
+          "r_at_50": 0.2777777777777778
+        },
+        "score_sha256": "0eb08a3924c7e8018e085acec47a5faae7626f8354ac2f54cad302b57d0c1e3a"
+      },
+      "xgboost_local": {
+        "controller_window": {
+          "ap": 0.22482174930775592,
+          "auc": 0.836561684187014,
+          "brier": 0.00345773014192714,
+          "hits_at_20": 9,
+          "hits_at_50": 12,
+          "n": 21278,
+          "p_at_20": 0.45,
+          "p_at_50": 0.24,
+          "positives": 54,
+          "prevalence": 0.002537832503054798,
+          "r_at_20": 0.16666666666666666,
+          "r_at_50": 0.2222222222222222
+        },
+        "score_sha256": "93afce8a94166a12fb6da420b1c54c160bf24833447b23932d42cc1de66d0985"
+      }
+    },
+    "0.3": {
+      "mlp": {
+        "controller_window": {
+          "ap": 0.0832167138705307,
+          "auc": 0.701790447413062,
+          "brier": 0.004057367416222902,
+          "hits_at_20": 5,
+          "hits_at_50": 9,
+          "n": 21014,
+          "p_at_20": 0.25,
+          "p_at_50": 0.18,
+          "positives": 54,
+          "prevalence": 0.0025697154278100315,
+          "r_at_20": 0.09259259259259259,
+          "r_at_50": 0.16666666666666666
+        },
+        "score_sha256": "bdeadd7c08629b1ec2116adc1a197fac1ccc9e15dd372bcba993ecc006a39d38"
+      },
+      "temporal_embeddings_xgboost": {
+        "controller_window": {
+          "ap": 0.20937224011479139,
+          "auc": 0.8726074356799547,
+          "brier": 0.005270156610253928,
+          "hits_at_20": 10,
+          "hits_at_50": 15,
+          "n": 21014,
+          "p_at_20": 0.5,
+          "p_at_50": 0.3,
+          "positives": 54,
+          "prevalence": 0.0025697154278100315,
+          "r_at_20": 0.18518518518518517,
+          "r_at_50": 0.2777777777777778
+        },
+        "score_sha256": "a9afda0b683e927ad0b940cfcade6513984b475bebc6c336f8c5e902e68c1f23"
+      },
+      "typed_static": {
+        "controller_window": {
+          "ap": 0.18535758575144762,
+          "auc": 0.8633190203562342,
+          "brier": 0.0055516645337376986,
+          "hits_at_20": 9,
+          "hits_at_50": 14,
+          "n": 21014,
+          "p_at_20": 0.45,
+          "p_at_50": 0.28,
+          "positives": 54,
+          "prevalence": 0.0025697154278100315,
+          "r_at_20": 0.16666666666666666,
+          "r_at_50": 0.25925925925925924
+        },
+        "score_sha256": "aecacd44f853e1abb734a12dab5061422d55b5cd7193460bf33e03ab13f8b4a4"
+      },
+      "typed_temporal_gru": {
+        "controller_window": {
+          "ap": 0.20284012177304567,
+          "auc": 0.8872040217698615,
+          "brier": 0.005673386632600806,
+          "hits_at_20": 10,
+          "hits_at_50": 16,
+          "n": 21014,
+          "p_at_20": 0.5,
+          "p_at_50": 0.32,
+          "positives": 54,
+          "prevalence": 0.0025697154278100315,
+          "r_at_20": 0.18518518518518517,
+          "r_at_50": 0.2962962962962963
+        },
+        "score_sha256": "43965cc38a2f12488b67f5e8da79ba3d1acfb6cb3e8326494e66a5b38c94b93d"
+      },
+      "xgboost_local": {
+        "controller_window": {
+          "ap": 0.21328973379613975,
+          "auc": 0.8368956743002545,
+          "brier": 0.0035268671204712046,
+          "hits_at_20": 9,
+          "hits_at_50": 12,
+          "n": 21014,
+          "p_at_20": 0.45,
+          "p_at_50": 0.24,
+          "positives": 54,
+          "prevalence": 0.0025697154278100315,
+          "r_at_20": 0.16666666666666666,
+          "r_at_50": 0.2222222222222222
+        },
+        "score_sha256": "a4d84dc44b0e767e6660e4a2174531e7acebe054bf1852dd1282d4c2289b9183"
+      }
+    }
+  },
+  "seconds": 66.82008910299919,
+  "source_sha256": "e8722576330bd2498d32612bd93c336ba170438531a965924d04b66cc2f28c9d"
+}

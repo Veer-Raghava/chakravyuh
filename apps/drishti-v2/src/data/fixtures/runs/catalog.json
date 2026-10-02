@@ -1,0 +1,538 @@
+[
+  {
+    "id": "_sweep-0.02",
+    "curated": true,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "a21e3aa6988d3d8c04925193cf9c2bf9f84a398e371735477ff06de3c29e7082",
+    "observer_fraction": 0.02,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "_sweep-0.05",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "314ed2e52b4ec6d63e53e053eaff24ba3e0efe2674fbd9210498d2338254b11a",
+    "observer_fraction": 0.05,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "_sweep-0.10",
+    "curated": true,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "graphActor",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "a2061b74eaf7906a675155d3b8f8f17b59eaf0d745411cd717ede9d4ed36d866",
+    "observer_fraction": 0.1,
+    "alert_count": 0,
+    "errors": {}
+  },
+  {
+    "id": "_sweep-0.25",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "337fd01083e59413d6253e5f293132d3074597deea5f39b5e2918d9c9340e9ef",
+    "observer_fraction": 0.25,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "_sweep-0.50",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "ba4fa16e4cc3f5d458c1d7b1e91c11d543d3e2d9f7063737e5b9fdb83a52859c",
+    "observer_fraction": 0.5,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "_sweep-0.60",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "8991e04a0ff7f56f62c4e581f7eb19afb999f087217703b490b1a63b85d16eb4",
+    "observer_fraction": 0.6,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "_sweep-0.70",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "2bdd79d366734face96af38925ff52eeb7fe30497d37eb45892e1d7538ba6250",
+    "observer_fraction": 0.7,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "agency-graph",
+    "curated": true,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "graphActor",
+      "origin",
+      "originAbstain",
+      "alerts",
+      "alert",
+      "alertDetails",
+      "packets",
+      "packet",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "alerts",
+      "chain",
+      "detector",
+      "graph",
+      "normalised",
+      "packets",
+      "presentation",
+      "scores",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "c13b4204dd50796fe502a6fd10abd4b86b3fdf081c9d685e8e69594e02984ace",
+    "observer_fraction": 0.6,
+    "alert_count": 20,
+    "errors": {}
+  },
+  {
+    "id": "agency-v2",
+    "curated": true,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "graphActor",
+      "origin",
+      "originAbstain",
+      "alerts",
+      "alert",
+      "alertDetails",
+      "packets",
+      "packet",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "alerts",
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "packets",
+      "scores",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "8505b35faf640a87b2b4f3bf8cf11746838a0f4f63a69f32a30aedb3603c345e",
+    "observer_fraction": 0.6,
+    "alert_count": 200,
+    "errors": {}
+  },
+  {
+    "id": "run-A",
+    "curated": false,
+    "available": [],
+    "stages": [
+      "chain"
+    ],
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "observer_fraction": null,
+    "alert_count": 0,
+    "errors": {}
+  },
+  {
+    "id": "run-a",
+    "curated": false,
+    "available": [],
+    "stages": [
+      "chain"
+    ],
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "observer_fraction": null,
+    "alert_count": 0,
+    "errors": {}
+  },
+  {
+    "id": "s04-demo",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "world",
+      "graph",
+      "graphAddress",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "sealed"
+    ],
+    "sha256": "55ca8a8c1eae2e2cae784a7b9ceecc75b43103070403039461e6a979327e46fd",
+    "observer_fraction": 0.0,
+    "alert_count": 0,
+    "errors": {
+      "transactions": "No such file or directory (os error 2): data/generated/s04-demo/signals/origin_estimates.parquet\n\nThis error occurred with the following context stack:\n\t[1] 'parquet scan'\n\t[2] 'select'\n",
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "s10-canonical",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "alerts",
+      "alert",
+      "alertDetails",
+      "packets",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "alerts",
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "scores",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "ad8e787c0cca48128015a971f049f02ee9d5714efa7e00d584d4e9a14ead8971",
+    "observer_fraction": 0.7,
+    "alert_count": 200,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "s10-demo",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "alerts",
+      "alert",
+      "alertDetails",
+      "packets",
+      "packet",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "alerts",
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "packets",
+      "scores",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "5ab544cda05ea5891d69654e3345c99d3f7f93bad862e4bd7229d7ac0dea87fc",
+    "observer_fraction": 0.7,
+    "alert_count": 200,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "s11-demo",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "scores",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "01056271ed7698a9cf03d4af4459f3d64363d74ecce4df1ca0a33626289da048",
+    "observer_fraction": 0.7,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "s11-test",
+    "curated": false,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "scores",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "530aefc17e3c9c0052fc26ea426a621ab7067c2ce9e797107728ecab73c475a2",
+    "observer_fraction": 0.7,
+    "alert_count": 0,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  },
+  {
+    "id": "s12-canonical",
+    "curated": true,
+    "available": [
+      "manifest",
+      "collapse",
+      "transactions",
+      "world",
+      "graph",
+      "graphAddress",
+      "origin",
+      "originAbstain",
+      "alerts",
+      "alert",
+      "alertDetails",
+      "packets",
+      "packet",
+      "originDetails",
+      "focusedGraphs"
+    ],
+    "stages": [
+      "alerts",
+      "capture",
+      "capture_json",
+      "capture_xml",
+      "chain",
+      "graph",
+      "normalised",
+      "packets",
+      "scores",
+      "sealed",
+      "signals"
+    ],
+    "sha256": "6c4c9a8ecec5964b0cf1c4cca054f1d4dbccc719aaec7dd3b85ccf62f3120104",
+    "observer_fraction": 0.7,
+    "alert_count": 200,
+    "errors": {
+      "graphActor": "coinjoin\n\nResolved plan until failure:\n\n\t---> FAILED HERE RESOLVING 'select' <---\nDF [\"node_id\", \"kind\", \"label\", \"first_us\"]; PROJECT */5 COLUMNS; SELECTION: None"
+    }
+  }
+]

@@ -112,3 +112,14 @@
     display: none;
   }
 }
+.menu { width: min(32rem, calc(100vw - 2rem)); padding: 1rem; z-index: 100; max-height: 75vh; overflow: auto; }
+.menuHead { display: grid; gap: .35rem; margin-bottom: 1rem; }
+.menuHead strong { font: 600 1.5rem var(--font-display); }
+.menuHead span, .menuNote { font: .85rem var(--font-text); color: var(--ink-soft); }
+.tabs { display: flex; gap: .5rem; margin-bottom: .8rem; }
+.tabs button { background: transparent; border: 1px solid var(--line); border-radius: 20px; padding: .4rem .8rem; cursor: pointer; }
+.tabs button[aria-pressed=true] { background: var(--ink); color: var(--paper); }
+.option { padding: .8rem .4rem; border-bottom: 1px solid var(--line); }
+.optLabel small { display: block; font-weight: 400; font-size: .8rem; margin-top: .3rem; }
+.active { background: color-mix(in srgb, var(--riso-blue) 7%, var(--paper)); }
+.menuNote { margin-bottom: 0; line-height: 1.5; }

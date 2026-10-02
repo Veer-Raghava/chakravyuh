@@ -75,7 +75,6 @@ function buildCands() {
 
 const BENCH_Y = -0.15;
 const TX = new THREE.Vector3(0, 1.5, 0);
-const LEAD_P = (fixtures.origin.shortlist.find((l) => l.rank === 1)?.p_origin ?? 0).toFixed(3);
 const dimBlue = new THREE.Color(C.risoBlue).multiplyScalar(0.5);
 const litBlue = new THREE.Color(C.risoBlue);
 const litCoral = new THREE.Color(C.coral);
@@ -246,48 +245,48 @@ export function Shastra({ reduced }: { reduced: boolean }) {
           {/* leading candidate readout */}
           <Html position={[0, 2.25, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...datum, whiteSpace: "nowrap", textAlign: "center", color: "var(--coral)", letterSpacing: "0.03em" }}>
-              most likely origin · {lead.ip} · AS{lead.asn} · {lead.geo} · p={LEAD_P}
+              most likely sender · {lead.ip} · network AS{lead.asn} · {lead.geo}
             </div>
           </Html>
           {/* shortlist — a set you can act on, not one name */}
           <Html position={[2.5, 0.7, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...panel, width: 168 }}>
-              <div style={{ ...kicker, color: "var(--riso-blue)" }}>SHORTLIST · 90% CONF</div>
+              <div style={{ ...kicker, color: "var(--riso-blue)" }}>SHORT LIST · 90% SURE</div>
               <div style={{ ...datum, color: "var(--riso-blue)", lineHeight: 1.5 }}>
-                sender ∈ {`{ ${runnerUp.ip} · ${lead.ip} }`}
+                {`${runnerUp.ip} or ${lead.ip}`}
               </div>
               <div style={{ ...prose, fontSize: "11px", color: "var(--ink-soft)", marginTop: 4 }}>
-                a set you can act on, not one name
+                when we are not sure, a short list, not one name
               </div>
             </div>
           </Html>
-          {/* ceiling-bar labels — named | recoverable | dark, anchored to their own segment */}
+          {/* ceiling-bar labels — named | possible to find | out of reach, anchored to their own segment */}
           <Html position={[SEG_NAMED.cx, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--coral)", fontWeight: 600 }}>{NAMED_PCT}% named</div>
           </Html>
           <Html position={[SEG_REACH.cx, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>
-              {CEIL_PCT != null ? `${CEIL_PCT}% recoverable` : "ceiling not measured"}
+              {CEIL_PCT != null ? `${CEIL_PCT}% possible to find` : "limit not measured"}
             </div>
           </Html>
           {DARK_PCT != null && (
             <Html position={[SEG_DARK.cx + 0.5, -2.1, 0]} center distanceFactor={6} pointerEvents="none">
-              <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>{DARK_PCT}% dark</div>
+              <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink-soft)" }}>{DARK_PCT}% out of reach</div>
             </Html>
           )}
           {CAPTURED_PCT != null && (
             <Html position={[BAR_X, -1.25, 0]} center distanceFactor={6} pointerEvents="none">
               <div style={{ ...datum, whiteSpace: "nowrap", color: "var(--ink)" }}>
-                capturing {CAPTURED_PCT}% of the theoretical maximum
+                that is {CAPTURED_PCT}% of all we could ever find
               </div>
             </Html>
           )}
           {/* the dignified grey "no answer" card — abstention as a correct output */}
           <Html position={[-2.55, 0.7, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...panel, width: 158, color: "var(--ink-soft)" }}>
-              <div style={{ ...kicker, color: "var(--ink-soft)" }}>NO ANSWER AVAILABLE</div>
-              <div style={{ ...datum, color: "var(--ink-soft)", lineHeight: 1.5 }}>reason · margin below floor</div>
-              <div style={{ ...prose, fontSize: "11px", color: "var(--ink)", marginTop: 4 }}>this is a correct output</div>
+              <div style={{ ...kicker, color: "var(--ink-soft)" }}>NO ANSWER</div>
+              <div style={{ ...datum, color: "var(--ink-soft)", lineHeight: 1.5 }}>the evidence was too thin to call</div>
+              <div style={{ ...prose, fontSize: "11px", color: "var(--ink)", marginTop: 4 }}>this is the right call, not a failure</div>
             </div>
           </Html>
         </>

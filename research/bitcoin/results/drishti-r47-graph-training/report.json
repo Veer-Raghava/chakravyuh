@@ -1,0 +1,649 @@
+{
+  "epochs": 60,
+  "graph_sizes": [
+    {
+      "ip": 2954,
+      "positives": 58,
+      "subjects": 17003,
+      "tx": 3592,
+      "window": 0
+    },
+    {
+      "ip": 2954,
+      "positives": 41,
+      "subjects": 14271,
+      "tx": 2923,
+      "window": 1
+    },
+    {
+      "ip": 2954,
+      "positives": 168,
+      "subjects": 18305,
+      "tx": 3468,
+      "window": 2
+    },
+    {
+      "ip": 2954,
+      "positives": 149,
+      "subjects": 20413,
+      "tx": 3712,
+      "window": 3
+    },
+    {
+      "ip": 2954,
+      "positives": 376,
+      "subjects": 16729,
+      "tx": 2960,
+      "window": 4
+    },
+    {
+      "ip": 2954,
+      "positives": 459,
+      "subjects": 20799,
+      "tx": 3657,
+      "window": 5
+    },
+    {
+      "ip": 2954,
+      "positives": 201,
+      "subjects": 16726,
+      "tx": 2804,
+      "window": 6
+    },
+    {
+      "ip": 2954,
+      "positives": 108,
+      "subjects": 16167,
+      "tx": 2758,
+      "window": 7
+    },
+    {
+      "ip": 2954,
+      "positives": 187,
+      "subjects": 20762,
+      "tx": 3532,
+      "window": 8
+    },
+    {
+      "ip": 2954,
+      "positives": 0,
+      "subjects": 20176,
+      "tx": 3381,
+      "window": 9
+    }
+  ],
+  "hashes": {
+    "/home/void/chakravyuh/research/bitcoin/temporal_hetero_benchmark.py": "40f72308fbcae3b64902ca174a1245af0dc737d5e75d09e6bdafa331b2e25e19",
+    "/home/void/chakravyuh/src/chakravyuh/buddhi/snapshot.py": "9119389a7904c4217d938ae74b6f227685e233021442a69501dd02182dc4da56",
+    "/home/void/chakravyuh/src/chakravyuh/jaal/provenance.py": "57337aa68077960d79b75f89c3679ba7e5d5a4c974889bd4b722cc1c1f76971e"
+  },
+  "limitations": [
+    "Consumed canonical synthetic world; exploratory, not confirmatory.",
+    "Custom typed mean GNN plus window GRU; not canonical TGN/TGAT/HGT/EvolveGCN.",
+    "Checkpoints use validation AP; family choice uses validation P20 then AP.",
+    "Memory pools earlier embeddings by observed addresses, not verified owner.",
+    "Previous states detached; no future graph/labels supplied.",
+    "IP links identify announcers, not sources; fixed enrichment assumed.",
+    "Hybrid tree fits embeddings of neural fitting rows: no cross-fit stack claim.",
+    "Subject decisions repeat controllers; target is in-window campaign involvement."
+  ],
+  "models": {
+    "mlp": {
+      "parameters": 12833,
+      "positive_weight": 12.932517051696777,
+      "score_artifact": "research/bitcoin/results/drishti-r47-graph-training/mlp-scores.parquet",
+      "score_sha256": "29e165efaaa2908bc5e1b60f9830cfdc9a0e43ac6ee3859730d562acf4da90e6",
+      "seconds": 2.4692965330013976,
+      "selected_epoch": 60,
+      "test": {
+        "ap": 0.07576413788978925,
+        "auc": 0.6766524752445708,
+        "brier": 0.005609137836271717,
+        "hits_at_20": 5,
+        "hits_at_50": 21,
+        "n": 57105,
+        "p_at_20": 0.25,
+        "p_at_50": 0.42,
+        "positives": 295,
+        "prevalence": 0.005165922423605639,
+        "r_at_20": 0.01694915254237288,
+        "r_at_50": 0.0711864406779661
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.14803399320203697,
+          "auc": 0.7620867956816646,
+          "brier": 0.006612207417294084,
+          "hits_at_20": 13,
+          "hits_at_50": 19,
+          "n": 16167,
+          "p_at_20": 0.65,
+          "p_at_50": 0.38,
+          "positives": 108,
+          "prevalence": 0.006680274633512711,
+          "r_at_20": 0.12037037037037036,
+          "r_at_50": 0.17592592592592593
+        },
+        "8": {
+          "ap": 0.09387809932108436,
+          "auc": 0.6280556981436118,
+          "brier": 0.009088509002339637,
+          "hits_at_20": 9,
+          "hits_at_50": 19,
+          "n": 20762,
+          "p_at_20": 0.45,
+          "p_at_50": 0.38,
+          "positives": 187,
+          "prevalence": 0.009006839418167807,
+          "r_at_20": 0.0481283422459893,
+          "r_at_50": 0.10160427807486631
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0012249521668481053,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 20176,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.08185696868498671,
+        "auc": 0.6278275791993135,
+        "brier": 0.011516125506907124,
+        "hits_at_20": 7,
+        "hits_at_50": 9,
+        "n": 16726,
+        "p_at_20": 0.35,
+        "p_at_50": 0.18,
+        "positives": 201,
+        "prevalence": 0.012017218701422935,
+        "r_at_20": 0.03482587064676617,
+        "r_at_50": 0.04477611940298507
+      },
+      "validation_checkpoint_ap": 0.08185696868498672
+    },
+    "temporal_embeddings_xgboost": {
+      "score_artifact": "research/bitcoin/results/drishti-r47-graph-training/temporal_embeddings_xgboost-scores.parquet",
+      "score_sha256": "e3f0fce3aa39c662e3591f647e2f1eebe2b5c566722251ecd05092edae9c1a01",
+      "test": {
+        "ap": 0.2675229218358317,
+        "auc": 0.9120777554679738,
+        "brier": 0.005460209691456246,
+        "hits_at_20": 18,
+        "hits_at_50": 34,
+        "n": 57105,
+        "p_at_20": 0.9,
+        "p_at_50": 0.68,
+        "positives": 295,
+        "prevalence": 0.005165922423605639,
+        "r_at_20": 0.061016949152542375,
+        "r_at_50": 0.1152542372881356
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.18950243069579933,
+          "auc": 0.9003547105234633,
+          "brier": 0.006620631213637753,
+          "hits_at_20": 10,
+          "hits_at_50": 19,
+          "n": 16167,
+          "p_at_20": 0.5,
+          "p_at_50": 0.38,
+          "positives": 108,
+          "prevalence": 0.006680274633512711,
+          "r_at_20": 0.09259259259259259,
+          "r_at_50": 0.17592592592592593
+        },
+        "8": {
+          "ap": 0.4337633881348737,
+          "auc": 0.9189326904958383,
+          "brier": 0.007009720182817169,
+          "hits_at_20": 19,
+          "hits_at_50": 44,
+          "n": 20762,
+          "p_at_20": 0.95,
+          "p_at_50": 0.88,
+          "positives": 187,
+          "prevalence": 0.009006839418167807,
+          "r_at_20": 0.10160427807486631,
+          "r_at_50": 0.23529411764705882
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.00293585047403238,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 20176,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.28685300856668705,
+        "auc": 0.9041387615628365,
+        "brier": 0.010300901952840167,
+        "hits_at_20": 12,
+        "hits_at_50": 32,
+        "n": 16726,
+        "p_at_20": 0.6,
+        "p_at_50": 0.64,
+        "positives": 201,
+        "prevalence": 0.012017218701422935,
+        "r_at_20": 0.05970149253731343,
+        "r_at_50": 0.15920398009950248
+      }
+    },
+    "typed_static": {
+      "parameters": 12833,
+      "positive_weight": 12.932517051696777,
+      "score_artifact": "research/bitcoin/results/drishti-r47-graph-training/typed_static-scores.parquet",
+      "score_sha256": "9282e97dab41b3f53a2863e3a588ae9b24f244ff330c8918edd8296e543388c1",
+      "seconds": 5.116332892001083,
+      "selected_epoch": 60,
+      "test": {
+        "ap": 0.2601945828096873,
+        "auc": 0.9106881994397025,
+        "brier": 0.005561910980684473,
+        "hits_at_20": 16,
+        "hits_at_50": 35,
+        "n": 57105,
+        "p_at_20": 0.8,
+        "p_at_50": 0.7,
+        "positives": 295,
+        "prevalence": 0.005165922423605639,
+        "r_at_20": 0.05423728813559322,
+        "r_at_50": 0.11864406779661017
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.26064894515834325,
+          "auc": 0.8905488557241469,
+          "brier": 0.006490278673463737,
+          "hits_at_20": 16,
+          "hits_at_50": 23,
+          "n": 16167,
+          "p_at_20": 0.8,
+          "p_at_50": 0.46,
+          "positives": 108,
+          "prevalence": 0.006680274633512711,
+          "r_at_20": 0.14814814814814814,
+          "r_at_50": 0.21296296296296297
+        },
+        "8": {
+          "ap": 0.37343034887618404,
+          "auc": 0.9251012014216933,
+          "brier": 0.0076353265871916655,
+          "hits_at_20": 19,
+          "hits_at_50": 45,
+          "n": 20762,
+          "p_at_20": 0.95,
+          "p_at_50": 0.9,
+          "positives": 187,
+          "prevalence": 0.009006839418167807,
+          "r_at_20": 0.10160427807486631,
+          "r_at_50": 0.24064171122994651
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.00268437453582599,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 20176,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.2654174834013639,
+        "auc": 0.897188791293156,
+        "brier": 0.01021649483944634,
+        "hits_at_20": 10,
+        "hits_at_50": 31,
+        "n": 16726,
+        "p_at_20": 0.5,
+        "p_at_50": 0.62,
+        "positives": 201,
+        "prevalence": 0.012017218701422935,
+        "r_at_20": 0.04975124378109453,
+        "r_at_50": 0.15422885572139303
+      },
+      "validation_checkpoint_ap": 0.2654174834013639
+    },
+    "typed_temporal_gru": {
+      "parameters": 12833,
+      "positive_weight": 12.932517051696777,
+      "score_artifact": "research/bitcoin/results/drishti-r47-graph-training/typed_temporal_gru-scores.parquet",
+      "score_sha256": "005f9d38dd7923ca89c0f3ca6f3b0f9deb3508979ac0418b2f81ed1635ac0d17",
+      "seconds": 7.144173149999915,
+      "selected_epoch": 60,
+      "test": {
+        "ap": 0.2879465984554304,
+        "auc": 0.9182066895599068,
+        "brier": 0.005544265988732194,
+        "hits_at_20": 19,
+        "hits_at_50": 45,
+        "n": 57105,
+        "p_at_20": 0.95,
+        "p_at_50": 0.9,
+        "positives": 295,
+        "prevalence": 0.005165922423605639,
+        "r_at_20": 0.06440677966101695,
+        "r_at_50": 0.15254237288135594
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.2708564682711015,
+          "auc": 0.901284730150164,
+          "brier": 0.0062696575303560174,
+          "hits_at_20": 13,
+          "hits_at_50": 26,
+          "n": 16167,
+          "p_at_20": 0.65,
+          "p_at_50": 0.52,
+          "positives": 108,
+          "prevalence": 0.006680274633512711,
+          "r_at_20": 0.12037037037037036,
+          "r_at_50": 0.24074074074074073
+        },
+        "8": {
+          "ap": 0.4128175103501326,
+          "auc": 0.9298827168114567,
+          "brier": 0.007434788196027216,
+          "hits_at_20": 20,
+          "hits_at_50": 42,
+          "n": 20762,
+          "p_at_20": 1.0,
+          "p_at_50": 0.84,
+          "positives": 187,
+          "prevalence": 0.009006839418167807,
+          "r_at_20": 0.10695187165775401,
+          "r_at_50": 0.22459893048128343
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0030175794739972814,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 20176,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.2913190317849693,
+        "auc": 0.9038516946282206,
+        "brier": 0.01035792498578642,
+        "hits_at_20": 19,
+        "hits_at_50": 30,
+        "n": 16726,
+        "p_at_20": 0.95,
+        "p_at_50": 0.6,
+        "positives": 201,
+        "prevalence": 0.012017218701422935,
+        "r_at_20": 0.0945273631840796,
+        "r_at_50": 0.14925373134328357
+      },
+      "validation_checkpoint_ap": 0.29130108402996413
+    },
+    "typed_temporal_shuffled": {
+      "parameters": 12833,
+      "positive_weight": 12.932517051696777,
+      "score_artifact": "research/bitcoin/results/drishti-r47-graph-training/typed_temporal_shuffled-scores.parquet",
+      "score_sha256": "8e1f4e4d1848cddbac263285d8132d701009cee02cddfd5456d2436b736eebbc",
+      "selected_epoch": 55,
+      "test": {
+        "ap": 0.0777607654538502,
+        "auc": 0.7396839599139564,
+        "brier": 0.005392484147222092,
+        "hits_at_20": 9,
+        "hits_at_50": 19,
+        "n": 57105,
+        "p_at_20": 0.45,
+        "p_at_50": 0.38,
+        "positives": 295,
+        "prevalence": 0.005165922423605639,
+        "r_at_20": 0.030508474576271188,
+        "r_at_50": 0.06440677966101695
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.1204846437665303,
+          "auc": 0.7694355651498065,
+          "brier": 0.006506957580433732,
+          "hits_at_20": 8,
+          "hits_at_50": 17,
+          "n": 16167,
+          "p_at_20": 0.4,
+          "p_at_50": 0.34,
+          "positives": 108,
+          "prevalence": 0.006680274633512711,
+          "r_at_20": 0.07407407407407407,
+          "r_at_50": 0.1574074074074074
+        },
+        "8": {
+          "ap": 0.08866708885808523,
+          "auc": 0.7158859266671431,
+          "brier": 0.008818601723010102,
+          "hits_at_20": 10,
+          "hits_at_50": 18,
+          "n": 20762,
+          "p_at_20": 0.5,
+          "p_at_50": 0.36,
+          "positives": 187,
+          "prevalence": 0.009006839418167807,
+          "r_at_20": 0.053475935828877004,
+          "r_at_50": 0.0962566844919786
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.000973831039408688,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 20176,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.09585107229876404,
+        "auc": 0.7259790307163126,
+        "brier": 0.01146079747777634,
+        "hits_at_20": 7,
+        "hits_at_50": 17,
+        "n": 16726,
+        "p_at_20": 0.35,
+        "p_at_50": 0.34,
+        "positives": 201,
+        "prevalence": 0.012017218701422935,
+        "r_at_20": 0.03482587064676617,
+        "r_at_50": 0.0845771144278607
+      },
+      "validation_checkpoint_ap": 0.09585107229876404
+    },
+    "xgboost_local": {
+      "score_artifact": "research/bitcoin/results/drishti-r47-graph-training/xgboost_local-scores.parquet",
+      "score_sha256": "e3f4e0c8ce4749f2afdb2060c2c628d3a2c541b5f57bfeec75c7f2773c11cd32",
+      "test": {
+        "ap": 0.05378719747060974,
+        "auc": 0.6951481447226706,
+        "brier": 0.005552848561260902,
+        "hits_at_20": 11,
+        "hits_at_50": 15,
+        "n": 57105,
+        "p_at_20": 0.55,
+        "p_at_50": 0.3,
+        "positives": 295,
+        "prevalence": 0.005165922423605639,
+        "r_at_20": 0.03728813559322034,
+        "r_at_50": 0.05084745762711865
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.036690724178643705,
+          "auc": 0.658873067600261,
+          "brier": 0.007098658616001402,
+          "hits_at_20": 3,
+          "hits_at_50": 5,
+          "n": 16167,
+          "p_at_20": 0.15,
+          "p_at_50": 0.1,
+          "positives": 108,
+          "prevalence": 0.006680274633512711,
+          "r_at_20": 0.027777777777777776,
+          "r_at_50": 0.046296296296296294
+        },
+        "8": {
+          "ap": 0.09999825586571308,
+          "auc": 0.7139198575707759,
+          "brier": 0.008826661561484674,
+          "hits_at_20": 11,
+          "hits_at_50": 17,
+          "n": 20762,
+          "p_at_20": 0.55,
+          "p_at_50": 0.34,
+          "positives": 187,
+          "prevalence": 0.009006839418167807,
+          "r_at_20": 0.058823529411764705,
+          "r_at_50": 0.09090909090909091
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0009452942063027537,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 20176,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.12797759497082867,
+        "auc": 0.6508906300569768,
+        "brier": 0.011426334530971418,
+        "hits_at_20": 13,
+        "hits_at_50": 23,
+        "n": 16726,
+        "p_at_20": 0.65,
+        "p_at_50": 0.46,
+        "positives": 201,
+        "prevalence": 0.012017218701422935,
+        "r_at_20": 0.06467661691542288,
+        "r_at_50": 0.11442786069651742
+      }
+    },
+    "xgboost_typed_features": {
+      "score_artifact": "research/bitcoin/results/drishti-r47-graph-training/xgboost_typed_features-scores.parquet",
+      "score_sha256": "8600e2b4404315c3be014f94606ddc265fe950f69ec8b6ec33df60e169d7b506",
+      "test": {
+        "ap": 0.19024104802047515,
+        "auc": 0.9237415530209232,
+        "brier": 0.006511990970331808,
+        "hits_at_20": 12,
+        "hits_at_50": 32,
+        "n": 57105,
+        "p_at_20": 0.6,
+        "p_at_50": 0.64,
+        "positives": 295,
+        "prevalence": 0.005165922423605639,
+        "r_at_20": 0.04067796610169491,
+        "r_at_50": 0.10847457627118644
+      },
+      "test_by_window": {
+        "7": {
+          "ap": 0.059356070302674355,
+          "auc": 0.9012997211670852,
+          "brier": 0.008202877350263375,
+          "hits_at_20": 1,
+          "hits_at_50": 2,
+          "n": 16167,
+          "p_at_20": 0.05,
+          "p_at_50": 0.04,
+          "positives": 108,
+          "prevalence": 0.006680274633512711,
+          "r_at_20": 0.009259259259259259,
+          "r_at_50": 0.018518518518518517
+        },
+        "8": {
+          "ap": 0.4083514741905006,
+          "auc": 0.9378323727591114,
+          "brier": 0.0082505832922083,
+          "hits_at_20": 20,
+          "hits_at_50": 34,
+          "n": 20762,
+          "p_at_20": 1.0,
+          "p_at_50": 0.68,
+          "positives": 187,
+          "prevalence": 0.009006839418167807,
+          "r_at_20": 0.10695187165775401,
+          "r_at_50": 0.18181818181818182
+        },
+        "9": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0033679974190256355,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 20176,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      },
+      "validation": {
+        "ap": 0.1986194438498806,
+        "auc": 0.9129098832614537,
+        "brier": 0.01122653471425017,
+        "hits_at_20": 5,
+        "hits_at_50": 15,
+        "n": 16726,
+        "p_at_20": 0.25,
+        "p_at_50": 0.3,
+        "positives": 201,
+        "prevalence": 0.012017218701422935,
+        "r_at_20": 0.024875621890547265,
+        "r_at_50": 0.07462686567164178
+      }
+    }
+  },
+  "ownership_threshold": 0.3,
+  "partition_mode": "address",
+  "peak_rss_kib": 1419700,
+  "seconds": 26.35762336500011,
+  "selected_by_validation_p20_then_ap": "typed_temporal_gru",
+  "width": 32
+}

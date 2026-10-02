@@ -8,11 +8,12 @@ export function HeroText({ dimmed }: { dimmed: boolean }) {
   return (
     <div className={`${styles.wrap} ${dimmed ? styles.dimmed : ""}`}>
       <p className={styles.brand}>CHAKRAVYUH</p>
-      <p className={styles.tag}>two-layer attribution · offline</p>
-      <h1 className={styles.headline}>See through the noise.</h1>
+      <p className={styles.tag}>BITCOIN TRANSACTION ANALYSIS</p>
+      <h1 className={styles.headline}>See where the money came from.</h1>
       <p className={styles.sub}>
-        DRISHTI reads the wire behind every Bitcoin transaction and names the
-        IP that sent it. <b>Or tells you, honestly, when no one can.</b>
+        Our solution visualises Bitcoin transaction traffic, shows how
+        transactions move across the network, and estimates where they
+        originated.
       </p>
     </div>
   );

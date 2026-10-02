@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import { useRun } from "../data/RunContext";
+import { CaseRibbon } from "./CaseRibbon";
 import { TopStrip } from "./TopStrip";
 import { Sutra } from "./Sutra";
 import { Aperture } from "./Aperture";
@@ -21,7 +23,9 @@ function isTyping(el: EventTarget | null): boolean {
 }
 
 export function Shell() {
-  const { stage, apertureOpen, setApertureOpen } = useShell();
+  const { stage, apertureOpen, setApertureOpen, closeDrawer } = useShell();
+  const { runId } = useRun();
+  useEffect(() => { closeDrawer(); }, [runId, closeDrawer]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -40,8 +44,9 @@ export function Shell() {
     <div className={styles.shell}>
       <TopStrip />
       <Sutra />
+      <CaseRibbon />
       <main className={styles.stage}>
-        <StageScreen id={stage} />
+        <StageScreen key={runId + stage} id={stage} />
       </main>
       <Aperture />
       <PropertiesDrawer />

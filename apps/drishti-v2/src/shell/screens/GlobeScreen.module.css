@@ -118,3 +118,33 @@
   font-size: 0.85rem;
   line-height: 1.7;
 }
+.casePicker { display: flex; gap: .6rem; margin-top: 1.1rem; pointer-events: auto; flex-wrap: wrap; }
+.casePicker button { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; text-align: left; padding: .7rem .85rem; font: 600 .95rem var(--font-text); cursor: pointer; }
+.casePicker button[aria-pressed=true] { border-color: var(--riso-blue); box-shadow: inset 3px 0 var(--riso-blue); }
+.casePicker small { display: block; margin-top: .3rem; color: var(--ink-soft); font: .7rem var(--font-mono); }
+.observationPanel { position: absolute; top: 2rem; right: 2rem; width: 240px; pointer-events: auto; border: 1px solid var(--line); border-radius: 10px; padding: 1rem; background: color-mix(in srgb, var(--paper) 94%, transparent); }
+.panelLabel { font: .75rem var(--font-mono); color: var(--riso-blue); letter-spacing: .1em; display: block; }
+.observationPanel > strong { display: block; font: 600 1.7rem var(--font-display); margin-top: .6rem; }
+.observationPanel p { font: .8rem/1.4 var(--font-text); color: var(--ink-soft); }
+.observationPanel > button { display: flex; gap: .6rem; align-items: center; width: 100%; padding: .5rem 0; background: transparent; border: none; cursor: pointer; font: .78rem var(--font-mono); }
+.observationPanel > button span { width: 2rem; }
+.observationPanel i { display: inline-block; height: 3px; background: var(--riso-blue); }
+.observationPanel > button strong { margin-left: auto; }
+.activeTrail { margin-top: 1rem; border-top: 1px solid var(--line); padding-top: .8rem; font: .8rem var(--font-mono); }
+.activeTrail button { display: block; padding: .5rem; margin-top: .4rem; background: var(--paper); border: 1px solid var(--line); color: var(--riso-blue); border-radius: 4px; cursor: pointer; font: .8rem var(--font-text); }
+@media(max-width: 1000px) { .observationPanel { top: auto; right: 1rem; bottom: 6rem; width: 200px; } .observationPanel > button:nth-of-type(n+4) { display: none; } }
+@media(max-width: 600px) { .observationPanel { bottom: 1rem; width: 150px; padding: .7rem; } .observationPanel > strong { font-size: 1.1rem; } .activeTrail p { display: none; } .head { max-width: 100%; } .gloss { font-size: 1rem; max-width: 18rem; } }
+/* On a small screen the planet and evidence index get their own space. */
+@media (max-width: 600px) {
+  .screen { position: relative; inset: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 1.25rem; overflow: visible; }
+  .canvasWrap { position: relative; inset: auto; grid-row: 2; height: 340px; }
+  .overlay { display: contents; }
+  .head { grid-row: 1; }
+  .observationPanel { position: static; width: 100%; grid-row: 3; padding: 1rem; }
+  .observationPanel > strong { font-size: 1.5rem; }
+  .observationPanel > button:nth-of-type(n+4) { display: flex; }
+  .footRow { grid-row: 4; display: grid; gap: .8rem; }
+  .legend { width: 100%; }
+  .diya { text-align: left; font-size: .85rem; }
+  .activeTrail p { display: block; }
+}

@@ -1,5 +1,7 @@
-import { THREAD_STAGES, WORLD_STAGE, STAGES, indexOf } from "../nav/stages";
+import { THREAD_STAGES, WORLD_STAGE, indexOf, type StageId } from "../nav/stages";
 import { useShell } from "./ShellContext";
+import type { Fixtures } from "../data/loader";
+import { useRun } from "../data/RunContext";
 import styles from "./Sutra.module.css";
 
 /**
@@ -16,7 +18,8 @@ const fmt = new Intl.NumberFormat("en-US");
 export function Sutra() {
   const { stage, goTo } = useShell();
   const currentIndex = indexOf(stage);
-  const current = STAGES[currentIndex];
+  const { fixtures, has, run } = useRun();
+  const count = has("world") ? fixtures.world.funnel.find(f => f.stage === stage)?.count : null;
 
   // bead rides to the centre of the current thread stop (World sits off the funnel)
   const threadIndex = THREAD_STAGES.findIndex((s) => s.id === stage);
@@ -25,7 +28,9 @@ export function Sutra() {
 
   const renderStop = (id: string, name: string, tag: string) => {
     const idx = indexOf(id as never);
-    const state = idx < currentIndex ? "done" : idx === currentIndex ? "current" : "ahead";
+    const artifact: Record<StageId, keyof Fixtures> = { globe: "origin", intake: "manifest", untangle: "collapse", map: "graphAddress", origin: "origin", leads: "alerts", proof: "packet", world: "world" };
+    const available = run.payload[artifact[id as StageId]] != null;
+    const state = idx === currentIndex ? "current" : idx < currentIndex && available ? "done" : "ahead";
     return (
       <button
         key={id}
@@ -36,7 +41,7 @@ export function Sutra() {
       >
         <span className={styles.name}>
           {name}
-          {state === "done" && <span className={styles.seal} aria-label="done" />}
+          {state === "done" && <span className={styles.seal} aria-label="artifact available" />}
         </span>
         {tag && <span className={styles.tag}>{tag}</span>}
       </button>
@@ -49,7 +54,7 @@ export function Sutra() {
         <div className={styles.line} aria-hidden="true" />
         {threadIndex >= 0 && (
           <div className={styles.bead} style={{ left: `${beadLeft}%` }} aria-hidden="true">
-            <span className={styles.beadCount}>{current.count != null ? fmt.format(current.count) : ""}</span>
+            <span className={styles.beadCount}>{count != null ? fmt.format(count) : ""}</span>
           </div>
         )}
         <div className={styles.stops}>

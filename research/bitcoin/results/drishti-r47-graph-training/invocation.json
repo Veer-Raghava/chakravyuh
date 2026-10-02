@@ -1,0 +1,11 @@
+{
+  "checkpoint": "R47",
+  "command": "UV_CACHE_DIR=/tmp/uv-cache POLARS_MAX_THREADS=4 uv run --offline --no-sync python research/bitcoin/temporal_hetero_benchmark.py --epochs 60 --partition-mode address --output research/bitcoin/results/drishti-r47-graph-training",
+  "partition_mode": "address",
+  "seed": 42,
+  "cpu_threads": 4,
+  "epochs": 60,
+  "report_sha256": "4aa6b5b9a222071852a1d3128df4d01dbe0f4d3c3cbd9c7b5a6de7563863d63c",
+  "evaluation_status": "Consumed canonical synthetic windows; replay, not untouched confirmatory evaluation",
+  "production_model_changed": false
+}

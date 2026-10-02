@@ -1,0 +1,71 @@
+{
+  "baseline_run": "agency-v2",
+  "elapsed_seconds": 12.928950513996824,
+  "features": [
+    "n_in",
+    "n_out",
+    "log_input",
+    "log_output",
+    "output_fraction",
+    "min_input_fraction",
+    "fee_fraction",
+    "script_match",
+    "all_input_scripts_match",
+    "fresh_output",
+    "output_reuses_input",
+    "round_1k",
+    "round_10k",
+    "round_100k",
+    "log_output_gap",
+    "input_amount_cv",
+    "equal_outputs",
+    "output_index_fraction"
+  ],
+  "fit_cut_us": 1767519555825316,
+  "forward_test_start_us": 1767617601829850,
+  "generated_tx_rows": 34246,
+  "generator_config_sha256": "1d6b92ac5d9bd159b2bba76e3d2f66132c2e32aa95f0c3ae64b120d5c8cc2027",
+  "independent_seed_forward_test": {
+    "ap": 0.9204473571508006,
+    "auc": 0.9796979680552315,
+    "brier": 0.046135916925286034,
+    "hits_at_20": 20,
+    "hits_at_50": 50,
+    "n": 31095,
+    "p_at_20": 1.0,
+    "p_at_50": 1.0,
+    "positives": 6064,
+    "prevalence": 0.19501527576780833,
+    "r_at_20": 0.0032981530343007917,
+    "r_at_50": 0.008245382585751979
+  },
+  "limitations": [
+    "Same generator/configuration family; tests seed robustness, not real-chain transfer.",
+    "Temporal split is based on agency-v2 time cut applied to second seed.",
+    "All addresses in second seed are generated in memory; no full dataset was persisted.",
+    "Labels are synthetic and directly name the sender/input/output controller."
+  ],
+  "n_payments_requested": 24000,
+  "new_seed_forward_target_prevalence": 0.19501527576780833,
+  "same_seed_forward_test": {
+    "ap": 0.9089840475984274,
+    "auc": 0.9757744334358386,
+    "brier": 0.05138994300595727,
+    "hits_at_20": 20,
+    "hits_at_50": 50,
+    "n": 32374,
+    "p_at_20": 1.0,
+    "p_at_50": 1.0,
+    "positives": 6582,
+    "prevalence": 0.2033112991907086,
+    "r_at_20": 0.003038590094196293,
+    "r_at_50": 0.007596475235490732
+  },
+  "train_target_prevalence": 0.20760391514315282,
+  "training_inputs": {
+    "addresses_sha256": "6d6029bbefbbc7e211bae1f2ba9ebc74124f6e2293c3201c674ed59b2f198d07",
+    "entity_labels_sha256": "d2881da0a2131cd16ad0fc33b83cb4fb948a00e26c8c982d85b071c1fa463519",
+    "transactions_sha256": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098"
+  },
+  "transfer_seed": 9001
+}

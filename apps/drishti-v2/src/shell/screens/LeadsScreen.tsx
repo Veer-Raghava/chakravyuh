@@ -43,7 +43,8 @@ const scrub = scrubOwnerWords;
 function sortAlerts(list: QueueAlert[], key: SortKey): QueueAlert[] {
   const copy = [...list];
   if (key === "risk") copy.sort((a, b) => b.risk_score - a.risk_score);
-  else if (key === "confidence") copy.sort((a, b) => b.conf_high - a.conf_high || b.conf_low - a.conf_low);
+  else if (key === "confidence")
+    copy.sort((a, b) => b.conf_high - a.conf_high || b.conf_low - a.conf_low);
   else copy.sort((a, b) => b.cluster_size - a.cluster_size);
   return copy;
 }
@@ -55,29 +56,76 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
   return (
     <div className={styles.summary}>
       <div className={styles.sumHead}>
-        <span className={styles.sumScore} style={{ color: sevColor(a.severity) }}>{a.risk_score.toFixed(3)}</span>
-        <span className={styles.sumSeverity} style={{ color: sevColor(a.severity), borderColor: sevColor(a.severity) }}>
+        <span
+          className={styles.sumScore}
+          style={{ color: sevColor(a.severity) }}
+        >
+          {a.risk_score.toFixed(3)}
+        </span>
+        <span
+          className={styles.sumSeverity}
+          style={{
+            color: sevColor(a.severity),
+            borderColor: sevColor(a.severity),
+          }}
+        >
           {a.severity.toUpperCase()}
         </span>
-        <span className={styles.sumSubject}>{subjectLabel(a.subject_display)}</span>
+        <span className={styles.sumSubject}>
+          {subjectLabel(a.subject_display)}
+        </span>
       </div>
       <div className={styles.band}>
         <span className={styles.bandLabel}>risk</span>
         <span className={styles.bandTrack}>
-          <span className={styles.bandFill} style={{ width: barW(a.risk_score), background: sevColor(a.severity) }} />
+          <span
+            className={styles.bandFill}
+            style={{
+              width: barW(a.risk_score),
+              background: sevColor(a.severity),
+            }}
+          />
         </span>
       </div>
-      <div className={styles.band}>
+      {a.interval_available !== false && <div className={styles.band}>
         <span className={styles.bandLabel}>confidence</span>
         <span className={styles.bandTrack}>
-          <span className={styles.bandRange} style={{ left: barW(a.conf_low), width: barW(a.conf_high - a.conf_low) }} />
+          <span
+            className={styles.bandRange}
+            style={{
+              left: barW(a.conf_low),
+              width: barW(a.conf_high - a.conf_low),
+            }}
+          />
         </span>
       </div>
+      }
       <p className={styles.sumHeadline}>{scrub(a.headline)}</p>
       <dl className={styles.sumRows}>
-        <div className={styles.sumRow}><dt>network operator (ASN)</dt><dd>{a.origin_asn ?? "—"} · {a.origin_country ?? "—"}{a.origin_net_class ? ` · ${a.origin_net_class}` : ""}</dd></div>
-        <div className={styles.sumRow}><dt>likely same owner</dt><dd>{a.cluster_size > 1 ? `${a.cluster_size} addresses` : "single address"}</dd></div>
-        <div className={styles.sumRow}><dt>confidence band</dt><dd>{a.conf_low.toFixed(3)}–{a.conf_high.toFixed(3)}{a.p_asn != null ? ` · operator p ${(a.p_asn * 100).toFixed(1)}%` : ""}</dd></div>
+        <div className={styles.sumRow}>
+          <dt>network operator (ASN)</dt>
+          <dd>
+            {a.origin_asn ?? "—"} · {a.origin_country ?? "—"}
+            {a.origin_net_class ? ` · ${a.origin_net_class}` : ""}
+          </dd>
+        </div>
+        <div className={styles.sumRow}>
+          <dt>likely same owner</dt>
+          <dd>
+            {a.cluster_size > 1
+              ? `${a.cluster_size} addresses`
+              : "single address"}
+          </dd>
+        </div>
+        <div className={styles.sumRow}>
+          <dt>confidence band</dt>
+          <dd>
+            {a.interval_available === false ? "Ranking only" : `${a.conf_low.toFixed(3)}–${a.conf_high.toFixed(3)}`}
+            {a.p_asn != null
+              ? ` · operator p ${(a.p_asn * 100).toFixed(1)}%`
+              : ""}
+          </dd>
+        </div>
         <div className={styles.sumRow}>
           <dt>attribution</dt>
           <dd className={a.attribution_ready ? styles.ready : styles.notReady}>
@@ -86,8 +134,8 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
         </div>
       </dl>
       <p className={styles.sumNote}>
-        Full evidence, including factors, counter-evidence and origin candidates, is exported for the
-        featured lead in this capture.
+        Select this case to inspect its exported model factors, counter-evidence
+        and origin candidates.
       </p>
       {actions}
     </div>
@@ -95,18 +143,29 @@ function LeadSummary({ a, actions }: { a: QueueAlert; actions: ReactNode }) {
 }
 
 export function LeadsScreen() {
-  const { goTo, openDrawer } = useShell();
+  const { goTo } = useShell();
   const reduced = usePrefersReducedMotion();
-  const { fixtures } = useRun();
+  const { fixtures, selectAlert, selectTx, selectedAlert, run, has } = useRun();
   const [sort, setSort] = useState<SortKey>("risk");
   const [ready, setReady] = useState(false);
   const [clustered, setClustered] = useState(false);
 
-  const featuredId = fixtures.alert.alert_id;
+  const featuredId = selectedAlert ?? fixtures.alert.alert_id;
+  const selectedSummary = fixtures.alerts.alerts.find(
+    (a) => a.alert_id === featuredId,
+  );
+  const fullDetail =
+    has("alert") &&
+    Boolean(
+      (selectedAlert
+        ? run.payload.alertDetails?.[selectedAlert]
+        : run.payload.alert
+      )?.features,
+    );
   const total = fixtures.alerts.alerts.length;
 
   const rows = useMemo(() => {
-    let list = fixtures.alerts.alerts.filter((a) => a.alert_id !== featuredId);
+    let list = fixtures.alerts.alerts;
     if (ready) list = list.filter((a) => a.attribution_ready);
     if (clustered) list = list.filter((a) => a.cluster_size > 1);
     return sortAlerts(list, sort).slice(0, SHOWN);
@@ -115,20 +174,42 @@ export function LeadsScreen() {
   useGSAP(
     () => {
       if (reduced) return;
-      gsap.from(`.${styles.row}`, { opacity: 0, y: 10, duration: 0.4, stagger: 0.04, ease: "power2.out" });
+      gsap.from(`.${styles.row}`, {
+        opacity: 0,
+        y: 10,
+        duration: 0.4,
+        stagger: 0.04,
+        ease: "power2.out",
+      });
     },
     { dependencies: [rows, reduced] },
   );
 
   const actions = (
     <div className={styles.actions}>
-      <button className={styles.actMap} type="button" onClick={() => goTo("map")}>Open in map →</button>
-      <button className={styles.actProof} type="button" onClick={() => goTo("proof")}>Build proof</button>
+      <button
+        className={styles.actMap}
+        type="button"
+        onClick={() => {
+          selectTx(fixtures.alert.origin?.txid ?? fixtures.alert.representative_txid ?? null);
+          goTo("map");
+        }}
+      >
+        Open in map →
+      </button>
+      <button
+        className={styles.actProof}
+        type="button"
+        onClick={() => goTo("proof")}
+      >
+        Build proof
+      </button>
     </div>
   );
 
-  const openRow = (a: QueueAlert) =>
-    openDrawer(`Lead · ${subjectLabel(a.subject_display)}`, <LeadSummary a={a} actions={actions} />);
+  const openRow = (a: QueueAlert) => {
+    selectAlert(a.alert_id);
+  };
 
   return (
     <section className={styles.screen}>
@@ -138,78 +219,147 @@ export function LeadsScreen() {
           <span className={styles.tag}>VAANI · वाणी</span>
         </div>
         <p className={styles.gloss}>
-          {total} ranked leads, not a thousand maybes. Each answers “what do I do next” in a line,
-          and shows its own doubts beside the evidence.
+          {total} ranked leads, not a thousand maybes. Each answers “what do I
+          do next” in a line, and shows its own doubts beside the evidence.
         </p>
       </header>
 
-      <div className={styles.featured}>
-        <span className={styles.featLabel}>act on this first</span>
-        <AlertCard footer={actions} />
-      </div>
-
-      <div className={styles.controls}>
-        <div className={styles.segmented} role="group" aria-label="Sort leads">
-          {SORTS.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              className={`${styles.seg} ${sort === s.key ? styles.segOn : ""}`}
-              onClick={() => setSort(s.key)}
-            >
-              {s.label}
-            </button>
-          ))}
+      <div className={styles.workspace}>
+        <div className={styles.featured}>
+          <span className={styles.featLabel}>
+            selected case · inspect evidence and counter-evidence
+          </span>
+          {fullDetail ? (
+            <AlertCard footer={actions} />
+          ) : selectedSummary ? (
+            <LeadSummary
+              a={selectedSummary}
+              actions={
+                <button
+                  type="button"
+                  className={styles.actProof}
+                  onClick={() => goTo("proof")}
+                >
+                  Open exported case evidence →
+                </button>
+              }
+            />
+          ) : (
+            <p>Select a lead from the queue.</p>
+          )}
         </div>
-        <div className={styles.filters}>
-          <button type="button" className={`${styles.filter} ${ready ? styles.filterOn : ""}`} onClick={() => setReady((v) => !v)}>
-            attribution ready
-          </button>
-          <button type="button" className={`${styles.filter} ${clustered ? styles.filterOn : ""}`} onClick={() => setClustered((v) => !v)}>
-            grouped
-          </button>
-        </div>
-      </div>
 
-      <p className={styles.count}>
-        showing {rows.length} of {total - 1}, plus the featured lead above
-      </p>
-
-      <ul className={styles.list}>
-        {rows.map((a) => (
-          <li key={a.alert_id}>
-            <button
-              className={styles.row}
-              type="button"
-              style={{ "--risk": sevColor(a.severity) } as CSSProperties}
-              onClick={() => openRow(a)}
+        <div className={styles.queue}>
+          <div className={styles.controls}>
+            <div
+              className={styles.segmented}
+              role="group"
+              aria-label="Sort leads"
             >
-              <span className={styles.edge} aria-hidden />
-              <span className={styles.rank}>#{a.rank}</span>
-              {/* three decimals, not two: at 2dp a 0.9973 and a 0.9968 both print "1.00",
+              {SORTS.map((s) => (
+                <button
+                  key={s.key}
+                  type="button"
+                  className={`${styles.seg} ${sort === s.key ? styles.segOn : ""}`}
+                  onClick={() => setSort(s.key)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <div className={styles.filters}>
+              <button
+                type="button"
+                className={`${styles.filter} ${ready ? styles.filterOn : ""}`}
+                onClick={() => setReady((v) => !v)}
+              >
+                attribution ready
+              </button>
+              <button
+                type="button"
+                className={`${styles.filter} ${clustered ? styles.filterOn : ""}`}
+                onClick={() => setClustered((v) => !v)}
+              >
+                grouped
+              </button>
+            </div>
+          </div>
+
+          <p className={styles.count}>
+            showing {rows.length} of {total} · select a row to inspect alongside
+          </p>
+
+          <ul className={styles.list}>
+            {rows.map((a) => (
+              <li key={a.alert_id}>
+                <button
+                  className={styles.row}
+                  aria-pressed={a.alert_id === featuredId}
+                  type="button"
+                  style={{ "--risk": sevColor(a.severity) } as CSSProperties}
+                  onClick={() => openRow(a)}
+                >
+                  <span className={styles.edge} aria-hidden />
+                  <span className={styles.rank}>#{a.rank}</span>
+                  {/* three decimals, not two: at 2dp a 0.9973 and a 0.9968 both print "1.00",
                   and a queue of identical 1's reads as broken rather than as ranked */}
-              <span className={styles.rowScore} style={{ color: sevColor(a.severity) }}>{a.risk_score.toFixed(3)}</span>
-              {/* the risk fill: two rows at 0.80 and 0.99 must not read alike */}
-              <span className={styles.rowBar} aria-hidden>
-                <span className={styles.rowBarFill} style={{ width: barW(a.risk_score), background: sevColor(a.severity) }} />
-              </span>
-              <span className={styles.rowMain}>
-                <span className={styles.rowHeadline}>{scrub(a.headline)}</span>
-                <span className={styles.rowMeta}>
-                  {subjectLabel(a.subject_display)} · operator {a.origin_asn ?? "—"} · {a.origin_country ?? "—"}
-                  {a.cluster_size > 1 && <span className={styles.cluster}> · likely same owner ·{a.cluster_size}</span>}
-                </span>
-              </span>
-              {/* the conformal band, low→high — a range, never a single overconfident number */}
-              <span className={styles.rowBand} aria-hidden>
-                <span className={styles.rowBandRange} style={{ left: barW(a.conf_low), width: barW(a.conf_high - a.conf_low) }} />
-              </span>
-              <span className={styles.rowConf}>{a.conf_low.toFixed(3)}–{a.conf_high.toFixed(3)}</span>
-              {a.attribution_ready && <span className={styles.readyDot} title="attribution ready" aria-label="attribution ready" />}
-            </button>
-          </li>
-        ))}
-      </ul>
+                  <span
+                    className={styles.rowScore}
+                    style={{ color: sevColor(a.severity) }}
+                  >
+                    {a.risk_score.toFixed(3)}
+                  </span>
+                  {/* the risk fill: two rows at 0.80 and 0.99 must not read alike */}
+                  <span className={styles.rowBar} aria-hidden>
+                    <span
+                      className={styles.rowBarFill}
+                      style={{
+                        width: barW(a.risk_score),
+                        background: sevColor(a.severity),
+                      }}
+                    />
+                  </span>
+                  <span className={styles.rowMain}>
+                    <span className={styles.rowHeadline}>
+                      {scrub(a.headline)}
+                    </span>
+                    <span className={styles.rowMeta}>
+                      {subjectLabel(a.subject_display)} · operator{" "}
+                      {a.origin_asn ?? "—"} · {a.origin_country ?? "—"}
+                      {a.cluster_size > 1 && (
+                        <span className={styles.cluster}>
+                          {" "}
+                          · likely same owner ·{a.cluster_size}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                  {/* the conformal band, low→high — a range, never a single overconfident number */}
+                  <span className={styles.rowBand} aria-hidden style={{ visibility: a.interval_available === false ? "hidden" : "visible" }}>
+                    <span
+                      className={styles.rowBandRange}
+                      style={{
+                        left: barW(a.conf_low),
+                        width: barW(a.conf_high - a.conf_low),
+                      }}
+                    />
+                  </span>
+                  <span className={styles.rowConf}>
+                    {a.interval_available === false ? "Ranking only" : `${a.conf_low.toFixed(3)}–${a.conf_high.toFixed(3)}`}
+                  </span>
+                  {a.attribution_ready && (
+                    <span
+                      className={styles.readyDot}
+                      title="attribution ready"
+                      aria-label="attribution ready"
+                    />
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }

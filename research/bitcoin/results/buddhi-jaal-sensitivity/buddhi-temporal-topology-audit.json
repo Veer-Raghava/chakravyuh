@@ -1,0 +1,44 @@
+{
+  "boundary_us": 1767568585933107,
+  "interpretation": "Any full-graph early-address pair absent from the early-only partition depends on at least one post-boundary link. The current BUDDHI stage uses full-capture cluster membership before assigning its time split, so these links can affect subject IDs, train labels, and early-window feature aggregation.",
+  "protocol_note": "full-capture clusters are compared with clusters rebuilt only from pre-boundary transactions",
+  "run": "agency-v2",
+  "same_owner_edge_provenance": {
+    "n_edges": 36357,
+    "n_edges_without_timestamp": 36357,
+    "n_edges_without_transaction_id": true
+  },
+  "source_hashes": {
+    "addresses": "6d6029bbefbbc7e211bae1f2ba9ebc74124f6e2293c3201c674ed59b2f198d07",
+    "graph_edges": "606f20692708b682df6c56047a356f1f5b5fe297c265a3a7833b54b95bb4aaf3",
+    "transactions": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098"
+  },
+  "thresholds": [
+    {
+      "early_addresses_in_full_clusters_later_grown_by_future_activity": 20490,
+      "early_addresses_in_spanning_clusters": 18595,
+      "early_only_non_singleton_clusters": 5288,
+      "full_capture_non_singleton_clusters": 6532,
+      "full_clusters_spanning_train_and_holdout_addresses": 1584,
+      "future_added_share_of_full_early_pairs": 0.5136853390511927,
+      "n_early_addresses": 89847,
+      "pairs_supported_by_full_graph_but_not_early_evidence": 191656,
+      "same_group_pairs_among_early_addresses_full_graph": 373100,
+      "same_group_pairs_using_early_evidence_only": 181444,
+      "threshold": 0.2
+    },
+    {
+      "early_addresses_in_full_clusters_later_grown_by_future_activity": 18982,
+      "early_addresses_in_spanning_clusters": 16652,
+      "early_only_non_singleton_clusters": 4834,
+      "full_capture_non_singleton_clusters": 6061,
+      "full_clusters_spanning_train_and_holdout_addresses": 1457,
+      "future_added_share_of_full_early_pairs": 0.44909107224311856,
+      "n_early_addresses": 89847,
+      "pairs_supported_by_full_graph_but_not_early_evidence": 120113,
+      "same_group_pairs_among_early_addresses_full_graph": 267458,
+      "same_group_pairs_using_early_evidence_only": 147345,
+      "threshold": 0.3
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "metrics": [
+    {
+      "window": 7,
+      "policy": "score_only",
+      "returned": 20,
+      "positive_addresses": 2,
+      "distinct_positive_controllers": 2
+    },
+    {
+      "window": 7,
+      "policy": "evidence_diverse",
+      "returned": 20,
+      "positive_addresses": 3,
+      "distinct_positive_controllers": 3
+    },
+    {
+      "window": 8,
+      "policy": "score_only",
+      "returned": 20,
+      "positive_addresses": 20,
+      "distinct_positive_controllers": 5
+    },
+    {
+      "window": 8,
+      "policy": "evidence_diverse",
+      "returned": 20,
+      "positive_addresses": 7,
+      "distinct_positive_controllers": 7
+    },
+    {
+      "window": 9,
+      "policy": "score_only",
+      "returned": 20,
+      "positive_addresses": 0,
+      "distinct_positive_controllers": 0
+    },
+    {
+      "window": 9,
+      "policy": "evidence_diverse",
+      "returned": 20,
+      "positive_addresses": 0,
+      "distinct_positive_controllers": 0
+    }
+  ],
+  "seconds": 5.0185003750000305,
+  "source_sha256": "bdb6bf4cc4a19f2b95c51df5439e3d9620f649db80b6e60b5ca6ab8ae52bbf34",
+  "limitations": [
+    "Consumed canonical test windows; replay and implementation proof, not new confirmation.",
+    "Truth used after queue construction for evaluation only.",
+    "Evidence diversity does not establish controller identity.",
+    "UI preview is a fixed synthetic window, not the selected active application run."
+  ]
+}

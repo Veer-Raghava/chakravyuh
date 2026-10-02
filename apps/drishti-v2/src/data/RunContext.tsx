@@ -3,79 +3,217 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { fixtures, type Fixtures } from "./loader";
-// Stealth = the real `_sweep-0.10` run (observer_fraction 0.10), exported off the
-// same serializer as agency. Only the layers the sweep run regenerates differ
-// (world · origin · abstain); the per-lead artifacts (alerts/packet/manifest…)
-// weren't produced for the sweep, so stealth reuses agency's for those — a
-// documented fallback, never invented numbers.
-import stealthWorld from "./fixtures/stealth/world.json";
-import stealthOrigin from "./fixtures/stealth/origin.json";
-import stealthOriginAbstain from "./fixtures/stealth/origin-abstain.json";
+import { fixtures as baseline, type Fixtures } from "./loader";
+import agency from "./fixtures/runs/agency-v2.json";
+import graphAgency from "./fixtures/runs/agency-graph.json";
+import catalog from "./fixtures/runs/catalog.json";
 
-/**
- * The run switcher's one seam. DRISHTI holds more than one CHAKRAVYUH run
- * (an observer-coverage regime each) and swaps between them without touching a
- * screen. Screens read their data from `useRun().fixtures`, never the static
- * loader import — so a new run's fixtures slot in here and every screen follows.
- *
- * The badge reads the ACTIVE fixtures' real world.json
- * (run_id · observer_fraction · observer_regime), so it never claims coverage
- * the data doesn't have.
- */
-export type RunId = "agency" | "stealth";
-
-// Stealth's own world/origin numbers (real, from _sweep-0.10) over agency's rest.
-// `as unknown as` because the sweep run legitimately has nulls where agency has
-// numbers (campaign_recall, elliptic_* — the risk model wasn't scored at 10%
-// coverage); the screens null-guard those, so the widened shape is correct.
-const stealthFixtures: Fixtures = {
-  ...fixtures,
-  world: stealthWorld as unknown as Fixtures["world"],
-  origin: stealthOrigin as unknown as Fixtures["origin"],
-  originAbstain: stealthOriginAbstain as unknown as Fixtures["originAbstain"],
+export type RunId = string;
+type Payload = Partial<Fixtures> & {
+  alertDetails?: Record<string, Fixtures["alert"]>;
+  packets?: Record<string, Fixtures["packet"]>;
+  focusedGraphs?: Record<string, Fixtures["graphAddress"]>;
+  originDetails?: Record<string, Fixtures["origin"]>;
 };
-
-type RunDef = {
+const modules = import.meta.glob(["./fixtures/runs/_sweep-*.json", "./fixtures/runs/agency-graph.json"], {
+  import: "default",
+});
+const loaded = new Map<string, Payload>([
+  ["agency-v2", agency as unknown as Payload],
+  ["agency-graph", graphAgency as unknown as Payload],
+]);
+const names: Record<string, [string, string]> = {
+  "agency-graph": ["Graph intelligence", "329-input CPU engine · diverse leads · newly signed cases"],
+  "agency-v2": ["Agency", "Full investigation · capture to signed proof"],
+  "_sweep-0.10": [
+    "Stealth",
+    "Sparse observation · inspect the candidate shortlist",
+  ],
+  "_sweep-0.02": [
+    "Blind spots",
+    "Minimal observation · explore what remains visible",
+  ],
+  "s12-canonical": [
+    "Canonical case",
+    "Complete pipeline · a second evidence dossier",
+  ],
+};
+export type RunDef = {
   id: RunId;
-  label: string; // dropdown label, e.g. "Agency"
-  coverageLabel: string; // intended coverage, e.g. "60% coverage"
-  fixtures: Fixtures;
+  label: string;
+  description: string;
+  coverageLabel: string;
+  curated: boolean;
+  available: string[];
+  stages: string[];
+  payload: Payload;
+  sha256: string;
+  alert_count: number;
 };
-
-// ponytail: stealth regenerates only the origin/world layer; alerts/packet reuse
-// agency (the sweep run has no per-lead stages). Swap in a full stealth pipeline
-// when one is generated.
-const RUNS: RunDef[] = [
-  { id: "agency", label: "Agency", coverageLabel: "60% coverage", fixtures },
-  { id: "stealth", label: "Stealth", coverageLabel: "10% coverage", fixtures: stealthFixtures },
-];
+const RUNS: RunDef[] = catalog
+  .filter((r) => r.id === "agency-v2" || r.id === "agency-graph" || r.id.startsWith("_sweep-"))
+  .map((r) => {
+    const payload = loaded.get(r.id) ?? {};
+    const coverage = r.observer_fraction;
+    return {
+      ...r,
+      payload,
+      label: names[r.id]?.[0] ?? r.id.replace("_sweep-", "Coverage "),
+      description:
+        names[r.id]?.[1] ?? `${r.stages.length} generated stages · ${r.id}`,
+      coverageLabel:
+        coverage == null
+          ? "Partial run"
+          : `${Math.round(coverage * 100)}% coverage`,
+    };
+  })
+  .sort(
+    (a, b) =>
+      Number(b.curated) - Number(a.curated) ||
+      (a.id === "agency-graph"
+        ? -1
+        : b.id === "agency-graph"
+          ? 1
+          : a.id.localeCompare(b.id)),
+  );
 
 type RunState = {
   runId: RunId;
   run: RunDef;
   runs: RunDef[];
   setRun: (id: RunId) => void;
-  fixtures: Fixtures; // the active run's data — the one source every screen reads
+  loading: string | null;
+  loadError: string;
+  fixtures: Fixtures;
+  has: (key: keyof Fixtures) => boolean;
+  selectedTx: string | null;
+  selectTx: (id: string | null) => void;
+  selectedAlert: string | null;
+  selectAlert: (id: string | null) => void;
 };
-
 const RunCtx = createContext<RunState | null>(null);
-
 export function RunProvider({ children }: { children: ReactNode }) {
-  const [runId, setRunId] = useState<RunId>("agency");
-  const setRun = useCallback((id: RunId) => setRunId(id), []);
-
+  const [runId, setRunId] = useState("agency-graph");
+  const [selectedTx, setSelectedTx] = useState<string | null>(null);
+  const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
+  const selectTx = useCallback((id: string | null) => {
+    setSelectedTx(id);
+    setSelectedAlert(null);
+  }, []);
+  const selectAlert = useCallback(
+    (id: string | null) => {
+      setSelectedAlert(id);
+      const payload = loaded.get(runId);
+      const detail = id ? payload?.alertDetails?.[id] : null;
+      setSelectedTx(detail?.origin?.txid ?? detail?.representative_txid ?? null);
+    },
+    [runId],
+  );
+  const [loading, setLoading] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState("");
+  const request = useRef(0);
+  const setRun = useCallback((id: RunId) => {
+    const ticket = ++request.current;
+    setLoading(id);
+    setLoadError("");
+    const load = loaded.has(id)
+      ? Promise.resolve(loaded.get(id)!)
+      : (modules[`./fixtures/runs/${id}.json`]?.() as
+          | Promise<Payload>
+          | undefined);
+    if (!load) {
+      setLoading(null);
+      setLoadError("This run is not packaged in this workstation.");
+      return;
+    }
+    void load
+      .then((payload) => {
+        loaded.set(id, payload);
+        if (ticket !== request.current) return;
+        setRunId(id);
+        setSelectedTx(null);
+        setSelectedAlert(null);
+        setLoading(null);
+      })
+      .catch(() => {
+        if (ticket === request.current) {
+          setLoading(null);
+          setLoadError(
+            "Could not load the local run artifact. The current investigation is preserved.",
+          );
+        }
+      });
+  }, []);
   const value = useMemo<RunState>(() => {
-    const run = RUNS.find((r) => r.id === runId) ?? RUNS[0];
-    return { runId: run.id, run, runs: RUNS, setRun, fixtures: run.fixtures };
-  }, [runId, setRun]);
-
+    const definition = RUNS.find((r) => r.id === runId) ?? RUNS[0];
+    const run = {
+      ...definition,
+      payload: loaded.get(definition.id) ?? definition.payload,
+    };
+    const p = run.payload;
+    const alert = selectedAlert ? p.alertDetails?.[selectedAlert] : p.alert;
+    const matchingCase = selectedTx
+      ? Object.entries(p.alertDetails ?? {}).find(
+          ([, a]) => (a.origin?.txid ?? a.representative_txid) === selectedTx.replace(/^tx:/, ""),
+        )?.[0]
+      : null;
+    const packet = selectedAlert
+      ? p.packets?.[selectedAlert]
+      : selectedTx
+        ? matchingCase
+          ? p.packets?.[matchingCase]
+          : undefined
+        : p.packet;
+    const origin = selectedTx
+      ? p.originDetails?.[selectedTx.replace(/^tx:/, "")]
+      : p.origin;
+    // Baseline values only complete the compile-time contract. has() gates every
+    // stage before rendering; missing artifacts are never presented as this run.
+    const fixtures = {
+      ...baseline,
+      ...p,
+      ...(alert ? { alert } : {}),
+      ...(packet ? { packet } : {}),
+      ...(origin ? { origin } : {}),
+    } as Fixtures;
+    const has = (key: keyof Fixtures) =>
+      key === "packet"
+        ? Boolean(packet)
+        : key === "alert"
+          ? Boolean(alert)
+          : key === "origin"
+            ? Boolean(origin)
+            : p[key] != null;
+    return {
+      runId: run.id,
+      run,
+      runs: RUNS,
+      setRun,
+      loading,
+      loadError,
+      fixtures,
+      has,
+      selectedTx,
+      selectTx,
+      selectedAlert,
+      selectAlert,
+    };
+  }, [
+    runId,
+    setRun,
+    selectedTx,
+    selectedAlert,
+    loading,
+    loadError,
+    selectTx,
+    selectAlert,
+  ]);
   return <RunCtx.Provider value={value}>{children}</RunCtx.Provider>;
 }
-
 export function useRun(): RunState {
   const ctx = useContext(RunCtx);
   if (!ctx) throw new Error("useRun must be used inside <RunProvider>");

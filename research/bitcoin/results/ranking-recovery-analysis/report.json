@@ -1,0 +1,684 @@
+{
+  "design": {
+    "tree_weights": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "selection": "validation AP, then validation P@20; candidate order breaks ties",
+    "score": "weighted mean of saved calibrated scores; blend is not separately calibrated",
+    "units": "address-window decisions, not distinct controllers",
+    "status": "exploratory; underlying worlds/test results already consumed"
+  },
+  "validation_candidates": [
+    {
+      "tree_weight": 0.0,
+      "validation": {
+        "n": 16726,
+        "positives": 201,
+        "ap": 0.2913190317849693,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 19,
+            "precision": 0.95,
+            "recall": 0.0945273631840796
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 30,
+            "precision": 0.6,
+            "recall": 0.14925373134328357
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 43,
+            "precision": 0.43,
+            "recall": 0.21393034825870647
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 96,
+            "precision": 0.192,
+            "recall": 0.47761194029850745
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 133,
+            "precision": 0.133,
+            "recall": 0.6616915422885572
+          }
+        }
+      }
+    },
+    {
+      "tree_weight": 0.25,
+      "validation": {
+        "n": 16726,
+        "positives": 201,
+        "ap": 0.32964020663155125,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 20,
+            "precision": 1.0,
+            "recall": 0.09950248756218906
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 32,
+            "precision": 0.64,
+            "recall": 0.15920398009950248
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 46,
+            "precision": 0.46,
+            "recall": 0.22885572139303484
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 102,
+            "precision": 0.204,
+            "recall": 0.5074626865671642
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 143,
+            "precision": 0.143,
+            "recall": 0.7114427860696517
+          }
+        }
+      }
+    },
+    {
+      "tree_weight": 0.5,
+      "validation": {
+        "n": 16726,
+        "positives": 201,
+        "ap": 0.35259466941330947,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 20,
+            "precision": 1.0,
+            "recall": 0.09950248756218906
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 35,
+            "precision": 0.7,
+            "recall": 0.17412935323383086
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 50,
+            "precision": 0.5,
+            "recall": 0.24875621890547264
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 111,
+            "precision": 0.222,
+            "recall": 0.5522388059701493
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 142,
+            "precision": 0.142,
+            "recall": 0.7064676616915423
+          }
+        }
+      }
+    },
+    {
+      "tree_weight": 0.75,
+      "validation": {
+        "n": 16726,
+        "positives": 201,
+        "ap": 0.3612645914547519,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 20,
+            "precision": 1.0,
+            "recall": 0.09950248756218906
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 34,
+            "precision": 0.68,
+            "recall": 0.1691542288557214
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 50,
+            "precision": 0.5,
+            "recall": 0.24875621890547264
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 113,
+            "precision": 0.226,
+            "recall": 0.5621890547263682
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 144,
+            "precision": 0.144,
+            "recall": 0.7164179104477612
+          }
+        }
+      }
+    },
+    {
+      "tree_weight": 1.0,
+      "validation": {
+        "n": 16726,
+        "positives": 201,
+        "ap": 0.32871098421757483,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 13,
+            "precision": 0.65,
+            "recall": 0.06467661691542288
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 34,
+            "precision": 0.68,
+            "recall": 0.1691542288557214
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 52,
+            "precision": 0.52,
+            "recall": 0.25870646766169153
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 108,
+            "precision": 0.216,
+            "recall": 0.5373134328358209
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 139,
+            "precision": 0.139,
+            "recall": 0.6915422885572139
+          }
+        }
+      }
+    }
+  ],
+  "selected_tree_weight": 0.75,
+  "results": {
+    "rich_tree": {
+      "tree_weight": 1.0,
+      "test": {
+        "n": 57105,
+        "positives": 295,
+        "ap": 0.31480729542780783,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 20,
+            "precision": 1.0,
+            "recall": 0.06779661016949153
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 43,
+            "precision": 0.86,
+            "recall": 0.14576271186440679
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 68,
+            "precision": 0.68,
+            "recall": 0.2305084745762712
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 115,
+            "precision": 0.23,
+            "recall": 0.3898305084745763
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 154,
+            "precision": 0.154,
+            "recall": 0.5220338983050847
+          }
+        }
+      },
+      "test_by_window": {
+        "7": {
+          "n": 16167,
+          "positives": 108,
+          "ap": 0.10295477763097247,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 2,
+              "precision": 0.1,
+              "recall": 0.018518518518518517
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 5,
+              "precision": 0.1,
+              "recall": 0.046296296296296294
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 11,
+              "precision": 0.11,
+              "recall": 0.10185185185185185
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 55,
+              "precision": 0.11,
+              "recall": 0.5092592592592593
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 75,
+              "precision": 0.075,
+              "recall": 0.6944444444444444
+            }
+          }
+        },
+        "8": {
+          "n": 20762,
+          "positives": 187,
+          "ap": 0.5455155117280557,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 20,
+              "precision": 1.0,
+              "recall": 0.10695187165775401
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 49,
+              "precision": 0.98,
+              "recall": 0.2620320855614973
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 74,
+              "precision": 0.74,
+              "recall": 0.39572192513368987
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 115,
+              "precision": 0.23,
+              "recall": 0.6149732620320856
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 132,
+              "precision": 0.132,
+              "recall": 0.7058823529411765
+            }
+          }
+        },
+        "9": {
+          "n": 20176,
+          "positives": 0,
+          "ap": null,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            }
+          }
+        }
+      }
+    },
+    "temporal_gnn": {
+      "tree_weight": 0.0,
+      "test": {
+        "n": 57105,
+        "positives": 295,
+        "ap": 0.2879465984554304,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 19,
+            "precision": 0.95,
+            "recall": 0.06440677966101695
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 45,
+            "precision": 0.9,
+            "recall": 0.15254237288135594
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 55,
+            "precision": 0.55,
+            "recall": 0.1864406779661017
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 114,
+            "precision": 0.228,
+            "recall": 0.3864406779661017
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 130,
+            "precision": 0.13,
+            "recall": 0.4406779661016949
+          }
+        }
+      },
+      "test_by_window": {
+        "7": {
+          "n": 16167,
+          "positives": 108,
+          "ap": 0.2708564682711015,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 13,
+              "precision": 0.65,
+              "recall": 0.12037037037037036
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 26,
+              "precision": 0.52,
+              "recall": 0.24074074074074073
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 31,
+              "precision": 0.31,
+              "recall": 0.28703703703703703
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 52,
+              "precision": 0.104,
+              "recall": 0.48148148148148145
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 69,
+              "precision": 0.069,
+              "recall": 0.6388888888888888
+            }
+          }
+        },
+        "8": {
+          "n": 20762,
+          "positives": 187,
+          "ap": 0.4128175103501326,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 20,
+              "precision": 1.0,
+              "recall": 0.10695187165775401
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 42,
+              "precision": 0.84,
+              "recall": 0.22459893048128343
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 62,
+              "precision": 0.62,
+              "recall": 0.3315508021390374
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 101,
+              "precision": 0.202,
+              "recall": 0.5401069518716578
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 123,
+              "precision": 0.123,
+              "recall": 0.6577540106951871
+            }
+          }
+        },
+        "9": {
+          "n": 20176,
+          "positives": 0,
+          "ap": null,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            }
+          }
+        }
+      }
+    },
+    "validation_selected_blend": {
+      "tree_weight": 0.75,
+      "test": {
+        "n": 57105,
+        "positives": 295,
+        "ap": 0.3380725022937689,
+        "budgets": {
+          "20": {
+            "reviewed": 20,
+            "hits": 20,
+            "precision": 1.0,
+            "recall": 0.06779661016949153
+          },
+          "50": {
+            "reviewed": 50,
+            "hits": 41,
+            "precision": 0.82,
+            "recall": 0.13898305084745763
+          },
+          "100": {
+            "reviewed": 100,
+            "hits": 68,
+            "precision": 0.68,
+            "recall": 0.2305084745762712
+          },
+          "500": {
+            "reviewed": 500,
+            "hits": 128,
+            "precision": 0.256,
+            "recall": 0.43389830508474575
+          },
+          "1000": {
+            "reviewed": 1000,
+            "hits": 158,
+            "precision": 0.158,
+            "recall": 0.535593220338983
+          }
+        }
+      },
+      "test_by_window": {
+        "7": {
+          "n": 16167,
+          "positives": 108,
+          "ap": 0.1443421136790356,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 4,
+              "precision": 0.2,
+              "recall": 0.037037037037037035
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 7,
+              "precision": 0.14,
+              "recall": 0.06481481481481481
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 25,
+              "precision": 0.25,
+              "recall": 0.23148148148148148
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 61,
+              "precision": 0.122,
+              "recall": 0.5648148148148148
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 78,
+              "precision": 0.078,
+              "recall": 0.7222222222222222
+            }
+          }
+        },
+        "8": {
+          "n": 20762,
+          "positives": 187,
+          "ap": 0.552745489239431,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 20,
+              "precision": 1.0,
+              "recall": 0.10695187165775401
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 50,
+              "precision": 1.0,
+              "recall": 0.26737967914438504
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 74,
+              "precision": 0.74,
+              "recall": 0.39572192513368987
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 118,
+              "precision": 0.236,
+              "recall": 0.6310160427807486
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 133,
+              "precision": 0.133,
+              "recall": 0.7112299465240641
+            }
+          }
+        },
+        "9": {
+          "n": 20176,
+          "positives": 0,
+          "ap": null,
+          "budgets": {
+            "20": {
+              "reviewed": 20,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "50": {
+              "reviewed": 50,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "100": {
+              "reviewed": 100,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "500": {
+              "reviewed": 500,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            },
+            "1000": {
+              "reviewed": 1000,
+              "hits": 0,
+              "precision": 0.0,
+              "recall": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "sha256": {
+    "rich_tree": "92e359e29927b88f8d8d656a386df7d01e96853528a5d4b0c80b490a16aa218f",
+    "temporal_gnn": "005f9d38dd7923ca89c0f3ca6f3b0f9deb3508979ac0418b2f81ed1635ac0d17"
+  },
+  "script_sha256": "c097126868e7a7f7d99b5a5f921bdc570537d188ca18288294dae79a8d7226fa"
+}

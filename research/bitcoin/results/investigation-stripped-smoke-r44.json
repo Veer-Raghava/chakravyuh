@@ -1,0 +1,11 @@
+{
+  "leads": 20,
+  "exact_packet_replay": true,
+  "torch_disabled": true,
+  "copied_input_files": 4,
+  "ground_truth_copied": false,
+  "stdout_empty": true,
+  "seconds": 2.622415994999983,
+  "source_sha256": "43839adede8a075814957c33cb73a3db13aa2e4e99c6635b66f1b685ffbb23b3",
+  "statement": "Portable inference proof on copied observations; not full packaged deployment."
+}

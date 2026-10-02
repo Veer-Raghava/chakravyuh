@@ -1,3 +1,4 @@
+import { useRun } from "../../data/RunContext";
 import { useShell } from "../ShellContext";
 import type { GlobeTx, GlobePoint } from "../../data/globe";
 import styles from "./GlobeDetail.module.css";
@@ -33,7 +34,9 @@ const REASON_GLOSS: Record<string, string> = {
 
 export function GlobeDetail({ tx, focus }: { tx: GlobeTx; focus?: GlobePoint }) {
   const { goTo, closeDrawer } = useShell();
-  const jump = (id: "map" | "proof") => {
+  const { selectTx } = useRun();
+  const jump = (id: "map" | "origin") => {
+    selectTx(tx.txid);
     closeDrawer();
     goTo(id);
   };
@@ -137,8 +140,8 @@ export function GlobeDetail({ tx, focus }: { tx: GlobeTx; focus?: GlobePoint }) 
         <button type="button" className={styles.primary} onClick={() => jump("map")}>
           Open in map →
         </button>
-        <button type="button" className={styles.ghost} onClick={() => jump("proof")}>
-          Build proof
+        <button type="button" className={styles.ghost} onClick={() => jump("origin")}>
+          Compare origin candidates
         </button>
       </div>
     </div>

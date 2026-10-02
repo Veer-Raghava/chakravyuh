@@ -24,7 +24,7 @@
 }
 .tag {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.18em;
   color: var(--riso-blue);
 }

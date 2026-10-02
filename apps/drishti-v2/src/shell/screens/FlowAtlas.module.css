@@ -1,0 +1,53 @@
+.atlas { padding: 2rem; background: var(--paper); min-height: 100%; }
+.header { display: flex; justify-content: space-between; gap: 2rem; align-items: flex-start; margin-bottom: 1.8rem; }
+.eyebrow { font: 600 .85rem var(--font-mono); letter-spacing: .1em; color: var(--riso-blue); }
+.header h1 { font: 600 clamp(2rem, 4vw, 3.6rem)/1.05 var(--font-display); margin: .75rem 0; }
+.header h1 em { color: var(--riso-blue); font-weight: 600; font-style: normal; }
+.header p { font: 1rem/1.5 var(--font-text); max-width: 38rem; color: var(--ink-soft); }
+.modes { display: flex; gap: .4rem; flex-wrap: wrap; }
+.modes button, .finding button, .notice button { border: 1px solid var(--line); padding: .6rem .85rem; border-radius: 5px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.modes button[aria-pressed=true] { background: var(--ink); color: var(--paper); }
+.workspace { display: grid; grid-template-columns: 235px minmax(0, 1fr); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.index { background: var(--paper-deep); padding: 1rem; border-right: 1px solid var(--line); }
+.index label { display: grid; gap: .5rem; margin-top: 1rem; font: .85rem var(--font-text); }
+.index input { width: 100%; padding: .6rem; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); color: var(--ink); }
+.index p, .footer { font: .75rem/1.5 var(--font-text); color: var(--ink-soft); }
+.transactionList { max-height: 750px; overflow-y: auto; margin-top: 1rem; }
+.transactionList button { display: grid; grid-template-columns: 1.8rem 1fr; gap: .3rem; width: 100%; text-align: left; border: 0; border-top: 1px solid var(--line); background: transparent; padding: .85rem .4rem; cursor: pointer; }
+.transactionList button[aria-pressed=true] { background: var(--paper); box-shadow: inset 3px 0 var(--riso-blue); }
+.transactionList span { grid-row: span 2; color: var(--riso-blue); font: .75rem var(--font-mono); }
+.transactionList strong { font: .78rem var(--font-mono); }
+.transactionList small { color: var(--ink-soft); font: .72rem var(--font-text); }
+.main { min-width: 0; padding: 1.3rem; }
+.flowHead { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; align-items: center; }
+.flowHead h2 { font: 500 1.2rem var(--font-mono); margin: .4rem 0 1rem; }
+.time { color: var(--ink-soft); font: .7rem var(--font-mono); }
+.metrics { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 1rem; border-block: 1px solid var(--line); padding: 1rem 0; }
+.metrics div { display: grid; gap: .3rem; }
+.metrics strong { font: 600 clamp(.9rem, 1.6vw, 1.5rem) var(--font-display); }
+.metrics span { font: .75rem var(--font-text); color: var(--ink-soft); }
+.diagram { overflow-x: auto; }
+.diagram svg { width: 100%; min-width: 650px; display: block; }
+.diagram text { fill: var(--ink); font: 11px var(--font-mono); }
+.diagram .column { font: 600 12px var(--font-text); letter-spacing: 1px; fill: var(--ink-soft); }
+.diagram .micro { font-size: 9px; fill: var(--ink-soft); }
+.announcement { stroke: var(--fluoro-pink); stroke-width: 1; stroke-dasharray: 4 5; fill: none; opacity: .55; }
+.money { stroke: var(--riso-blue); stroke-width: 1.5; fill: none; opacity: .75; }
+.seam { stroke: var(--line); stroke-dasharray: 5 5; }
+.output { cursor: pointer; }
+.outputRect { fill: var(--paper-deep); stroke: var(--line); }
+.selectedOutput { fill: var(--butter); stroke: var(--ink); }
+.output:hover rect, .output:focus rect { stroke: var(--riso-blue); stroke-width: 2; }
+.diagram .tx { font: 600 11px var(--font-text); }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; font: .75rem var(--font-text); color: var(--ink-soft); }
+.legend i { display: inline-block; width: 18px; border-top: 2px solid var(--riso-blue); vertical-align: middle; margin-right: .4rem; }
+.legend .dashed { border-top: 2px dashed var(--fluoro-pink); }
+.finding { margin-top: 1.5rem; background: var(--paper-deep); padding: 1.2rem; border-radius: 8px; }
+.finding p { font: 1rem/1.5 var(--font-text); }
+.finding button { margin: .4rem .4rem 0 0; color: var(--riso-blue); }
+.exact { margin-top: 1rem; font: .85rem var(--font-text); }
+.exact summary { padding: .7rem 0; cursor: pointer; }
+.exact table { border-collapse: collapse; width: 100%; }
+.exact td, .exact th { border-bottom: 1px solid var(--line); padding: .5rem; text-align: left; }
+.notice { background: var(--butter); padding: 1rem; margin-bottom: 1rem; border-radius: 5px; }
+@media(max-width: 850px) { .atlas { padding: 1rem; } .header { flex-direction: column; gap: .5rem; } .workspace { grid-template-columns: 1fr; } .index { border-right: 0; border-bottom: 1px solid var(--line); } .transactionList { max-height: 170px; } .metrics { gap: .5rem; } .main { padding: 1rem; } }

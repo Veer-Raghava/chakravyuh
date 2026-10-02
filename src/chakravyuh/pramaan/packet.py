@@ -225,6 +225,37 @@ def build(run_dir: Path, alert_id: str, seed: int, replay_command: str) -> dict[
             "hash_disclosure": "BSA 2023 s.63(4), Schedule Part A",
         },
     }
+    engine_path = run_dir / "scores/engine.json"
+    if engine_path.is_file():
+        engine = json.loads(engine_path.read_text())
+        for name, expected in engine["input_sha256"].items():
+            actual = hashlib.sha256(
+                (run_dir / "normalised" / f"{name}.parquet").read_bytes()
+            ).hexdigest()
+            if actual != expected:
+                raise CaseError("detection observations differ from the scored snapshot")
+        detector = run_dir / "detector"
+        if (
+            hashlib.sha256((detector / "model.json").read_bytes()).hexdigest()
+            != engine["model_sha256"]
+        ):
+            raise CaseError("detection model differs from the scored artifact")
+        if (
+            hashlib.sha256((detector / "manifest.json").read_bytes()).hexdigest()
+            != engine["model_manifest_sha256"]
+        ):
+            raise CaseError("detection transforms differ from the scored artifact")
+        queue = json.loads((run_dir / "alerts/lead_queue.json").read_text())
+        lead = next(one for one in queue["leads"] if one["alert_id"] == alert_id)
+        packet["detection"] = {"engine": engine, "lead": lead}
+        packet["confidence"] = {
+            "low": 0.0,
+            "high": 1.0,
+            "coverage_target": 0.0,
+            "method": "ranking_only",
+            "interval_available": False,
+            "risk_score": lead["risk_score"],
+        }
     canonical = merkle.canonical(packet)
     packet["replay"]["expected_packet_sha256"] = hashlib.sha256(canonical).hexdigest()
     # Re-serialise after inserting the digest: the recorded value is the hash of the

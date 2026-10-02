@@ -42,19 +42,24 @@ CHANGE_ADDR_CONFIDENCE: Final[float] = 0.25
 DEFAULT_THRESHOLD: Final[float] = 0.2
 
 
+def _member_pairs(frame: pl.DataFrame, members: str, context: tuple[str, ...] = ()) -> pl.DataFrame:
+    """The shared star construction, optionally retaining transaction provenance."""
+    return (
+        frame.select(*context, pl.col(members).list.unique().alias("member"))
+        .with_columns(pl.col("member").list.min().alias("anchor"))
+        .filter(pl.col("member").list.len() >= 2)
+        .explode("member")
+        .filter(pl.col("member") != pl.col("anchor"))
+    )
+
+
 def _star(frame: pl.DataFrame, members: str, evidence: str, confidence: float) -> pl.DataFrame:
     """Link every address in `members` to that row's lexicographically smallest member.
 
     `members` is a list column. Rows with fewer than two distinct members produce nothing, which
     is what makes a single-input transaction contribute no edge rather than a self-loop.
     """
-    exploded = (
-        frame.select(pl.col(members).list.unique().alias("member"))
-        .with_columns(pl.col("member").list.min().alias("anchor"))
-        .filter(pl.col("member").list.len() >= 2)
-        .explode("member")
-        .filter(pl.col("member") != pl.col("anchor"))
-    )
+    exploded = _member_pairs(frame, members)
     return conform(
         exploded.select(
             (pl.lit("addr:") + pl.col("anchor")).alias("src"),
@@ -107,7 +112,8 @@ def _change_members(transactions: pl.DataFrame) -> pl.DataFrame:
         )
         .filter(pl.col("change_address").is_not_null())
         .select(
-            pl.concat_list(pl.col("input_addresses"), pl.col("change_address")).alias("members")
+            *[pl.col(name) for name in ("txid", "first_seen_us") if name in transactions.columns],
+            pl.concat_list(pl.col("input_addresses"), pl.col("change_address")).alias("members"),
         )
     )
 

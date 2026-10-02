@@ -34,8 +34,8 @@ export const fixtures = {
   graphActor, // owner-level view (`detail=actor`) — addresses × owner groups
   origin, // confident case
   originAbstain, // "No answer available" case
-  alerts,
-  alert, // single alert detail (evidence + counter, with would_clear)
+  alerts: alerts as typeof alerts & { alerts: Array<(typeof alerts.alerts)[number] & { interval_available?: boolean }> },
+  alert: alert as typeof alert & { representative_txid?: string; confidence: typeof alert.confidence & { interval_available?: boolean; method?: string } }, // single alert detail (evidence + counter, with would_clear)
   packet, // court-ready proof; merkle_head/signature printed in full
 };
 

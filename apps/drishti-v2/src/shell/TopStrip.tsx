@@ -21,7 +21,7 @@ export function TopStrip() {
 
       <div className={styles.right}>
         <span className={styles.offline}>
-          <span className={styles.dot} /> OFFLINE · 127.0.0.1 · no external calls
+          <span className={styles.dot} /> OFFLINE · private workstation
         </span>
         <button
           className={styles.diya}

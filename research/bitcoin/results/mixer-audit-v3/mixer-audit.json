@@ -1,0 +1,215 @@
+{
+  "elapsed_seconds": 2.0626875629995993,
+  "features": [
+    "n_in",
+    "n_out",
+    "log_total_in",
+    "log_total_out",
+    "fee_fraction",
+    "max_input_fraction",
+    "input_amount_cv",
+    "max_output_fraction",
+    "output_amount_cv",
+    "equal_output_count",
+    "equal_output_fraction",
+    "round_output_count",
+    "same_script_input_fraction",
+    "has_equal_outputs"
+  ],
+  "hashes": {
+    "data/generated/agency-v2/normalised/addresses.parquet": "6d6029bbefbbc7e211bae1f2ba9ebc74124f6e2293c3201c674ed59b2f198d07",
+    "data/generated/agency-v2/normalised/transactions.parquet": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098",
+    "ground_truth/agency-v2/chain_txs.parquet": "e9968913192e8715def3671295b8449fda01ae2f3a8d024b7d96b9d0509cdc5f"
+  },
+  "limitations": [
+    "Synthetic collaborative-input target; not protocol-adjudicated CoinJoin labels.",
+    "Temporal split is not entity-disjoint or independent-generator evaluation.",
+    "Validation threshold selection has no finite-sample precision guarantee."
+  ],
+  "models": {
+    "equal_output_rule": {
+      "test": {
+        "ap": 0.04939336399554532,
+        "auc": 0.5063634724279278,
+        "brier": 0.05496889917546651,
+        "hits_at_20": 3,
+        "hits_at_50": 6,
+        "n": 6913,
+        "p_at_20": 0.15,
+        "p_at_50": 0.12,
+        "positives": 332,
+        "prevalence": 0.04802545927961811,
+        "r_at_20": 0.009036144578313253,
+        "r_at_50": 0.018072289156626505
+      },
+      "validation": {
+        "ap": 0.05009012854441365,
+        "auc": 0.5009482951110724,
+        "brier": 0.05789284430061129,
+        "hits_at_20": 1,
+        "hits_at_50": 3,
+        "n": 5562,
+        "p_at_20": 0.05,
+        "p_at_50": 0.06,
+        "positives": 278,
+        "prevalence": 0.04998202085580726,
+        "r_at_20": 0.0035971223021582736,
+        "r_at_50": 0.01079136690647482
+      }
+    },
+    "lightgbm_balanced": {
+      "feature_importance_gain": {
+        "equal_output_count": 312.8351821899414,
+        "equal_output_fraction": 3486.0236558914185,
+        "fee_fraction": 3866.2112951278687,
+        "has_equal_outputs": 0.0,
+        "input_amount_cv": 250385.62633943558,
+        "log_total_in": 7673.89128112793,
+        "log_total_out": 1427.7808847427368,
+        "max_input_fraction": 14094.90468788147,
+        "max_output_fraction": 10135.61705493927,
+        "n_in": 18647.584285736084,
+        "n_out": 59482.32433414459,
+        "output_amount_cv": 5636.126832962036,
+        "round_output_count": 77.48640060424805,
+        "same_script_input_fraction": 1055.1166486740112
+      },
+      "fit_seconds": 0.0785333019994141,
+      "test": {
+        "ap": 0.7630782056090459,
+        "auc": 0.9779014248759206,
+        "brier": 0.058090690965125265,
+        "hits_at_20": 19,
+        "hits_at_50": 48,
+        "n": 6913,
+        "p_at_20": 0.95,
+        "p_at_50": 0.96,
+        "positives": 332,
+        "prevalence": 0.04802545927961811,
+        "r_at_20": 0.0572289156626506,
+        "r_at_50": 0.14457831325301204
+      },
+      "test_at_validation_cut": {
+        "f1": 0.5585215605749486,
+        "fn": 196,
+        "fp": 19,
+        "precision": 0.8774193548387097,
+        "recall": 0.40963855421686746,
+        "tn": 6562,
+        "tp": 136
+      },
+      "validation": {
+        "ap": 0.6980414270728433,
+        "auc": 0.9730076272063348,
+        "brier": 0.06050084800145255,
+        "hits_at_20": 20,
+        "hits_at_50": 47,
+        "n": 5562,
+        "p_at_20": 1.0,
+        "p_at_50": 0.94,
+        "positives": 278,
+        "prevalence": 0.04998202085580726,
+        "r_at_20": 0.07194244604316546,
+        "r_at_50": 0.16906474820143885
+      },
+      "validation_precision_target_cut": 0.9400000000000001
+    },
+    "logistic_balanced": {
+      "fit_seconds": 0.048138825000023644,
+      "test": {
+        "ap": 0.26906647937731487,
+        "auc": 0.8978750437092542,
+        "brier": 0.11113435144102325,
+        "hits_at_20": 7,
+        "hits_at_50": 11,
+        "n": 6913,
+        "p_at_20": 0.35,
+        "p_at_50": 0.22,
+        "positives": 332,
+        "prevalence": 0.04802545927961811,
+        "r_at_20": 0.02108433734939759,
+        "r_at_50": 0.03313253012048193
+      },
+      "test_at_validation_cut": null,
+      "validation": {
+        "ap": 0.2851993008966086,
+        "auc": 0.8987264389850722,
+        "brier": 0.11110543796837062,
+        "hits_at_20": 4,
+        "hits_at_50": 11,
+        "n": 5562,
+        "p_at_20": 0.2,
+        "p_at_50": 0.22,
+        "positives": 278,
+        "prevalence": 0.04998202085580726,
+        "r_at_20": 0.014388489208633094,
+        "r_at_50": 0.039568345323741004
+      },
+      "validation_precision_target_cut": null
+    },
+    "random_forest_balanced": {
+      "fit_seconds": 0.7866386249997959,
+      "test": {
+        "ap": 0.7166822447863855,
+        "auc": 0.9746316980427407,
+        "brier": 0.02863537155189263,
+        "hits_at_20": 20,
+        "hits_at_50": 45,
+        "n": 6913,
+        "p_at_20": 1.0,
+        "p_at_50": 0.9,
+        "positives": 332,
+        "prevalence": 0.04802545927961811,
+        "r_at_20": 0.060240963855421686,
+        "r_at_50": 0.1355421686746988
+      },
+      "test_at_validation_cut": {
+        "f1": 0.5327868852459016,
+        "fn": 202,
+        "fp": 26,
+        "precision": 0.8333333333333334,
+        "recall": 0.39156626506024095,
+        "tn": 6555,
+        "tp": 130
+      },
+      "validation": {
+        "ap": 0.6694369072516807,
+        "auc": 0.9700609686361433,
+        "brier": 0.03154165485328002,
+        "hits_at_20": 20,
+        "hits_at_50": 46,
+        "n": 5562,
+        "p_at_20": 1.0,
+        "p_at_50": 0.92,
+        "positives": 278,
+        "prevalence": 0.04998202085580726,
+        "r_at_20": 0.07194244604316546,
+        "r_at_50": 0.16546762589928057
+      },
+      "validation_precision_target_cut": 0.78
+    }
+  },
+  "prevalence": {
+    "all": 0.05072132247537134,
+    "fit": 0.05184127609294998,
+    "test": 0.04802545927961811,
+    "validation": 0.04998202085580726
+  },
+  "rows": {
+    "fit": 20312,
+    "test": 6913,
+    "validation": 5562
+  },
+  "rule_confusion": {
+    "fn": 1631,
+    "fp": 268,
+    "tn": 30856,
+    "tp": 32
+  },
+  "run": "agency-v2",
+  "split_us": [
+    1767519555825316,
+    1767617601829850
+  ],
+  "target": "more than one true synthetic input owner"
+}

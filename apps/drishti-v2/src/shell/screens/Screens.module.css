@@ -23,7 +23,7 @@
 }
 .tag {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.18em;
   color: var(--riso-blue);
 }
@@ -81,3 +81,5 @@
 .propBtn:hover {
   background: color-mix(in srgb, var(--riso-blue) 8%, var(--paper));
 }
+.emptyActions { display: flex; flex-wrap: wrap; gap: 1rem; }
+.emptyActions button { padding: .8rem 1.2rem; border: 1px solid var(--riso-blue); color: var(--riso-blue); background: var(--paper); border-radius: 5px; cursor: pointer; font: 600 1rem var(--font-text); }

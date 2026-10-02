@@ -57,16 +57,16 @@
   align-items: center;
   gap: 0.3rem;
   font-family: var(--font-text);
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--ink-soft);
   white-space: nowrap;
 }
 .tag {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.85rem;
   letter-spacing: 0.14em;
   color: var(--ink-soft);
-  opacity: 0.6;
+  opacity: 0.85;
 }
 
 /* ahead — reachable but visibly not-yet-run */
@@ -96,7 +96,7 @@
 
 /* current — enlarged + lit (the wide type-scale, craft-move #4) */
 .current .name {
-  font-size: 1.25rem;
+  font-size: 1.45rem;
   font-weight: 600;
   color: var(--riso-blue);
 }

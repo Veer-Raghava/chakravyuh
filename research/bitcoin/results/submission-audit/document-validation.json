@@ -1,0 +1,126 @@
+{
+  "utc": "2026-10-02T06:29:40.774920+00:00",
+  "checks": [
+    {
+      "check": "version-1-title",
+      "characters": 74,
+      "utf16_units": 74,
+      "limit": 100
+    },
+    {
+      "check": "version-1-abstract",
+      "characters": 2041,
+      "utf16_units": 2041,
+      "limit": 10000
+    },
+    {
+      "check": "version-1-description",
+      "characters": 6934,
+      "utf16_units": 6934,
+      "limit": 50000
+    },
+    {
+      "check": "version-2-title",
+      "characters": 78,
+      "utf16_units": 78,
+      "limit": 100
+    },
+    {
+      "check": "version-2-abstract",
+      "characters": 2093,
+      "utf16_units": 2093,
+      "limit": 10000
+    },
+    {
+      "check": "version-2-description",
+      "characters": 6812,
+      "utf16_units": 6812,
+      "limit": 50000
+    },
+    {
+      "check": "version-3-title",
+      "characters": 74,
+      "utf16_units": 74,
+      "limit": 100
+    },
+    {
+      "check": "version-3-abstract",
+      "characters": 2091,
+      "utf16_units": 2091,
+      "limit": 10000
+    },
+    {
+      "check": "version-3-description",
+      "characters": 7153,
+      "utf16_units": 7153,
+      "limit": 50000
+    },
+    {
+      "check": "version-4-title",
+      "characters": 78,
+      "utf16_units": 78,
+      "limit": 100
+    },
+    {
+      "check": "version-4-abstract",
+      "characters": 1973,
+      "utf16_units": 1973,
+      "limit": 10000
+    },
+    {
+      "check": "version-4-description",
+      "characters": 6406,
+      "utf16_units": 6406,
+      "limit": 50000
+    },
+    {
+      "check": "source-defined features",
+      "default": 33,
+      "causal": 23,
+      "context": 38,
+      "rich": 329,
+      "R47_mean_context_tree": 53
+    },
+    {
+      "check": "R47 neural report",
+      "temporal_ap": 0.2879465984554304,
+      "hits_at_20": 19
+    },
+    {
+      "check": "docs/submission/PRODUCTION-ARCHITECTURE-AND-STACK-AUDIT.md",
+      "bytes": 11638,
+      "words": 1562,
+      "sha256": "06bb954f3732d210cc376c01b4a2623cd87e2aa3833920e0aa7bcfa79106ee40"
+    },
+    {
+      "check": "docs/submission/SIH-SUBMISSION-VARIANTS.md",
+      "bytes": 37911,
+      "words": 5142,
+      "sha256": "469afa25b25f6a49199eb782782cafe26c9c088d3302ea07ad555f7293a3be91"
+    },
+    {
+      "check": "docs/submission/SOURCES-AND-CLAIMS.md",
+      "bytes": 7810,
+      "words": 971,
+      "sha256": "5fe4b79045e5e0c5c68c4b33c55e5bef903fd4b16e1acfef81c9cfb2b42a3a3b"
+    },
+    {
+      "check": "docs/submission/SIH-PPT-REVIEW-AND-REPLACEMENT-COPY.md",
+      "bytes": 19826,
+      "words": 2652,
+      "sha256": "5a678e30c980163b33ca5799c09d16fd46082ecceb8ae463425d9502a03182e7"
+    },
+    {
+      "check": "docs/submission/README.md",
+      "bytes": 1244,
+      "words": 141,
+      "sha256": "e424fa35dcfef5c05c4ac1d2026c576d3087f0c3e92dc032b518f8fc5e6960bb"
+    },
+    {
+      "check": "docs/CHAKRAVYUH-TECHNICAL-MASTER.md",
+      "bytes": 305992,
+      "words": 38111,
+      "sha256": "80a34ac97c391bc262cec2a89597d05bc06d3e1ba0e3755f5c7a0f447b78947f"
+    }
+  ]
+}

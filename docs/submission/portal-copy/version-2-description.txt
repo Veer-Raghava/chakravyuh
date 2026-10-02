@@ -1,0 +1,47 @@
+1. Why the evidence model matters
+
+Bitcoin address grouping, suspicious-behaviour detection and network-source attribution answer different questions. Combining them into a single chain of assumptions can make one incorrect ownership merge distort every downstream result. The problem statement calls for correlated, explainable investigative leads. It does not require that every lead depend on recovering a perfect wallet identity first.
+
+CHAKRAVYUH preserves the observations and makes these questions separable. An investigator can examine address-level money movement, inspect a proposed owner group, and review a network-source candidate without treating one as proof of the others. That architecture makes uncertainty manageable within a concrete investigation workflow.
+
+2. From supplied metadata to linked evidence
+
+KAVACH handles CSV, JSON/JSONL and XML input, hashes the original bytes before parsing, and accounts for row acceptance or rejection. SETU normalizes amounts to integer satoshis and timestamps to UTC microseconds. It stores one transaction body per consistent TXID and separate announcement rows containing the observed peer, port, observer and time. Conflicting transaction bodies are set aside instead of silently selecting whichever version arrived last.
+
+JAAL constructs addresses, transactions, peers and ASN nodes with typed links. A payment is represented through address-to-transaction inputs and transaction-to-address outputs. A captured peer announcement is a network observation. Common-input and change proposals add reversible ownership evidence. A derived grouped view does not delete the addresses or turn heuristic weights into verified owner probabilities.
+
+3. Detection independent of ownership recovery
+
+The existing product scores subjects with a 33-feature LightGBM model and explains them with SHAP. Our implemented decision-window engine also supports address mode: one address per subject, with the ownership ledger excluded. It combines 23 local activity features with incoming/outgoing typed neighborhood summaries into 329 inputs for a frozen CPU XGBoost model.
+
+The context includes transaction size/shape, fees, announcing-peer activity and network class, and adjacent funding-subject features. No neighbor labels are inserted. Training-only transformations and later calibration are stored with the model. At inference, the scorer reads only normalized observation artifacts and its saved manifest. Native TreeSHAP contributions must reconstruct the raw model margin before an output is accepted.
+
+This engine has its own CLI and a working local evidence-queue viewer in DRISHTI's World screen. It is an implemented candidate, not a claim that the main LightGBM stage has already been replaced. The two routes are labelled so research results cannot be mistaken for the active archived case model.
+
+4. What we tested
+
+We tested ownership rules and alternative link proposals, point-in-time partitions, corrupted-ledger isolation, local and graph-context trees, actual typed neural models, window-linked temporal memory, graph-shuffling controls, and embedding/tree hybrids. Address mode demonstrates a practical way to contain ownership error rather than asking a neural model to make an uncertain cluster magically correct.
+
+The rich graph-context tree obtained average precision 0.3148 on the canonical synthetic address-window future test, versus 0.0538 for the matched local-only tree. The independent lightweight inference port matched engineered features and model scores exactly for 324,395 rows over 20 checks. These tests support a working deployment path; they do not establish real-network sender-identification accuracy.
+
+In the separate temporal graph experiment, learned relation context showed useful signal, and shuffled assignments reduced ranking quality. We keep that model as a challenger and compare it with strong engineered graph features rather than a weak tabular straw man. Public Elliptic experiments provide a separate Bitcoin transaction-classification check; their results are not pooled with synthetic IP-origin tests.
+
+On public Elliptic Bitcoin data, our separately trained graph-feature LightGBM achieved average precision 0.6566 and 20 illicit transactions among its pooled top 20, versus AP 0.6366 for matched local-feature LightGBM. The temporal test comprised 11,184 labeled transactions, including 636 illicit; unknown labels remained graph context. Public transaction classification and synthetic address-window detection are separate experiments with different targets and prevalence.
+
+5. Source evidence is a parallel path
+
+SHASTRA uses arrival timing, observer context and earlier peer history to rank captured candidates and summarize operator-level evidence. An announcing IP can be a relay, VPN endpoint or Tor exit. The originating peer may not appear in the observations. The interface therefore presents source candidates and insufficient-evidence states rather than equating the highest score with a person's identity.
+
+Importantly, a source refusal does not remove the address/TX evidence or suppress a useful AML lead. The investigator can continue reviewing fund movements and request additional evidence where necessary. This is the operational value of keeping the two layers connected while retaining their different meanings.
+
+6. The review queue and evidence record
+
+VAANI's main route produces ranked explanations and mandatory counter-evidence. The newer investigation queue additionally limits overlapping transaction support, so high scores from the same local evidence do not occupy the entire review budget. Each lead carries exact input/output amounts, bounded transaction context, captured timing/ports, signed positive/negative model effects and explicit truncation information.
+
+DRISHTI makes that material accessible through linked visual and textual views. PRAMAAN signs canonical case JSON and produces PDFs with input hashes and replay information for the main pipeline. Research-queue exports stay distinct from those signed packets until the next adapter is released.
+
+7. Deployment and contribution
+
+The core stack is Python, Polars/Arrow, rustworkx and CPU tree models, with React/TypeScript/Three.js for the local interface. Runtime evidence stays local. The small trained graph model can also run on CPU; CUDA is not a prerequisite for the tested prototype. Complete clean-host packaging and automatic routing of the new engine to active signed cases are the next release steps.
+
+The contribution is a tested architecture in which a lead can remain useful even when another inference layer cannot answer. An officer receives observable support, a learned ranking, explicit hypotheses and a reproducible record, instead of being asked to trust a chain of opaque certainty claims.

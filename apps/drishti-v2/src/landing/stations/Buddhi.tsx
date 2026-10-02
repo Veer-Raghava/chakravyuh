@@ -21,12 +21,12 @@ const SLICE = STATIONS[5].slice;
 
 // real SHAP weights from the alert fixture, given plain-language factor names.
 const FLAGGED = fixtures.alert.features.slice(0, 3).map((f, i) => ({
-  label: ["high fee per vByte", "large amount sent", "wide origin lead"][i],
+  label: ["unusually high fee", "large amount moved", "strong origin signal"][i],
   weight: f.weight,
 }));
 // the counter-findings (why it might be innocent) — with honest would_clear.
 const INNOCENT = fixtures.alert.counters.slice(0, 3).map((c, i) => ({
-  label: ["may be a merchant settling daily", "origin margin too thin to act on", "relay shared by 31 subjects"][i],
+  label: ["could be a shop settling daily takings", "the origin guess is too shaky to use", "this computer relays for many others"][i],
   wouldClear: c.would_clear,
 }));
 // severity → dial reading (categorical in the fixture; shown as a reading, not a %)
@@ -111,7 +111,7 @@ export function Buddhi({ reduced }: { reduced: boolean }) {
               <div style={{ ...datum, color: "var(--coral)", fontWeight: 600, letterSpacing: "0.06em", fontSize: "13px" }}>
                 RISK READING · {fixtures.alert.severity.toUpperCase()}
               </div>
-              <div style={{ ...prose, fontSize: "11px", color: "var(--ink-soft)", marginTop: 2 }}>a dial, not a verdict · same-owner confidence 0.36 (tunable)</div>
+              <div style={{ ...prose, fontSize: "11px", color: "var(--ink-soft)", marginTop: 2 }}>a reading you can weigh, not a verdict</div>
             </div>
           </Html>
 
@@ -145,7 +145,7 @@ export function Buddhi({ reduced }: { reduced: boolean }) {
                 </div>
               ))}
               <div style={{ ...prose, fontSize: "10px", color: "var(--ink-soft)", marginTop: 6 }}>
-                no single doubt clears this, but every one is shown
+                no single doubt is enough to drop it, but we show them all
               </div>
             </div>
           </Html>

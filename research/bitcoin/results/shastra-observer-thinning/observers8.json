@@ -1,0 +1,17 @@
+{
+  "absent_source_answers": 7455,
+  "absent_source_correct": 1631,
+  "active_observers": 8,
+  "capture_rows": 152754,
+  "coverage_of_full_capture_test": 0.8396236169992762,
+  "full_capture_test_transactions": 9671,
+  "lost_test_transactions": 28,
+  "observed_test_transactions": 9643,
+  "policy_answers": 8120,
+  "policy_correct": 2145,
+  "policy_precision": 0.2641625615763547,
+  "present_source_answers": 665,
+  "present_source_correct": 514,
+  "seconds": 0.46234909900022103,
+  "source_present_fraction": 0.08088769055273255
+}

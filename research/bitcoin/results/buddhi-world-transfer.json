@@ -1,0 +1,670 @@
+{
+  "canonical_replay_max_score_error": 0.0,
+  "canonical_test": {
+    "frozen_policy": {
+      "answered": 34,
+      "correct": 12,
+      "coverage": 0.0008094081797838404,
+      "decisions": 42006,
+      "false_alerts": 22,
+      "positives": 223,
+      "precision": 0.35294117647058826,
+      "recall": 0.053811659192825115
+    },
+    "pooled_subject_decisions": {
+      "ap": 0.12400417185574591,
+      "auc": 0.7481696752890146,
+      "brier": 0.005395373907459605,
+      "hits_at_20": 10,
+      "hits_at_50": 13,
+      "n": 42006,
+      "p_at_20": 0.5,
+      "p_at_50": 0.26,
+      "positives": 223,
+      "prevalence": 0.005308765414464601,
+      "r_at_20": 0.04484304932735426,
+      "r_at_50": 0.05829596412556054
+    },
+    "score_artifact": "research/bitcoin/results/buddhi-world-transfer/canonical-scores.parquet",
+    "score_sha256": "f2c5ca054858d759d59e1e7eddd62d7e76abfb3d8bc3944a2ba3abe0afb57648",
+    "windows": {
+      "7": {
+        "frozen_policy": {
+          "answered": 9,
+          "correct": 4,
+          "coverage": 0.0007373422906767164,
+          "decisions": 12206,
+          "false_alerts": 5,
+          "positives": 87,
+          "precision": 0.4444444444444444,
+          "recall": 0.04597701149425287
+        },
+        "ranking": {
+          "ap": 0.08777951782636478,
+          "auc": 0.7075125693197629,
+          "brier": 0.007226796226020928,
+          "hits_at_20": 8,
+          "hits_at_50": 10,
+          "n": 12206,
+          "p_at_20": 0.4,
+          "p_at_50": 0.2,
+          "positives": 87,
+          "prevalence": 0.007127642143208259,
+          "r_at_20": 0.09195402298850575,
+          "r_at_50": 0.11494252873563218
+        }
+      },
+      "8": {
+        "frozen_policy": {
+          "answered": 15,
+          "correct": 8,
+          "coverage": 0.0009770713913496614,
+          "decisions": 15352,
+          "false_alerts": 7,
+          "positives": 136,
+          "precision": 0.5333333333333333,
+          "recall": 0.058823529411764705
+        },
+        "ranking": {
+          "ap": 0.2177154094758218,
+          "auc": 0.7737221268633636,
+          "brier": 0.00803631430032043,
+          "hits_at_20": 9,
+          "hits_at_50": 24,
+          "n": 15352,
+          "p_at_20": 0.45,
+          "p_at_50": 0.48,
+          "positives": 136,
+          "prevalence": 0.008858780614903595,
+          "r_at_20": 0.0661764705882353,
+          "r_at_50": 0.17647058823529413
+        }
+      },
+      "9": {
+        "frozen_policy": {
+          "answered": 10,
+          "correct": 0,
+          "coverage": 0.0006921373200442968,
+          "decisions": 14448,
+          "false_alerts": 10,
+          "positives": 0,
+          "precision": 0.0,
+          "recall": null
+        },
+        "ranking": {
+          "ap": null,
+          "auc": null,
+          "brier": 0.0010419645960283435,
+          "hits_at_20": 0,
+          "hits_at_50": 0,
+          "n": 14448,
+          "p_at_20": 0.0,
+          "p_at_50": 0.0,
+          "positives": 0,
+          "prevalence": 0.0,
+          "r_at_20": null,
+          "r_at_50": null
+        }
+      }
+    }
+  },
+  "frozen_model_artifact": "research/bitcoin/results/buddhi-world-transfer/frozen-canonical-xgboost.joblib",
+  "frozen_policy_threshold": 0.38158950209617615,
+  "hashes": {
+    "/home/void/chakravyuh/research/bitcoin/buddhi_snapshot_benchmark.py": "5ffc31e8c00015938c7e1db7dd4cabfd40cd2c015600cd20030d7b80e53cbaaf",
+    "/home/void/chakravyuh/research/bitcoin/buddhi_world_transfer.py": "54698a3aa916fa919ca4a85910b0784a6cd95ae8a535e4e1a2ee09d9dc91970f",
+    "/home/void/chakravyuh/src/chakravyuh/buddhi/snapshot.py": "e2f180ccdfd3b70bd97674dffdfb0cbc9abcdb3702bdd72b68dfaf80beb8fbab",
+    "/home/void/chakravyuh/src/chakravyuh/jaal/provenance.py": "57337aa68077960d79b75f89c3679ba7e5d5a4c974889bd4b722cc1c1f76971e",
+    "data/generated/agency-v2/config.effective.json": "1d6b92ac5d9bd159b2bba76e3d2f66132c2e32aa95f0c3ae64b120d5c8cc2027",
+    "data/generated/agency-v2/normalised/addresses.parquet": "6d6029bbefbbc7e211bae1f2ba9ebc74124f6e2293c3201c674ed59b2f198d07",
+    "data/generated/agency-v2/normalised/transactions.parquet": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098",
+    "ground_truth/agency-v2/campaigns.parquet": "b4aeaacf728c4cbf08ea6df7ef1e55dd842fc2978f1a2d9c592bc3502680dceb",
+    "ground_truth/agency-v2/entities.parquet": "d2881da0a2131cd16ad0fc33b83cb4fb948a00e26c8c982d85b071c1fa463519",
+    "research/bitcoin/results/buddhi-matched-window-benchmark-scores/cioh-xgboost.parquet": "5714dea1438b59cd9db5341bc0fdf6b4d80cceebc696d206fbba5b46cdf5ee5f",
+    "research/bitcoin/results/buddhi-matched-window-benchmark.json": "03d9fedd67ca7f14209c4870cf48376018c79f1c12e8a72743f3484ea3ac0fc6",
+    "research/bitcoin/results/buddhi-world-transfer/frozen-canonical-xgboost.joblib": "c5b7457926afd5209ed5b13779e81a2caa3d37caaa5921ff63201b8497f39c26",
+    "research/bitcoin/results/snapshot-alert-policy.json": "1075cb61f93de9749d478a37069ea7cbf6b881216bbcb1880ad1d0764e52b458"
+  },
+  "limitations": [
+    "Seeds 1337/2026 previously explored for JAAL, not pristine research holdouts.",
+    "All worlds share generator family; no real-chain validation claim.",
+    "Complete-chain observables jointly change network censoring and seed; seed42 is a same-generator-seed observation bridge, not an independent world.",
+    "No transfer data fitted scaler, XGBoost, calibration or policy threshold.",
+    "Labels and score artifacts contain quarantined research truth only.",
+    "Positive means campaign participant in window, not criminal guilt.",
+    "Pooled subject-window decisions repeat some controllers; per-window reports retained.",
+    "Features use observed heuristic change, never generator true change index."
+  ],
+  "peak_rss_kib": 1832756,
+  "seconds": 65.60231960300007,
+  "transfer_worlds": [
+    {
+      "active_campaign_controllers": {
+        "0": 21,
+        "1": 30,
+        "2": 18,
+        "3": 20,
+        "4": 42,
+        "5": 91,
+        "6": 39,
+        "7": 20,
+        "8": 18,
+        "9": 0
+      },
+      "capture_mode": "complete chain; transaction time, no network censoring",
+      "cuts_us": [
+        [
+          "fit",
+          1767226013553070,
+          1767274979464472
+        ],
+        [
+          "fit",
+          1767274979464473,
+          1767323945375874
+        ],
+        [
+          "fit",
+          1767323945375875,
+          1767372911287276
+        ],
+        [
+          "fit",
+          1767372911287277,
+          1767421877198678
+        ],
+        [
+          "cal",
+          1767421877198679,
+          1767470843110080
+        ],
+        [
+          "cal",
+          1767470843110081,
+          1767519809021482
+        ],
+        [
+          "val",
+          1767519809021483,
+          1767568774932884
+        ],
+        [
+          "test",
+          1767568774932885,
+          1767617740844286
+        ],
+        [
+          "test",
+          1767617740844287,
+          1767666706755688
+        ],
+        [
+          "test",
+          1767666706755689,
+          1767715672667090
+        ]
+      ],
+      "frozen_policy": {
+        "answered": 33,
+        "correct": 14,
+        "coverage": 0.0007888131946934385,
+        "decisions": 41835,
+        "false_alerts": 19,
+        "positives": 140,
+        "precision": 0.42424242424242425,
+        "recall": 0.1
+      },
+      "pooled_subject_decisions": {
+        "ap": 0.14982948671742832,
+        "auc": 0.7450420571154472,
+        "brier": 0.0036797626903225878,
+        "hits_at_20": 10,
+        "hits_at_50": 26,
+        "n": 41835,
+        "p_at_20": 0.5,
+        "p_at_50": 0.52,
+        "positives": 140,
+        "prevalence": 0.0033464802199115575,
+        "r_at_20": 0.07142857142857142,
+        "r_at_50": 0.18571428571428572
+      },
+      "score_artifact": "research/bitcoin/results/buddhi-world-transfer/seed42-scores.parquet",
+      "score_sha256": "d316bbf4230f86a154b75a5a0b3ce269e085f7d9a435408d878e490c5e7f0738",
+      "seconds": 15.02990027499618,
+      "seed": 42,
+      "tx_rows": 33919,
+      "windows": {
+        "7": {
+          "frozen_policy": {
+            "answered": 20,
+            "correct": 12,
+            "coverage": 0.0016335865392469167,
+            "decisions": 12243,
+            "false_alerts": 8,
+            "positives": 90,
+            "precision": 0.6,
+            "recall": 0.13333333333333333
+          },
+          "ranking": {
+            "ap": 0.2597841646918581,
+            "auc": 0.7867056145259058,
+            "brier": 0.006521511728726787,
+            "hits_at_20": 12,
+            "hits_at_50": 27,
+            "n": 12243,
+            "p_at_20": 0.6,
+            "p_at_50": 0.54,
+            "positives": 90,
+            "prevalence": 0.0073511394266111245,
+            "r_at_20": 0.13333333333333333,
+            "r_at_50": 0.3
+          }
+        },
+        "8": {
+          "frozen_policy": {
+            "answered": 7,
+            "correct": 2,
+            "coverage": 0.00046259582342056567,
+            "decisions": 15132,
+            "false_alerts": 5,
+            "positives": 50,
+            "precision": 0.2857142857142857,
+            "recall": 0.04
+          },
+          "ranking": {
+            "ap": 0.0621913037579294,
+            "auc": 0.66971025062989,
+            "brier": 0.003966201525632792,
+            "hits_at_20": 5,
+            "hits_at_50": 7,
+            "n": 15132,
+            "p_at_20": 0.25,
+            "p_at_50": 0.14,
+            "positives": 50,
+            "prevalence": 0.003304255881575469,
+            "r_at_20": 0.1,
+            "r_at_50": 0.14
+          }
+        },
+        "9": {
+          "frozen_policy": {
+            "answered": 6,
+            "correct": 0,
+            "coverage": 0.0004149377593360996,
+            "decisions": 14460,
+            "false_alerts": 6,
+            "positives": 0,
+            "precision": 0.0,
+            "recall": null
+          },
+          "ranking": {
+            "ap": null,
+            "auc": null,
+            "brier": 0.0009739586838843696,
+            "hits_at_20": 0,
+            "hits_at_50": 0,
+            "n": 14460,
+            "p_at_20": 0.0,
+            "p_at_50": 0.0,
+            "positives": 0,
+            "prevalence": 0.0,
+            "r_at_20": null,
+            "r_at_50": null
+          }
+        }
+      }
+    },
+    {
+      "active_campaign_controllers": {
+        "0": 13,
+        "1": 31,
+        "2": 26,
+        "3": 12,
+        "4": 29,
+        "5": 22,
+        "6": 43,
+        "7": 46,
+        "8": 58,
+        "9": 38
+      },
+      "capture_mode": "complete chain; transaction time, no network censoring",
+      "cuts_us": [
+        [
+          "fit",
+          1767225632489571,
+          1767269984823305
+        ],
+        [
+          "fit",
+          1767269984823306,
+          1767314337157040
+        ],
+        [
+          "fit",
+          1767314337157041,
+          1767358689490774
+        ],
+        [
+          "fit",
+          1767358689490775,
+          1767403041824509
+        ],
+        [
+          "cal",
+          1767403041824510,
+          1767447394158244
+        ],
+        [
+          "cal",
+          1767447394158245,
+          1767491746491978
+        ],
+        [
+          "val",
+          1767491746491979,
+          1767536098825713
+        ],
+        [
+          "test",
+          1767536098825714,
+          1767580451159447
+        ],
+        [
+          "test",
+          1767580451159448,
+          1767624803493182
+        ],
+        [
+          "test",
+          1767624803493183,
+          1767669155826917
+        ]
+      ],
+      "frozen_policy": {
+        "answered": 62,
+        "correct": 44,
+        "coverage": 0.0012667538411245505,
+        "decisions": 48944,
+        "false_alerts": 18,
+        "positives": 543,
+        "precision": 0.7096774193548387,
+        "recall": 0.08103130755064457
+      },
+      "pooled_subject_decisions": {
+        "ap": 0.1599580904743033,
+        "auc": 0.7001176824535572,
+        "brier": 0.010258991867026484,
+        "hits_at_20": 19,
+        "hits_at_50": 36,
+        "n": 48944,
+        "p_at_20": 0.95,
+        "p_at_50": 0.72,
+        "positives": 543,
+        "prevalence": 0.01109431186662308,
+        "r_at_20": 0.034990791896869246,
+        "r_at_50": 0.06629834254143646
+      },
+      "score_artifact": "research/bitcoin/results/buddhi-world-transfer/seed1337-scores.parquet",
+      "score_sha256": "688aad29790a67f7babb9d478ca435309553bc8e9b7acac1142bbb4331ed0520",
+      "seconds": 14.962744872005715,
+      "seed": 1337,
+      "tx_rows": 34255,
+      "windows": {
+        "7": {
+          "frozen_policy": {
+            "answered": 27,
+            "correct": 23,
+            "coverage": 0.0017163562392727735,
+            "decisions": 15731,
+            "false_alerts": 4,
+            "positives": 150,
+            "precision": 0.8518518518518519,
+            "recall": 0.15333333333333332
+          },
+          "ranking": {
+            "ap": 0.27832561401755923,
+            "auc": 0.7569689579188328,
+            "brier": 0.008157305447032307,
+            "hits_at_20": 19,
+            "hits_at_50": 35,
+            "n": 15731,
+            "p_at_20": 0.95,
+            "p_at_50": 0.7,
+            "positives": 150,
+            "prevalence": 0.009535312440404297,
+            "r_at_20": 0.12666666666666668,
+            "r_at_50": 0.23333333333333334
+          }
+        },
+        "8": {
+          "frozen_policy": {
+            "answered": 21,
+            "correct": 15,
+            "coverage": 0.001223704912301148,
+            "decisions": 17161,
+            "false_alerts": 6,
+            "positives": 228,
+            "precision": 0.7142857142857143,
+            "recall": 0.06578947368421052
+          },
+          "ranking": {
+            "ap": 0.15344115936652503,
+            "auc": 0.7027430606280066,
+            "brier": 0.01226673379888007,
+            "hits_at_20": 14,
+            "hits_at_50": 33,
+            "n": 17161,
+            "p_at_20": 0.7,
+            "p_at_50": 0.66,
+            "positives": 228,
+            "prevalence": 0.013285939047841035,
+            "r_at_20": 0.06140350877192982,
+            "r_at_50": 0.14473684210526316
+          }
+        },
+        "9": {
+          "frozen_policy": {
+            "answered": 14,
+            "correct": 6,
+            "coverage": 0.000872165462247695,
+            "decisions": 16052,
+            "false_alerts": 8,
+            "positives": 165,
+            "precision": 0.42857142857142855,
+            "recall": 0.03636363636363636
+          },
+          "ranking": {
+            "ap": 0.07654173906173253,
+            "auc": 0.6446969220117077,
+            "brier": 0.01017219706141902,
+            "hits_at_20": 8,
+            "hits_at_50": 14,
+            "n": 16052,
+            "p_at_20": 0.4,
+            "p_at_50": 0.28,
+            "positives": 165,
+            "prevalence": 0.010279092947919262,
+            "r_at_20": 0.048484848484848485,
+            "r_at_50": 0.08484848484848485
+          }
+        }
+      }
+    },
+    {
+      "active_campaign_controllers": {
+        "0": 19,
+        "1": 28,
+        "2": 47,
+        "3": 66,
+        "4": 31,
+        "5": 30,
+        "6": 41,
+        "7": 34,
+        "8": 37,
+        "9": 19
+      },
+      "capture_mode": "complete chain; transaction time, no network censoring",
+      "cuts_us": [
+        [
+          "fit",
+          1767227081591548,
+          1767275922369751
+        ],
+        [
+          "fit",
+          1767275922369752,
+          1767324763147954
+        ],
+        [
+          "fit",
+          1767324763147955,
+          1767373603926157
+        ],
+        [
+          "fit",
+          1767373603926158,
+          1767422444704360
+        ],
+        [
+          "cal",
+          1767422444704361,
+          1767471285482563
+        ],
+        [
+          "cal",
+          1767471285482564,
+          1767520126260766
+        ],
+        [
+          "val",
+          1767520126260767,
+          1767568967038969
+        ],
+        [
+          "test",
+          1767568967038970,
+          1767617807817172
+        ],
+        [
+          "test",
+          1767617807817173,
+          1767666648595375
+        ],
+        [
+          "test",
+          1767666648595376,
+          1767715489373578
+        ]
+      ],
+      "frozen_policy": {
+        "answered": 50,
+        "correct": 20,
+        "coverage": 0.0010455220291491541,
+        "decisions": 47823,
+        "false_alerts": 30,
+        "positives": 290,
+        "precision": 0.4,
+        "recall": 0.06896551724137931
+      },
+      "pooled_subject_decisions": {
+        "ap": 0.0859744077819737,
+        "auc": 0.6822593305413226,
+        "brier": 0.006275088984766508,
+        "hits_at_20": 15,
+        "hits_at_50": 20,
+        "n": 47823,
+        "p_at_20": 0.75,
+        "p_at_50": 0.4,
+        "positives": 290,
+        "prevalence": 0.006064027769065094,
+        "r_at_20": 0.05172413793103448,
+        "r_at_50": 0.06896551724137931
+      },
+      "score_artifact": "research/bitcoin/results/buddhi-world-transfer/seed2026-scores.parquet",
+      "score_sha256": "85ef1cbc6cb7f2adb7fa7891d2e52643a636053b179e0ac136188d3c227b901a",
+      "seconds": 15.030328193002788,
+      "seed": 2026,
+      "tx_rows": 34595,
+      "windows": {
+        "7": {
+          "frozen_policy": {
+            "answered": 16,
+            "correct": 5,
+            "coverage": 0.0010791124300263033,
+            "decisions": 14827,
+            "false_alerts": 11,
+            "positives": 108,
+            "precision": 0.3125,
+            "recall": 0.046296296296296294
+          },
+          "ranking": {
+            "ap": 0.037380213938980625,
+            "auc": 0.665053735031315,
+            "brier": 0.007697629151223555,
+            "hits_at_20": 5,
+            "hits_at_50": 6,
+            "n": 14827,
+            "p_at_20": 0.25,
+            "p_at_50": 0.12,
+            "positives": 108,
+            "prevalence": 0.007284008902677548,
+            "r_at_20": 0.046296296296296294,
+            "r_at_50": 0.05555555555555555
+          }
+        },
+        "8": {
+          "frozen_policy": {
+            "answered": 24,
+            "correct": 10,
+            "coverage": 0.0014582573824279985,
+            "decisions": 16458,
+            "false_alerts": 14,
+            "positives": 110,
+            "precision": 0.4166666666666667,
+            "recall": 0.09090909090909091
+          },
+          "ranking": {
+            "ap": 0.13084311894308664,
+            "auc": 0.6720082523300042,
+            "brier": 0.00665347559479603,
+            "hits_at_20": 10,
+            "hits_at_50": 15,
+            "n": 16458,
+            "p_at_20": 0.5,
+            "p_at_50": 0.3,
+            "positives": 110,
+            "prevalence": 0.00668367966946166,
+            "r_at_20": 0.09090909090909091,
+            "r_at_50": 0.13636363636363635
+          }
+        },
+        "9": {
+          "frozen_policy": {
+            "answered": 10,
+            "correct": 5,
+            "coverage": 0.0006046680372475511,
+            "decisions": 16538,
+            "false_alerts": 5,
+            "positives": 72,
+            "precision": 0.5,
+            "recall": 0.06944444444444445
+          },
+          "ranking": {
+            "ap": 0.11867089877787043,
+            "auc": 0.7206132670688422,
+            "brier": 0.004623166752578545,
+            "hits_at_20": 8,
+            "hits_at_50": 12,
+            "n": 16538,
+            "p_at_20": 0.4,
+            "p_at_50": 0.24,
+            "positives": 72,
+            "prevalence": 0.004353609868182368,
+            "r_at_20": 0.1111111111111111,
+            "r_at_50": 0.16666666666666666
+          }
+        }
+      }
+    }
+  ]
+}

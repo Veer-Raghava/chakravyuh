@@ -14,7 +14,7 @@
   color: var(--ink);
   margin: 0;
 }
-.tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--riso-blue); }
+.tag { font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.18em; color: var(--riso-blue); }
 .gloss { font-family: var(--font-text); font-size: var(--t-sub); line-height: 1.55; color: var(--ink-soft); margin: 0.8rem 0 0; max-width: 34rem; }
 
 .featured { margin-bottom: 2.2rem; }
@@ -183,3 +183,16 @@
   .screen { padding: 1.75rem 1.25rem 2.5rem; }
   .controls { align-items: stretch; }
 }
+
+/* Investigation desk: a bounded queue beside the selected evidence. */
+.screen { max-width: 100rem; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.queue { grid-column: 1; grid-row: 1; min-width: 0; }
+.featured { grid-column: 2; grid-row: 1; min-width: 0; margin: 0; }
+.featured > article, .featured > div { max-width: none; width: 100%; }
+.list { max-height: 65vh; overflow-y: auto; padding: 3px; scrollbar-gutter: stable; }
+.row { gap: .6rem; }
+.rowBar, .rowBand { display: none; }
+.rowConf { min-width: 0; font-size: .65rem; }
+.row[aria-pressed=true] { border-color: var(--riso-blue); background: var(--paper-deep); }
+@media(max-width: 950px) { .workspace { grid-template-columns: 1fr; } .queue { grid-column: 1; grid-row: 1; } .featured { grid-column: 1; grid-row: 2; } .rowConf { display: none; } }

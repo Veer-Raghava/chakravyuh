@@ -81,3 +81,24 @@ STATE.md
 docs/superpowers/
 install-claude-config.sh
 dhristi-sessions.md
+# Generated frontend build output
+apps/drishti-v2/dist/
+
+# Generated frontend dependencies/cache
+apps/drishti-v2/node_modules/
+apps/drishti-v2/.vite/
+
+# Generated research artifacts
+research/bitcoin/source-snapshots/
+research/bitcoin/storage-cleanup/
+
+# Generated ML/data artifacts
+*.parquet
+*.joblib
+*.pt
+*.pth
+
+# Generated frontend builds
+apps/drishti-v2/dist/
+apps/drishti-v2/node_modules/
+apps/drishti-v2/.vite/

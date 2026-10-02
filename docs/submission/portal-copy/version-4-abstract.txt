@@ -1,0 +1,9 @@
+CHAKRAVYUH brings Bitcoin transaction intelligence onto an offline Linux workstation. Through DRISHTI, an investigator can move from bulk captured metadata to a ranked lead, inspect its money-flow and network evidence, and retain a verifiable case artifact without sending observations to a cloud service.
+
+CSV/JSON/XML inputs are hashed before parsing and preserved with accepted/rejected row records. SETU separates unique transaction bodies from repeated peer announcements. JAAL connects addresses, transactions, peers and operators in a typed graph. LightGBM ranks suspicious activity with SHAP explanations; linked views show complete transaction endpoints, observed ports/timing, ownership hypotheses, source candidates and counter-evidence. PRAMAAN produces canonical signed JSON and accompanying PDFs with original-input hashes and replay information.
+
+Our working optional CPU engine adds richer graph-context detection and an evidence-diverse queue. An independent inference port reproduced features and scores exactly across 324,395 rows in 20 checks. A stripped replay produced the same 20-lead packet in 2.69 seconds with 788.8 MiB peak process memory on the tested workload, without neural-training imports or evaluation answer keys. Local browser checks recorded zero external requests.
+
+Model experiments also tested public Elliptic Bitcoin data. Graph-feature LightGBM achieved AP 0.6566 and 20 illicit transactions in its pooled top 20 under our declared temporal protocol. Synthetic transfer tests separately showed better suspicious controller-window retrieval after limiting overlapping transaction evidence.
+
+Address-level activity detection remains usable while ownership and source hypotheses are unresolved. Main-pipeline cases and optional research queues retain their own model provenance and export paths. The system combines learned prioritization with evidence traceability, local operation and a checkable handover for further investigation.

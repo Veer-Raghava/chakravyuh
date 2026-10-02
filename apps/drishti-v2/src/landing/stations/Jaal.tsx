@@ -220,23 +220,23 @@ export function Jaal({ reduced }: { reduced: boolean }) {
       {active && (
         <>
           <Html position={[0, -1.15, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ ...datum, color: "var(--ink-soft)", letterSpacing: "0.14em", whiteSpace: "nowrap" }}>◆ money core</div>
+            <div style={{ ...datum, color: "var(--ink-soft)", letterSpacing: "0.14em", whiteSpace: "nowrap" }}>◆ the money</div>
           </Html>
           <Html position={[0, 1.7, 0]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ ...datum, color: "var(--riso-blue)", letterSpacing: "0.14em", whiteSpace: "nowrap" }}>▲ network peers</div>
+            <div style={{ ...datum, color: "var(--riso-blue)", letterSpacing: "0.14em", whiteSpace: "nowrap" }}>▲ the network</div>
           </Html>
-          {/* the one edge that is the whole project — a dial, not a grade (§6) */}
+          {/* the one link that is the whole point — you set how sure, not us (§6) */}
           <Html position={[2.15, -0.25, 0]} center distanceFactor={6} pointerEvents="none">
             <div style={{ ...panel, width: 196 }}>
-              <div style={kicker}>the announce link</div>
+              <div style={kicker}>the key link</div>
               <div style={{ ...prose, color: "var(--fluoro-pink)", fontWeight: 600 }}>
-                this IP told us about this money
+                which computer told us about which payment
               </div>
               <div style={{ ...datum, color: "var(--ink-soft)", marginTop: 6 }}>
-                the only public link between wire and chain
+                the one link between the network and the money
               </div>
               <div style={{ ...datum, color: "var(--coral)", marginTop: 4 }}>
-                likely same owner · confidence 0.36
+                likely the same owner · you set how sure
               </div>
             </div>
           </Html>

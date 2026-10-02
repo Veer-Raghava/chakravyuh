@@ -218,3 +218,5 @@
   font-size: 0.78rem;
   color: var(--ink);
 }
+
+.passiveLabel, .passiveLabel *, .coinTag, .coinTag * { pointer-events: none !important; }

@@ -1,7 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRun } from "../../data/RunContext";
 import { usToIST, ownerGroupLabel, scrubOwnerWords } from "../../data/jaal";
-import { usePrefersReducedMotion } from "../../scroll/usePrefersReducedMotion";
 import styles from "./ProofScreen.module.css";
 
 /**
@@ -19,10 +18,13 @@ import styles from "./ProofScreen.module.css";
 
 /** DATA-CONTRACTS §9 display format — first two octets, rest masked. Never a full IP. */
 const maskIp = (ip: string) =>
-  ip.includes(":") ? ip.split(":").slice(0, 2).join(":") + ":…" : ip.split(".").slice(0, 2).join(".") + ".x.x";
+  ip.includes(":")
+    ? ip.split(":").slice(0, 2).join(":") + ":…"
+    : ip.split(".").slice(0, 2).join(".") + ".x.x";
 
 /** observed_at_utc is an ISO string with offset → render as plain UTC (the tuple is UTC). */
-const isoToUTC = (iso: string) => new Date(iso).toISOString().slice(0, 19).replace("T", " ") + " UTC";
+const isoToUTC = (iso: string) =>
+  new Date(iso).toISOString().slice(0, 19).replace("T", " ") + " UTC";
 
 /** §3 kill-list scrub for backend-authored prose on this officer/court screen: the word
  *  "cluster"/"clustering" never shows here (shared with Leads, so the two cannot drift). */
@@ -30,23 +32,43 @@ const scrub = scrubOwnerWords;
 
 /** The backend's estimator name is a machine token ("plain_conformal") and half of it is
  *  on the kill-list. This screen says what the interval IS; the token never renders. */
-const METHOD_GLOSS: Record<string, string> = { plain_conformal: "shortlist interval" };
+const METHOD_GLOSS: Record<string, string> = {
+  plain_conformal: "shortlist interval",
+};
 
 export function ProofScreen() {
-  const reduced = usePrefersReducedMotion();
-  const { fixtures } = useRun();
+  const { fixtures, run, selectAlert } = useRun();
   const p = fixtures.packet;
   // attribution_ready is a real backend field (§6): the packet is court-ready only when the
   // backend says so — we no longer derive it from the presence of peer IP/port/timestamp.
+  const [fingerprint, setFingerprint] = useState("");
+  useEffect(() => {
+    let live = true;
+    setFingerprint("");
+    const bytes = new TextEncoder().encode(JSON.stringify(p, null, 2));
+    void crypto.subtle.digest("SHA-256", bytes).then((hash) => {
+      if (live)
+        setFingerprint(
+          Array.from(new Uint8Array(hash), (b) =>
+            b.toString(16).padStart(2, "0"),
+          ).join(""),
+        );
+    });
+    return () => {
+      live = false;
+    };
+  }, [p]);
   const a = p.attribution;
   const READY = p.attribution_ready;
   const clearing = p.counter_findings.find((c) => c.would_clear);
-  const [sealed, setSealed] = useState(reduced);
+  const [sealed, setSealed] = useState(false);
   const linkRef = useRef<HTMLAnchorElement>(null);
 
   // Offline "download" of the machine artifact — a Blob, never a network call.
   const generate = () => {
-    const blob = new Blob([JSON.stringify(p, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(p, null, 2)], {
+      type: "application/json",
+    });
     const url = URL.createObjectURL(blob);
     const el = linkRef.current;
     if (el) {
@@ -65,27 +87,72 @@ export function ProofScreen() {
           <span className={styles.tag}>PRAMAAN · प्रमाण</span>
         </div>
         <p className={styles.gloss}>
-          One lead pressed into a signed, hash-chained document: the three values an ISP needs to
-          name a subscriber, and every step that produced them.
+          One lead pressed into a signed, hash-chained document: the three
+          values an ISP needs to name a subscriber, and every step that produced
+          them.
         </p>
         <div className={styles.caseRow}>
-          <span>case <strong>{p.case_id}</strong></span>
-          <span>subject <strong className={styles.mono}>{ownerGroupLabel(p.subject.subject_id)}</strong></span>
+          <span>
+            case <strong>{p.case_id}</strong>
+          </span>
+          <span>
+            subject{" "}
+            <strong className={styles.mono}>
+              {ownerGroupLabel(p.subject.subject_id)}
+            </strong>
+          </span>
         </div>
       </header>
 
+      <section className={styles.inventory}>
+        <div>
+          <span>SELECTED EVIDENCE PACKET</span>
+          <h2>{p.case_id}</h2>
+          <p>
+            Source run: {run.id} · {p.chain_of_custody.length} custody entries
+          </p>
+        </div>
+        <label>
+          Available signed packets
+          <select
+            value={p.case_id}
+            onChange={(e) => selectAlert(e.target.value)}
+          >
+            {Object.keys(run.payload.packets ?? {}).map((id) => (
+              <option key={id} value={id}>
+                {id}
+              </option>
+            ))}
+          </select>
+        </label>
+        <details>
+          <summary>SHA-256 of the exact JSON download</summary>
+          <code>{fingerprint || "Computing local fingerprint…"}</code>
+          <p>
+            This fingerprint identifies the exported file bytes. Custody and
+            signature fields are shown separately below.
+          </p>
+        </details>
+      </section>
       <div className={styles.exhibit}>
         {/* ── LEFT: hash-chain spine ─────────────────────── */}
         <aside className={styles.spine}>
           <span className={styles.colLabel}>chain of custody</span>
           <div className={styles.chainItem}>
-            <span className={styles.chainStage}>raw capture · sealed input</span>
+            <span className={styles.chainStage}>
+              raw capture · sealed input
+            </span>
             <code className={styles.hash}>{p.input.files[0].sha256}</code>
-            <span className={styles.chainMeta}>{p.input.rows_sealed.toLocaleString("en-US")} rows sealed</span>
+            <span className={styles.chainMeta}>
+              {p.input.rows_sealed.toLocaleString("en-US")} rows sealed
+            </span>
           </div>
           {p.chain_of_custody.map((s, i) => (
             <div key={s.stage} className={styles.chainItem}>
-              <span className={styles.chainStage}><span className={styles.chainN}>{i + 1}</span>{s.stage}</span>
+              <span className={styles.chainStage}>
+                <span className={styles.chainN}>{i + 1}</span>
+                {s.stage}
+              </span>
               <code className={styles.hash}>{s.sha256}</code>
               <span className={styles.chainMeta}>{usToIST(s.at_us)}</span>
             </div>
@@ -96,7 +163,9 @@ export function ProofScreen() {
           </div>
           <div className={`${styles.chainItem} ${styles.chainHead}`}>
             <span className={styles.chainStage}>expected packet SHA-256</span>
-            <code className={styles.hash}>{p.replay.expected_packet_sha256}</code>
+            <code className={styles.hash}>
+              {p.replay.expected_packet_sha256}
+            </code>
           </div>
         </aside>
 
@@ -117,26 +186,53 @@ export function ProofScreen() {
               <span className={styles.tSep}>·</span>
               <div className={styles.tCell}>
                 <span className={styles.tKey}>observed (UTC)</span>
-                <span className={styles.tVal}>{isoToUTC(a.observed_at_utc)}</span>
+                <span className={styles.tVal}>
+                  {isoToUTC(a.observed_at_utc)}
+                </span>
               </div>
             </div>
           ) : (
             <div className={styles.notReady}>
               <span className={styles.nrLabel}>attribution not ready</span>
-              <p>We only print the {`{operator · region · UTC}`} finding when the backend marks it court-ready. It isn't here, so we hold it back rather than hand a court a half-answer.</p>
+              <p>
+                We only print the {`{operator · region · UTC}`} finding when the
+                backend marks it court-ready. It isn't here, so we hold it back
+                rather than hand a court a half-answer.
+              </p>
             </div>
           )}
 
           <dl className={styles.findMeta}>
-            <div><dt>network operator (ASN)</dt><dd>AS{a.asn} · {a.geo_country}</dd></div>
-            <div><dt>operator likelihood</dt><dd>{(a.p_asn * 100).toFixed(2)}% · margin {(a.margin * 100).toFixed(2)}%</dd></div>
-            <div><dt>shortlist</dt><dd>{a.shortlist.length} candidate hosts</dd></div>
-            <div><dt>announcing host (officer only)</dt><dd className={styles.mono}>{maskIp(a.peer_ip)}</dd></div>
+            <div>
+              <dt>network operator (ASN)</dt>
+              <dd>
+                AS{a.asn} · {a.geo_country}
+              </dd>
+            </div>
+            <div>
+              <dt>operator likelihood</dt>
+              <dd>
+                {(a.p_asn * 100).toFixed(2)}% · margin{" "}
+                {(a.margin * 100).toFixed(2)}%
+              </dd>
+            </div>
+            <div>
+              <dt>shortlist</dt>
+              <dd>{a.shortlist.length} candidate hosts</dd>
+            </div>
+            <div>
+              <dt>announcing host (officer only)</dt>
+              <dd className={styles.mono}>{maskIp(a.peer_ip)}</dd>
+            </div>
           </dl>
 
           <div className={styles.findings}>
             <span className={styles.subLabel}>why this lead was raised</span>
-            <ul>{p.findings.map((f, i) => <li key={i}>{scrub(f.statement)}</li>)}</ul>
+            <ul>
+              {p.findings.map((f, i) => (
+                <li key={i}>{scrub(f.statement)}</li>
+              ))}
+            </ul>
           </div>
 
           <div className={styles.counters}>
@@ -144,10 +240,18 @@ export function ProofScreen() {
             {p.counter_findings.map((c, i) => (
               <div key={i} className={styles.counter}>
                 <p>{scrub(c.statement)}</p>
-                {c.would_clear && <span className={styles.wouldClear}>one doubt is enough to close this lead</span>}
+                {c.would_clear && (
+                  <span className={styles.wouldClear}>
+                    one doubt is enough to close this lead
+                  </span>
+                )}
               </div>
             ))}
-            {!clearing && <p className={styles.noClear}>No single doubt here is enough on its own to close the lead.</p>}
+            {!clearing && (
+              <p className={styles.noClear}>
+                No single doubt here is enough on its own to close the lead.
+              </p>
+            )}
           </div>
         </div>
 
@@ -158,24 +262,36 @@ export function ProofScreen() {
             <span className={styles.legalHead}>Production notice</span>
             <p className={styles.legalBasis}>{p.legal.basis}</p>
             <p className={styles.legalBody}>
-              Directs the disclosure of subscriber records matching the network address, source port
-              and timestamp in the sealed packet, from the operator identified as AS{a.asn}.
+              Directs the disclosure of subscriber records matching the network
+              address, source port and timestamp in the sealed packet, from the
+              operator identified as AS{a.asn}.
             </p>
           </div>
           <div className={styles.legalBox}>
             <span className={styles.legalHead}>Hash disclosure</span>
             <p className={styles.legalBasis}>{p.legal.hash_disclosure}</p>
-            <p className={styles.legalBody}>Every SHA-256 above is printed in full, as the schedule requires. Nothing summarised, nothing hidden.</p>
+            <p className={styles.legalBody}>
+              Every SHA-256 above is printed in full, as the schedule requires.
+              Nothing summarised, nothing hidden.
+            </p>
           </div>
           <dl className={styles.verMeta}>
-            <div><dt>tool</dt><dd>v{p.tool_version}</dd></div>
-            <div><dt>code</dt><dd className={styles.mono}>{p.code_version}</dd></div>
+            <div>
+              <dt>tool</dt>
+              <dd>v{p.tool_version}</dd>
+            </div>
+            <div>
+              <dt>code</dt>
+              <dd className={styles.mono}>{p.code_version}</dd>
+            </div>
             <div>
               <dt>confidence</dt>
               <dd className={styles.mono}>
-                {METHOD_GLOSS[p.confidence.method] ?? p.confidence.method}{" "}
-                {p.confidence.low.toFixed(2)}–{p.confidence.high.toFixed(2)} at{" "}
-                {(p.confidence.coverage_target * 100).toFixed(0)}%
+                {p.confidence.method === "ranking_only" ? "Review ranking · no confidence interval" : <>
+                  {METHOD_GLOSS[p.confidence.method] ?? p.confidence.method}{" "}
+                  {p.confidence.low.toFixed(2)}–{p.confidence.high.toFixed(2)} at{" "}
+                  {(p.confidence.coverage_target * 100).toFixed(0)}%
+                </>}
               </dd>
             </div>
           </dl>
@@ -191,14 +307,22 @@ export function ProofScreen() {
           aria-pressed={sealed}
         >
           <span className={styles.wax} aria-hidden />
-          {sealed ? "sealed" : "press the seal"}
+          {sealed ? "reviewed" : "Review the packet"}
         </button>
-        <button type="button" className={styles.generate} disabled={!sealed} onClick={generate}>
-          Generate packet (JSON)
+        <button
+          type="button"
+          className={styles.generate}
+          disabled={!sealed}
+          onClick={generate}
+        >
+          Export packet (JSON)
         </button>
-        <a ref={linkRef} className={styles.srLink} aria-hidden>download</a>
+        <a ref={linkRef} className={styles.srLink} aria-hidden>
+          download
+        </a>
         <p className={styles.provenance}>
-          offline · seed {p.replay.seed} · <code className={styles.mono}>{p.replay.command}</code>
+          offline · seed {p.replay.seed} ·{" "}
+          <code className={styles.mono}>{p.replay.command}</code>
         </p>
       </div>
     </section>

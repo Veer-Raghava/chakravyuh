@@ -103,7 +103,9 @@ def _strs(node: Mapping[str, Any], path: str, key: str) -> tuple[str, ...]:
 
 def _weights(node: Mapping[str, Any], path: str, key: str) -> dict[str, float]:
     raw = _obj(node, path, key)
-    out = {name: _float(raw, f"{path}{key}.", name) for name in raw}
+    # JSON object order is not a parameter. Effective config export sorts keys, so using
+    # source order here changes which script a seeded categorical draw picks on replay.
+    out = {name: _float(raw, f"{path}{key}.", name) for name in sorted(raw)}
     if not out:
         raise ValueError(f"run_config.json: {path}{key} is empty")
     return out
@@ -582,7 +584,8 @@ def load(
 ) -> Config:
     """Parse `path`, apply the CLI overrides, and check the config is self-consistent.
 
-    `n_txs` defaults to `target_rows // mean_announcements_per_tx`, because the spec asks
+    `n_txs` defaults to the recorded `n_transactions` when reloading an effective config,
+    otherwise `target_rows // mean_announcements_per_tx`, because the spec asks
     callers to think in capture rows and one transaction becomes about nine rows once S02
     attaches announcements. `target_rows` is left untouched in the effective copy: it is
     S02's target, and rewriting it here would erase what the operator actually asked for.
@@ -621,7 +624,11 @@ def load(
     if mean_announcements < 1:
         raise ValueError(f"mean_announcements_per_tx must be positive, got {mean_announcements}")
     if n_txs is None:
-        n_txs = _int(root, "", "target_rows") // mean_announcements
+        n_txs = (
+            _int(root, "", "n_transactions")
+            if "n_transactions" in root
+            else _int(root, "", "target_rows") // mean_announcements
+        )
     if n_txs < 1:
         raise ValueError(f"transaction count must be positive, got {n_txs}")
 

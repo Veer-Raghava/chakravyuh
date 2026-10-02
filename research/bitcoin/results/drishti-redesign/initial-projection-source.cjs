@@ -1,0 +1,11 @@
+const fs = require('fs');
+const ts = require('/home/void/chakravyuh/apps/drishti-v2/node_modules/typescript');
+const THREE = require('/home/void/chakravyuh/apps/drishti-v2/node_modules/three');
+const source = fs.readFileSync('/home/void/chakravyuh/apps/drishti-v2/src/three/jaalLayout.ts', 'utf8');
+const code = ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+const mod={exports:{}};new Function('exports','module',code)(mod.exports,mod);
+const fixture=JSON.parse(fs.readFileSync('/home/void/chakravyuh/apps/drishti-v2/src/data/fixtures/runs/agency-v2.json'));
+const graph=mod.exports.layoutJaal(fixture.graphAddress.nodes,fixture.graphAddress.edges);
+const camera=new THREE.PerspectiveCamera(42, Number(process.argv[2]),.1,1000);camera.position.set(0,.2,9.4);camera.lookAt(0,0,0);camera.updateMatrixWorld();
+const points=graph.nodes.filter(n=>n.kind==='transaction').sort((a,b)=>b.pos[2]-a.pos[2]).map(n=>{const p=new THREE.Vector3(...n.pos).project(camera);return{id:n.id,label:n.label,x:(p.x+1)/2,y:(1-p.y)/2}});
+process.stdout.write(JSON.stringify(points));

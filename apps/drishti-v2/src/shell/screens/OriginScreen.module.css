@@ -39,7 +39,7 @@
 .header { border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
 .titleRow { display: flex; align-items: baseline; gap: 0.9rem; }
 .title { font-family: var(--font-display); font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 600; line-height: 1; color: var(--ink); margin: 0; }
-.tag { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--riso-blue); }
+.tag { font-family: var(--font-mono); font-size: 0.95rem; letter-spacing: 0.18em; color: var(--riso-blue); }
 .gloss { font-family: var(--font-text); font-size: var(--t-sub); line-height: 1.55; color: var(--ink-soft); margin: 0.7rem 0 0; }
 
 .toggle {
@@ -103,3 +103,22 @@
   .canvasWrap { position: relative; top: 0; }
   .dial { flex-wrap: wrap; gap: 1rem; }
 }
+.candidateBars { border: 1px solid var(--line); border-radius: 8px; padding: 1rem; }
+.candidateBars > div { display: grid; grid-template-columns: 1.3fr 1fr auto; gap: .8rem; align-items: center; margin-top: .75rem; font: .68rem var(--font-mono); }
+.candidateBars > div > div { height: 6px; border-radius: 4px; background: var(--paper-deep); overflow: hidden; }
+.candidateBars i { display: block; background: var(--riso-blue); height: 100%; }
+
+/* Separate overview, verdict and evidence instead of a long right-hand column. */
+.screen { max-width: 100rem; grid-template-columns: minmax(0, .85fr) minmax(0, 1.6fr); gap: 1.5rem; }
+.canvasWrap { aspect-ratio: auto; height: 29rem; }
+.panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.header, .toggle, .dial { grid-column: 1 / -1; }
+.header { padding-bottom: .8rem; }
+.panel > table { display: block; max-height: 23rem; overflow: auto; grid-column: 1 / -1; }
+.candidateBars { min-width: 0; }
+.candidateBars > div { grid-template-columns: 1fr 1fr auto; gap: .4rem; }
+@media(max-width: 1050px) { .screen { grid-template-columns: 1fr; } .canvasWrap { position: relative; top: 0; height: 22rem; } }
+@media(max-width: 640px) { .panel { grid-template-columns: 1fr; } .header, .toggle, .dial, .panel > table { grid-column: 1; } }
+.candidateTable { grid-column: 1 / -1; max-height: 23rem; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+.candidateTable .table { min-width: 650px; }
+.candidateTable th { position: sticky; top: 0; background: var(--paper-deep); z-index: 1; }

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Html, Line, ContactShadows } from "@react-three/drei";
 import { C } from "../../styles/palette";
-import { satsToBTC, usToIST, peerStats } from "../../data/jaal";
+import { satsToBTC, usToIST } from "../../data/jaal";
 import { Bead, Arrow } from "./LeadView";
 import { FLOOR_Y, type Jaal, type LaidNode, type Vec3 } from "../../three/jaalLayout";
 import styles from "./LeadView.module.css";
@@ -84,7 +84,7 @@ function Tx({
         />
       </mesh>
       {open && (
-        <Html position={[0, 0.24, 0]} center className={styles.coinTag} pointerEvents="none" zIndexRange={[60, 0]}>
+        <Html position={[0, 0.24, 0]} center className={styles.coinTag} wrapperClass={styles.passiveLabel} style={{ pointerEvents: "none" }} pointerEvents="none" zIndexRange={[60, 0]}>
           <span className={styles.addr}>{node.label.replace(/^tx:/, "")}</span>
           {node.firstUs != null && <span className={styles.amt}>{istDate(node.firstUs)}</span>}
           <span className={styles.role} style={{ color: C.risoBlue }}>click to trace</span>
@@ -176,7 +176,7 @@ function Coin({ a, color, onPick }: { a: AddrRef; color: string; onPick: () => v
         <meshStandardMaterial color={color} emissive={color} emissiveIntensity={hot ? 0.5 : 0.14} roughness={0.5} metalness={0.05} />
       </mesh>
       {hot && (
-        <Html position={[0, 0.2, 0]} center className={styles.coinTag} pointerEvents="none" zIndexRange={[60, 0]}>
+        <Html position={[0, 0.2, 0]} center className={styles.coinTag} wrapperClass={styles.passiveLabel} style={{ pointerEvents: "none" }} pointerEvents="none" zIndexRange={[60, 0]}>
           <span className={styles.addr}>{a.label.replace(/^addr:/, "")}</span>
           {a.sats > 0 && <span className={styles.amt}>{satsToBTC(a.sats)}</span>}
         </Html>
@@ -414,7 +414,9 @@ export function GraphDetail({
   jaal: Jaal;
 }) {
   if (node.kind === "peer") {
-    const s = peerStats.get(node.id);
+    const observed = jaal.edges.filter(e => e.kind === "announce" && e.dst === node.id);
+    const times = observed.flatMap(e => e.tsUs == null ? [] : [e.tsUs]);
+    const s = { asn: jaal.asnOf.get(node.id), announced: observed.length, earliestUs: times.length ? Math.min(...times) : null };
     return (
       <div className={styles.detail}>
         <span className={styles.dLabel} style={{ color: C.fluoroPink }}>the IP that told us ▲</span>

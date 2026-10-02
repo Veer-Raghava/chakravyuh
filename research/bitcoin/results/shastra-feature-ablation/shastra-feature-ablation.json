@@ -1,0 +1,588 @@
+{
+  "boundaries_us": {
+    "fit_validation": 1767519555825316,
+    "validation_test": 1767568585933107
+  },
+  "elapsed_seconds": 41.43062420700153,
+  "inputs": {
+    "data/generated/agency-v2/graph/edges.parquet": "606f20692708b682df6c56047a356f1f5b5fe297c265a3a7833b54b95bb4aaf3",
+    "data/generated/agency-v2/normalised/announcements.parquet": "9ff1031e419b557efd88d794434ffcdd89299b73bf8215115732a9028a9880a6",
+    "data/generated/agency-v2/normalised/arrival.parquet": "1e6d35cab2097e3deab9f946c85a2c1edbc380202ca186483ad26210cdb623e6",
+    "data/generated/agency-v2/normalised/asn_rollup.parquet": "bfb0e4b2b88e468c0e4a5808087cc53ff00a1f2e72b9d262c4efe11389fec4b1",
+    "data/generated/agency-v2/normalised/peers.parquet": "4a4aa42cf04d71587ae111aa899dd297319f3d4c1947aacdcde26b77638b8253",
+    "data/generated/agency-v2/normalised/transactions.parquet": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098",
+    "ground_truth/agency-v2/origins.parquet": "a4e995b0a890e81da7315c99127fb29aa00d4ae3ccc1ba19c6c5fed54f8b095d"
+  },
+  "limitations": [
+    "one synthetic world/seed; no transfer claim",
+    "current global peer, payer, and graph aggregates remain in variants unless explicitly ablated",
+    "holdout has transactions observed by at least one candidate peer; not all broadcasts",
+    "candidate rows are correlated within transaction; inference should use transaction-block uncertainty",
+    "this ablation is a research diagnostic and does not rewrite production signals or metrics"
+  ],
+  "protocol": "train/calibration first 60%, validation next 10%, test final 30%; features retain current full-capture aggregates",
+  "run_id": "agency-v2",
+  "seed": 42,
+  "variants": {
+    "full": {
+      "features": [
+        "delta_first_us",
+        "rank_in_tx",
+        "n_announcements",
+        "n_observers_seen",
+        "n_observers_blind",
+        "peer_frac_rank_one",
+        "peer_n_txids",
+        "peer_degree",
+        "announce_spread_us",
+        "payer_shared",
+        "n_candidates",
+        "net_class_code",
+        "is_tor_exit",
+        "is_hosting",
+        "mle_logscore"
+      ],
+      "fit": {
+        "calibrated": true,
+        "n_calibration_rows": 139840,
+        "n_positive": 9862,
+        "n_train_rows": 559358,
+        "n_train_txids": 20312,
+        "reason": null,
+        "trained": true
+      },
+      "selected_margin_floor": 0.01,
+      "selected_policy_test_result": {
+        "acted": 510,
+        "coverage": 0.052734980870644196,
+        "margin_floor": 0.01,
+        "precision_when_acted": 0.9647058823529412
+      },
+      "selection_rule": "maximum validation coverage among floors with >=100 answers and >=0.90 precision",
+      "test": {
+        "l0_top1": 0.2520938889463344,
+        "l0_top3": 0.3213731775411023,
+        "l1_acted": 1,
+        "l1_coverage": 0.00010340192327577293,
+        "l1_margin_policy_curve": [
+          {
+            "acted": 6381,
+            "coverage": 0.6598076724227071,
+            "margin_floor": 0.0,
+            "precision_when_acted": 0.463093559003291
+          },
+          {
+            "acted": 3039,
+            "coverage": 0.31423844483507396,
+            "margin_floor": 0.0025,
+            "precision_when_acted": 0.6189536031589339
+          },
+          {
+            "acted": 1323,
+            "coverage": 0.13680074449384758,
+            "margin_floor": 0.005,
+            "precision_when_acted": 0.7717309145880574
+          },
+          {
+            "acted": 736,
+            "coverage": 0.07610381553096887,
+            "margin_floor": 0.0075,
+            "precision_when_acted": 0.9171195652173914
+          },
+          {
+            "acted": 510,
+            "coverage": 0.052734980870644196,
+            "margin_floor": 0.01,
+            "precision_when_acted": 0.9647058823529412
+          },
+          {
+            "acted": 317,
+            "coverage": 0.032778409678420016,
+            "margin_floor": 0.0125,
+            "precision_when_acted": 0.9873817034700315
+          },
+          {
+            "acted": 149,
+            "coverage": 0.015406886568090167,
+            "margin_floor": 0.015,
+            "precision_when_acted": 0.9932885906040269
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.02,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.04,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.08,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.15,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 510,
+            "coverage": 0.052734980870644196,
+            "margin_floor": 0.01,
+            "precision_when_acted": 0.9647058823529412
+          }
+        ],
+        "l1_precision_when_acted": 0.0,
+        "l1_top1": 0.4592079412677076,
+        "l1_top3": 0.7161617206080033,
+        "n_holdout_observed_transactions": 9671
+      },
+      "validation": {
+        "l0_top1": 0.24750356633380885,
+        "l0_top3": 0.3174037089871612,
+        "l1_acted": 0,
+        "l1_coverage": 0.0,
+        "l1_margin_policy_curve": [
+          {
+            "acted": 1867,
+            "coverage": 0.6658345221112696,
+            "margin_floor": 0.0,
+            "precision_when_acted": 0.46170326727370115
+          },
+          {
+            "acted": 884,
+            "coverage": 0.3152639087018545,
+            "margin_floor": 0.0025,
+            "precision_when_acted": 0.6289592760180995
+          },
+          {
+            "acted": 414,
+            "coverage": 0.14764621968616262,
+            "margin_floor": 0.005,
+            "precision_when_acted": 0.748792270531401
+          },
+          {
+            "acted": 229,
+            "coverage": 0.08166904422253923,
+            "margin_floor": 0.0075,
+            "precision_when_acted": 0.8820960698689956
+          },
+          {
+            "acted": 144,
+            "coverage": 0.05135520684736091,
+            "margin_floor": 0.01,
+            "precision_when_acted": 0.9513888888888888
+          },
+          {
+            "acted": 92,
+            "coverage": 0.03281027104136947,
+            "margin_floor": 0.0125,
+            "precision_when_acted": 1.0
+          },
+          {
+            "acted": 30,
+            "coverage": 0.010699001426533523,
+            "margin_floor": 0.015,
+            "precision_when_acted": 1.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.02,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.04,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.08,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.15,
+            "precision_when_acted": 0.0
+          }
+        ],
+        "l1_precision_when_acted": 0.0,
+        "l1_top1": 0.4543509272467903,
+        "l1_top3": 0.7089871611982882,
+        "n_holdout_observed_transactions": 2804
+      }
+    },
+    "timing_and_local_observation": {
+      "features": [
+        "delta_first_us",
+        "rank_in_tx",
+        "n_announcements",
+        "n_observers_seen",
+        "n_observers_blind",
+        "announce_spread_us",
+        "n_candidates"
+      ],
+      "fit": {
+        "calibrated": true,
+        "n_calibration_rows": 139840,
+        "n_positive": 9862,
+        "n_train_rows": 559358,
+        "n_train_txids": 20312,
+        "reason": null,
+        "trained": true
+      },
+      "selected_margin_floor": null,
+      "selected_policy_test_result": null,
+      "selection_rule": "maximum validation coverage among floors with >=100 answers and >=0.90 precision",
+      "test": {
+        "l0_top1": 0.18808809843863095,
+        "l0_top3": 0.2525074966394375,
+        "l1_acted": 1,
+        "l1_coverage": 0.00010340192327577293,
+        "l1_margin_policy_curve": [
+          {
+            "acted": 6381,
+            "coverage": 0.6598076724227071,
+            "margin_floor": 0.0,
+            "precision_when_acted": 0.4076163610719323
+          },
+          {
+            "acted": 3539,
+            "coverage": 0.3659394064729604,
+            "margin_floor": 0.0025,
+            "precision_when_acted": 0.5170952246397288
+          },
+          {
+            "acted": 481,
+            "coverage": 0.04973632509564678,
+            "margin_floor": 0.005,
+            "precision_when_acted": 0.6507276507276507
+          },
+          {
+            "acted": 18,
+            "coverage": 0.0018612346189639127,
+            "margin_floor": 0.0075,
+            "precision_when_acted": 0.8333333333333334
+          },
+          {
+            "acted": 3,
+            "coverage": 0.0003102057698273188,
+            "margin_floor": 0.01,
+            "precision_when_acted": 0.6666666666666666
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.0125,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.015,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.02,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.04,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.08,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.15,
+            "precision_when_acted": 0.0
+          }
+        ],
+        "l1_precision_when_acted": 0.0,
+        "l1_top1": 0.40492193154792677,
+        "l1_top3": 0.6970323648019853,
+        "n_holdout_observed_transactions": 9671
+      },
+      "validation": {
+        "l0_top1": 0.17938659058487874,
+        "l0_top3": 0.24144079885877318,
+        "l1_acted": 0,
+        "l1_coverage": 0.0,
+        "l1_margin_policy_curve": [
+          {
+            "acted": 1867,
+            "coverage": 0.6658345221112696,
+            "margin_floor": 0.0,
+            "precision_when_acted": 0.4086770219603642
+          },
+          {
+            "acted": 1067,
+            "coverage": 0.380527817403709,
+            "margin_floor": 0.0025,
+            "precision_when_acted": 0.5051546391752577
+          },
+          {
+            "acted": 136,
+            "coverage": 0.04850213980028531,
+            "margin_floor": 0.005,
+            "precision_when_acted": 0.6911764705882353
+          },
+          {
+            "acted": 5,
+            "coverage": 0.001783166904422254,
+            "margin_floor": 0.0075,
+            "precision_when_acted": 0.8
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.01,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.0125,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.015,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.02,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.04,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.08,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.15,
+            "precision_when_acted": 0.0
+          }
+        ],
+        "l1_precision_when_acted": 0.0,
+        "l1_top1": 0.40228245363766046,
+        "l1_top3": 0.7018544935805991,
+        "n_holdout_observed_transactions": 2804
+      }
+    },
+    "without_global_peer_payer": {
+      "features": [
+        "delta_first_us",
+        "rank_in_tx",
+        "n_announcements",
+        "n_observers_seen",
+        "n_observers_blind",
+        "announce_spread_us",
+        "n_candidates",
+        "net_class_code",
+        "is_tor_exit",
+        "is_hosting",
+        "mle_logscore"
+      ],
+      "fit": {
+        "calibrated": true,
+        "n_calibration_rows": 139840,
+        "n_positive": 9862,
+        "n_train_rows": 559358,
+        "n_train_txids": 20312,
+        "reason": null,
+        "trained": true
+      },
+      "selected_margin_floor": null,
+      "selected_policy_test_result": null,
+      "selection_rule": "maximum validation coverage among floors with >=100 answers and >=0.90 precision",
+      "test": {
+        "l0_top1": 0.2034949850067211,
+        "l0_top3": 0.2924206390238858,
+        "l1_acted": 1,
+        "l1_coverage": 0.00010340192327577293,
+        "l1_margin_policy_curve": [
+          {
+            "acted": 6381,
+            "coverage": 0.6598076724227071,
+            "margin_floor": 0.0,
+            "precision_when_acted": 0.43081021783419526
+          },
+          {
+            "acted": 2889,
+            "coverage": 0.298728156343708,
+            "margin_floor": 0.0025,
+            "precision_when_acted": 0.555901696088612
+          },
+          {
+            "acted": 1073,
+            "coverage": 0.11095026367490435,
+            "margin_floor": 0.005,
+            "precision_when_acted": 0.646784715750233
+          },
+          {
+            "acted": 448,
+            "coverage": 0.04632406162754627,
+            "margin_floor": 0.0075,
+            "precision_when_acted": 0.7611607142857143
+          },
+          {
+            "acted": 237,
+            "coverage": 0.024506255816358184,
+            "margin_floor": 0.01,
+            "precision_when_acted": 0.8481012658227848
+          },
+          {
+            "acted": 81,
+            "coverage": 0.008375555785337607,
+            "margin_floor": 0.0125,
+            "precision_when_acted": 0.8518518518518519
+          },
+          {
+            "acted": 14,
+            "coverage": 0.001447626925860821,
+            "margin_floor": 0.015,
+            "precision_when_acted": 0.8571428571428571
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.02,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.04,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.08,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 1,
+            "coverage": 0.00010340192327577293,
+            "margin_floor": 0.15,
+            "precision_when_acted": 0.0
+          }
+        ],
+        "l1_precision_when_acted": 0.0,
+        "l1_top1": 0.42570571812635716,
+        "l1_top3": 0.7041670975080137,
+        "n_holdout_observed_transactions": 9671
+      },
+      "validation": {
+        "l0_top1": 0.19757489300998574,
+        "l0_top3": 0.28744650499286734,
+        "l1_acted": 0,
+        "l1_coverage": 0.0,
+        "l1_margin_policy_curve": [
+          {
+            "acted": 1867,
+            "coverage": 0.6658345221112696,
+            "margin_floor": 0.0,
+            "precision_when_acted": 0.4268880557043385
+          },
+          {
+            "acted": 883,
+            "coverage": 0.31490727532097007,
+            "margin_floor": 0.0025,
+            "precision_when_acted": 0.5368063420158551
+          },
+          {
+            "acted": 325,
+            "coverage": 0.1159058487874465,
+            "margin_floor": 0.005,
+            "precision_when_acted": 0.6461538461538462
+          },
+          {
+            "acted": 141,
+            "coverage": 0.05028530670470756,
+            "margin_floor": 0.0075,
+            "precision_when_acted": 0.7375886524822695
+          },
+          {
+            "acted": 70,
+            "coverage": 0.024964336661911554,
+            "margin_floor": 0.01,
+            "precision_when_acted": 0.7142857142857143
+          },
+          {
+            "acted": 25,
+            "coverage": 0.00891583452211127,
+            "margin_floor": 0.0125,
+            "precision_when_acted": 0.76
+          },
+          {
+            "acted": 2,
+            "coverage": 0.0007132667617689016,
+            "margin_floor": 0.015,
+            "precision_when_acted": 1.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.02,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.04,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.08,
+            "precision_when_acted": 0.0
+          },
+          {
+            "acted": 0,
+            "coverage": 0.0,
+            "margin_floor": 0.15,
+            "precision_when_acted": 0.0
+          }
+        ],
+        "l1_precision_when_acted": 0.0,
+        "l1_top1": 0.4194008559201141,
+        "l1_top3": 0.6997146932952925,
+        "n_holdout_observed_transactions": 2804
+      }
+    }
+  }
+}

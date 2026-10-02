@@ -1,150 +1,108 @@
-/* Model intelligence — the related-work section of the World screen.
-   Same surface as the rest of the console: paper, hairlines, Riso Blue for anything
-   measured and ours, ink-soft for anything that is not (literature, assessment, loss). */
-
 .wrap {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 0 1.5rem 1.5rem;
   background: var(--paper);
 }
-
 .summary {
-  display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap;
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  flex-wrap: wrap;
   padding: 1.2rem 0 0.9rem;
   cursor: pointer;
   list-style: none;
-  border-bottom: 1px solid transparent;
 }
 .summary::-webkit-details-marker { display: none; }
 .summary::after {
   content: "▾";
   margin-left: auto;
-  font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft);
-  transition: transform 0.25s var(--ease-in-confident);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
 }
-.wrap[open] > .summary { border-bottom-color: var(--line); }
+.wrap[open] > .summary { border-bottom: 1px solid var(--line); }
 .wrap[open] > .summary::after { transform: rotate(180deg); }
 .summary:focus-visible { outline: 2px solid var(--riso-blue); outline-offset: 3px; }
 .summaryTitle { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--ink); }
 .summaryTag { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.1em; color: var(--riso-blue); }
-
-.intro { font-family: var(--font-text); font-size: 0.92rem; line-height: 1.55; color: var(--ink-soft); margin: 0.9rem 0 1.2rem; max-width: 46rem; }
-
-/* ── 1 · model cards ───────────────────────────────────── */
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.9rem; }
+.intro { font-family: var(--font-text); font-size: 0.92rem; line-height: 1.55; color: var(--ink-soft); margin: 0.9rem 0 1.2rem; max-width: 52rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 0.9rem; }
 .card {
-  display: flex; flex-direction: column; gap: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
   padding: 1rem 1.05rem 1.1rem;
-  border: 1px solid var(--line); border-top: 3px solid var(--line);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--line);
   border-radius: 10px;
-  background: var(--paper);
 }
-/* ours carries the Riso Blue edge — the one card that ships */
 .cardOurs { border-top-color: var(--riso-blue); background: color-mix(in srgb, var(--riso-blue) 5%, var(--paper)); }
-.cardTech { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
-.cardName { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--ink); margin: 0; line-height: 1.15; }
-.chip {
-  align-self: flex-start;
-  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 0.2rem 0.45rem; border-radius: 4px;
-  border: 1px solid var(--line); color: var(--ink-soft);
-}
+.cardTech { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.cardName { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--ink); margin: 0; line-height: 1.25; }
+.chip { align-self: flex-start; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.45rem; border-radius: 4px; border: 1px solid var(--line); color: var(--ink-soft); }
 .chipOn { border-color: var(--riso-blue); color: var(--riso-blue); }
-.cardRole { font-family: var(--font-text); font-size: 0.8rem; color: var(--ink-soft); margin: 0.1rem 0 0.5rem; }
-
-.axes { display: flex; flex-direction: column; gap: 0.3rem; margin: 0; }
-.axisRow { display: grid; grid-template-columns: 6.6rem 1fr 3.9rem; gap: 0.5rem; align-items: center; }
-.axisLabel { font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.02em; color: var(--ink-soft); }
-.axisTrack { height: 4px; border-radius: 2px; background: var(--paper-deep); overflow: hidden; }
-.axisFill { display: block; height: 100%; border-radius: 2px; }
-.axisWord { margin: 0; font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); text-align: right; }
-
-.measured { display: flex; flex-direction: column; gap: 0.15rem; margin: 0.75rem 0 0; padding-top: 0.6rem; border-top: 1px solid var(--line); }
+.measured { display: flex; flex-direction: column; gap: 0.3rem; margin: 0.35rem 0 0; padding-top: 0.6rem; border-top: 1px solid var(--line); }
 .measuredRow { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; }
-.measuredRow dt { font-family: var(--font-mono); font-size: 0.66rem; color: var(--ink-soft); }
-.measuredRow dd {
-  margin: 0;
-  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
-  font-size: 0.84rem; font-weight: 700; color: var(--ink);
-}
-.cardOurs .measuredRow dd { color: var(--riso-blue); }
-.cardLine { font-family: var(--font-text); font-size: 0.8rem; line-height: 1.45; color: var(--ink-soft); margin: 0.6rem 0 0; }
-
-.axisNote { font-family: var(--font-text); font-size: 0.78rem; line-height: 1.5; color: var(--ink-soft); margin: 0.9rem 0 0; }
-
-/* ── 2 · tested and rejected ───────────────────────────── */
-.rejected {
-  margin-top: 1.6rem; padding: 1.1rem 1.2rem 1.2rem;
-  border: 1px solid var(--line); border-left: 3px solid var(--ink-soft);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--ink-soft) 4%, var(--paper));
-}
-.rejHead { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.rejTitle { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
-.rejBadge {
-  font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 0.22rem 0.5rem; border-radius: 4px;
-  border: 1px solid var(--ink-soft); color: var(--ink-soft);
-}
-.rejBars { margin-top: 0.95rem; display: flex; flex-direction: column; gap: 0.5rem; }
-.rejRow { display: grid; grid-template-columns: 9.5rem 1fr 4rem; gap: 0.7rem; align-items: center; }
-.rejLabel { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.02em; color: var(--ink-soft); }
-.rejTrack { height: 10px; border-radius: 3px; background: var(--paper-deep); overflow: hidden; }
-.rejFill { display: block; height: 100%; border-radius: 3px; }
-.rejVal { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.8rem; font-weight: 700; color: var(--ink); text-align: right; }
-.rejLine { font-family: var(--font-text); font-size: 0.85rem; line-height: 1.55; color: var(--ink-soft); margin: 1rem 0 0; }
-.rejLine strong { color: var(--ink); }
-
-/* ── 3 · positioning ───────────────────────────────────── */
-.positioning { margin-top: 1.6rem; }
-.posTitle { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
-.posPlot { margin-top: 0.8rem; }
-/* the tick ruler sits over the tracks only — offset by the label/gap columns beside them */
-.posAxis { position: relative; height: 1rem; margin-left: calc(11rem + 0.7rem); margin-right: calc(5rem + 0.7rem); }
-.posTick {
-  position: absolute; top: 0; transform: translateX(-50%);
-  font-family: var(--font-mono); font-size: 0.62rem; color: var(--ink-soft);
-}
-.posRow { display: grid; grid-template-columns: 11rem 1fr 5rem; gap: 0.7rem; align-items: center; margin-top: 0.45rem; }
-.posLabel { font-family: var(--font-mono); font-size: 0.68rem; color: var(--ink-soft); }
-.posLabelOurs { color: var(--riso-blue); }
-.posTrack { position: relative; height: 14px; }
-.posBand { position: absolute; top: 5px; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink-soft) 35%, var(--paper)); }
-.posRange { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.72rem; color: var(--ink-soft); text-align: right; }
-.posMark { position: absolute; top: 0; bottom: 0; width: 0; }
-.posTickMark { position: absolute; top: 0; left: -1px; width: 2px; height: 14px; background: var(--riso-blue); }
-.posOurs { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.86rem; font-weight: 700; color: var(--riso-blue); text-align: right; }
-.posNote { font-family: var(--font-text); font-size: 0.85rem; line-height: 1.55; color: var(--ink-soft); margin: 1rem 0 0; max-width: 46rem; }
-.posNote strong { color: var(--ink); }
-
-/* ── 4 · roadmap ───────────────────────────────────────── */
-.roadmap { margin-top: 1.6rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
-.roadTitle { font-family: var(--font-mono); font-size: var(--t-mono-label); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+.measuredRow dt { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft); }
+.measuredRow dd { margin: 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 0.95rem; font-weight: 700; color: var(--riso-blue); }
+.cardLine { font-family: var(--font-text); font-size: 0.82rem; line-height: 1.5; color: var(--ink-soft); margin: 0.2rem 0 0; }
+.research { margin-top: 1.4rem; padding: 1.1rem 1.2rem; border: 1px solid var(--line); border-radius: 10px; }
+.researchHead { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+.sectionTitle { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); margin: 0; }
+.body { font-family: var(--font-text); font-size: 0.85rem; line-height: 1.55; color: var(--ink-soft); margin: 0.6rem 0 0; }
+.roadmap { margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
 .steps { list-style: none; margin: 0.9rem 0 0; padding: 0; }
-.step { display: grid; grid-template-columns: 5.5rem 1.1rem 1fr; gap: 0.6rem; align-items: start; padding-bottom: 1rem; }
-/* the spine: a hairline running through every dot, so it reads as one plan */
-.stepDot { position: relative; width: 0.6rem; height: 0.6rem; margin-top: 0.28rem; border-radius: 50%; background: var(--riso-blue); }
-.step:not(:last-child) .stepDot::after {
-  content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 2.6rem;
-  background: var(--line);
-}
-.stepWhen { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.04em; color: var(--riso-blue); padding-top: 0.2rem; }
-.stepWhat { font-family: var(--font-text); font-size: 0.95rem; font-weight: 600; color: var(--ink); }
-.stepWhy { font-family: var(--font-text); font-size: 0.82rem; line-height: 1.5; color: var(--ink-soft); margin: 0.2rem 0 0; max-width: 42rem; }
-
-@media (prefers-reduced-motion: reduce) {
-  .summary::after { transition: none; }
-}
-
+.step { display: grid; grid-template-columns: 4.5rem 1fr; gap: 0.9rem; padding-bottom: 1rem; }
+.stepWhen { font-family: var(--font-mono); font-size: 0.72rem; color: var(--riso-blue); padding-top: 0.2rem; }
+.stepTitle { font-family: var(--font-text); font-size: 0.95rem; font-weight: 600; color: var(--ink); }
+.step .body { margin-top: 0.2rem; }
+.note { font-family: var(--font-text); font-size: 0.8rem; line-height: 1.5; color: var(--ink-soft); margin: 0; max-width: 52rem; }
 @media (max-width: 720px) {
   .wrap { padding: 0 1rem 1.1rem; }
-  .axisRow { grid-template-columns: 5.6rem 1fr 3.4rem; }
-  .rejRow { grid-template-columns: 1fr 2.6rem; }
-  .rejTrack { grid-column: 1 / -1; order: 2; }
-  .posAxis { margin-left: 0; margin-right: 4rem; }
-  .posRow { grid-template-columns: 1fr 4rem; }
-  .posLabel { grid-column: 1; }
-  .posTrack { grid-column: 1; }
-  .step { grid-template-columns: 4.5rem 1rem 1fr; }
+  .step { grid-template-columns: 3.8rem 1fr; gap: 0.6rem; }
 }
+.leadLayout { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); gap: 1.2rem; margin-top: 1rem; }
+.leadList { display: flex; flex-direction: column; gap: .4rem; max-height: 42rem; overflow: auto; }
+.leadButton { padding: .65rem; text-align: left; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.leadButton span { display: block; font-family: var(--font-mono); font-size: .7rem; line-height: 1.6; }
+.selectedLead { border-color: var(--riso-blue); background: color-mix(in srgb, var(--riso-blue) 7%, var(--paper)); }
+.leadButton:focus-visible, .exportButton:focus-visible { outline: 2px solid var(--riso-blue); outline-offset: 2px; }
+.leadDetail { min-width: 0; padding: .9rem; border: 1px solid var(--line); border-radius: 8px; }
+.reasonTitle { font-family: var(--font-display); font-size: 1rem; margin: 1.1rem 0 .5rem; color: var(--ink); }
+.reasonList { padding-left: 1rem; font-family: var(--font-text); font-size: .8rem; line-height: 1.5; color: var(--ink-soft); }
+.reasonList li { padding: .25rem 0; }
+.reasonList strong { margin-left: .6rem; font-family: var(--font-mono); color: var(--riso-blue); font-size: .72rem; }
+.graphWrap { margin-top: 1rem; overflow: auto; }
+.graphWrap svg { display: block; width: 100%; min-width: 34rem; }
+.graphWrap text { fill: var(--ink-soft); font-family: var(--font-mono); font-size: 14px; }
+.moneyEdge { fill: none; stroke: var(--riso-blue); stroke-width: 1.3; opacity: .4; }
+.networkEdge { fill: none; stroke: var(--ink-soft); stroke-width: 1; stroke-dasharray: 4 3; opacity: .35; }
+.focusNode { fill: var(--riso-blue); }
+.contextNode { fill: var(--ink-soft); }
+.exportButton { margin-top: 1rem; border: 1px solid var(--riso-blue); border-radius: 6px; color: var(--riso-blue); background: var(--paper); padding: .6rem .9rem; font-family: var(--font-mono); font-size: .75rem; cursor: pointer; }
+@media (max-width: 850px) { .leadLayout { grid-template-columns: 1fr; } .leadList { max-height: 13rem; } }
+
+label.exportButton { display: inline-block; }
+label.exportButton input { display: block; margin-top: .5rem; max-width: 100%; font-size: .75rem; }
+.snapshotTabs { display: flex; flex-wrap: wrap; gap: .7rem; margin: 1rem 0; }
+.snapshotTabs button { padding: .7rem 1rem; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); text-align: left; font: 600 .95rem var(--font-text); cursor: pointer; }
+.snapshotTabs button[aria-pressed=true] { border-color: var(--riso-blue); box-shadow: inset 3px 0 var(--riso-blue); }
+.snapshotTabs small { display: block; color: var(--ink-soft); font-weight: 400; margin-top: .2rem; }
+.graphTests { margin: 1.5rem 0; padding: 1.5rem; background: var(--paper-deep); border: 1px solid var(--line); border-radius: 10px; }
+.tableScroll { overflow-x: auto; }
+.graphTests table { width: 100%; border-collapse: collapse; font: .85rem var(--font-text); }
+.graphTests th, .graphTests td { padding: .8rem; text-align: left; border-bottom: 1px solid var(--line); }
+.graphTests th { font: .7rem var(--font-mono); text-transform: uppercase; color: var(--riso-blue); }
+.graphTests td:nth-child(2), .graphTests td:nth-child(3) { font-family: var(--font-mono); white-space: nowrap; }
+
+.metricGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin: 1rem 0; }
+.metricCard { padding: 1rem; border: 1px solid var(--line); border-top: 3px solid var(--riso-blue); border-radius: 6px; background: var(--paper); }
+.metricCard strong { display: block; font: 600 1.7rem var(--font-display); color: var(--riso-blue); }
+.metricCard h4 { margin: .6rem 0 .3rem; font: 600 .85rem var(--font-text); color: var(--ink); }
+.metricCard p { margin: 0; font: .8rem/1.5 var(--font-text); color: var(--ink-soft); }
+.controls { margin-top: 1rem; border-top: 1px solid var(--line); padding-top: .9rem; }
+.controls summary { cursor: pointer; font: 600 .9rem var(--font-text); color: var(--riso-blue); }
+.controls summary:focus-visible { outline: 2px solid var(--riso-blue); outline-offset: 3px; }
+@media (max-width: 720px) { .metricGrid { grid-template-columns: 1fr; } .graphTests { padding: 1rem; } }

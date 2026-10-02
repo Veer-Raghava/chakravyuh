@@ -11,11 +11,11 @@ import styles from "./WorldScreen.module.css";
  * ourselves honestly, and the signature honesty flex: the observer-fraction curve.
  * Every number here is DATA (FRONTEND-HANDOFF-V2 §1): the pipeline counts, the naive
  * first-seen baseline, the 11–60% literature band, the recoverable ceiling, the
- * held-out campaign recall and the elliptic replication F1 are all read from the
+ * held-out illicit-entity hit rate and the elliptic replication F1 are all read from the
  * ACTIVE run's `world.json` (useRun) — nothing is hand-typed, and switching runs
  * genuinely re-reads them. The curve is PLOTTED from `world.origin_curve.l0_host`,
  * one point per measured rung. A sparser run (stealth · 10%) honestly reports lower
- * numbers, and metrics it never scored (campaign recall, elliptic) DROP rather than
+ * numbers, and metrics it never scored (entity hit rate, elliptic) DROP rather than
  * show a zero. Drag the handle (native range = keyboard + offline).
  */
 
@@ -24,7 +24,7 @@ import styles from "./WorldScreen.module.css";
  * differently must not be described as this one. Unknown protocols render as their raw string.
  */
 const PROTOCOL_GLOSS: Record<string, string> = {
-  inductive_time_ordered: "trained only on the past, tested on what came after",
+  inductive_time_ordered: "earlier subjects for training, later subjects for testing; feature timing under audit",
 };
 
 /** A measured fraction as a whole-number percent, or null when not measured (null ≠ 0). */
@@ -109,7 +109,6 @@ export function WorldScreen() {
   const L1_TOP1 = world.headline.l1_top1;
   // Our operator accuracy as a share of the most any estimator could score at that grain.
   const CAPTURED = L1_CEIL ? (L1_TOP1 / L1_CEIL) * 100 : null;
-  const LIFT = world.naive_first_seen_top1 ? L1_TOP1 / world.naive_first_seen_top1 : null;
   const RECALL_PCT = pct(world.headline.campaign_recall);
   const ELLIPTIC = pct(world.headline.elliptic_f1);
   const ELLIPTIC_AUC = pct(world.headline.elliptic_roc_auc);
@@ -135,12 +134,12 @@ export function WorldScreen() {
       v: "The share of transactions whose exact announcing host the capture even contains, measured at this run's observer fraction and far below the operator ceiling, because most observers never heard the host at all. We print both rather than the flattering one.",
     },
     RECALL_PCT != null && {
-      k: `${RECALL_PCT}% campaign recall`,
-      v: "Held-out wallet recall: of the illicit campaigns in the test window, the share the risk model caught. Measured at actor level, separately from the transaction level.",
+      k: `${RECALL_PCT}% illicit-entity hit rate`,
+      v: "Share of eligible illicit entities with at least one address in a suspicious-or-unclear prediction set. This is not campaign recovery or top-20 recall.",
     },
     ELLIPTIC != null && {
       k: `${ELLIPTIC}% elliptic F1`,
-      v: "The same method, run unchanged on an independent published dataset whose labels are not ours. It replicates there because the method travels, not because we tuned to it.",
+      v: "The same training recipe, fitted separately on independently labelled Elliptic features and tested on later time steps. Different inputs and split; not a direct comparison to published model scores.",
     },
     CLUSTER_PRECISION != null && {
       k: "same-owner precision",
@@ -228,16 +227,16 @@ export function WorldScreen() {
                 operator ceiling of {(L1_CEIL * 100).toFixed(1)}%
               </>
             )}
-            {LIFT != null && <> · <strong>{LIFT.toFixed(2)}×</strong> the naive first-seen guess ({NAIVE.toFixed(1)}%)</>}.
+            .
           </p>
         </div>
         {RECALL_PCT != null && (
           <div className={styles.hCard}>
             <span className={styles.hVal}>{RECALL_PCT}%</span>
-            <span className={styles.hKey}>campaign recall</span>
+            <span className={styles.hKey}>illicit-entity hit rate</span>
             <p className={styles.hNote}>
-              We flag at least one transaction from {RECALL_PCT}% of the criminal campaigns in
-              the held-out window. One thread is enough to pull the chain.
+              At least one address from {RECALL_PCT}% of eligible illicit entities is in a
+              suspicious-or-unclear prediction set. This is not campaign recovery or top-20 recall.
             </p>
           </div>
         )}
@@ -246,8 +245,9 @@ export function WorldScreen() {
             <span className={styles.hVal}>{ELLIPTIC}%</span>
             <span className={styles.hKey}>F1 · tested on real data</span>
             <p className={styles.hNote}>
-              Same model, run on real data. F1 {ELLIPTIC}%{ELLIPTIC_AUC != null && <> · ROC-AUC {ELLIPTIC_AUC}%</>} on the
-              Elliptic dataset, which is published and independently labelled, not ours.
+              Same training recipe, fitted separately on Elliptic transaction features.
+              F1 {ELLIPTIC}%{ELLIPTIC_AUC != null && <> · ROC-AUC {ELLIPTIC_AUC}%</>}.
+              Independent labels; this does not measure transfer of our fitted synthetic model.
             </p>
           </div>
         )}
@@ -383,7 +383,7 @@ export function WorldScreen() {
       <div className={styles.about}>
         <div className={styles.aboutHead}>
           <span className={styles.aboutTitle}>the layers, in plain words</span>
-          <span className={styles.offline}><span className={styles.dot} /> offline · binds 127.0.0.1 · no network</span>
+          <span className={styles.offline}><span className={styles.dot} /> offline · private workstation · no network</span>
         </div>
         <dl className={styles.glossary}>
           {GLOSSARY.map(([k, v]) => (

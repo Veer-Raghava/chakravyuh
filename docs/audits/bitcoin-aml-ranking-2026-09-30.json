@@ -1,0 +1,77 @@
+{
+  "ap_tie_counterexample": {
+    "repository_ap": 0.5833333333333333,
+    "scores": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "threshold_grouped_ap": 0.6666666666666666,
+    "y": [
+      1,
+      1,
+      0
+    ]
+  },
+  "boundary_us": 1767568585933107,
+  "caveat": "Diagnostic replay, not a repaired prospective evaluation or UI queue metric.",
+  "feature_names": [
+    "n_addresses",
+    "n_tx_sent",
+    "total_sent_sats",
+    "mean_sent_sats",
+    "n_tx_received",
+    "total_received_sats",
+    "mean_received_sats",
+    "balance_sats",
+    "n_counterparties",
+    "max_fan_out",
+    "n_coinbase_received",
+    "frac_equal_outputs",
+    "mean_fee_rate",
+    "median_dwell_us",
+    "min_edge_confidence",
+    "n_heuristics",
+    "n_script_types",
+    "mean_p_origin",
+    "mean_origin_margin",
+    "frac_origin_abstained",
+    "frac_top1_tor",
+    "mean_p_asn",
+    "mean_asn_margin",
+    "frac_l1_abstained",
+    "mean_n_announcements",
+    "n_typologies",
+    "n_typology_txns",
+    "fan_in_ratio",
+    "peel_chain_depth",
+    "peel_leak_frac",
+    "structuring_frac",
+    "burstiness",
+    "fee_anomaly"
+  ],
+  "metrics": {
+    "brier_score": 0.020057712665383264,
+    "constant_prevalence_brier": 0.018032409668528027,
+    "f1_at_threshold_0_5": 0.08185053380782918,
+    "illicit_prevalence": 0.01836986147929657,
+    "n_illicit": 492,
+    "n_scored": 26783,
+    "precision_at_20": 0.6,
+    "precision_at_50": 0.44,
+    "precision_at_threshold_0_5": 0.32857142857142857,
+    "recall_at_50": 0.044715447154471545,
+    "recall_at_threshold_0_5": 0.046747967479674794,
+    "repository_ap": 0.06491993063159016,
+    "threshold_grouped_ap": 0.0655834147740438
+  },
+  "policy": "saved holdout subjects; majority illicit over holdout members; ties licit",
+  "run_id": "agency-v2",
+  "source_sha256": {
+    "data/generated/agency-v2/graph/clusters.parquet": "5750dc43b8d4502a219acd4696d2dbced81026642b8410f538aaf008493cb25f",
+    "data/generated/agency-v2/normalised/addresses.parquet": "6d6029bbefbbc7e211bae1f2ba9ebc74124f6e2293c3201c674ed59b2f198d07",
+    "data/generated/agency-v2/scores/wallet_scores.parquet": "596070f91da50f8ed8a3eb6bff8f7419f03caf1e84d82a9417a65c1ecd3c5882",
+    "ground_truth/agency-v2/entities.parquet": "d2881da0a2131cd16ad0fc33b83cb4fb948a00e26c8c982d85b071c1fa463519",
+    "measurements/agency-v2/model_report.json": "459fc3c1872ab29c71e371ce9ca83ee2a1a48c04387619f1fddd65258e1cc5fa"
+  }
+}

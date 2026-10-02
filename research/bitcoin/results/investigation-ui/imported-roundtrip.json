@@ -1,0 +1,5226 @@
+{
+  "schema_version": 1,
+  "window": {
+    "start_us": 1767568578827584,
+    "end_us": 1767617601829850
+  },
+  "partition_mode": "address",
+  "lead_count": 20,
+  "leads": [
+    {
+      "id": "lead:3ce61739c8d7757e78541f94",
+      "subject_ref": "subject:3ce61739c8d7757e78541f94",
+      "rank": 1,
+      "risk_score": 0.7729610800743103,
+      "raw_score": 0.30995574593544006,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…07de"
+      ],
+      "facts": {
+        "subject_id": "subject:3ce61739c8d7757e78541f94",
+        "n_addresses": 1,
+        "n_tx_sent": null,
+        "total_sent_sats": 0,
+        "mean_sent_sats": null,
+        "n_tx_received": 1,
+        "total_received_sats": 28066270,
+        "mean_received_sats": 28066270,
+        "balance_sats": 28066270,
+        "n_counterparties": 1,
+        "max_fan_out": null,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": null,
+        "mean_fee_rate": null,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 0,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 0
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "description": "received mean has equal outputs",
+          "shap_margin": 2.617009162902832
+        },
+        {
+          "feature": "received_min_announcer_mean_class_3",
+          "description": "received min announcer mean class 3",
+          "shap_margin": 0.6272317171096802
+        },
+        {
+          "feature": "received_mean_n_out",
+          "description": "received mean n out",
+          "shap_margin": 0.5813208222389221
+        },
+        {
+          "feature": "received_max_announcer_mean_class_5",
+          "description": "received max announcer mean class 5",
+          "shap_margin": 0.5301061272621155
+        },
+        {
+          "feature": "received_mean_funder_mean_frac_equal_outputs",
+          "description": "received mean funder mean frac equal outputs",
+          "shap_margin": 0.5113009214401245
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "balance_sats",
+          "shap_margin": -0.31901732087135315
+        },
+        {
+          "feature": "received_min_funder_mean_balance_sats",
+          "shap_margin": -0.28086936473846436
+        },
+        {
+          "feature": "received_max_announcer_mean_class_0",
+          "shap_margin": -0.24220150709152222
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:566c9b69aca4657217207111",
+            "kind": "transaction",
+            "label": "99280634…08a8",
+            "time_us": 1767581247014546,
+            "fee_sats": 4070
+          },
+          {
+            "id": "address:472925b496a87d3aa77f55f8",
+            "kind": "address",
+            "label": "bc1qge…0a62",
+            "focus": false
+          },
+          {
+            "id": "address:61246e953f91c0f24f3957a8",
+            "kind": "address",
+            "label": "3gen0i…0c28",
+            "focus": false
+          },
+          {
+            "id": "address:1430a4a1227ca7f7e342ca75",
+            "kind": "address",
+            "label": "bc1pge…b19b",
+            "focus": false
+          },
+          {
+            "id": "address:a5331a6e702d6e77a194c2dd",
+            "kind": "address",
+            "label": "bc1pge…a843",
+            "focus": false
+          },
+          {
+            "id": "address:ad450ef71379c62c0e22188a",
+            "kind": "address",
+            "label": "bc1qge…28e3",
+            "focus": false
+          },
+          {
+            "id": "address:b7a8cb4ede8a78b8e2c33358",
+            "kind": "address",
+            "label": "bc1pge…8c4b",
+            "focus": false
+          },
+          {
+            "id": "address:a1dd76ccebc8e998dd1f371a",
+            "kind": "address",
+            "label": "1gen0i…3d25",
+            "focus": false
+          },
+          {
+            "id": "address:8b66f96309208f1db114a1e8",
+            "kind": "address",
+            "label": "1gen0i…89d2",
+            "focus": false
+          },
+          {
+            "id": "address:a6780b951ca975eedb8d91df",
+            "kind": "address",
+            "label": "bc1qge…07de",
+            "focus": true
+          },
+          {
+            "id": "ip:8ac018dc361250c7537f4830",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:9412d3a90e88f7136761b39f",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:8b88dc92a085d51bbc77ac25",
+            "kind": "ip",
+            "label": "100.96.x.x",
+            "asn": 64500,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:05df9ff4da8f1f6277231e1c",
+            "kind": "ip",
+            "label": "100.88.x.x",
+            "asn": 64499,
+            "net_class": "mobile"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:472925b496a87d3aa77f55f8",
+            "target": "tx:566c9b69aca4657217207111",
+            "relation": "funds",
+            "amount_sats": 40119674
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:61246e953f91c0f24f3957a8",
+            "relation": "receives",
+            "amount_sats": 1724889
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:1430a4a1227ca7f7e342ca75",
+            "relation": "receives",
+            "amount_sats": 1724889
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:a5331a6e702d6e77a194c2dd",
+            "relation": "receives",
+            "amount_sats": 1724889
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:ad450ef71379c62c0e22188a",
+            "relation": "receives",
+            "amount_sats": 1700000
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:b7a8cb4ede8a78b8e2c33358",
+            "relation": "receives",
+            "amount_sats": 1724889
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:a1dd76ccebc8e998dd1f371a",
+            "relation": "receives",
+            "amount_sats": 1724889
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:8b66f96309208f1db114a1e8",
+            "relation": "receives",
+            "amount_sats": 1724889
+          },
+          {
+            "source": "tx:566c9b69aca4657217207111",
+            "target": "address:a6780b951ca975eedb8d91df",
+            "relation": "receives",
+            "amount_sats": 28066270
+          },
+          {
+            "source": "ip:8ac018dc361250c7537f4830",
+            "target": "tx:566c9b69aca4657217207111",
+            "relation": "announced",
+            "seen_us": 1767581247014546,
+            "row_id": 661769,
+            "peer_port": 40643,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:9412d3a90e88f7136761b39f",
+            "target": "tx:566c9b69aca4657217207111",
+            "relation": "announced",
+            "seen_us": 1767581248020443,
+            "row_id": 661774,
+            "peer_port": 32985,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:8b88dc92a085d51bbc77ac25",
+            "target": "tx:566c9b69aca4657217207111",
+            "relation": "announced",
+            "seen_us": 1767581248232689,
+            "row_id": 661775,
+            "peer_port": 55345,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:05df9ff4da8f1f6277231e1c",
+            "target": "tx:566c9b69aca4657217207111",
+            "relation": "announced",
+            "seen_us": 1767581248240135,
+            "row_id": 661776,
+            "peer_port": 36727,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:f46548722cb850febbf4c9e8",
+      "subject_ref": "subject:f46548722cb850febbf4c9e8",
+      "rank": 2,
+      "risk_score": 0.7725383639335632,
+      "raw_score": 0.30943652987480164,
+      "address_count": 1,
+      "addresses": [
+        "bc1pge…2cb9"
+      ],
+      "facts": {
+        "subject_id": "subject:f46548722cb850febbf4c9e8",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 3843929,
+        "mean_sent_sats": 3843929,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -3843929,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 11,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 5,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 1
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 2.084749698638916
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.927531898021698
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.557867705821991
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.4340265989303589
+        },
+        {
+          "feature": "spent_mean_funder_mean_mean_sent_sats",
+          "description": "spent mean funder mean mean sent sats",
+          "shap_margin": 0.23237524926662445
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "spent_mean_funder_mean_n_tx_sent",
+          "shap_margin": -0.3628053367137909
+        },
+        {
+          "feature": "spent_max_total_out_sats",
+          "shap_margin": -0.2040141373872757
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.1772494912147522
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:f9a09f5e090ba8f6c2acff65",
+            "kind": "transaction",
+            "label": "9bb31b25…d883",
+            "time_us": 1767581291009695,
+            "fee_sats": 7359
+          },
+          {
+            "id": "address:6970dc59d11223a88e021493",
+            "kind": "address",
+            "label": "1gen0i…d4e1",
+            "focus": false
+          },
+          {
+            "id": "address:2fa141de5cc9aaa9c27af98d",
+            "kind": "address",
+            "label": "3gen0i…2cbd",
+            "focus": false
+          },
+          {
+            "id": "address:dd8996fd69b378763c80cb1a",
+            "kind": "address",
+            "label": "bc1pge…2cb9",
+            "focus": true
+          },
+          {
+            "id": "address:d55f3ea5f5ae650d4e73a911",
+            "kind": "address",
+            "label": "1gen0i…d440",
+            "focus": false
+          },
+          {
+            "id": "address:3c29c2efdd4b6cbc0ca17351",
+            "kind": "address",
+            "label": "bc1qge…07da",
+            "focus": false
+          },
+          {
+            "id": "address:626c9570b2210fe96d2c3b7c",
+            "kind": "address",
+            "label": "1gen0i…2cc3",
+            "focus": false
+          },
+          {
+            "id": "ip:d3ac5b5a8c36a9b100c71532",
+            "kind": "ip",
+            "label": "2001:db8:x:x",
+            "asn": 64497,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:66b3f71f76cc30ad10f54d2f",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:dee9ab1bc79c97bbb4a6dec6",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:466dfbbd776fe3abb9b0eac8",
+            "kind": "ip",
+            "label": "2001:db8:x:x",
+            "asn": 64496,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:6970dc59d11223a88e021493",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "funds",
+            "amount_sats": 491903
+          },
+          {
+            "source": "address:2fa141de5cc9aaa9c27af98d",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "funds",
+            "amount_sats": 1412597
+          },
+          {
+            "source": "address:dd8996fd69b378763c80cb1a",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "funds",
+            "amount_sats": 3843929
+          },
+          {
+            "source": "address:6970dc59d11223a88e021493",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "funds",
+            "amount_sats": 4136324
+          },
+          {
+            "source": "address:d55f3ea5f5ae650d4e73a911",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "funds",
+            "amount_sats": 289402149
+          },
+          {
+            "source": "tx:f9a09f5e090ba8f6c2acff65",
+            "target": "address:3c29c2efdd4b6cbc0ca17351",
+            "relation": "receives",
+            "amount_sats": 12836315
+          },
+          {
+            "source": "tx:f9a09f5e090ba8f6c2acff65",
+            "target": "address:626c9570b2210fe96d2c3b7c",
+            "relation": "receives",
+            "amount_sats": 286443228
+          },
+          {
+            "source": "ip:d3ac5b5a8c36a9b100c71532",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "announced",
+            "seen_us": 1767581291009695,
+            "row_id": 661998,
+            "peer_port": 33896,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:66b3f71f76cc30ad10f54d2f",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "announced",
+            "seen_us": 1767581291869215,
+            "row_id": 661999,
+            "peer_port": 35960,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:dee9ab1bc79c97bbb4a6dec6",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "announced",
+            "seen_us": 1767581292451519,
+            "row_id": 662000,
+            "peer_port": 48432,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:466dfbbd776fe3abb9b0eac8",
+            "target": "tx:f9a09f5e090ba8f6c2acff65",
+            "relation": "announced",
+            "seen_us": 1767581292492370,
+            "row_id": 662001,
+            "peer_port": 50306,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:9ae9e858c2ecb453ccc67a1c",
+      "subject_ref": "subject:9ae9e858c2ecb453ccc67a1c",
+      "rank": 3,
+      "risk_score": 0.7450430393218994,
+      "raw_score": 0.2779916524887085,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…11dc"
+      ],
+      "facts": {
+        "subject_id": "subject:9ae9e858c2ecb453ccc67a1c",
+        "n_addresses": 1,
+        "n_tx_sent": null,
+        "total_sent_sats": 0,
+        "mean_sent_sats": null,
+        "n_tx_received": 1,
+        "total_received_sats": 7510031,
+        "mean_received_sats": 7510031,
+        "balance_sats": 7510031,
+        "n_counterparties": 1,
+        "max_fan_out": null,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": null,
+        "mean_fee_rate": null,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 0,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 0
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "description": "received mean has equal outputs",
+          "shap_margin": 2.718299627304077
+        },
+        {
+          "feature": "received_mean_n_out",
+          "description": "received mean n out",
+          "shap_margin": 0.5954974293708801
+        },
+        {
+          "feature": "received_mean_funder_mean_frac_equal_outputs",
+          "description": "received mean funder mean frac equal outputs",
+          "shap_margin": 0.5165877938270569
+        },
+        {
+          "feature": "mean_received_sats",
+          "description": "mean received sats",
+          "shap_margin": 0.4112280011177063
+        },
+        {
+          "feature": "received_mean_funder_mean_total_sent_sats",
+          "description": "received mean funder mean total sent sats",
+          "shap_margin": 0.1987193375825882
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_min_announcer_mean_observations",
+          "shap_margin": -0.22475981712341309
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.18294452130794525
+        },
+        {
+          "feature": "received_min_announcer_mean_transactions",
+          "shap_margin": -0.16103270649909973
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:c38fbf777bc511285517c7ab",
+            "kind": "transaction",
+            "label": "b0e4713d…7a2a",
+            "time_us": 1767591132551373,
+            "fee_sats": 2359
+          },
+          {
+            "id": "address:e88fb0268d5014877750b13d",
+            "kind": "address",
+            "label": "bc1qge…0ad8",
+            "focus": false
+          },
+          {
+            "id": "address:9484d36c0d6724a1f0de3446",
+            "kind": "address",
+            "label": "1gen0i…11da",
+            "focus": false
+          },
+          {
+            "id": "address:879fcf85d834f602c5ca010c",
+            "kind": "address",
+            "label": "3gen0i…f4f5",
+            "focus": false
+          },
+          {
+            "id": "address:8edfb5f3e5991cf6adfb5fc8",
+            "kind": "address",
+            "label": "bc1qge…16c5",
+            "focus": false
+          },
+          {
+            "id": "address:381b9d7e65011bae3f5f7110",
+            "kind": "address",
+            "label": "bc1qge…11dc",
+            "focus": true
+          },
+          {
+            "id": "address:8f5bf83ba3c78034da23355f",
+            "kind": "address",
+            "label": "bc1qge…60e7",
+            "focus": false
+          },
+          {
+            "id": "address:fe2c1e8c8414ae8489d545b9",
+            "kind": "address",
+            "label": "1gen0i…11db",
+            "focus": false
+          },
+          {
+            "id": "address:14fc6305a927b29dccd43aae",
+            "kind": "address",
+            "label": "bc1qge…35d5",
+            "focus": false
+          },
+          {
+            "id": "address:6d8995c2133e26331dd2234f",
+            "kind": "address",
+            "label": "1gen0i…11d9",
+            "focus": false
+          },
+          {
+            "id": "ip:daad14cea4342dac7566a5c4",
+            "kind": "ip",
+            "label": "100.112.x.x",
+            "asn": 64502,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:fe313c59d84e5c9661a97c25",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:4b4a7c67450cc7fd6e4bba0b",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:78113996997f57c9941bf969",
+            "kind": "ip",
+            "label": "2001:db8:x:x",
+            "asn": 64499,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:e88fb0268d5014877750b13d",
+            "target": "tx:c38fbf777bc511285517c7ab",
+            "relation": "funds",
+            "amount_sats": 17577683
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:9484d36c0d6724a1f0de3446",
+            "relation": "receives",
+            "amount_sats": 1437899
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:879fcf85d834f602c5ca010c",
+            "relation": "receives",
+            "amount_sats": 1437899
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:8edfb5f3e5991cf6adfb5fc8",
+            "relation": "receives",
+            "amount_sats": 1437899
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:381b9d7e65011bae3f5f7110",
+            "relation": "receives",
+            "amount_sats": 7510031
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:8f5bf83ba3c78034da23355f",
+            "relation": "receives",
+            "amount_sats": 1437899
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:fe2c1e8c8414ae8489d545b9",
+            "relation": "receives",
+            "amount_sats": 1437899
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:14fc6305a927b29dccd43aae",
+            "relation": "receives",
+            "amount_sats": 1437899
+          },
+          {
+            "source": "tx:c38fbf777bc511285517c7ab",
+            "target": "address:6d8995c2133e26331dd2234f",
+            "relation": "receives",
+            "amount_sats": 1437899
+          },
+          {
+            "source": "ip:daad14cea4342dac7566a5c4",
+            "target": "tx:c38fbf777bc511285517c7ab",
+            "relation": "announced",
+            "seen_us": 1767591132551373,
+            "row_id": 679374,
+            "peer_port": 49202,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:fe313c59d84e5c9661a97c25",
+            "target": "tx:c38fbf777bc511285517c7ab",
+            "relation": "announced",
+            "seen_us": 1767591132630450,
+            "row_id": 679375,
+            "peer_port": 36683,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:4b4a7c67450cc7fd6e4bba0b",
+            "target": "tx:c38fbf777bc511285517c7ab",
+            "relation": "announced",
+            "seen_us": 1767591132854773,
+            "row_id": 679376,
+            "peer_port": 60850,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:78113996997f57c9941bf969",
+            "target": "tx:c38fbf777bc511285517c7ab",
+            "relation": "announced",
+            "seen_us": 1767591132982555,
+            "row_id": 679377,
+            "peer_port": 59880,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:239fe1fea42bd671abf59056",
+      "subject_ref": "subject:239fe1fea42bd671abf59056",
+      "rank": 4,
+      "risk_score": 0.6861003041267395,
+      "raw_score": 0.22314605116844177,
+      "address_count": 1,
+      "addresses": [
+        "bc1pge…978e"
+      ],
+      "facts": {
+        "subject_id": "subject:239fe1fea42bd671abf59056",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 7410018,
+        "mean_sent_sats": 7410018,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -7410018,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 7,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 3,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 1,
+        "burstiness": 0,
+        "fee_anomaly": -3
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 2.031139850616455
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.6854917407035828
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.4293821454048157
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.3471234142780304
+        },
+        {
+          "feature": "spent_max_total_out_sats",
+          "description": "spent max total out sats",
+          "shap_margin": 0.22978124022483826
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.2006937861442566
+        },
+        {
+          "feature": "spent_min_announcer_mean_class_3",
+          "shap_margin": -0.15435358881950378
+        },
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "shap_margin": -0.15407530963420868
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:3782e987ff66b1440e89e3d6",
+            "kind": "transaction",
+            "label": "d6a3d28e…aa79",
+            "time_us": 1767582275837826,
+            "fee_sats": 1890
+          },
+          {
+            "id": "address:39ba46b97a033c1596f46334",
+            "kind": "address",
+            "label": "bc1qge…aa0c",
+            "focus": false
+          },
+          {
+            "id": "address:085504e8c7e265b89afef3e6",
+            "kind": "address",
+            "label": "bc1pge…978e",
+            "focus": true
+          },
+          {
+            "id": "address:e0534a52f4269f2897c6e9f3",
+            "kind": "address",
+            "label": "bc1qge…032a",
+            "focus": false
+          },
+          {
+            "id": "address:4677b824f70254cf78f9ed89",
+            "kind": "address",
+            "label": "bc1qge…07f7",
+            "focus": false
+          },
+          {
+            "id": "address:efa11a458f1b5a42f9d28bf5",
+            "kind": "address",
+            "label": "1gen0i…454d",
+            "focus": false
+          },
+          {
+            "id": "ip:6eb27d51f7e6c40c03dd9a8b",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:b0189a4e1293c4cbf9c5f417",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:7f5af1e6b2a0a0507c3dc0a9",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:660f05645633e4197d605ac0",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:39ba46b97a033c1596f46334",
+            "target": "tx:3782e987ff66b1440e89e3d6",
+            "relation": "funds",
+            "amount_sats": 1871976
+          },
+          {
+            "source": "address:085504e8c7e265b89afef3e6",
+            "target": "tx:3782e987ff66b1440e89e3d6",
+            "relation": "funds",
+            "amount_sats": 7410018
+          },
+          {
+            "source": "address:e0534a52f4269f2897c6e9f3",
+            "target": "tx:3782e987ff66b1440e89e3d6",
+            "relation": "funds",
+            "amount_sats": 30098336
+          },
+          {
+            "source": "tx:3782e987ff66b1440e89e3d6",
+            "target": "address:4677b824f70254cf78f9ed89",
+            "relation": "receives",
+            "amount_sats": 29600515
+          },
+          {
+            "source": "tx:3782e987ff66b1440e89e3d6",
+            "target": "address:efa11a458f1b5a42f9d28bf5",
+            "relation": "receives",
+            "amount_sats": 9777925
+          },
+          {
+            "source": "ip:6eb27d51f7e6c40c03dd9a8b",
+            "target": "tx:3782e987ff66b1440e89e3d6",
+            "relation": "announced",
+            "seen_us": 1767582275837826,
+            "row_id": 664127,
+            "peer_port": 48993,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:b0189a4e1293c4cbf9c5f417",
+            "target": "tx:3782e987ff66b1440e89e3d6",
+            "relation": "announced",
+            "seen_us": 1767582276169129,
+            "row_id": 664128,
+            "peer_port": 36633,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:7f5af1e6b2a0a0507c3dc0a9",
+            "target": "tx:3782e987ff66b1440e89e3d6",
+            "relation": "announced",
+            "seen_us": 1767582276415420,
+            "row_id": 664129,
+            "peer_port": 51219,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:660f05645633e4197d605ac0",
+            "target": "tx:3782e987ff66b1440e89e3d6",
+            "relation": "announced",
+            "seen_us": 1767582276470029,
+            "row_id": 664130,
+            "peer_port": 60326,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:d98161eb0dda37234d821972",
+      "subject_ref": "subject:d98161eb0dda37234d821972",
+      "rank": 5,
+      "risk_score": 0.6509241461753845,
+      "raw_score": 0.19659936428070068,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…5a5c"
+      ],
+      "facts": {
+        "subject_id": "subject:d98161eb0dda37234d821972",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 5651614,
+        "mean_sent_sats": 5651614,
+        "n_tx_received": 1,
+        "total_received_sats": 25583532,
+        "mean_received_sats": 25583532,
+        "balance_sats": 19931918,
+        "n_counterparties": 8,
+        "max_fan_out": 1,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 4,
+        "median_dwell_us": 0,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 9,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": -6
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 1.2609800100326538
+        },
+        {
+          "feature": "received_max_n_out",
+          "description": "received max n out",
+          "shap_margin": 1.0995612144470215
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.7017065286636353
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.3938961327075958
+        },
+        {
+          "feature": "received_min_n_in",
+          "description": "received min n in",
+          "shap_margin": 0.3338717520236969
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "spent_max_announcer_mean_class_0",
+          "shap_margin": -0.37133991718292236
+        },
+        {
+          "feature": "balance_sats",
+          "shap_margin": -0.27134639024734497
+        },
+        {
+          "feature": "received_max_announcer_mean_class_0",
+          "shap_margin": -0.19942888617515564
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:06095f9ea36afab20ebb1c0d",
+            "kind": "transaction",
+            "label": "d9a33f7c…08da",
+            "time_us": 1767596064472997,
+            "fee_sats": 3152
+          },
+          {
+            "id": "address:4692025a19a1bc6c43e57133",
+            "kind": "address",
+            "label": "bc1qge…b095",
+            "focus": false
+          },
+          {
+            "id": "address:8a7b900b09a7f25febc9b96d",
+            "kind": "address",
+            "label": "bc1qge…33a0",
+            "focus": false
+          },
+          {
+            "id": "address:9500aa589e7e1b36e10c9965",
+            "kind": "address",
+            "label": "1gen0i…5a6c",
+            "focus": false
+          },
+          {
+            "id": "address:5e1b99a172be07d76ee7a352",
+            "kind": "address",
+            "label": "bc1qge…5a65",
+            "focus": false
+          },
+          {
+            "id": "address:ad074d52b99e174f778ccb9b",
+            "kind": "address",
+            "label": "3gen0i…5a66",
+            "focus": false
+          },
+          {
+            "id": "address:a0facb93a21248382bcdeba0",
+            "kind": "address",
+            "label": "bc1qge…5a5c",
+            "focus": true
+          },
+          {
+            "id": "address:c2bcaff0c6c1bad8c9990283",
+            "kind": "address",
+            "label": "bc1qge…697c",
+            "focus": false
+          },
+          {
+            "id": "address:8c59d233c2d5a25be718d6a5",
+            "kind": "address",
+            "label": "bc1qge…5a69",
+            "focus": false
+          },
+          {
+            "id": "address:1817115e2f47ec2092b45d92",
+            "kind": "address",
+            "label": "bc1qge…4f90",
+            "focus": false
+          },
+          {
+            "id": "ip:dcae77fb4ad1d94b29337f2e",
+            "kind": "ip",
+            "label": "2001:db8:x:x",
+            "asn": 64501,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:f20e9c4e595f142ac38b2bcf",
+            "kind": "ip",
+            "label": "100.104.x.x",
+            "asn": 64501,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:63cf7c9f5dc187bd09db8436",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:6a720d0aa0ec3b32db1a6bd1",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:4692025a19a1bc6c43e57133",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 233781
+          },
+          {
+            "source": "address:8a7b900b09a7f25febc9b96d",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 327981
+          },
+          {
+            "source": "address:9500aa589e7e1b36e10c9965",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 1795159
+          },
+          {
+            "source": "address:5e1b99a172be07d76ee7a352",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 2263855
+          },
+          {
+            "source": "address:4692025a19a1bc6c43e57133",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 3134170
+          },
+          {
+            "source": "address:ad074d52b99e174f778ccb9b",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 4070049
+          },
+          {
+            "source": "address:a0facb93a21248382bcdeba0",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 5651614
+          },
+          {
+            "source": "address:c2bcaff0c6c1bad8c9990283",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 10400000
+          },
+          {
+            "source": "address:8c59d233c2d5a25be718d6a5",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "funds",
+            "amount_sats": 43810075
+          },
+          {
+            "source": "tx:06095f9ea36afab20ebb1c0d",
+            "target": "address:a0facb93a21248382bcdeba0",
+            "relation": "receives",
+            "amount_sats": 25583532
+          },
+          {
+            "source": "tx:06095f9ea36afab20ebb1c0d",
+            "target": "address:1817115e2f47ec2092b45d92",
+            "relation": "receives",
+            "amount_sats": 46100000
+          },
+          {
+            "source": "ip:dcae77fb4ad1d94b29337f2e",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "announced",
+            "seen_us": 1767596064472997,
+            "row_id": 686810,
+            "peer_port": 47604,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:f20e9c4e595f142ac38b2bcf",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "announced",
+            "seen_us": 1767596064551325,
+            "row_id": 686811,
+            "peer_port": 34696,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:63cf7c9f5dc187bd09db8436",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "announced",
+            "seen_us": 1767596065164077,
+            "row_id": 686812,
+            "peer_port": 57019,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:6a720d0aa0ec3b32db1a6bd1",
+            "target": "tx:06095f9ea36afab20ebb1c0d",
+            "relation": "announced",
+            "seen_us": 1767596065205215,
+            "row_id": 686813,
+            "peer_port": 57298,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:83d45d1bb937132ebb00c4fa",
+      "subject_ref": "subject:83d45d1bb937132ebb00c4fa",
+      "rank": 6,
+      "risk_score": 0.6349229216575623,
+      "raw_score": 0.18572747707366943,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…4c3e"
+      ],
+      "facts": {
+        "subject_id": "subject:83d45d1bb937132ebb00c4fa",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 1350112,
+        "mean_sent_sats": 1350112,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -1350112,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 11,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 3,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 1
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 2.045656442642212
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.6955915093421936
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.6665305495262146
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.4719163179397583
+        },
+        {
+          "feature": "spent_mean_funder_mean_mean_sent_sats",
+          "description": "spent mean funder mean mean sent sats",
+          "shap_margin": 0.21815161406993866
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "spent_max_announcer_mean_class_0",
+          "shap_margin": -0.2629168629646301
+        },
+        {
+          "feature": "spent_max_announcer_mean_class_3",
+          "shap_margin": -0.23812180757522583
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.18096008896827698
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:0d30e20835a77cd6176815bc",
+            "kind": "transaction",
+            "label": "89740e39…8395",
+            "time_us": 1767589256032538,
+            "fee_sats": 3927
+          },
+          {
+            "id": "address:492054e657dd0e7e2bc50ce8",
+            "kind": "address",
+            "label": "bc1qge…4c3e",
+            "focus": true
+          },
+          {
+            "id": "address:a0d8e222973847ae96c27a5d",
+            "kind": "address",
+            "label": "1gen0i…21b5",
+            "focus": false
+          },
+          {
+            "id": "address:757a16f998dd0e4bf578112f",
+            "kind": "address",
+            "label": "bc1qge…c82a",
+            "focus": false
+          },
+          {
+            "id": "address:935aed97d545732fec5cbb16",
+            "kind": "address",
+            "label": "bc1qge…116f",
+            "focus": false
+          },
+          {
+            "id": "address:bbb4497c88a71e10aa4cd498",
+            "kind": "address",
+            "label": "bc1qge…1170",
+            "focus": false
+          },
+          {
+            "id": "ip:2725171fc2db8b74cc90b1bf",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:6db7f8ccfeed34981182f5c2",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:de077f2a661c455cb95e03a8",
+            "kind": "ip",
+            "label": "100.80.x.x",
+            "asn": 64498,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:22b4e77d8e0f1cd74d3964e8",
+            "kind": "ip",
+            "label": "2001:db8:x:x",
+            "asn": 64496,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:492054e657dd0e7e2bc50ce8",
+            "target": "tx:0d30e20835a77cd6176815bc",
+            "relation": "funds",
+            "amount_sats": 1350112
+          },
+          {
+            "source": "address:a0d8e222973847ae96c27a5d",
+            "target": "tx:0d30e20835a77cd6176815bc",
+            "relation": "funds",
+            "amount_sats": 40587472
+          },
+          {
+            "source": "address:757a16f998dd0e4bf578112f",
+            "target": "tx:0d30e20835a77cd6176815bc",
+            "relation": "funds",
+            "amount_sats": 105669894
+          },
+          {
+            "source": "tx:0d30e20835a77cd6176815bc",
+            "target": "address:935aed97d545732fec5cbb16",
+            "relation": "receives",
+            "amount_sats": 45578087
+          },
+          {
+            "source": "tx:0d30e20835a77cd6176815bc",
+            "target": "address:bbb4497c88a71e10aa4cd498",
+            "relation": "receives",
+            "amount_sats": 102025464
+          },
+          {
+            "source": "ip:2725171fc2db8b74cc90b1bf",
+            "target": "tx:0d30e20835a77cd6176815bc",
+            "relation": "announced",
+            "seen_us": 1767589256032538,
+            "row_id": 676561,
+            "peer_port": 47453,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:6db7f8ccfeed34981182f5c2",
+            "target": "tx:0d30e20835a77cd6176815bc",
+            "relation": "announced",
+            "seen_us": 1767589256081991,
+            "row_id": 676563,
+            "peer_port": 51610,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:de077f2a661c455cb95e03a8",
+            "target": "tx:0d30e20835a77cd6176815bc",
+            "relation": "announced",
+            "seen_us": 1767589256095297,
+            "row_id": 676564,
+            "peer_port": 34333,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:22b4e77d8e0f1cd74d3964e8",
+            "target": "tx:0d30e20835a77cd6176815bc",
+            "relation": "announced",
+            "seen_us": 1767589256128373,
+            "row_id": 676565,
+            "peer_port": 46178,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:4a09d565ee7cb13d42777e46",
+      "subject_ref": "subject:4a09d565ee7cb13d42777e46",
+      "rank": 7,
+      "risk_score": 0.6247501373291016,
+      "raw_score": 0.17916157841682434,
+      "address_count": 1,
+      "addresses": [
+        "1gen0i…cdf4"
+      ],
+      "facts": {
+        "subject_id": "subject:4a09d565ee7cb13d42777e46",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 9169218,
+        "mean_sent_sats": 9169218,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -9169218,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 4,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 4,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": -6
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 1.9894744157791138
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.8714701533317566
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.5003304481506348
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.2368098646402359
+        },
+        {
+          "feature": "spent_max_total_out_sats",
+          "description": "spent max total out sats",
+          "shap_margin": 0.21404112875461578
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "spent_max_announcer_mean_class_0",
+          "shap_margin": -0.36705225706100464
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.18405094742774963
+        },
+        {
+          "feature": "spent_max_announcer_mean_observers",
+          "shap_margin": -0.1733662486076355
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:61957215029afa3ca8f63c67",
+            "kind": "transaction",
+            "label": "6dd70aa6…6106",
+            "time_us": 1767587625058692,
+            "fee_sats": 1700
+          },
+          {
+            "id": "address:e2ca980e487ad859121f8392",
+            "kind": "address",
+            "label": "bc1qge…070d",
+            "focus": false
+          },
+          {
+            "id": "address:863b50852bc2f6edae3f2731",
+            "kind": "address",
+            "label": "bc1qge…9d7f",
+            "focus": false
+          },
+          {
+            "id": "address:8bd9a71b522f7837e5f00a15",
+            "kind": "address",
+            "label": "1gen0i…cdf4",
+            "focus": true
+          },
+          {
+            "id": "address:8ef479f9c2f60575ad98cb60",
+            "kind": "address",
+            "label": "bc1qge…2226",
+            "focus": false
+          },
+          {
+            "id": "address:53a274809c9988c006cf7b8a",
+            "kind": "address",
+            "label": "bc1qge…0e09",
+            "focus": false
+          },
+          {
+            "id": "address:157929fcbcd0b42ac03d0f41",
+            "kind": "address",
+            "label": "bc1qge…0e08",
+            "focus": false
+          },
+          {
+            "id": "ip:e283f5c2a6a7eb8778401035",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:1b119d070f14669c5d3981a4",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:2ceced1835de47d5cd5ffd94",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:b01d5affd8dc102de06b5bad",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:e2ca980e487ad859121f8392",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "funds",
+            "amount_sats": 726632
+          },
+          {
+            "source": "address:863b50852bc2f6edae3f2731",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "funds",
+            "amount_sats": 968484
+          },
+          {
+            "source": "address:8bd9a71b522f7837e5f00a15",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "funds",
+            "amount_sats": 9169218
+          },
+          {
+            "source": "address:8ef479f9c2f60575ad98cb60",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "funds",
+            "amount_sats": 107153063
+          },
+          {
+            "source": "tx:61957215029afa3ca8f63c67",
+            "target": "address:53a274809c9988c006cf7b8a",
+            "relation": "receives",
+            "amount_sats": 103983525
+          },
+          {
+            "source": "tx:61957215029afa3ca8f63c67",
+            "target": "address:157929fcbcd0b42ac03d0f41",
+            "relation": "receives",
+            "amount_sats": 14032172
+          },
+          {
+            "source": "ip:e283f5c2a6a7eb8778401035",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "announced",
+            "seen_us": 1767587625058692,
+            "row_id": 672268,
+            "peer_port": 58759,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:1b119d070f14669c5d3981a4",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "announced",
+            "seen_us": 1767587625557323,
+            "row_id": 672283,
+            "peer_port": 54202,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:2ceced1835de47d5cd5ffd94",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "announced",
+            "seen_us": 1767587625622259,
+            "row_id": 672284,
+            "peer_port": 58770,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:b01d5affd8dc102de06b5bad",
+            "target": "tx:61957215029afa3ca8f63c67",
+            "relation": "announced",
+            "seen_us": 1767587626387138,
+            "row_id": 672294,
+            "peer_port": 49671,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:ade7c9bb561e02b791b27216",
+      "subject_ref": "subject:ade7c9bb561e02b791b27216",
+      "rank": 8,
+      "risk_score": 0.6020323634147644,
+      "raw_score": 0.16538284718990326,
+      "address_count": 1,
+      "addresses": [
+        "3gen0i…cae4"
+      ],
+      "facts": {
+        "subject_id": "subject:ade7c9bb561e02b791b27216",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 5587946,
+        "mean_sent_sats": 5587946,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -5587946,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 6,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 3,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": -4
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 1.9220235347747803
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.7370380163192749
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.5276327133178711
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.45709675550460815
+        },
+        {
+          "feature": "spent_max_total_out_sats",
+          "description": "spent max total out sats",
+          "shap_margin": 0.2893146574497223
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.2006937861442566
+        },
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "shap_margin": -0.15790162980556488
+        },
+        {
+          "feature": "spent_max_announcer_mean_observers",
+          "shap_margin": -0.1504911333322525
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:851f9ada2ec47bb0fa0d88a0",
+            "kind": "transaction",
+            "label": "b08a704e…f386",
+            "time_us": 1767575708031125,
+            "fee_sats": 1746
+          },
+          {
+            "id": "address:e3208d4f38057f94e2ad6ceb",
+            "kind": "address",
+            "label": "3gen0i…cae4",
+            "focus": true
+          },
+          {
+            "id": "address:f6182c5435cf86cb48e9adbe",
+            "kind": "address",
+            "label": "bc1pge…1453",
+            "focus": false
+          },
+          {
+            "id": "address:6352f03f3f58803f1ca5bf95",
+            "kind": "address",
+            "label": "bc1qge…eeb1",
+            "focus": false
+          },
+          {
+            "id": "address:d631515567b435fb68a3d310",
+            "kind": "address",
+            "label": "bc1qge…a35f",
+            "focus": false
+          },
+          {
+            "id": "address:12adc1b5f1324fb1f8f057f8",
+            "kind": "address",
+            "label": "3gen0i…fba3",
+            "focus": false
+          },
+          {
+            "id": "ip:0ace1a3406ab74e9104a98dc",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64498,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:ee4e1d9a3a84b4e1a9202033",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64498,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:ce00e6cae97d5643b85d9dd7",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64498,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:cde31c4d7c799b2953ca1886",
+            "kind": "ip",
+            "label": "2001:db8:x:x",
+            "asn": 64498,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:e3208d4f38057f94e2ad6ceb",
+            "target": "tx:851f9ada2ec47bb0fa0d88a0",
+            "relation": "funds",
+            "amount_sats": 5587946
+          },
+          {
+            "source": "address:f6182c5435cf86cb48e9adbe",
+            "target": "tx:851f9ada2ec47bb0fa0d88a0",
+            "relation": "funds",
+            "amount_sats": 10371845
+          },
+          {
+            "source": "address:6352f03f3f58803f1ca5bf95",
+            "target": "tx:851f9ada2ec47bb0fa0d88a0",
+            "relation": "funds",
+            "amount_sats": 56418056
+          },
+          {
+            "source": "tx:851f9ada2ec47bb0fa0d88a0",
+            "target": "address:d631515567b435fb68a3d310",
+            "relation": "receives",
+            "amount_sats": 55289695
+          },
+          {
+            "source": "tx:851f9ada2ec47bb0fa0d88a0",
+            "target": "address:12adc1b5f1324fb1f8f057f8",
+            "relation": "receives",
+            "amount_sats": 17086406
+          },
+          {
+            "source": "ip:0ace1a3406ab74e9104a98dc",
+            "target": "tx:851f9ada2ec47bb0fa0d88a0",
+            "relation": "announced",
+            "seen_us": 1767575708031125,
+            "row_id": 646405,
+            "peer_port": 39427,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:ee4e1d9a3a84b4e1a9202033",
+            "target": "tx:851f9ada2ec47bb0fa0d88a0",
+            "relation": "announced",
+            "seen_us": 1767575708167917,
+            "row_id": 646408,
+            "peer_port": 49416,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:ce00e6cae97d5643b85d9dd7",
+            "target": "tx:851f9ada2ec47bb0fa0d88a0",
+            "relation": "announced",
+            "seen_us": 1767575708620092,
+            "row_id": 646411,
+            "peer_port": 33377,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:cde31c4d7c799b2953ca1886",
+            "target": "tx:851f9ada2ec47bb0fa0d88a0",
+            "relation": "announced",
+            "seen_us": 1767575709082487,
+            "row_id": 646418,
+            "peer_port": 39309,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:13108abfdf5f30715a20167f",
+      "subject_ref": "subject:13108abfdf5f30715a20167f",
+      "rank": 9,
+      "risk_score": 0.5891241431236267,
+      "raw_score": 0.1580536961555481,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…943f"
+      ],
+      "facts": {
+        "subject_id": "subject:13108abfdf5f30715a20167f",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 9983788,
+        "mean_sent_sats": 9983788,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -9983788,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 5,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 3,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": -5
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 1.9349807500839233
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.7264902591705322
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.4929237961769104
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.44991427659988403
+        },
+        {
+          "feature": "spent_max_total_out_sats",
+          "description": "spent max total out sats",
+          "shap_margin": 0.26236531138420105
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.2006937861442566
+        },
+        {
+          "feature": "spent_min_announcer_mean_class_3",
+          "shap_margin": -0.17597442865371704
+        },
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "shap_margin": -0.15407530963420868
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:b487ce52312e17bdb51c8889",
+            "kind": "transaction",
+            "label": "35c6d503…23fe",
+            "time_us": 1767578101306791,
+            "fee_sats": 1630
+          },
+          {
+            "id": "address:9b679a73313586b697d6f44d",
+            "kind": "address",
+            "label": "bc1qge…893b",
+            "focus": false
+          },
+          {
+            "id": "address:7054f832d8eac91423a4b5db",
+            "kind": "address",
+            "label": "bc1qge…943f",
+            "focus": true
+          },
+          {
+            "id": "address:a98aeae66dd43261730d7545",
+            "kind": "address",
+            "label": "bc1qge…2353",
+            "focus": false
+          },
+          {
+            "id": "address:fb3c4eb9120cbdb6161a5e9d",
+            "kind": "address",
+            "label": "bc1pge…a3c8",
+            "focus": false
+          },
+          {
+            "id": "address:5f64c6ef845eaba50e125490",
+            "kind": "address",
+            "label": "bc1qge…fefa",
+            "focus": false
+          },
+          {
+            "id": "ip:24a7744b49b8402025f8b7a2",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:80dbe925ea5b0c5a0e815bf1",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64497,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:c3b0d8306fae2e62270826f0",
+            "kind": "ip",
+            "label": "100.80.x.x",
+            "asn": 64498,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:3218434d4d2372660591b8e8",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:9b679a73313586b697d6f44d",
+            "target": "tx:b487ce52312e17bdb51c8889",
+            "relation": "funds",
+            "amount_sats": 795088
+          },
+          {
+            "source": "address:7054f832d8eac91423a4b5db",
+            "target": "tx:b487ce52312e17bdb51c8889",
+            "relation": "funds",
+            "amount_sats": 9983788
+          },
+          {
+            "source": "address:a98aeae66dd43261730d7545",
+            "target": "tx:b487ce52312e17bdb51c8889",
+            "relation": "funds",
+            "amount_sats": 87826783
+          },
+          {
+            "source": "tx:b487ce52312e17bdb51c8889",
+            "target": "address:fb3c4eb9120cbdb6161a5e9d",
+            "relation": "receives",
+            "amount_sats": 13000000
+          },
+          {
+            "source": "tx:b487ce52312e17bdb51c8889",
+            "target": "address:5f64c6ef845eaba50e125490",
+            "relation": "receives",
+            "amount_sats": 85604029
+          },
+          {
+            "source": "ip:24a7744b49b8402025f8b7a2",
+            "target": "tx:b487ce52312e17bdb51c8889",
+            "relation": "announced",
+            "seen_us": 1767578101306791,
+            "row_id": 652255,
+            "peer_port": 38035,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:80dbe925ea5b0c5a0e815bf1",
+            "target": "tx:b487ce52312e17bdb51c8889",
+            "relation": "announced",
+            "seen_us": 1767578101767090,
+            "row_id": 652257,
+            "peer_port": 45438,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:c3b0d8306fae2e62270826f0",
+            "target": "tx:b487ce52312e17bdb51c8889",
+            "relation": "announced",
+            "seen_us": 1767578101947279,
+            "row_id": 652258,
+            "peer_port": 48232,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:3218434d4d2372660591b8e8",
+            "target": "tx:b487ce52312e17bdb51c8889",
+            "relation": "announced",
+            "seen_us": 1767578102043265,
+            "row_id": 652259,
+            "peer_port": 50777,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:ef9d5d152ef3a304ed2e5d39",
+      "subject_ref": "subject:ef9d5d152ef3a304ed2e5d39",
+      "rank": 10,
+      "risk_score": 0.5463780760765076,
+      "raw_score": 0.13603371381759644,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…287a"
+      ],
+      "facts": {
+        "subject_id": "subject:ef9d5d152ef3a304ed2e5d39",
+        "n_addresses": 1,
+        "n_tx_sent": null,
+        "total_sent_sats": 0,
+        "mean_sent_sats": null,
+        "n_tx_received": 1,
+        "total_received_sats": 1618925,
+        "mean_received_sats": 1618925,
+        "balance_sats": 1618925,
+        "n_counterparties": 11,
+        "max_fan_out": null,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": null,
+        "mean_fee_rate": null,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 0,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 0
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "received_max_n_out",
+          "description": "received max n out",
+          "shap_margin": 1.8123295307159424
+        },
+        {
+          "feature": "received_min_total_out_sats",
+          "description": "received min total out sats",
+          "shap_margin": 0.5807040929794312
+        },
+        {
+          "feature": "n_counterparties",
+          "description": "n counterparties",
+          "shap_margin": 0.4572787284851074
+        },
+        {
+          "feature": "received_min_n_in",
+          "description": "received min n in",
+          "shap_margin": 0.3877885639667511
+        },
+        {
+          "feature": "received_mean_n_out",
+          "description": "received mean n out",
+          "shap_margin": 0.22172313928604126
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_max_announcer_mean_class_5",
+          "shap_margin": -0.1948651671409607
+        },
+        {
+          "feature": "received_min_announcer_mean_transactions",
+          "shap_margin": -0.18942119181156158
+        },
+        {
+          "feature": "received_min_announcer_mean_observers",
+          "shap_margin": -0.17864921689033508
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:573c4b99203dd64be34d9f18",
+            "kind": "transaction",
+            "label": "3a6e36a9…2f9c",
+            "time_us": 1767615314153496,
+            "fee_sats": 4256
+          },
+          {
+            "id": "address:ff44f881c3c9aa2c69f38e0f",
+            "kind": "address",
+            "label": "bc1qge…a47e",
+            "focus": false
+          },
+          {
+            "id": "address:a25890631f50d77e1f4a0b1a",
+            "kind": "address",
+            "label": "3gen0i…a796",
+            "focus": false
+          },
+          {
+            "id": "address:9335777f946cc2b429f6b041",
+            "kind": "address",
+            "label": "bc1qge…c242",
+            "focus": false
+          },
+          {
+            "id": "address:8307e6cd5cfa869620399c22",
+            "kind": "address",
+            "label": "3gen0i…af42",
+            "focus": false
+          },
+          {
+            "id": "address:3f6dbbaebcdc8642b5e7b315",
+            "kind": "address",
+            "label": "1gen0i…1ff3",
+            "focus": false
+          },
+          {
+            "id": "address:ebe0abbe62b416f8f67e60d8",
+            "kind": "address",
+            "label": "bc1qge…254d",
+            "focus": false
+          },
+          {
+            "id": "address:ca54502d0ac19a4e2c4c6789",
+            "kind": "address",
+            "label": "bc1qge…254a",
+            "focus": false
+          },
+          {
+            "id": "address:4cb6509bd8ce5d174de80ac3",
+            "kind": "address",
+            "label": "bc1qge…254c",
+            "focus": false
+          },
+          {
+            "id": "address:8a75493afae7be8fcff051e9",
+            "kind": "address",
+            "label": "1gen0i…254b",
+            "focus": false
+          },
+          {
+            "id": "address:d13848c06346a2aae1357b3a",
+            "kind": "address",
+            "label": "bc1qge…1ff1",
+            "focus": false
+          },
+          {
+            "id": "address:065352fa6a26c42670f517dc",
+            "kind": "address",
+            "label": "bc1qge…1ff4",
+            "focus": false
+          },
+          {
+            "id": "address:59c41362e3c0516a0bca8c3c",
+            "kind": "address",
+            "label": "bc1qge…287a",
+            "focus": true
+          },
+          {
+            "id": "address:56f379780f44b68bbf8cc534",
+            "kind": "address",
+            "label": "bc1qge…2879",
+            "focus": false
+          },
+          {
+            "id": "ip:47f6bf59e41113697cf6bd63",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64501,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:3141f9d627dd60ce3705efd9",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:94582a3715f4d4b1995c6ca6",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:05b54de52a4ca37f125198f4",
+            "kind": "ip",
+            "label": "100.88.x.x",
+            "asn": 64499,
+            "net_class": "mobile"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:ff44f881c3c9aa2c69f38e0f",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 664001
+          },
+          {
+            "source": "address:a25890631f50d77e1f4a0b1a",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 1031085
+          },
+          {
+            "source": "address:9335777f946cc2b429f6b041",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 1173569
+          },
+          {
+            "source": "address:8307e6cd5cfa869620399c22",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 1980169
+          },
+          {
+            "source": "address:3f6dbbaebcdc8642b5e7b315",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 2868614
+          },
+          {
+            "source": "address:ebe0abbe62b416f8f67e60d8",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 11821703
+          },
+          {
+            "source": "address:ca54502d0ac19a4e2c4c6789",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 11821704
+          },
+          {
+            "source": "address:4cb6509bd8ce5d174de80ac3",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 11821704
+          },
+          {
+            "source": "address:8a75493afae7be8fcff051e9",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 11821704
+          },
+          {
+            "source": "address:d13848c06346a2aae1357b3a",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 12384244
+          },
+          {
+            "source": "address:065352fa6a26c42670f517dc",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "funds",
+            "amount_sats": 13770583
+          },
+          {
+            "source": "tx:573c4b99203dd64be34d9f18",
+            "target": "address:59c41362e3c0516a0bca8c3c",
+            "relation": "receives",
+            "amount_sats": 1618925
+          },
+          {
+            "source": "tx:573c4b99203dd64be34d9f18",
+            "target": "address:56f379780f44b68bbf8cc534",
+            "relation": "receives",
+            "amount_sats": 79535899
+          },
+          {
+            "source": "ip:47f6bf59e41113697cf6bd63",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "announced",
+            "seen_us": 1767615314153496,
+            "row_id": 711488,
+            "peer_port": 45009,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:3141f9d627dd60ce3705efd9",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "announced",
+            "seen_us": 1767615314166273,
+            "row_id": 711489,
+            "peer_port": 53651,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:94582a3715f4d4b1995c6ca6",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "announced",
+            "seen_us": 1767615314240940,
+            "row_id": 711490,
+            "peer_port": 44117,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:05b54de52a4ca37f125198f4",
+            "target": "tx:573c4b99203dd64be34d9f18",
+            "relation": "announced",
+            "seen_us": 1767615314422353,
+            "row_id": 711491,
+            "peer_port": 32772,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:821ffb7376f22516ea7f203d",
+      "subject_ref": "subject:821ffb7376f22516ea7f203d",
+      "rank": 11,
+      "risk_score": 0.541232705116272,
+      "raw_score": 0.13359305262565613,
+      "address_count": 1,
+      "addresses": [
+        "bc1pge…7642"
+      ],
+      "facts": {
+        "subject_id": "subject:821ffb7376f22516ea7f203d",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 20909004,
+        "mean_sent_sats": 20909004,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -20909004,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 19,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 6,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 9
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 1.9426374435424805
+        },
+        {
+          "feature": "spent_min_funder_mean_median_dwell_us",
+          "description": "spent min funder mean median dwell us",
+          "shap_margin": 0.7998685240745544
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.43441319465637207
+        },
+        {
+          "feature": "spent_min_announcer_mean_class_0",
+          "description": "spent min announcer mean class 0",
+          "shap_margin": 0.30735936760902405
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.3073134422302246
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "fee_anomaly",
+          "shap_margin": -0.2923728823661804
+        },
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "shap_margin": -0.20127743482589722
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.20117269456386566
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:cb281ca5b1597a7bf564b418",
+            "kind": "transaction",
+            "label": "fef2ee34…0229",
+            "time_us": 1767587547961323,
+            "fee_sats": 11210
+          },
+          {
+            "id": "address:53e6017fb8ce4263c48077cb",
+            "kind": "address",
+            "label": "bc1qge…b5ee",
+            "focus": false
+          },
+          {
+            "id": "address:3fdfbf38c2cfedf127c436c0",
+            "kind": "address",
+            "label": "1gen0i…9371",
+            "focus": false
+          },
+          {
+            "id": "address:124b3c2aa22a7baa2c364761",
+            "kind": "address",
+            "label": "bc1qge…a3b9",
+            "focus": false
+          },
+          {
+            "id": "address:0d364b68961d97d53b65a0bc",
+            "kind": "address",
+            "label": "bc1pge…9394",
+            "focus": false
+          },
+          {
+            "id": "address:658c0663800c294a2892cd32",
+            "kind": "address",
+            "label": "bc1qge…937c",
+            "focus": false
+          },
+          {
+            "id": "address:06c7733eca9e4702bb1da877",
+            "kind": "address",
+            "label": "bc1pge…7642",
+            "focus": true
+          },
+          {
+            "id": "address:bbf6de99f0f8d7dda012d51d",
+            "kind": "address",
+            "label": "bc1qge…938e",
+            "focus": false
+          },
+          {
+            "id": "address:67b4c660c315bb769c895db9",
+            "kind": "address",
+            "label": "bc1pge…0e14",
+            "focus": false
+          },
+          {
+            "id": "ip:bea306d705c2392b76757911",
+            "kind": "ip",
+            "label": "100.88.x.x",
+            "asn": 64499,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:726446b7479e14fdb12f21b2",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:94787340595e49d97ffe8e3b",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:2054afcdd49e4f8286973688",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:53e6017fb8ce4263c48077cb",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "funds",
+            "amount_sats": 96755
+          },
+          {
+            "source": "address:3fdfbf38c2cfedf127c436c0",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "funds",
+            "amount_sats": 427531
+          },
+          {
+            "source": "address:124b3c2aa22a7baa2c364761",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "funds",
+            "amount_sats": 791840
+          },
+          {
+            "source": "address:0d364b68961d97d53b65a0bc",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "funds",
+            "amount_sats": 2136896
+          },
+          {
+            "source": "address:658c0663800c294a2892cd32",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "funds",
+            "amount_sats": 10776150
+          },
+          {
+            "source": "address:06c7733eca9e4702bb1da877",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "funds",
+            "amount_sats": 20909004
+          },
+          {
+            "source": "tx:cb281ca5b1597a7bf564b418",
+            "target": "address:bbf6de99f0f8d7dda012d51d",
+            "relation": "receives",
+            "amount_sats": 12437328
+          },
+          {
+            "source": "tx:cb281ca5b1597a7bf564b418",
+            "target": "address:67b4c660c315bb769c895db9",
+            "relation": "receives",
+            "amount_sats": 22689638
+          },
+          {
+            "source": "ip:bea306d705c2392b76757911",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "announced",
+            "seen_us": 1767587547961323,
+            "row_id": 670904,
+            "peer_port": 44112,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:726446b7479e14fdb12f21b2",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "announced",
+            "seen_us": 1767587548105101,
+            "row_id": 670909,
+            "peer_port": 35349,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:94787340595e49d97ffe8e3b",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "announced",
+            "seen_us": 1767587548312741,
+            "row_id": 670914,
+            "peer_port": 56176,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:2054afcdd49e4f8286973688",
+            "target": "tx:cb281ca5b1597a7bf564b418",
+            "relation": "announced",
+            "seen_us": 1767587548322655,
+            "row_id": 670915,
+            "peer_port": 33337,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:2d12e9d0458c6dadc703b6e8",
+      "subject_ref": "subject:2d12e9d0458c6dadc703b6e8",
+      "rank": 12,
+      "risk_score": 0.5102041363716125,
+      "raw_score": 0.11971332877874374,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…0b68"
+      ],
+      "facts": {
+        "subject_id": "subject:2d12e9d0458c6dadc703b6e8",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 27395731,
+        "mean_sent_sats": 27395731,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -27395731,
+        "n_counterparties": 8,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 1,
+        "mean_fee_rate": 24,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 1,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 14
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "frac_equal_outputs",
+          "description": "frac equal outputs",
+          "shap_margin": 0.7249778509140015
+        },
+        {
+          "feature": "spent_mean_n_in",
+          "description": "spent mean n in",
+          "shap_margin": 0.521125853061676
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.48451516032218933
+        },
+        {
+          "feature": "spent_min_announcer_mean_class_3",
+          "description": "spent min announcer mean class 3",
+          "shap_margin": 0.41576772928237915
+        },
+        {
+          "feature": "spent_mean_has_equal_outputs",
+          "description": "spent mean has equal outputs",
+          "shap_margin": 0.3926572799682617
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "fee_anomaly",
+          "shap_margin": -0.2774960994720459
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.2302601933479309
+        },
+        {
+          "feature": "spent_max_n_out",
+          "shap_margin": -0.22693821787834167
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:75faf8914ce1a861c65513fa",
+            "kind": "transaction",
+            "label": "f72032db…fe15",
+            "time_us": 1767613729853760,
+            "fee_sats": 8208
+          },
+          {
+            "id": "address:263adb349469d49795e7b4bd",
+            "kind": "address",
+            "label": "bc1qge…0b68",
+            "focus": true
+          },
+          {
+            "id": "address:065fecd91c1df8c341054352",
+            "kind": "address",
+            "label": "bc1qge…280c",
+            "focus": false
+          },
+          {
+            "id": "address:43d43afdeec680dab7a70929",
+            "kind": "address",
+            "label": "bc1qge…2809",
+            "focus": false
+          },
+          {
+            "id": "address:c24390373bdf0ed2644e0ce0",
+            "kind": "address",
+            "label": "bc1pge…a222",
+            "focus": false
+          },
+          {
+            "id": "address:ada6c9dccd0a5699eee38f9c",
+            "kind": "address",
+            "label": "bc1qge…280a",
+            "focus": false
+          },
+          {
+            "id": "address:f05ddeacd7333f07b87f0fc3",
+            "kind": "address",
+            "label": "bc1qge…baff",
+            "focus": false
+          },
+          {
+            "id": "address:ed7eedc34b7932e705ce578f",
+            "kind": "address",
+            "label": "1gen0i…7314",
+            "focus": false
+          },
+          {
+            "id": "address:513caca6d0495ca7309968e3",
+            "kind": "address",
+            "label": "bc1qge…06bc",
+            "focus": false
+          },
+          {
+            "id": "address:d294340b3cc925dd1bc95010",
+            "kind": "address",
+            "label": "bc1qge…280b",
+            "focus": false
+          },
+          {
+            "id": "ip:32ff4a74ff81aea23cc8034b",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:2bead4a119b2f7b8351d3baf",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:dac766e1f8c67ce5f10c0d9d",
+            "kind": "ip",
+            "label": "100.104.x.x",
+            "asn": 64501,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:4b32593af3b723f789ffdaee",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:263adb349469d49795e7b4bd",
+            "target": "tx:75faf8914ce1a861c65513fa",
+            "relation": "funds",
+            "amount_sats": 27395731
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:065fecd91c1df8c341054352",
+            "relation": "receives",
+            "amount_sats": 7335375
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:43d43afdeec680dab7a70929",
+            "relation": "receives",
+            "amount_sats": 2875358
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:c24390373bdf0ed2644e0ce0",
+            "relation": "receives",
+            "amount_sats": 2875358
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:ada6c9dccd0a5699eee38f9c",
+            "relation": "receives",
+            "amount_sats": 2875358
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:f05ddeacd7333f07b87f0fc3",
+            "relation": "receives",
+            "amount_sats": 2875358
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:ed7eedc34b7932e705ce578f",
+            "relation": "receives",
+            "amount_sats": 2875358
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:513caca6d0495ca7309968e3",
+            "relation": "receives",
+            "amount_sats": 2800000
+          },
+          {
+            "source": "tx:75faf8914ce1a861c65513fa",
+            "target": "address:d294340b3cc925dd1bc95010",
+            "relation": "receives",
+            "amount_sats": 2875358
+          },
+          {
+            "source": "ip:32ff4a74ff81aea23cc8034b",
+            "target": "tx:75faf8914ce1a861c65513fa",
+            "relation": "announced",
+            "seen_us": 1767613729853760,
+            "row_id": 707674,
+            "peer_port": 52505,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:2bead4a119b2f7b8351d3baf",
+            "target": "tx:75faf8914ce1a861c65513fa",
+            "relation": "announced",
+            "seen_us": 1767613729965140,
+            "row_id": 707675,
+            "peer_port": 59451,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:dac766e1f8c67ce5f10c0d9d",
+            "target": "tx:75faf8914ce1a861c65513fa",
+            "relation": "announced",
+            "seen_us": 1767613729981432,
+            "row_id": 707677,
+            "peer_port": 56756,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:4b32593af3b723f789ffdaee",
+            "target": "tx:75faf8914ce1a861c65513fa",
+            "relation": "announced",
+            "seen_us": 1767613730039789,
+            "row_id": 707678,
+            "peer_port": 38630,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:780f7f1874653d84af73ff83",
+      "subject_ref": "subject:780f7f1874653d84af73ff83",
+      "rank": 13,
+      "risk_score": 0.5024234056472778,
+      "raw_score": 0.11644305288791656,
+      "address_count": 1,
+      "addresses": [
+        "1gen0i…9642"
+      ],
+      "facts": {
+        "subject_id": "subject:780f7f1874653d84af73ff83",
+        "n_addresses": 1,
+        "n_tx_sent": null,
+        "total_sent_sats": 0,
+        "mean_sent_sats": null,
+        "n_tx_received": 1,
+        "total_received_sats": 8651804,
+        "mean_received_sats": 8651804,
+        "balance_sats": 8651804,
+        "n_counterparties": 7,
+        "max_fan_out": null,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": null,
+        "mean_fee_rate": null,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 0,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 0
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "received_max_n_out",
+          "description": "received max n out",
+          "shap_margin": 1.6295859813690186
+        },
+        {
+          "feature": "received_min_total_out_sats",
+          "description": "received min total out sats",
+          "shap_margin": 0.5044113397598267
+        },
+        {
+          "feature": "n_counterparties",
+          "description": "n counterparties",
+          "shap_margin": 0.4584694504737854
+        },
+        {
+          "feature": "received_min_n_in",
+          "description": "received min n in",
+          "shap_margin": 0.33425071835517883
+        },
+        {
+          "feature": "received_min_announcer_mean_class_2",
+          "description": "received min announcer mean class 2",
+          "shap_margin": 0.28371569514274597
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_min_announcer_mean_class_0",
+          "shap_margin": -0.23811958730220795
+        },
+        {
+          "feature": "received_min_announcer_mean_transactions",
+          "shap_margin": -0.16566605865955353
+        },
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "shap_margin": -0.12424338608980179
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:f69ae604d0d28f5e92c376d0",
+            "kind": "transaction",
+            "label": "5a9b8b5f…2ffc",
+            "time_us": 1767578022330524,
+            "fee_sats": 3128
+          },
+          {
+            "id": "address:039266a2573e42e4f9128b32",
+            "kind": "address",
+            "label": "1gen0i…589a",
+            "focus": false
+          },
+          {
+            "id": "address:4024fbb07286ea0b723b6de2",
+            "kind": "address",
+            "label": "bc1pge…fb1e",
+            "focus": false
+          },
+          {
+            "id": "address:91dd0fe50883851644685632",
+            "kind": "address",
+            "label": "bc1qge…589d",
+            "focus": false
+          },
+          {
+            "id": "address:79de529ff1c50669341c9872",
+            "kind": "address",
+            "label": "bc1qge…5884",
+            "focus": false
+          },
+          {
+            "id": "address:ed5883a23d6133385b2eb5c8",
+            "kind": "address",
+            "label": "bc1qge…5894",
+            "focus": false
+          },
+          {
+            "id": "address:616952e17ffcf81a5c383a30",
+            "kind": "address",
+            "label": "bc1qge…a32f",
+            "focus": false
+          },
+          {
+            "id": "address:9e8a12c1c4ad315f1f172aba",
+            "kind": "address",
+            "label": "bc1qge…58aa",
+            "focus": false
+          },
+          {
+            "id": "address:1a6993f624efca5ae67af1d7",
+            "kind": "address",
+            "label": "bc1pge…fede",
+            "focus": false
+          },
+          {
+            "id": "address:765d4175e8f22438cef18372",
+            "kind": "address",
+            "label": "1gen0i…9642",
+            "focus": true
+          },
+          {
+            "id": "ip:43d6eb4b7231f206764d0470",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64502,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:03c16e2350ee4c8e2dafbc74",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:8a0968ce57588712c7faee12",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:f483a516efe71aaea5ac85c6",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64502,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:039266a2573e42e4f9128b32",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 76687
+          },
+          {
+            "source": "address:4024fbb07286ea0b723b6de2",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 261904
+          },
+          {
+            "source": "address:91dd0fe50883851644685632",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 2824534
+          },
+          {
+            "source": "address:79de529ff1c50669341c9872",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 3066877
+          },
+          {
+            "source": "address:ed5883a23d6133385b2eb5c8",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 4931931
+          },
+          {
+            "source": "address:616952e17ffcf81a5c383a30",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 5783119
+          },
+          {
+            "source": "address:039266a2573e42e4f9128b32",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 6775953
+          },
+          {
+            "source": "address:9e8a12c1c4ad315f1f172aba",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "funds",
+            "amount_sats": 9548735
+          },
+          {
+            "source": "tx:f69ae604d0d28f5e92c376d0",
+            "target": "address:1a6993f624efca5ae67af1d7",
+            "relation": "receives",
+            "amount_sats": 24614808
+          },
+          {
+            "source": "tx:f69ae604d0d28f5e92c376d0",
+            "target": "address:765d4175e8f22438cef18372",
+            "relation": "receives",
+            "amount_sats": 8651804
+          },
+          {
+            "source": "ip:43d6eb4b7231f206764d0470",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "announced",
+            "seen_us": 1767578022330524,
+            "row_id": 651659,
+            "peer_port": 58063,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:03c16e2350ee4c8e2dafbc74",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "announced",
+            "seen_us": 1767578022363065,
+            "row_id": 651661,
+            "peer_port": 57702,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:8a0968ce57588712c7faee12",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "announced",
+            "seen_us": 1767578022549819,
+            "row_id": 651667,
+            "peer_port": 59023,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:f483a516efe71aaea5ac85c6",
+            "target": "tx:f69ae604d0d28f5e92c376d0",
+            "relation": "announced",
+            "seen_us": 1767578022763567,
+            "row_id": 651674,
+            "peer_port": 47301,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:1ed80e182c209dee2b6ca13a",
+      "subject_ref": "subject:1ed80e182c209dee2b6ca13a",
+      "rank": 14,
+      "risk_score": 0.49897250533103943,
+      "raw_score": 0.11501789838075638,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…5049"
+      ],
+      "facts": {
+        "subject_id": "subject:1ed80e182c209dee2b6ca13a",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 5454848,
+        "mean_sent_sats": 5454848,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -5454848,
+        "n_counterparties": 2,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 7,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 6,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": -3
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 1.8947621583938599
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.8253545165061951
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.3267863094806671
+        },
+        {
+          "feature": "spent_max_total_out_sats",
+          "description": "spent max total out sats",
+          "shap_margin": 0.2567208707332611
+        },
+        {
+          "feature": "received_max_funder_mean_n_counterparties",
+          "description": "received max funder mean n counterparties",
+          "shap_margin": 0.1948900818824768
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "spent_max_announcer_mean_class_3",
+          "shap_margin": -0.20729784667491913
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.2006937861442566
+        },
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "shap_margin": -0.16763974726200104
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:fe8a88bb4df64944e9b7ca59",
+            "kind": "transaction",
+            "label": "a91411bb…197e",
+            "time_us": 1767613497517408,
+            "fee_sats": 4186
+          },
+          {
+            "id": "address:ef093847a2a8c6135e0208c0",
+            "kind": "address",
+            "label": "bc1qge…052a",
+            "focus": false
+          },
+          {
+            "id": "address:e5fa54dcbb1c80481a9b525f",
+            "kind": "address",
+            "label": "bc1qge…b5a4",
+            "focus": false
+          },
+          {
+            "id": "address:a0725897c84f25de7f2c5a97",
+            "kind": "address",
+            "label": "1gen0i…ba01",
+            "focus": false
+          },
+          {
+            "id": "address:c14e27427e6d5625c1f54c4f",
+            "kind": "address",
+            "label": "bc1qge…5049",
+            "focus": true
+          },
+          {
+            "id": "address:b755a27d506ac4dbfd2fabde",
+            "kind": "address",
+            "label": "bc1qge…246e",
+            "focus": false
+          },
+          {
+            "id": "address:34b2c65487b3063b849557d0",
+            "kind": "address",
+            "label": "bc1qge…2471",
+            "focus": false
+          },
+          {
+            "id": "address:323e755ab26aebebb05107a8",
+            "kind": "address",
+            "label": "bc1qge…f7e7",
+            "focus": false
+          },
+          {
+            "id": "address:eaa811c35d6efaf2e832a4e8",
+            "kind": "address",
+            "label": "bc1qge…253a",
+            "focus": false
+          },
+          {
+            "id": "ip:b949e33add5945db297715b3",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:55b167a3bcc893f7b1a41408",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:2273380a28298c20af59de81",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:bb152535c1cda280d071dff6",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64502,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:ef093847a2a8c6135e0208c0",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "funds",
+            "amount_sats": 900643
+          },
+          {
+            "source": "address:e5fa54dcbb1c80481a9b525f",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "funds",
+            "amount_sats": 3179151
+          },
+          {
+            "source": "address:a0725897c84f25de7f2c5a97",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "funds",
+            "amount_sats": 4127118
+          },
+          {
+            "source": "address:c14e27427e6d5625c1f54c4f",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "funds",
+            "amount_sats": 5454848
+          },
+          {
+            "source": "address:b755a27d506ac4dbfd2fabde",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "funds",
+            "amount_sats": 9994843
+          },
+          {
+            "source": "address:34b2c65487b3063b849557d0",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "funds",
+            "amount_sats": 11352430
+          },
+          {
+            "source": "tx:fe8a88bb4df64944e9b7ca59",
+            "target": "address:323e755ab26aebebb05107a8",
+            "relation": "receives",
+            "amount_sats": 30825717
+          },
+          {
+            "source": "tx:fe8a88bb4df64944e9b7ca59",
+            "target": "address:eaa811c35d6efaf2e832a4e8",
+            "relation": "receives",
+            "amount_sats": 4179130
+          },
+          {
+            "source": "ip:b949e33add5945db297715b3",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "announced",
+            "seen_us": 1767613497517408,
+            "row_id": 707461,
+            "peer_port": 52090,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:55b167a3bcc893f7b1a41408",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "announced",
+            "seen_us": 1767613497565380,
+            "row_id": 707462,
+            "peer_port": 58863,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:2273380a28298c20af59de81",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "announced",
+            "seen_us": 1767613497602881,
+            "row_id": 707463,
+            "peer_port": 51684,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:bb152535c1cda280d071dff6",
+            "target": "tx:fe8a88bb4df64944e9b7ca59",
+            "relation": "announced",
+            "seen_us": 1767613497684513,
+            "row_id": 707464,
+            "peer_port": 50473,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:e2f57a4b0e1f69d174a5c856",
+      "subject_ref": "subject:e2f57a4b0e1f69d174a5c856",
+      "rank": 15,
+      "risk_score": 0.473734050989151,
+      "raw_score": 0.10504081100225449,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…2526"
+      ],
+      "facts": {
+        "subject_id": "subject:e2f57a4b0e1f69d174a5c856",
+        "n_addresses": 1,
+        "n_tx_sent": null,
+        "total_sent_sats": 0,
+        "mean_sent_sats": null,
+        "n_tx_received": 1,
+        "total_received_sats": 914052,
+        "mean_received_sats": 914052,
+        "balance_sats": 914052,
+        "n_counterparties": 1,
+        "max_fan_out": null,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": null,
+        "mean_fee_rate": null,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 0,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 0
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "received_max_n_out",
+          "description": "received max n out",
+          "shap_margin": 1.1668154001235962
+        },
+        {
+          "feature": "received_min_funder_mean_structuring_frac",
+          "description": "received min funder mean structuring frac",
+          "shap_margin": 0.5878366231918335
+        },
+        {
+          "feature": "received_max_funder_mean_peel_leak_frac",
+          "description": "received max funder mean peel leak frac",
+          "shap_margin": 0.4809120297431946
+        },
+        {
+          "feature": "received_min_announcer_mean_class_2",
+          "description": "received min announcer mean class 2",
+          "shap_margin": 0.4237890839576721
+        },
+        {
+          "feature": "received_min_funder_mean_median_dwell_us",
+          "description": "received min funder mean median dwell us",
+          "shap_margin": 0.2925417125225067
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_max_funder_mean_median_dwell_us",
+          "shap_margin": -0.733709454536438
+        },
+        {
+          "feature": "received_mean_funder_mean_peel_leak_frac",
+          "shap_margin": -0.28231731057167053
+        },
+        {
+          "feature": "received_min_fee_sats",
+          "shap_margin": -0.1620631217956543
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:735bf3674fb6924312a5e3a2",
+            "kind": "transaction",
+            "label": "298d42db…d58c",
+            "time_us": 1767611156240322,
+            "fee_sats": 846
+          },
+          {
+            "id": "address:31ad989e9569de8b7a63ad9a",
+            "kind": "address",
+            "label": "bc1qge…1725",
+            "focus": false
+          },
+          {
+            "id": "address:81ed8462d1de1de91b042c47",
+            "kind": "address",
+            "label": "bc1qge…2525",
+            "focus": false
+          },
+          {
+            "id": "address:52edc471070d71a986416404",
+            "kind": "address",
+            "label": "bc1qge…2526",
+            "focus": true
+          },
+          {
+            "id": "ip:bab3fe8f0e43f72923ed9c5e",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64498,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:14143076caddd7cdf6d0872f",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:7c3bc3240824b95ca367a2d7",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:88f156a164b121e789214269",
+            "kind": "ip",
+            "label": "100.88.x.x",
+            "asn": 64499,
+            "net_class": "mobile"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:31ad989e9569de8b7a63ad9a",
+            "target": "tx:735bf3674fb6924312a5e3a2",
+            "relation": "funds",
+            "amount_sats": 4845356
+          },
+          {
+            "source": "tx:735bf3674fb6924312a5e3a2",
+            "target": "address:81ed8462d1de1de91b042c47",
+            "relation": "receives",
+            "amount_sats": 3930458
+          },
+          {
+            "source": "tx:735bf3674fb6924312a5e3a2",
+            "target": "address:52edc471070d71a986416404",
+            "relation": "receives",
+            "amount_sats": 914052
+          },
+          {
+            "source": "ip:bab3fe8f0e43f72923ed9c5e",
+            "target": "tx:735bf3674fb6924312a5e3a2",
+            "relation": "announced",
+            "seen_us": 1767611156240322,
+            "row_id": 706111,
+            "peer_port": 45741,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:14143076caddd7cdf6d0872f",
+            "target": "tx:735bf3674fb6924312a5e3a2",
+            "relation": "announced",
+            "seen_us": 1767611156567626,
+            "row_id": 706112,
+            "peer_port": 41716,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:7c3bc3240824b95ca367a2d7",
+            "target": "tx:735bf3674fb6924312a5e3a2",
+            "relation": "announced",
+            "seen_us": 1767611156598830,
+            "row_id": 706113,
+            "peer_port": 33771,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:88f156a164b121e789214269",
+            "target": "tx:735bf3674fb6924312a5e3a2",
+            "relation": "announced",
+            "seen_us": 1767611156651828,
+            "row_id": 706114,
+            "peer_port": 36447,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:cd7f422665026833e765ab43",
+      "subject_ref": "subject:cd7f422665026833e765ab43",
+      "rank": 16,
+      "risk_score": 0.46435827016830444,
+      "raw_score": 0.1015232726931572,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…qe86"
+      ],
+      "facts": {
+        "subject_id": "subject:cd7f422665026833e765ab43",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 4264198,
+        "mean_sent_sats": 4264198,
+        "n_tx_received": 1,
+        "total_received_sats": 4264198,
+        "mean_received_sats": 4264198,
+        "balance_sats": 0,
+        "n_counterparties": 3,
+        "max_fan_out": 1,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": 0,
+        "mean_fee_rate": 6,
+        "median_dwell_us": 20199688165,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 7,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": -4
+      },
+      "supporting_transaction_count": 2,
+      "displayed_transaction_count": 2,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "spent_max_n_out",
+          "description": "spent max n out",
+          "shap_margin": 1.27701997756958
+        },
+        {
+          "feature": "received_max_n_out",
+          "description": "received max n out",
+          "shap_margin": 0.899826169013977
+        },
+        {
+          "feature": "spent_min_total_out_sats",
+          "description": "spent min total out sats",
+          "shap_margin": 0.4574354588985443
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.4256417751312256
+        },
+        {
+          "feature": "received_min_funder_mean_median_dwell_us",
+          "description": "received min funder mean median dwell us",
+          "shap_margin": 0.3759380280971527
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "median_dwell_us",
+          "shap_margin": -0.32055723667144775
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "shap_margin": -0.2187294065952301
+        },
+        {
+          "feature": "spent_max_announcer_mean_class_3",
+          "shap_margin": -0.19136817753314972
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:03df946ad77ca9c911fa1715",
+            "kind": "transaction",
+            "label": "8967f948…3de1",
+            "time_us": 1767590124489915,
+            "fee_sats": 1692
+          },
+          {
+            "id": "address:2effaedb2e9b0ffb48f95c7d",
+            "kind": "address",
+            "label": "bc1qge…qe77",
+            "focus": false
+          },
+          {
+            "id": "address:37baaaa5bf2586e0799b361a",
+            "kind": "address",
+            "label": "bc1qge…a26b",
+            "focus": false
+          },
+          {
+            "id": "address:ab1fa16723e0c07d18c9d209",
+            "kind": "address",
+            "label": "bc1qge…qe86",
+            "focus": true
+          },
+          {
+            "id": "ip:5e7e696e276426f60bfb8d51",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:69b84c6c46f49b95becf4412",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64497,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:d302ca38ff94c36d8e42b2ca",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:4f8574d9a3463a74dc323399",
+            "kind": "ip",
+            "label": "100.88.x.x",
+            "asn": 64499,
+            "net_class": "mobile"
+          },
+          {
+            "id": "tx:cb5bb43842bd71200421807f",
+            "kind": "transaction",
+            "label": "604dafad…f663",
+            "time_us": 1767610324178080,
+            "fee_sats": 3996
+          },
+          {
+            "id": "address:8a0c9135806fa4e0edb84d2f",
+            "kind": "address",
+            "label": "bc1qge…qe9e",
+            "focus": false
+          },
+          {
+            "id": "address:30d3014a008fcdcc8b0178f5",
+            "kind": "address",
+            "label": "bc1qge…cb19",
+            "focus": false
+          },
+          {
+            "id": "address:d9e9afaddbe9af48159a2b59",
+            "kind": "address",
+            "label": "bc1qge…qe8a",
+            "focus": false
+          },
+          {
+            "id": "address:fe1aaf19e6a4158462f601fe",
+            "kind": "address",
+            "label": "bc1qge…qe92",
+            "focus": false
+          },
+          {
+            "id": "address:e853b7c0c8d4763eaa087e6a",
+            "kind": "address",
+            "label": "bc1qge…qe80",
+            "focus": false
+          },
+          {
+            "id": "address:2471c2f42de1bb000527e1fb",
+            "kind": "address",
+            "label": "1gen0i…ze8f",
+            "focus": false
+          },
+          {
+            "id": "address:a463e39bf635a9f3d9463c45",
+            "kind": "address",
+            "label": "bc1qge…qe9b",
+            "focus": false
+          },
+          {
+            "id": "address:e64e4ba6fdad9a1c55bba8dd",
+            "kind": "address",
+            "label": "bc1qge…24c1",
+            "focus": false
+          },
+          {
+            "id": "ip:16b4eb1823224cc8ea486ba6",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:04e3e8e378ad98b4c9d06667",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:d269ea180623e8e9788a2a30",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:cc96fa9cc82d0b7cd24df6ff",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64497,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:2effaedb2e9b0ffb48f95c7d",
+            "target": "tx:03df946ad77ca9c911fa1715",
+            "relation": "funds",
+            "amount_sats": 6092979
+          },
+          {
+            "source": "tx:03df946ad77ca9c911fa1715",
+            "target": "address:37baaaa5bf2586e0799b361a",
+            "relation": "receives",
+            "amount_sats": 1827089
+          },
+          {
+            "source": "tx:03df946ad77ca9c911fa1715",
+            "target": "address:ab1fa16723e0c07d18c9d209",
+            "relation": "receives",
+            "amount_sats": 4264198
+          },
+          {
+            "source": "ip:5e7e696e276426f60bfb8d51",
+            "target": "tx:03df946ad77ca9c911fa1715",
+            "relation": "announced",
+            "seen_us": 1767590124489915,
+            "row_id": 678339,
+            "peer_port": 50999,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:69b84c6c46f49b95becf4412",
+            "target": "tx:03df946ad77ca9c911fa1715",
+            "relation": "announced",
+            "seen_us": 1767590124491008,
+            "row_id": 678340,
+            "peer_port": 44072,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:d302ca38ff94c36d8e42b2ca",
+            "target": "tx:03df946ad77ca9c911fa1715",
+            "relation": "announced",
+            "seen_us": 1767590124499397,
+            "row_id": 678341,
+            "peer_port": 48979,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:4f8574d9a3463a74dc323399",
+            "target": "tx:03df946ad77ca9c911fa1715",
+            "relation": "announced",
+            "seen_us": 1767590124671437,
+            "row_id": 678342,
+            "peer_port": 44096,
+            "observer_port": 8333
+          },
+          {
+            "source": "address:8a0c9135806fa4e0edb84d2f",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "funds",
+            "amount_sats": 180644
+          },
+          {
+            "source": "address:30d3014a008fcdcc8b0178f5",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "funds",
+            "amount_sats": 192573
+          },
+          {
+            "source": "address:d9e9afaddbe9af48159a2b59",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "funds",
+            "amount_sats": 265201
+          },
+          {
+            "source": "address:fe1aaf19e6a4158462f601fe",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "funds",
+            "amount_sats": 1072542
+          },
+          {
+            "source": "address:e853b7c0c8d4763eaa087e6a",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "funds",
+            "amount_sats": 2854116
+          },
+          {
+            "source": "address:ab1fa16723e0c07d18c9d209",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "funds",
+            "amount_sats": 4264198
+          },
+          {
+            "source": "address:2471c2f42de1bb000527e1fb",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "funds",
+            "amount_sats": 37526367
+          },
+          {
+            "source": "tx:cb5bb43842bd71200421807f",
+            "target": "address:a463e39bf635a9f3d9463c45",
+            "relation": "receives",
+            "amount_sats": 8051645
+          },
+          {
+            "source": "tx:cb5bb43842bd71200421807f",
+            "target": "address:e64e4ba6fdad9a1c55bba8dd",
+            "relation": "receives",
+            "amount_sats": 38300000
+          },
+          {
+            "source": "ip:16b4eb1823224cc8ea486ba6",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "announced",
+            "seen_us": 1767610324178080,
+            "row_id": 703309,
+            "peer_port": 44600,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:04e3e8e378ad98b4c9d06667",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "announced",
+            "seen_us": 1767610324808073,
+            "row_id": 703316,
+            "peer_port": 49809,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:d269ea180623e8e9788a2a30",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "announced",
+            "seen_us": 1767610325195925,
+            "row_id": 703322,
+            "peer_port": 35151,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:cc96fa9cc82d0b7cd24df6ff",
+            "target": "tx:cb5bb43842bd71200421807f",
+            "relation": "announced",
+            "seen_us": 1767610325311970,
+            "row_id": 703324,
+            "peer_port": 42386,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 8
+    },
+    {
+      "id": "lead:3d91547295baa42beca84e8c",
+      "subject_ref": "subject:3d91547295baa42beca84e8c",
+      "rank": 17,
+      "risk_score": 0.4594743251800537,
+      "raw_score": 0.09972913563251495,
+      "address_count": 1,
+      "addresses": [
+        "1gen0i…4719"
+      ],
+      "facts": {
+        "subject_id": "subject:3d91547295baa42beca84e8c",
+        "n_addresses": 1,
+        "n_tx_sent": null,
+        "total_sent_sats": 0,
+        "mean_sent_sats": null,
+        "n_tx_received": 1,
+        "total_received_sats": 811119,
+        "mean_received_sats": 811119,
+        "balance_sats": 811119,
+        "n_counterparties": 1,
+        "max_fan_out": null,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": null,
+        "mean_fee_rate": null,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 0,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 0
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "description": "received mean has equal outputs",
+          "shap_margin": 2.088775634765625
+        },
+        {
+          "feature": "received_min_funder_mean_balance_sats",
+          "description": "received min funder mean balance sats",
+          "shap_margin": 0.469159871339798
+        },
+        {
+          "feature": "received_min_funder_mean_mean_received_sats",
+          "description": "received min funder mean mean received sats",
+          "shap_margin": 0.3239785432815552
+        },
+        {
+          "feature": "received_min_funder_mean_structuring_frac",
+          "description": "received min funder mean structuring frac",
+          "shap_margin": 0.31043723225593567
+        },
+        {
+          "feature": "received_mean_total_out_sats",
+          "description": "received mean total out sats",
+          "shap_margin": 0.309195339679718
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_max_funder_mean_median_dwell_us",
+          "shap_margin": -0.3299240469932556
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.2978988289833069
+        },
+        {
+          "feature": "received_mean_n_out",
+          "shap_margin": -0.2475622594356537
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:e02dc156a8698abb9efb5444",
+            "kind": "transaction",
+            "label": "000003a3…c262",
+            "time_us": 1767596258478599,
+            "fee_sats": 6528
+          },
+          {
+            "id": "address:d3f05dce21d21de38d1d21fb",
+            "kind": "address",
+            "label": "bc1qge…1108",
+            "focus": false
+          },
+          {
+            "id": "address:e3513857da87d0d7c0eb9493",
+            "kind": "address",
+            "label": "bc1qge…17e7",
+            "focus": false
+          },
+          {
+            "id": "address:230bbc28c4a51b5abb0bd123",
+            "kind": "address",
+            "label": "3gen0i…17e6",
+            "focus": false
+          },
+          {
+            "id": "address:d8fc38a345719a2fcd4d1cd8",
+            "kind": "address",
+            "label": "bc1qge…abb0",
+            "focus": false
+          },
+          {
+            "id": "address:01f253e288ae2dfc9a7555d1",
+            "kind": "address",
+            "label": "1gen0i…8e4b",
+            "focus": false
+          },
+          {
+            "id": "address:d90aff82ca0b06daf5409212",
+            "kind": "address",
+            "label": "bc1qge…6385",
+            "focus": false
+          },
+          {
+            "id": "address:984586c1d05d56d5ac27a68d",
+            "kind": "address",
+            "label": "1gen0i…4719",
+            "focus": true
+          },
+          {
+            "id": "ip:1c39cd913e2bee3cf4238137",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64498,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:1b58c3ac3ad658d07f9b54f1",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:0bb962eac5082f027725b6ec",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64499,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:e283f5c2a6a7eb8778401035",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:d3f05dce21d21de38d1d21fb",
+            "target": "tx:e02dc156a8698abb9efb5444",
+            "relation": "funds",
+            "amount_sats": 5015694
+          },
+          {
+            "source": "tx:e02dc156a8698abb9efb5444",
+            "target": "address:e3513857da87d0d7c0eb9493",
+            "relation": "receives",
+            "amount_sats": 953571
+          },
+          {
+            "source": "tx:e02dc156a8698abb9efb5444",
+            "target": "address:230bbc28c4a51b5abb0bd123",
+            "relation": "receives",
+            "amount_sats": 811119
+          },
+          {
+            "source": "tx:e02dc156a8698abb9efb5444",
+            "target": "address:d8fc38a345719a2fcd4d1cd8",
+            "relation": "receives",
+            "amount_sats": 811119
+          },
+          {
+            "source": "tx:e02dc156a8698abb9efb5444",
+            "target": "address:01f253e288ae2dfc9a7555d1",
+            "relation": "receives",
+            "amount_sats": 811119
+          },
+          {
+            "source": "tx:e02dc156a8698abb9efb5444",
+            "target": "address:d90aff82ca0b06daf5409212",
+            "relation": "receives",
+            "amount_sats": 811119
+          },
+          {
+            "source": "tx:e02dc156a8698abb9efb5444",
+            "target": "address:984586c1d05d56d5ac27a68d",
+            "relation": "receives",
+            "amount_sats": 811119
+          },
+          {
+            "source": "ip:1c39cd913e2bee3cf4238137",
+            "target": "tx:e02dc156a8698abb9efb5444",
+            "relation": "announced",
+            "seen_us": 1767596258478599,
+            "row_id": 687075,
+            "peer_port": 60176,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:1b58c3ac3ad658d07f9b54f1",
+            "target": "tx:e02dc156a8698abb9efb5444",
+            "relation": "announced",
+            "seen_us": 1767596258549460,
+            "row_id": 687076,
+            "peer_port": 46486,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:0bb962eac5082f027725b6ec",
+            "target": "tx:e02dc156a8698abb9efb5444",
+            "relation": "announced",
+            "seen_us": 1767596258615697,
+            "row_id": 687077,
+            "peer_port": 41325,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:e283f5c2a6a7eb8778401035",
+            "target": "tx:e02dc156a8698abb9efb5444",
+            "relation": "announced",
+            "seen_us": 1767596258709048,
+            "row_id": 687078,
+            "peer_port": 58759,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:69dfaf165b97d3256732637a",
+      "subject_ref": "subject:69dfaf165b97d3256732637a",
+      "rank": 18,
+      "risk_score": 0.45535510778427124,
+      "raw_score": 0.09823577851057053,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…eee6"
+      ],
+      "facts": {
+        "subject_id": "subject:69dfaf165b97d3256732637a",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 49344978,
+        "mean_sent_sats": 49344978,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -49344978,
+        "n_counterparties": 9,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 1,
+        "mean_fee_rate": 12,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 1,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 2
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "frac_equal_outputs",
+          "description": "frac equal outputs",
+          "shap_margin": 0.7247679233551025
+        },
+        {
+          "feature": "spent_mean_has_equal_outputs",
+          "description": "spent mean has equal outputs",
+          "shap_margin": 0.40317773818969727
+        },
+        {
+          "feature": "spent_min_n_out",
+          "description": "spent min n out",
+          "shap_margin": 0.3812887668609619
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.3670980632305145
+        },
+        {
+          "feature": "spent_min_funder_mean_n_counterparties",
+          "description": "spent min funder mean n counterparties",
+          "shap_margin": 0.3401554822921753
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "spent_max_n_out",
+          "shap_margin": -0.2576864957809448
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.229719340801239
+        },
+        {
+          "feature": "spent_min_n_in",
+          "shap_margin": -0.18995437026023865
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:c7887347121820c4d5ff7a15",
+            "kind": "transaction",
+            "label": "0218e769…19e4",
+            "time_us": 1767615181141330,
+            "fee_sats": 4332
+          },
+          {
+            "id": "address:bc24a8119f6e94d663d07b99",
+            "kind": "address",
+            "label": "bc1qge…eee6",
+            "focus": true
+          },
+          {
+            "id": "address:f692758db14a2829da560ab2",
+            "kind": "address",
+            "label": "bc1qge…a02d",
+            "focus": false
+          },
+          {
+            "id": "address:eb55172fb31b1fd40950a208",
+            "kind": "address",
+            "label": "bc1qge…a58b",
+            "focus": false
+          },
+          {
+            "id": "address:405ad6719e83751938d2a90d",
+            "kind": "address",
+            "label": "bc1qge…b37d",
+            "focus": false
+          },
+          {
+            "id": "address:bffe78147aa2eff8ee921373",
+            "kind": "address",
+            "label": "bc1qge…2849",
+            "focus": false
+          },
+          {
+            "id": "address:f1d2ec8824b73b3311f6134c",
+            "kind": "address",
+            "label": "bc1qge…2847",
+            "focus": false
+          },
+          {
+            "id": "address:f2c19ff8a40275617e0324d9",
+            "kind": "address",
+            "label": "1gen0i…08f9",
+            "focus": false
+          },
+          {
+            "id": "address:e6abc41c9149883aeaedec93",
+            "kind": "address",
+            "label": "bc1qge…1184",
+            "focus": false
+          },
+          {
+            "id": "address:63f3706ae86fcb714ec57711",
+            "kind": "address",
+            "label": "bc1qge…2848",
+            "focus": false
+          },
+          {
+            "id": "address:01f6347b2cde692236e6e140",
+            "kind": "address",
+            "label": "bc1qge…b68c",
+            "focus": false
+          },
+          {
+            "id": "ip:8b88dc92a085d51bbc77ac25",
+            "kind": "ip",
+            "label": "100.96.x.x",
+            "asn": 64500,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:cceb82becc60034f0844352c",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64497,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:c4cc51ccb852f525bb8bab7e",
+            "kind": "ip",
+            "label": "203.0.x.x",
+            "asn": 64511,
+            "net_class": "vpn_suspect"
+          },
+          {
+            "id": "ip:06621d366c9c1c1c83576e37",
+            "kind": "ip",
+            "label": "100.120.x.x",
+            "asn": 64503,
+            "net_class": "mobile"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:bc24a8119f6e94d663d07b99",
+            "target": "tx:c7887347121820c4d5ff7a15",
+            "relation": "funds",
+            "amount_sats": 49344978
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:f692758db14a2829da560ab2",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:eb55172fb31b1fd40950a208",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:405ad6719e83751938d2a90d",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:bffe78147aa2eff8ee921373",
+            "relation": "receives",
+            "amount_sats": 23769310
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:f1d2ec8824b73b3311f6134c",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:f2c19ff8a40275617e0324d9",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:e6abc41c9149883aeaedec93",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:63f3706ae86fcb714ec57711",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "tx:c7887347121820c4d5ff7a15",
+            "target": "address:01f6347b2cde692236e6e140",
+            "relation": "receives",
+            "amount_sats": 3196417
+          },
+          {
+            "source": "ip:8b88dc92a085d51bbc77ac25",
+            "target": "tx:c7887347121820c4d5ff7a15",
+            "relation": "announced",
+            "seen_us": 1767615181141330,
+            "row_id": 711033,
+            "peer_port": 55345,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:cceb82becc60034f0844352c",
+            "target": "tx:c7887347121820c4d5ff7a15",
+            "relation": "announced",
+            "seen_us": 1767615181646634,
+            "row_id": 711034,
+            "peer_port": 59807,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:c4cc51ccb852f525bb8bab7e",
+            "target": "tx:c7887347121820c4d5ff7a15",
+            "relation": "announced",
+            "seen_us": 1767615181840626,
+            "row_id": 711035,
+            "peer_port": 46059,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:06621d366c9c1c1c83576e37",
+            "target": "tx:c7887347121820c4d5ff7a15",
+            "relation": "announced",
+            "seen_us": 1767615181885464,
+            "row_id": 711036,
+            "peer_port": 34493,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:470b292b6887c1a2c41a5cf7",
+      "subject_ref": "subject:470b292b6887c1a2c41a5cf7",
+      "rank": 19,
+      "risk_score": 0.45269155502319336,
+      "raw_score": 0.0972796082496643,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…e5aa"
+      ],
+      "facts": {
+        "subject_id": "subject:470b292b6887c1a2c41a5cf7",
+        "n_addresses": 1,
+        "n_tx_sent": null,
+        "total_sent_sats": 0,
+        "mean_sent_sats": null,
+        "n_tx_received": 1,
+        "total_received_sats": 1107595,
+        "mean_received_sats": 1107595,
+        "balance_sats": 1107595,
+        "n_counterparties": 1,
+        "max_fan_out": null,
+        "n_coinbase_received": 0,
+        "frac_equal_outputs": null,
+        "mean_fee_rate": null,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 0,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": 0
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "received_max_n_out",
+          "description": "received max n out",
+          "shap_margin": 1.3116792440414429
+        },
+        {
+          "feature": "received_max_funder_mean_peel_leak_frac",
+          "description": "received max funder mean peel leak frac",
+          "shap_margin": 1.094333291053772
+        },
+        {
+          "feature": "received_min_announcer_mean_class_3",
+          "description": "received min announcer mean class 3",
+          "shap_margin": 0.33881357312202454
+        },
+        {
+          "feature": "received_min_total_out_sats",
+          "description": "received min total out sats",
+          "shap_margin": 0.31301453709602356
+        },
+        {
+          "feature": "received_mean_funder_mean_mean_received_sats",
+          "description": "received mean funder mean mean received sats",
+          "shap_margin": 0.2947169542312622
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "received_max_fee_sats",
+          "shap_margin": -0.4533693492412567
+        },
+        {
+          "feature": "received_mean_has_equal_outputs",
+          "shap_margin": -0.2977958023548126
+        },
+        {
+          "feature": "received_mean_funder_mean_peel_leak_frac",
+          "shap_margin": -0.2838686406612396
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:0da8f9b0b6782080a1b9261e",
+            "kind": "transaction",
+            "label": "e143b0ce…6365",
+            "time_us": 1767609437861889,
+            "fee_sats": 282
+          },
+          {
+            "id": "address:69e48beb764e527bfe6ba8ed",
+            "kind": "address",
+            "label": "bc1qge…437c",
+            "focus": false
+          },
+          {
+            "id": "address:c8631dc6f656f17ac198d9cc",
+            "kind": "address",
+            "label": "bc1qge…e5aa",
+            "focus": true
+          },
+          {
+            "id": "address:9b255f1f91e5e2d1edef1370",
+            "kind": "address",
+            "label": "bc1qge…43aa",
+            "focus": false
+          },
+          {
+            "id": "ip:4d687dc7c84ffd100901ae36",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64502,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:c796389136fe310b5f19e743",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64502,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:249e91e0101af90d34df3151",
+            "kind": "ip",
+            "label": "198.18.x.x",
+            "asn": 64496,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:15146d468389884cdc7194db",
+            "kind": "ip",
+            "label": "100.80.x.x",
+            "asn": 64498,
+            "net_class": "mobile"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:69e48beb764e527bfe6ba8ed",
+            "target": "tx:0da8f9b0b6782080a1b9261e",
+            "relation": "funds",
+            "amount_sats": 36191761
+          },
+          {
+            "source": "tx:0da8f9b0b6782080a1b9261e",
+            "target": "address:c8631dc6f656f17ac198d9cc",
+            "relation": "receives",
+            "amount_sats": 1107595
+          },
+          {
+            "source": "tx:0da8f9b0b6782080a1b9261e",
+            "target": "address:9b255f1f91e5e2d1edef1370",
+            "relation": "receives",
+            "amount_sats": 35083884
+          },
+          {
+            "source": "ip:4d687dc7c84ffd100901ae36",
+            "target": "tx:0da8f9b0b6782080a1b9261e",
+            "relation": "announced",
+            "seen_us": 1767609437861889,
+            "row_id": 701569,
+            "peer_port": 37949,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:c796389136fe310b5f19e743",
+            "target": "tx:0da8f9b0b6782080a1b9261e",
+            "relation": "announced",
+            "seen_us": 1767609438332556,
+            "row_id": 701570,
+            "peer_port": 57269,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:249e91e0101af90d34df3151",
+            "target": "tx:0da8f9b0b6782080a1b9261e",
+            "relation": "announced",
+            "seen_us": 1767609438428620,
+            "row_id": 701571,
+            "peer_port": 56904,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:15146d468389884cdc7194db",
+            "target": "tx:0da8f9b0b6782080a1b9261e",
+            "relation": "announced",
+            "seen_us": 1767609438463211,
+            "row_id": 701572,
+            "peer_port": 55667,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    },
+    {
+      "id": "lead:30afd4997b9b7d11c93c68e9",
+      "subject_ref": "subject:30afd4997b9b7d11c93c68e9",
+      "rank": 20,
+      "risk_score": 0.4456005096435547,
+      "raw_score": 0.09476972371339798,
+      "address_count": 1,
+      "addresses": [
+        "bc1qge…0a11"
+      ],
+      "facts": {
+        "subject_id": "subject:30afd4997b9b7d11c93c68e9",
+        "n_addresses": 1,
+        "n_tx_sent": 1,
+        "total_sent_sats": 4063206,
+        "mean_sent_sats": 4063206,
+        "n_tx_received": null,
+        "total_received_sats": 0,
+        "mean_received_sats": null,
+        "balance_sats": -4063206,
+        "n_counterparties": 8,
+        "max_fan_out": 1,
+        "n_coinbase_received": null,
+        "frac_equal_outputs": 1,
+        "mean_fee_rate": 4,
+        "median_dwell_us": null,
+        "min_edge_confidence": null,
+        "n_heuristics": null,
+        "n_script_types": 1,
+        "fan_in_ratio": 4,
+        "peel_chain_depth": 0,
+        "peel_leak_frac": 0,
+        "structuring_frac": 0,
+        "burstiness": 0,
+        "fee_anomaly": -6
+      },
+      "supporting_transaction_count": 1,
+      "displayed_transaction_count": 1,
+      "graph_truncated": false,
+      "reasons": [
+        {
+          "feature": "frac_equal_outputs",
+          "description": "frac equal outputs",
+          "shap_margin": 0.6719675064086914
+        },
+        {
+          "feature": "spent_min_n_in",
+          "description": "spent min n in",
+          "shap_margin": 0.48421281576156616
+        },
+        {
+          "feature": "spent_mean_has_equal_outputs",
+          "description": "spent mean has equal outputs",
+          "shap_margin": 0.3912019729614258
+        },
+        {
+          "feature": "spent_min_n_out",
+          "description": "spent min n out",
+          "shap_margin": 0.35557666420936584
+        },
+        {
+          "feature": "spent_min_funder_mean_mean_sent_sats",
+          "description": "spent min funder mean mean sent sats",
+          "shap_margin": 0.340060293674469
+        }
+      ],
+      "mitigating_contributions": [
+        {
+          "feature": "spent_max_n_out",
+          "shap_margin": -0.4232800006866455
+        },
+        {
+          "feature": "spent_max_total_out_sats",
+          "shap_margin": -0.25790777802467346
+        },
+        {
+          "feature": "received_max_n_out",
+          "shap_margin": -0.213614821434021
+        }
+      ],
+      "evidence_graph": {
+        "nodes": [
+          {
+            "id": "tx:a61caa03e5e849aea9c4edea",
+            "kind": "transaction",
+            "label": "8d97324d…ef17",
+            "time_us": 1767573845837686,
+            "fee_sats": 2824
+          },
+          {
+            "id": "address:71a4481aa7452ac0d6e64738",
+            "kind": "address",
+            "label": "bc1qge…1a0a",
+            "focus": false
+          },
+          {
+            "id": "address:c2089b668cf1e1cd37f3e84e",
+            "kind": "address",
+            "label": "3gen0i…0a10",
+            "focus": false
+          },
+          {
+            "id": "address:87d464336d90944aa7e31c64",
+            "kind": "address",
+            "label": "bc1qge…0a11",
+            "focus": true
+          },
+          {
+            "id": "address:e18dd50d961ca347d45141f1",
+            "kind": "address",
+            "label": "1gen0i…a21e",
+            "focus": false
+          },
+          {
+            "id": "address:b0830635483a0fc504ece196",
+            "kind": "address",
+            "label": "bc1qge…fb3b",
+            "focus": false
+          },
+          {
+            "id": "address:7734d4d2caf3804a194a6f7b",
+            "kind": "address",
+            "label": "bc1qge…a2c1",
+            "focus": false
+          },
+          {
+            "id": "address:5e2fd0892a7e84f7d74b5b6f",
+            "kind": "address",
+            "label": "bc1qge…7a71",
+            "focus": false
+          },
+          {
+            "id": "address:6e52c293ff84a65c7a30d002",
+            "kind": "address",
+            "label": "bc1pge…6738",
+            "focus": false
+          },
+          {
+            "id": "address:aaa01c4d66852a4cd60f89bf",
+            "kind": "address",
+            "label": "bc1pge…fb39",
+            "focus": false
+          },
+          {
+            "id": "address:de62bc5ce2f3370961aa5ef5",
+            "kind": "address",
+            "label": "bc1qge…5070",
+            "focus": false
+          },
+          {
+            "id": "address:c1b38756e9c211cdd2298ed2",
+            "kind": "address",
+            "label": "bc1pge…fb3a",
+            "focus": false
+          },
+          {
+            "id": "address:fb1845079d3726c5907f77f2",
+            "kind": "address",
+            "label": "bc1pge…fb38",
+            "focus": false
+          },
+          {
+            "id": "ip:62de84cfa26e3cd7ed6904fe",
+            "kind": "ip",
+            "label": "100.88.x.x",
+            "asn": 64499,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:bc6636e06e9ffcd812cdba88",
+            "kind": "ip",
+            "label": "100.96.x.x",
+            "asn": 64500,
+            "net_class": "mobile"
+          },
+          {
+            "id": "ip:d8fe0411782eda61bd48bee6",
+            "kind": "ip",
+            "label": "2001:db8:x:x",
+            "asn": 64500,
+            "net_class": "residential"
+          },
+          {
+            "id": "ip:b82b9cc9cf87f702f1cd2359",
+            "kind": "ip",
+            "label": "198.19.x.x",
+            "asn": 64500,
+            "net_class": "residential"
+          }
+        ],
+        "edges": [
+          {
+            "source": "address:71a4481aa7452ac0d6e64738",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "funds",
+            "amount_sats": 777906
+          },
+          {
+            "source": "address:c2089b668cf1e1cd37f3e84e",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "funds",
+            "amount_sats": 3147569
+          },
+          {
+            "source": "address:87d464336d90944aa7e31c64",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "funds",
+            "amount_sats": 4063206
+          },
+          {
+            "source": "address:e18dd50d961ca347d45141f1",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "funds",
+            "amount_sats": 167500000
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:b0830635483a0fc504ece196",
+            "relation": "receives",
+            "amount_sats": 165478244
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:7734d4d2caf3804a194a6f7b",
+            "relation": "receives",
+            "amount_sats": 1429659
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:5e2fd0892a7e84f7d74b5b6f",
+            "relation": "receives",
+            "amount_sats": 1429659
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:6e52c293ff84a65c7a30d002",
+            "relation": "receives",
+            "amount_sats": 1429659
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:aaa01c4d66852a4cd60f89bf",
+            "relation": "receives",
+            "amount_sats": 1429659
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:de62bc5ce2f3370961aa5ef5",
+            "relation": "receives",
+            "amount_sats": 1429659
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:c1b38756e9c211cdd2298ed2",
+            "relation": "receives",
+            "amount_sats": 1429659
+          },
+          {
+            "source": "tx:a61caa03e5e849aea9c4edea",
+            "target": "address:fb1845079d3726c5907f77f2",
+            "relation": "receives",
+            "amount_sats": 1429659
+          },
+          {
+            "source": "ip:62de84cfa26e3cd7ed6904fe",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "announced",
+            "seen_us": 1767573845837686,
+            "row_id": 643155,
+            "peer_port": 57149,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:bc6636e06e9ffcd812cdba88",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "announced",
+            "seen_us": 1767573845959794,
+            "row_id": 643156,
+            "peer_port": 45035,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:d8fe0411782eda61bd48bee6",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "announced",
+            "seen_us": 1767573846050696,
+            "row_id": 643157,
+            "peer_port": 49019,
+            "observer_port": 8333
+          },
+          {
+            "source": "ip:b82b9cc9cf87f702f1cd2359",
+            "target": "tx:a61caa03e5e849aea9c4edea",
+            "relation": "announced",
+            "seen_us": 1767573846082168,
+            "row_id": 643158,
+            "peer_port": 48570,
+            "observer_port": 8333
+          }
+        ]
+      },
+      "next_actions": [
+        "Trace the displayed transaction inputs and outputs.",
+        "Compare repeated announcing peers and ASNs across supporting transactions.",
+        "Review ownership evidence before combining addresses into an entity."
+      ],
+      "network_observation_count": 4
+    }
+  ],
+  "selection": {
+    "k": 20,
+    "overlap": 0.25,
+    "candidate_pool": 2000,
+    "unit": "observed evidence lead"
+  },
+  "score_meaning": "model ranking score calibrated on synthetic history",
+  "explanation_meaning": "signed TreeSHAP contributions to raw model log-odds",
+  "graph_meaning": "observed fund flows and announcements; IP origin unresolved",
+  "identifier_display": "redacted; content-derived references preserve graph joins"
+}

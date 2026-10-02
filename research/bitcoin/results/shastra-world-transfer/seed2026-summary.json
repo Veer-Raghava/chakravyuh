@@ -1,0 +1,56 @@
+{
+  "candidate_test": {
+    "ap": 0.2876315937210332,
+    "auc": 0.8430408230540333,
+    "brier": 0.015099856408020518,
+    "hits_at_20": 19,
+    "hits_at_50": 49,
+    "n": 275017,
+    "p_at_20": 0.95,
+    "p_at_50": 0.98,
+    "positives": 4939,
+    "prevalence": 0.01795888981408422,
+    "r_at_20": 0.0038469325774448267,
+    "r_at_50": 0.009921036647094554
+  },
+  "chain_rows": 34595,
+  "l0_top1": 0.2382547213694297,
+  "l0_top3": 0.30170248395199556,
+  "l1_direct_top1": 0.4598567308586845,
+  "l1_direct_top3": 0.7230440040934041,
+  "l1_prior_weighted_top1": 0.45762396502000185,
+  "n_observers": 48,
+  "network_rows": 917201,
+  "observer_fraction": 0.6,
+  "offline_enrichment_classes": [
+    {
+      "len": 79,
+      "net_class": "vpn_suspect"
+    },
+    {
+      "len": 34,
+      "net_class": "tor_exit"
+    },
+    {
+      "len": 247,
+      "net_class": "mobile"
+    },
+    {
+      "len": 2570,
+      "net_class": "residential"
+    }
+  ],
+  "origins": 33795,
+  "policy_answered": 529,
+  "policy_correct": 459,
+  "policy_coverage": 0.04921388036096381,
+  "policy_precision": 0.8676748582230623,
+  "research_score_artifact": "research/bitcoin/results/shastra-world-transfer/seed2026-tx-scores.parquet",
+  "research_score_sha256": "8f62a937545936f0ef101bdc022ff7bbed2bc2f88c8e677c9b9e255ce8123109",
+  "seconds": 38.99579529499897,
+  "seed": 2026,
+  "source_in_five_second_candidates": 0.4594846032189041,
+  "test_start_us": 1767568791520359,
+  "test_transactions_with_candidates": 10749,
+  "unobserved_origins": 339
+}

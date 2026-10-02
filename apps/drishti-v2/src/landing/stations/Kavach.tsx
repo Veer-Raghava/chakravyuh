@@ -204,22 +204,22 @@ export function Kavach({ reduced }: { reduced: boolean }) {
 
       {active && (
         <>
-          {/* raw / sealed flow labels — make the top→bottom read explicit */}
+          {/* raw / locked flow labels — make the top→bottom read explicit */}
           <Html position={[-1.85, 1.55, 0.2]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "0.16em", color: "var(--coral)", whiteSpace: "nowrap" }}>RAW · RAGGED</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "0.16em", color: "var(--coral)", whiteSpace: "nowrap" }}>RAW DATA IN</div>
           </Html>
           <Html position={[-1.85, BLOCK_Y, 0.2]} center distanceFactor={6} pointerEvents="none">
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "0.16em", color: "var(--riso-blue)", whiteSpace: "nowrap" }}>SEALED</div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "0.16em", color: "var(--riso-blue)", whiteSpace: "nowrap" }}>LOCKED</div>
           </Html>
           <Html position={narrow ? [GATE_X, 1.95, 0.2] : [1.9, 0.55, 0.2]} center distanceFactor={6} pointerEvents="none">
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", letterSpacing: "0.02em", color: "var(--ink)", textAlign: "center", opacity: 0.85, maxWidth: "min(80vw, 260px)", wordBreak: "break-all", lineHeight: 1.55 }}>
-              <div style={{ color: "var(--ink-soft)", letterSpacing: "0.18em", marginBottom: 2, whiteSpace: "nowrap" }}>SHA-256 · RAW BYTES · SEALED</div>
+              <div style={{ color: "var(--ink-soft)", letterSpacing: "0.18em", marginBottom: 2, whiteSpace: "nowrap" }}>DATA FINGERPRINT · SHOWN IN FULL</div>
               {SHA}
             </div>
           </Html>
           <Html position={narrow ? [GATE_X, -1.7, 0.2] : [2.0, -1.35, 0.2]} center distanceFactor={6} pointerEvents="none">
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--coral)", whiteSpace: "nowrap", textAlign: "center" }}>
-              153 set aside · reason: malformed
+              153 rows set aside · reason saved
             </div>
           </Html>
         </>

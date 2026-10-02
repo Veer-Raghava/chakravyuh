@@ -1,0 +1,19 @@
+{
+  "polars": "1.17.1",
+  "pyarrow": "18.1.0",
+  "rustworkx": "0.15.1",
+  "lightgbm": "4.5.0",
+  "mapie": "0.9.1",
+  "shap": "0.46.0",
+  "fastapi": "0.115.6",
+  "uvicorn": "0.32.1",
+  "httpx": "0.28.1",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "scikit-learn": "1.9.0",
+  "xgboost": "3.2.0 (import __version__; distribution metadata absent)",
+  "torch": "2.14.1+cpu",
+  "torch-geometric": "not installed",
+  "reportlab": "not installed",
+  "cryptography": "not installed"
+}

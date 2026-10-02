@@ -1,0 +1,722 @@
+{
+  "boundaries_us": {
+    "cal": 1767519555825316,
+    "fit": 1767446021321915,
+    "gate_cal": 1767544067326449,
+    "test": 1767568578827583
+  },
+  "categorical_encoding": "six-way one-hot network class; numeric log transforms; scaler fits early train only",
+  "code_hashes": {
+    "/home/void/chakravyuh/research/bitcoin/causal_origin_benchmark.py": "b7b9851b231683f78e25047f9ff292aaff3c03acac71da0d840316ad5b444228",
+    "/home/void/chakravyuh/src/chakravyuh/shastra/causal.py": "5c62707be1f5130296e5e8c20c2e26081b3eb17a2e60b435f4b73a6a00f56cee"
+  },
+  "features": [
+    "delta_first_us",
+    "rank_in_tx",
+    "n_announcements",
+    "n_observers_seen",
+    "n_observers_blind",
+    "peer_frac_rank_one",
+    "peer_n_txids",
+    "peer_degree",
+    "announce_spread_us",
+    "payer_shared",
+    "n_candidates",
+    "is_tor_exit",
+    "is_hosting",
+    "mle_logscore",
+    "asn_frac_rank_one"
+  ],
+  "horizon_us": 5000000,
+  "inputs": {
+    "data/generated/agency-v2/normalised/announcements.parquet": "9ff1031e419b557efd88d794434ffcdd89299b73bf8215115732a9028a9880a6",
+    "data/generated/agency-v2/normalised/peers.parquet": "4a4aa42cf04d71587ae111aa899dd297319f3d4c1947aacdcde26b77638b8253",
+    "data/generated/agency-v2/normalised/transactions.parquet": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098",
+    "ground_truth/agency-v2/origins.parquet": "a4e995b0a890e81da7315c99127fb29aa00d4ae3ccc1ba19c6c5fed54f8b095d"
+  },
+  "limitations": [
+    "single synthetic world; reused research test time block",
+    "fixed/versioned peer enrichment assumed; changing enrichment needs its own history",
+    "observation horizon excludes later source announcements by design",
+    "candidate presence measures source-peer coverage, not a person's dataset membership",
+    "absence gate trains on raw out-of-fit parent scores, not same-block Platt outputs"
+  ],
+  "models": {
+    "extra_trees": {
+      "absence": null,
+      "candidate_test": {
+        "ap": 0.3026920775274216,
+        "auc": 0.839145585643056,
+        "brier": 0.014865395314780294,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "fit_seconds": 8.045766997995088,
+      "l0_top1": 0.23368834660324683,
+      "l0_top3": 0.31765070830317443,
+      "l1_direct_top1": 0.45165960086857615,
+      "l1_direct_top3": 0.7123358494467997,
+      "l1_prior_weighted_top1": 0.4518664047151277,
+      "parameters": {
+        "bootstrap": false,
+        "ccp_alpha": 0.0,
+        "class_weight": null,
+        "criterion": "gini",
+        "max_depth": 18,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": null,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 20,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 120,
+        "n_jobs": 4,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      },
+      "predict_seconds": 0.9982116640021559,
+      "serialized_model_bytes": 9081457
+    },
+    "gbm_mean": {
+      "candidate_test": {
+        "ap": 0.3261064645712368,
+        "auc": 0.8434301940540778,
+        "brier": 0.014446443745532219,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "l0_top1": 0.24123668700237824,
+      "l0_top3": 0.31103298521352496,
+      "l1_direct_top1": 0.45972495088408644,
+      "l1_direct_top3": 0.7168855340709337,
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 537,
+            "test_correct": 458,
+            "test_coverage": 0.05552683279909006,
+            "test_precision": 0.8528864059590316,
+            "validation_answered": 149,
+            "validation_precision": 0.9060402684563759,
+            "validation_selected_floor": 0.8
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 478,
+            "test_correct": 452,
+            "test_coverage": 0.04942611932581946,
+            "test_precision": 0.9456066945606695,
+            "validation_answered": 148,
+            "validation_precision": 0.9662162162162162,
+            "validation_selected_floor": 0.01
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      }
+    },
+    "lightgbm": {
+      "absence": {
+        "absence_threshold": null,
+        "features": [
+          "candidate_mass",
+          "best_candidate_p",
+          "second_candidate_p",
+          "n_candidates",
+          "n_observers_in_tx",
+          "total_announcements",
+          "mean_peer_history",
+          "max_payer_history",
+          "p1",
+          "p2",
+          "separation",
+          "any_tor"
+        ],
+        "stage_cal_tx": 1493,
+        "stage_fit_tx": 5070,
+        "stage_validation_tx": 1311,
+        "supervised_absence": {
+          "ap": 0.6562702556029598,
+          "auc": 0.6527141797564364,
+          "brier": 0.22632278802853759,
+          "hits_at_20": 19,
+          "hits_at_50": 44,
+          "n": 9671,
+          "p_at_20": 0.95,
+          "p_at_50": 0.88,
+          "positives": 5144,
+          "prevalence": 0.531899493330576,
+          "r_at_20": 0.0036936236391912907,
+          "r_at_50": 0.008553654743390357
+        },
+        "test_absence_decisions": 0,
+        "test_absence_precision": null,
+        "unsupervised_if_absence_ranking": {
+          "ap": 0.4749143181372372,
+          "auc": 0.445411726977001,
+          "hits_at_20": 3,
+          "hits_at_50": 11,
+          "n": 9671,
+          "p_at_20": 0.15,
+          "p_at_50": 0.22,
+          "positives": 5144,
+          "prevalence": 0.531899493330576,
+          "r_at_20": 0.0005832037325038881,
+          "r_at_50": 0.0021384136858475893
+        },
+        "warning": "absent means source peer missing from five-second candidate set, not person absent from dataset"
+      },
+      "candidate_test": {
+        "ap": 0.32123987208878707,
+        "auc": 0.840210655150513,
+        "brier": 0.01460872154256105,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "fit_seconds": 1.627463427001203,
+      "l0_top1": 0.24040947161617207,
+      "l0_top3": 0.3077241236687002,
+      "l1_direct_top1": 0.4579671181883983,
+      "l1_direct_top3": 0.7132664667562817,
+      "l1_prior_weighted_top1": 0.4564160893392617,
+      "parameters": {
+        "deterministic": true,
+        "force_col_wise": true,
+        "lambda_l2": 1,
+        "learning_rate": 0.05,
+        "min_data_in_leaf": 40,
+        "num_leaves": 31,
+        "num_threads": 4,
+        "objective": "binary",
+        "rounds": 300,
+        "seed": 42,
+        "verbosity": -1
+      },
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 486,
+            "test_correct": 459,
+            "test_coverage": 0.050253334712025644,
+            "test_precision": 0.9444444444444444,
+            "validation_answered": 144,
+            "validation_precision": 0.9583333333333334,
+            "validation_selected_floor": 0.01
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      },
+      "predict_seconds": 0.5238286009989679,
+      "serialized_model_bytes": 1046060
+    },
+    "logistic": {
+      "absence": null,
+      "candidate_test": {
+        "ap": 0.24017915799814585,
+        "auc": 0.8306457888116736,
+        "brier": 0.016020395437892722,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "fit_seconds": 0.4458523920038715,
+      "l0_top1": 0.2211767138868783,
+      "l0_top3": 0.31909833522903525,
+      "l1_direct_top1": 0.4456622893185813,
+      "l1_direct_top3": 0.7124392513700755,
+      "l1_prior_weighted_top1": 0.44607589701168443,
+      "parameters": {
+        "C": 1.0,
+        "class_weight": null,
+        "dual": false,
+        "fit_intercept": true,
+        "intercept_scaling": 1,
+        "l1_ratio": 0.0,
+        "max_iter": 1000,
+        "n_jobs": null,
+        "penalty": "deprecated",
+        "random_state": 42,
+        "solver": "lbfgs",
+        "tol": 0.0001,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      },
+      "predict_seconds": 0.024827645996992942,
+      "serialized_model_bytes": 774
+    },
+    "logit_stack": {
+      "candidate_test": {
+        "ap": 0.33754442336128154,
+        "auc": 0.8502942229481597,
+        "brier": 0.01420822176053975,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "l0_top1": 0.23958225622996587,
+      "l0_top3": 0.3158928756074863,
+      "l1_direct_top1": 0.4565194912625375,
+      "l1_direct_top3": 0.7144038879123151,
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 462,
+            "test_correct": 432,
+            "test_coverage": 0.04777168855340709,
+            "test_precision": 0.935064935064935,
+            "validation_answered": 136,
+            "validation_precision": 0.9705882352941176,
+            "validation_selected_floor": 0.01
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      }
+    },
+    "neural_mlp": {
+      "absence": null,
+      "candidate_test": {
+        "ap": 0.33757518566237354,
+        "auc": 0.850228873087298,
+        "brier": 0.014203596093334816,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "fit_seconds": 3.336825995000254,
+      "l0_top1": 0.23699720814807154,
+      "l0_top3": 0.3154792679143832,
+      "l1_direct_top1": 0.4522800124082308,
+      "l1_direct_top3": 0.7116120359838694,
+      "l1_prior_weighted_top1": 0.45207320856167926,
+      "parameters": {
+        "batch_size": 2048,
+        "device": "cpu",
+        "epochs": 12,
+        "hidden": [
+          64,
+          32
+        ],
+        "learning_rate": 0.001,
+        "parameters": 3521,
+        "positive_weight": 7.325529338286699,
+        "weight_decay": 0.001
+      },
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 460,
+            "test_correct": 432,
+            "test_coverage": 0.04756488470685555,
+            "test_precision": 0.9391304347826087,
+            "validation_answered": 135,
+            "validation_precision": 0.9703703703703703,
+            "validation_selected_floor": 0.01
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      },
+      "predict_seconds": 5.010006134398282e-07,
+      "timing_note": "fit_seconds includes neural prediction; predict_seconds is not a latency measure"
+    },
+    "random_forest": {
+      "absence": null,
+      "candidate_test": {
+        "ap": 0.31870736660674864,
+        "auc": 0.8250607352197443,
+        "brier": 0.014426698581816779,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "fit_seconds": 12.453582783993625,
+      "l0_top1": 0.2391686485368628,
+      "l0_top3": 0.30844793713163066,
+      "l1_direct_top1": 0.4541412470271947,
+      "l1_direct_top3": 0.7077861648226657,
+      "l1_prior_weighted_top1": 0.45548547202977974,
+      "parameters": {
+        "bootstrap": true,
+        "ccp_alpha": 0.0,
+        "class_weight": null,
+        "criterion": "gini",
+        "max_depth": 18,
+        "max_features": "sqrt",
+        "max_leaf_nodes": null,
+        "max_samples": 0.6,
+        "min_impurity_decrease": 0.0,
+        "min_samples_leaf": 20,
+        "min_samples_split": 2,
+        "min_weight_fraction_leaf": 0.0,
+        "monotonic_cst": null,
+        "n_estimators": 120,
+        "n_jobs": 4,
+        "oob_score": false,
+        "random_state": 42,
+        "verbose": 0,
+        "warm_start": false
+      },
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 322,
+            "test_correct": 302,
+            "test_coverage": 0.033295419294798886,
+            "test_precision": 0.937888198757764,
+            "validation_answered": 113,
+            "validation_precision": 0.9380530973451328,
+            "validation_selected_floor": 0.01
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      },
+      "predict_seconds": 1.088307846999669,
+      "serialized_model_bytes": 14132718
+    },
+    "xgboost": {
+      "absence": null,
+      "candidate_test": {
+        "ap": 0.32630186538857314,
+        "auc": 0.8436180671285187,
+        "brier": 0.014396345800891526,
+        "hits_at_20": 20,
+        "hits_at_50": 50,
+        "n": 251332,
+        "p_at_20": 1.0,
+        "p_at_50": 1.0,
+        "positives": 4527,
+        "prevalence": 0.018012031894068404,
+        "r_at_20": 0.004417936823503424,
+        "r_at_50": 0.01104484205875856
+      },
+      "fit_seconds": 1.6407947469997453,
+      "l0_top1": 0.24206390238858444,
+      "l0_top3": 0.3131010236790404,
+      "l1_direct_top1": 0.45703650087891634,
+      "l1_direct_top3": 0.7169889359942095,
+      "l1_prior_weighted_top1": 0.4575535104952952,
+      "parameters": {
+        "base_score": null,
+        "booster": null,
+        "callbacks": null,
+        "colsample_bylevel": null,
+        "colsample_bynode": null,
+        "colsample_bytree": 0.9,
+        "device": null,
+        "early_stopping_rounds": null,
+        "enable_categorical": false,
+        "eval_metric": null,
+        "feature_types": null,
+        "feature_weights": null,
+        "gamma": null,
+        "grow_policy": null,
+        "importance_type": null,
+        "interaction_constraints": null,
+        "learning_rate": 0.05,
+        "max_bin": null,
+        "max_cat_threshold": null,
+        "max_cat_to_onehot": null,
+        "max_delta_step": null,
+        "max_depth": 5,
+        "max_leaves": null,
+        "min_child_weight": 10,
+        "missing": null,
+        "monotone_constraints": null,
+        "multi_strategy": null,
+        "n_estimators": 300,
+        "n_jobs": 4,
+        "num_parallel_tree": null,
+        "objective": "binary:logistic",
+        "random_state": 42,
+        "reg_alpha": null,
+        "reg_lambda": 1,
+        "sampling_method": null,
+        "scale_pos_weight": null,
+        "subsample": 0.9,
+        "tree_method": "hist",
+        "validate_parameters": null,
+        "verbosity": null
+      },
+      "policies": {
+        "policies": [
+          {
+            "aggregation": "separation",
+            "blanket_tor": false,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "separation",
+            "blanket_tor": true,
+            "test_answered": 0,
+            "test_correct": 0,
+            "test_coverage": 0.0,
+            "test_precision": null,
+            "validation_answered": 0,
+            "validation_precision": null,
+            "validation_selected_floor": null
+          },
+          {
+            "aggregation": "legacy_separation",
+            "blanket_tor": true,
+            "test_answered": 474,
+            "test_correct": 448,
+            "test_coverage": 0.04901251163271637,
+            "test_precision": 0.9451476793248945,
+            "validation_answered": 144,
+            "validation_precision": 0.9652777777777778,
+            "validation_selected_floor": 0.01
+          }
+        ],
+        "selection": ">=100 validation answers, >=90% observed precision; maximize coverage"
+      },
+      "predict_seconds": 0.4545381110001472,
+      "serialized_model_bytes": 639097
+    }
+  },
+  "n_candidates": 848723,
+  "n_transactions": 32787,
+  "process_peak_rss_kib": 2690136,
+  "run": "agency-v2",
+  "seconds": 36.837424040997576,
+  "seed": 42,
+  "source_in_window_test_ceiling": 0.46810050666942404
+}

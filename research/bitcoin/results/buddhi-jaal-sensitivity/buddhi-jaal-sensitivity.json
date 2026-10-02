@@ -1,0 +1,115 @@
+{
+  "input_hashes": {
+    "addresses": "6d6029bbefbbc7e211bae1f2ba9ebc74124f6e2293c3201c674ed59b2f198d07",
+    "graph_edges": "606f20692708b682df6c56047a356f1f5b5fe297c265a3a7833b54b95bb4aaf3",
+    "origin_estimates": "f6db63499f95debb3a6f37842a6d8093d611225b2d08cfc17cbd24b559d35fe1",
+    "origin_l1": "17cd9bd735c498b961a94c164f0e953fec9f287cc44c45fd9d10bb68cf4fc68d",
+    "transactions": "e64bd67c84d31bcbb649baba299d84369dea4233ebbe4199369c5484c9bd2098",
+    "truth_entities": "d2881da0a2131cd16ad0fc33b83cb4fb948a00e26c8c982d85b071c1fa463519",
+    "typology_hits": "9145a3e142c9bf37061f6b85912879713f1ce2875f6f0eab686399965b32acd6"
+  },
+  "limitations": [
+    "One synthetic seed and one generator; this is sensitivity, not external validity.",
+    "Threshold 0.30 removes measured 0.25 change edges but retains 0.36 CIOH edges.",
+    "The same hidden entity truth is used only for training labels through the eval door and aggregate evaluation.",
+    "BUDDHI is retrained under each partition; this measures end-to-end JAAL sensitivity, not isolated feature attribution."
+  ],
+  "protocol": "identical agency-v2 time-ordered split; only the JAAL confidence threshold changes",
+  "run": "agency-v2",
+  "scenarios": [
+    {
+      "buddhi": {
+        "abstain_rate": 0.0,
+        "actor_pr_auc": 0.06492,
+        "actor_roc_auc": 0.591407,
+        "calibration": {
+          "mondrian": true,
+          "n_calibration": 15279,
+          "n_fit": 45834,
+          "reason": null,
+          "trained": true
+        },
+        "campaign_precision": 0.018425460636515914,
+        "campaign_recall": 0.954082,
+        "campaigns": 196,
+        "campaigns_caught": 187,
+        "campaigns_flagged_total": 10149,
+        "illicit_campaign_recall_recomputed": 0.9540816326530612,
+        "licit_campaigns_flagged": 9962,
+        "n_holdout_subjects": 26783,
+        "n_train_subjects_with_labels": 61113,
+        "precision_at_20": 0.6,
+        "recall_at_20": 0.02439,
+        "tx_pr_auc": 0.100579,
+        "tx_precision_at_20": 0.4
+      },
+      "elapsed_seconds": 19.589,
+      "jaal_partition": {
+        "b3_precision": 0.9386307262253928,
+        "b3_recall": 0.2955253173650753,
+        "clusters_mixing_licit_and_illicit": 31,
+        "clusters_with_multiple_true_owners": 1524,
+        "largest_cluster": 187,
+        "max_cluster_size": 187,
+        "n_addresses": 121294,
+        "n_clusters": 6532,
+        "n_impure_non_singleton": 1524,
+        "n_non_singleton": 6532,
+        "pair_f1": 0.3954774891071923,
+        "pair_precision": 0.5882705173589685,
+        "pair_recall": 0.29786020411309466,
+        "predicted_pairs": 492656,
+        "shared_pairs": 289815,
+        "true_pairs": 972990
+      },
+      "threshold": 0.2
+    },
+    {
+      "buddhi": {
+        "abstain_rate": 0.0,
+        "actor_pr_auc": 0.069045,
+        "actor_roc_auc": 0.593837,
+        "calibration": {
+          "mondrian": true,
+          "n_calibration": 15713,
+          "n_fit": 47137,
+          "reason": null,
+          "trained": true
+        },
+        "campaign_precision": 0.018667201926936973,
+        "campaign_recall": 0.94898,
+        "campaigns": 196,
+        "campaigns_caught": 186,
+        "campaigns_flagged_total": 9964,
+        "illicit_campaign_recall_recomputed": 0.9489795918367347,
+        "licit_campaigns_flagged": 9778,
+        "n_holdout_subjects": 27299,
+        "n_train_subjects_with_labels": 62850,
+        "precision_at_20": 0.9,
+        "recall_at_20": 0.036072,
+        "tx_pr_auc": 0.115492,
+        "tx_precision_at_20": 0.35
+      },
+      "elapsed_seconds": 19.635,
+      "jaal_partition": {
+        "b3_precision": 0.9681282041023556,
+        "b3_recall": 0.2864782458200526,
+        "clusters_mixing_licit_and_illicit": 27,
+        "clusters_with_multiple_true_owners": 1163,
+        "largest_cluster": 111,
+        "max_cluster_size": 111,
+        "n_addresses": 121294,
+        "n_clusters": 6061,
+        "n_impure_non_singleton": 1163,
+        "n_non_singleton": 6061,
+        "pair_f1": 0.42311299719376455,
+        "pair_precision": 0.7958827386714281,
+        "pair_recall": 0.28815095735824625,
+        "predicted_pairs": 352273,
+        "shared_pairs": 280368,
+        "true_pairs": 972990
+      },
+      "threshold": 0.3
+    }
+  ]
+}

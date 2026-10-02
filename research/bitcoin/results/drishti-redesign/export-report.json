@@ -1,0 +1,42 @@
+[
+  {
+    "run": "_sweep-0.02",
+    "complete_focused_traces": 94,
+    "packets": 0
+  },
+  {
+    "run": "_sweep-0.05",
+    "complete_focused_traces": 94,
+    "packets": 0
+  },
+  {
+    "run": "_sweep-0.10",
+    "complete_focused_traces": 94,
+    "packets": 0
+  },
+  {
+    "run": "_sweep-0.25",
+    "complete_focused_traces": 94,
+    "packets": 0
+  },
+  {
+    "run": "_sweep-0.50",
+    "complete_focused_traces": 94,
+    "packets": 0
+  },
+  {
+    "run": "_sweep-0.60",
+    "complete_focused_traces": 94,
+    "packets": 0
+  },
+  {
+    "run": "_sweep-0.70",
+    "complete_focused_traces": 94,
+    "packets": 0
+  },
+  {
+    "run": "agency-v2",
+    "complete_focused_traces": 100,
+    "packets": 5
+  }
+]

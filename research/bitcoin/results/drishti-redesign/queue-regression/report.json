@@ -1,0 +1,12 @@
+{
+  "lead_buttons": 20,
+  "selection_works": true,
+  "graph_renders": true,
+  "details_open": true,
+  "download_leads": 20,
+  "offline_interactions": true,
+  "local_import_roundtrip": true,
+  "invalid_import_rejected": true,
+  "external_requests": [],
+  "page_errors": []
+}

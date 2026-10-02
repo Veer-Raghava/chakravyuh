@@ -1,14 +1,28 @@
-import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  Canvas,
+  useFrame,
+  useThree,
+  type ThreeEvent,
+} from "@react-three/fiber";
 import { AdaptiveDpr } from "@react-three/drei";
 import * as THREE from "three";
 import { C } from "../../styles/palette";
-import { latLonToVec3, greatCircleArc } from "../../three/globe";
+import {
+  latLonToVec3,
+  greatCircleArc,
+  makeDotTexture,
+} from "../../three/globe";
 import { loadCoastlines, type CoastLine } from "../../three/globeGeo";
 import {
-  locatedPoints,
-  ambientPoints,
-  unlocatedCount,
+  buildGlobeData,
   type GlobeTx,
   type GlobePoint,
 } from "../../data/globe";
@@ -85,7 +99,7 @@ function Sphere() {
   return (
     <mesh>
       <sphereGeometry args={[R, 64, 64]} />
-      <meshStandardMaterial color={C.paperDeep} roughness={1} metalness={0} />
+      <meshBasicMaterial color={C.paperDeep} />
     </mesh>
   );
 }
@@ -104,7 +118,11 @@ function Coastlines() {
       lines.map((arr) => {
         const g = new THREE.BufferGeometry();
         g.setAttribute("position", new THREE.BufferAttribute(arr, 3));
-        const m = new THREE.LineBasicMaterial({ color: C.ink, transparent: true, opacity: 0.42 });
+        const m = new THREE.LineBasicMaterial({
+          color: C.ink,
+          transparent: true,
+          opacity: 0.42,
+        });
         return new THREE.Line(g, m);
       }),
     [lines],
@@ -139,14 +157,25 @@ function IndiaMark() {
   return (
     <mesh position={pos} quaternion={quat}>
       <ringGeometry args={[0.17, 0.2, 48]} />
-      <meshBasicMaterial color={C.butter} transparent opacity={0.32} side={THREE.DoubleSide} />
+      <meshBasicMaterial
+        color={C.butter}
+        transparent
+        opacity={0.32}
+        side={THREE.DoubleSide}
+      />
     </mesh>
   );
 }
 
 /** The ambient signal field: every other real announcing IP we heard, placed at its
  *  country. One cheap draw call (a point cloud), faint so the bright candidates lead. */
-function AmbientField() {
+function AmbientField({
+  ambientPoints,
+}: {
+  ambientPoints: { lat: number; lon: number }[];
+}) {
+  const sprite = useMemo(() => makeDotTexture(), []);
+  useEffect(() => () => sprite.dispose(), [sprite]);
   const geom = useMemo(() => {
     const arr = new Float32Array(ambientPoints.length * 3);
     const v = new THREE.Vector3();
@@ -159,13 +188,15 @@ function AmbientField() {
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(arr, 3));
     return g;
-  }, []);
+  }, [ambientPoints]);
   useEffect(() => () => geom.dispose(), [geom]);
   return (
     <points geometry={geom}>
       <pointsMaterial
+        map={sprite}
+        alphaTest={0.05}
         color={C.risoBlue}
-        size={0.03}
+        size={0.023}
         sizeAttenuation
         transparent
         opacity={0.5}
@@ -178,25 +209,36 @@ function AmbientField() {
 function Points({
   onSelect,
   onHover,
+  locatedPoints,
 }: {
+  locatedPoints: { tx: GlobeTx; point: GlobePoint }[];
   onSelect: (tx: GlobeTx, p: GlobePoint) => void;
   onHover: (on: boolean) => void;
 }) {
   const [hover, setHover] = useState<string | null>(null);
-  const dot = useMemo(() => new THREE.SphereGeometry(1, 16, 16), []);
+  const dot = useMemo(() => new THREE.CircleGeometry(1, 24), []);
   useEffect(() => () => dot.dispose(), [dot]);
   return (
     <>
       {locatedPoints.map(({ tx, point }) => {
-        const pos = latLonToVec3(point.lat, point.lon, R * 1.012, new THREE.Vector3());
-        const base = point.isLeader ? 0.03 : 0.021;
+        const pos = latLonToVec3(
+          point.lat,
+          point.lon,
+          R * 1.012,
+          new THREE.Vector3(),
+        );
+        const base = point.isLeader ? 0.024 : 0.014;
+        const orientation = new THREE.Quaternion().setFromUnitVectors(
+          new THREE.Vector3(0, 0, 1),
+          pos.clone().normalize(),
+        );
         const s = hover === tx.txid + point.ipSeed ? base * 1.6 : base;
         return (
           <mesh
             key={tx.txid + point.ipSeed}
-            geometry={dot}
             position={pos}
-            scale={s}
+            quaternion={orientation}
+            scale={1}
             onPointerOver={(e: ThreeEvent<PointerEvent>) => {
               e.stopPropagation();
               setHover(tx.txid + point.ipSeed);
@@ -211,12 +253,14 @@ function Points({
               onSelect(tx, point);
             }}
           >
-            <meshStandardMaterial
-              color={TIER_COLOR[point.tier]}
-              roughness={0.65}
-              emissive={TIER_COLOR[point.tier]}
-              emissiveIntensity={point.isLeader ? 0.35 : 0.12}
-            />
+            <sphereGeometry args={[0.07, 12, 12]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+            <mesh geometry={dot} scale={s}>
+              <meshBasicMaterial
+                color={TIER_COLOR[point.tier]}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
           </mesh>
         );
       })}
@@ -241,7 +285,11 @@ function Arcs({ tx }: { tx: GlobeTx | null }) {
         greatCircleArc(a, b, SEG, R * 1.01, 0.35, arr, 0);
         const g = new THREE.BufferGeometry();
         g.setAttribute("position", new THREE.BufferAttribute(arr, 3));
-        const m = new THREE.LineBasicMaterial({ color: C.fluoroPink, transparent: true, opacity: 0.85 });
+        const m = new THREE.LineBasicMaterial({
+          color: C.fluoroPink,
+          transparent: true,
+          opacity: 0.85,
+        });
         return new THREE.Line(g, m);
       });
   }, [tx]);
@@ -282,7 +330,10 @@ function World({
 
   useEffect(() => {
     if (!focus || reduced || !grp.current) return;
-    snap.current = nearestAngle(grp.current.rotation.y, faceYaw(focus.lat, focus.lon));
+    snap.current = nearestAngle(
+      grp.current.rotation.y,
+      faceYaw(focus.lat, focus.lon),
+    );
   }, [focus, reduced, grp]);
 
   useFrame((_, delta) => {
@@ -305,7 +356,11 @@ function World({
   );
 }
 
-function Fallback() {
+function Fallback({
+  locatedPoints,
+}: {
+  locatedPoints: { tx: GlobeTx; point: GlobePoint }[];
+}) {
   return (
     <div className={styles.fallback}>
       <p>Located announcements (3D globe needs WebGL):</p>
@@ -322,20 +377,51 @@ function Fallback() {
 }
 
 export function GlobeScreen() {
-  const { openDrawer } = useShell();
-  const { fixtures } = useRun();
+  const { openDrawer, goTo } = useShell();
+  const { fixtures, selectTx, run } = useRun();
+  const { globeTxs, locatedPoints, ambientPoints, unlocatedCount } = useMemo(
+    () =>
+      buildGlobeData(
+        {
+          ...fixtures,
+          origin: run.payload.origin!,
+          originAbstain: run.payload.originAbstain!,
+        },
+        Boolean(run.payload.originAbstain),
+      ),
+    [run.payload],
+  );
   const reduced = usePrefersReducedMotion();
   const [selectedTx, setSelectedTx] = useState<GlobeTx | null>(null);
   const [focus, setFocus] = useState<GlobePoint | null>(null);
   const grp = useRef<THREE.Group>(null);
   const drive = useRef<Drive>({ dragging: false, moved: false, lastX: 0 });
   const [hovering, setHovering] = useState(false);
+  const countries = useMemo(() => {
+    const by = new Map<
+      string,
+      { count: number; point: GlobePoint; tx: GlobeTx }
+    >();
+    const seen = new Set<string>();
+    for (const { tx, point } of locatedPoints) {
+      if (seen.has(point.ipSeed)) continue;
+      seen.add(point.ipSeed);
+      const country = point.country ?? "Unlocated";
+      const prev = by.get(country);
+      by.set(country, { count: (prev?.count ?? 0) + 1, point, tx });
+    }
+    return [...by].sort((a, b) => b[1].count - a[1].count);
+  }, [locatedPoints]);
 
   const onSelect = (tx: GlobeTx, point: GlobePoint) => {
     if (drive.current.moved) return; // that press was a drag, not a click
     setSelectedTx(tx);
+    selectTx(tx.txid);
     setFocus(point);
-    openDrawer(`Transaction · ${tx.txidDisplay}`, <GlobeDetail tx={tx} focus={point} />);
+    openDrawer(
+      `Transaction · ${tx.txidDisplay}`,
+      <GlobeDetail tx={tx} focus={point} />,
+    );
   };
 
   // Grab-to-turn (disabled under reduced motion, which keeps the globe completely still).
@@ -388,7 +474,7 @@ export function GlobeScreen() {
           dpr={[1, 2]}
           gl={{ alpha: true, antialias: true }}
           camera={{ position: [0, 0, 4.4], fov: 45 }}
-          fallback={<Fallback />}
+          fallback={<Fallback locatedPoints={locatedPoints} />}
         >
           <Suspense fallback={null}>
             <FitCamera />
@@ -398,8 +484,12 @@ export function GlobeScreen() {
               <Sphere />
               <Coastlines />
               <IndiaMark />
-              <AmbientField />
-              <Points onSelect={onSelect} onHover={setHovering} />
+              <AmbientField ambientPoints={ambientPoints} />
+              <Points
+                locatedPoints={locatedPoints}
+                onSelect={onSelect}
+                onHover={setHovering}
+              />
               <Arcs tx={selectedTx} />
             </World>
             <AdaptiveDpr pixelated />
@@ -411,31 +501,123 @@ export function GlobeScreen() {
         <div className={styles.head}>
           <div className={styles.titleRow}>
             <h1 className={styles.title}>Globe</h1>
-            <span className={styles.count}>{fixtures.world.funnel[0].count.toLocaleString("en-US")} signals</span>
+            <span className={styles.count}>
+              {fixtures.world.funnel[0].count.toLocaleString("en-US")} signals
+            </span>
           </div>
-          <p className={styles.gloss}>the world of transactions · each dot is an IP we heard</p>
+          <p className={styles.gloss}>
+            Follow a transaction across the peers that observed it.
+          </p>
+          <div className={styles.casePicker}>
+            {globeTxs.map((tx) => (
+              <button
+                type="button"
+                key={tx.txid}
+                aria-pressed={selectedTx?.txid === tx.txid}
+                onClick={() => {
+                  setSelectedTx(tx);
+                  selectTx(tx.txid);
+                  setFocus(tx.points.find((p) => p.located) ?? null);
+                }}
+              >
+                {tx.abstain ? "Unresolved origin" : "Candidate trail"}{" "}
+                <small>
+                  {tx.txidDisplay} · {tx.points.length} peers
+                </small>
+              </button>
+            ))}
+          </div>
         </div>
 
+        <aside
+          className={styles.observationPanel}
+          aria-label="Geographic observation index"
+        >
+          <span className={styles.panelLabel}>OBSERVATION ATLAS</span>
+          <strong>{countries.length} country regions</strong>
+          <p>Candidate peers in the exported example trails</p>
+          {countries.slice(0, 7).map(([country, item]) => (
+            <button
+              key={country}
+              type="button"
+              onClick={() => {
+                drive.current.moved = false;
+                onSelect(item.tx, item.point);
+              }}
+            >
+              <span>{country}</span>
+              <i
+                style={{
+                  width: `${(item.count / Math.max(1, countries[0]?.[1].count ?? 1)) * 70}%`,
+                }}
+              />
+              <strong>{item.count}</strong>
+            </button>
+          ))}
+          {selectedTx && (
+            <div className={styles.activeTrail}>
+              <span>{selectedTx.txidDisplay}</span>
+              <p>
+                Arcs connect peers that reported this transaction; they do not
+                reconstruct a packet route.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  selectTx(selectedTx.txid);
+                  goTo("map");
+                }}
+              >
+                Follow the money →
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  selectTx(selectedTx.txid);
+                  goTo("origin");
+                }}
+              >
+                Compare origin candidates →
+              </button>
+            </div>
+          )}
+        </aside>
         <div className={styles.footRow}>
           <div className={styles.legend} style={{ pointerEvents: "auto" }}>
             <span className={styles.key}>
-              <span className={styles.swatch} style={{ background: C.coral }} /> leading candidate
+              <span className={styles.swatch} style={{ background: C.coral }} />{" "}
+              leading candidate
             </span>
             <span className={styles.key}>
-              <span className={styles.swatch} style={{ background: C.butter }} /> notable candidate
+              <span
+                className={styles.swatch}
+                style={{ background: C.butter }}
+              />{" "}
+              notable candidate
             </span>
             <span className={styles.key}>
-              <span className={styles.swatch} style={{ background: C.risoBlue }} /> other announcer
+              <span
+                className={styles.swatch}
+                style={{ background: C.risoBlue }}
+              />{" "}
+              other announcer
             </span>
             <span className={styles.key}>
-              <span className={styles.swatch} style={{ background: C.inkSoft }} /> unlocated / Tor
+              <span
+                className={styles.swatch}
+                style={{ background: C.inkSoft }}
+              />{" "}
+              unlocated / Tor
             </span>
             <p className={styles.note}>
-              positions are country-level only (centroid + jitter). {unlocatedCount} announced from no
-              fixed place, so they are not plotted.
+              positions are country-level only (centroid + jitter).{" "}
+              {unlocatedCount} announced from no fixed place, so they are not
+              plotted.
             </p>
           </div>
-          <p className={styles.diya}>Click a dot and I'll show you who was talking to whom.</p>
+          <p className={styles.diya}>
+            Click a dot and I'll show you who was talking to whom.
+          </p>
         </div>
       </div>
 
@@ -443,12 +625,12 @@ export function GlobeScreen() {
       <ul className={styles.srList} aria-label="Located announcements">
         {locatedPoints.map(({ tx, point }) => (
           <li key={tx.txid + point.ipSeed}>
-            Transaction {tx.txidDisplay}: {point.ipDisplay}, {point.country}, AS{point.asn}, origin
-            likelihood {(point.pOrigin * 100).toFixed(1)} percent.
+            Transaction {tx.txidDisplay}: {point.ipDisplay}, {point.country}, AS
+            {point.asn}, origin likelihood {(point.pOrigin * 100).toFixed(1)}{" "}
+            percent.
           </li>
         ))}
       </ul>
     </section>
   );
 }
-

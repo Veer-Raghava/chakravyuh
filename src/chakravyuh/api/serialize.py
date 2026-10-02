@@ -172,7 +172,7 @@ def _model_report(run_dir: Path) -> dict[str, Any]:
     `chakravyuh.eval` may read; it writes them here. The API surfaces what eval already
     computed and never touches the quarantined labels itself.
     """
-    path = Path("measurements") / run_dir.name / "model_report.json"
+    path = run_dir / "presentation/model_report.json"
     if not path.is_file():
         return {}
     return dict(json.loads(path.read_text("utf-8")))
@@ -487,12 +487,12 @@ def origin_estimate(run_dir: Path, txid: str) -> dict[str, Any]:
             }
         )
 
-    leader = shortlist[0] if not abstain and shortlist else None
-    runner = shortlist[1] if not abstain and len(shortlist) > 1 else None
-    margin = 0.0
-    if leader and runner and leader["rank"] and runner["rank"]:
-        values = estimates.filter(pl.col("rank") <= 2).sort("rank")["p_origin"].to_list()
-        margin = float(values[0]) - float(values[1]) if len(values) == 2 else 0.0
+    # Timeline order belongs to the fan; probability order belongs to attribution.
+    # Do not name the earliest announcer as the model leader or runner-up.
+    likelihood_order = sorted(shortlist, key=lambda lane: lane["p_origin"], reverse=True)
+    leader = likelihood_order[0] if not abstain and likelihood_order else None
+    runner = likelihood_order[1] if not abstain and len(likelihood_order) > 1 else None
+    margin = float(leader["p_origin"] - runner["p_origin"]) if leader and runner else 0.0
 
     # The feature panel reads the rank-1 candidate's own feature struct; empty on abstain.
     struct = ranks.sort("p_origin", descending=True)["features"][0] if ranks.height else {}
@@ -1140,6 +1140,7 @@ def alerts(run_dir: Path, limit: int, offset: int, severity: str | None) -> dict
         items.append(
             {
                 "alert_id": str(row["alert_id"]),
+                "interval_available": not (run_dir / SCORES_DIR / "engine.json").is_file(),
                 "rank": int(row["rank"]),
                 "severity": str(row["severity"]),
                 "risk_score": float(score.get("risk_score", 0.0)),
@@ -1226,7 +1227,7 @@ def alert(run_dir: Path, alert_id: str) -> dict[str, Any]:
     report = _model_report(run_dir)
     coverage_by_class = report.get("coverage_by_class", {}) or {}
     # empirical_coverage and base_rate are eval-side statistics of the labelled truth. On an
-    # air-gapped serve (measurements/ absent) they are genuinely not present in this copy, so
+    # air-gapped serve (external evaluation store/ absent) they are genuinely not present in this copy, so
     # they degrade to null rather than a misleading 0.0. The per-subject conformal interval and
     # coverage_target below are read from the run itself and always render.
     empirical = coverage_by_class.get("1")
@@ -1244,8 +1245,21 @@ def alert(run_dir: Path, alert_id: str) -> dict[str, Any]:
         else LABEL_DISPLAY.get(label, label),
     }
 
+    engine_path = run_dir / SCORES_DIR / "engine.json"
+    engine = json.loads(engine_path.read_text()) if engine_path.is_file() else None
+    lead = None
+    if engine:
+        queue = json.loads((run_dir / ALERTS_DIR / "lead_queue.json").read_text())
+        lead = next(one for one in queue["leads"] if one["alert_id"] == alert_id)
+        confidence.update(label="Review lead", interval_available=False, method="ranking_only")
+    else:
+        confidence["interval_available"] = True
+
     return {
         "alert_id": alert_id,
+        "detection_engine": engine,
+        "representative_txid": lead.get("representative_txid") if lead else None,
+        "evidence_graph": lead.get("evidence_graph") if lead else None,
         "severity": str(row["severity"]),
         "conf_low": float(row["conf_low"]),
         "conf_high": float(row["conf_high"]),
@@ -1387,7 +1401,7 @@ FUNNEL_STAGES: tuple[tuple[str, str, str], ...] = (
 
 def _origin_report(run_dir: Path) -> dict[str, Any]:
     """This run's origin accuracy report, or `{}` before it was measured."""
-    path = Path("measurements") / run_dir.name / "origin_accuracy.json"
+    path = run_dir / "presentation/origin_accuracy.json"
     if not path.is_file():
         return {}
     return dict(json.loads(path.read_text("utf-8")))
@@ -1401,7 +1415,7 @@ def _pair_precision(run_dir: Path) -> float | None:
     is named `pair_precision` too — the name `cluster_confidence` would collide with §11's 0.36
     anchor, which is a different quantity.
     """
-    path = Path("measurements") / run_dir.name / "cluster_metrics.json"
+    path = run_dir / "presentation/cluster_metrics.json"
     if not path.is_file():
         return None
     metrics = json.loads(path.read_text("utf-8"))
@@ -1413,7 +1427,7 @@ def _run_eval_report(run_dir: Path) -> dict[str, Any]:
     """The stage's own rolled-up eval report, or `{}` before BUDDHI wrote one.
 
     `scores/eval_report.json` is the pipeline's artifact (written by the stage, travels with
-    the run); `measurements/<run>/model_report.json` is eval's external copy of the same
+    the run); `external evaluation store/<run>/model_report.json` is eval's external copy of the same
     measurement. Prefer the stage's, fall back to eval's, so a run that was scored but not
     re-measured still reports its numbers rather than a wall of nulls.
     """
@@ -1516,13 +1530,14 @@ def _curve_point(report: dict[str, Any], grain: str, kind: str) -> dict[str, Any
 def _origin_curve(run_dir: Path) -> dict[str, list[dict[str, Any]]]:
     """The observer-fraction curve per granularity, one point per measured run.
 
-    This run's own report is always a point; any sibling `measurements/*sweep*` reports are
+    This run's own report is always a point; any sibling `external evaluation store/*sweep*` reports are
     folded in and sorted by fraction, so a real sweep draws a curve and a single run draws a
     single honest dot. Every point is measured — nothing is interpolated or invented.
     """
     reports = [_origin_report(run_dir)]
-    for path in sorted(Path("measurements").glob("*sweep*/origin_accuracy.json")):
-        reports.append(dict(json.loads(path.read_text("utf-8"))))
+    curve_path = run_dir / "presentation/origin_curve.json"
+    if curve_path.is_file():
+        reports.extend(json.loads(curve_path.read_text("utf-8")))
     curve: dict[str, list[dict[str, Any]]] = {"l0_host": [], "l1_asn": [], "l3_shortlist": []}
     seen: dict[str, set[float]] = {key: set() for key in curve}
     for report in reports:
@@ -1584,6 +1599,9 @@ def _shipped_model(run_dir: Path) -> str:
     string typed into the frontend, so a run scored by a different booster cannot be mislabelled
     by a stale component.
     """
+    engine = run_dir / SCORES_DIR / "engine.json"
+    if engine.is_file():
+        return str(json.loads(engine.read_text()).get("engine", ""))
     params = _model_report(run_dir).get("params", {})
     return str(params.get("model", "")) if isinstance(params, dict) else ""
 
@@ -1594,7 +1612,7 @@ def _model_intelligence(run_dir: Path) -> dict[str, Any]:
     Four different kinds of claim sit on one panel and the console must not blur them, so the
     payload keeps them under separate keys rather than flattening them into one scoreboard:
 
-    `ours` — this run's own measurements (the external Elliptic replication and the wallet
+    `ours` — this run's own external evaluation store (the external Elliptic replication and the wallet
     model's precision@20), read from the eval report like every other number here. Null when the
     leg that produces one did not run: an absent measurement is not a zero.
 
@@ -1643,7 +1661,8 @@ def world(run_dir: Path) -> dict[str, Any]:
     fraction = float(report.get("observer_fraction", 0.0))
     regime = "agency" if fraction >= 0.5 else "sparse"
     return {
-        "run_id": str(report.get("run_id", run_dir.name)),
+        "run_id": run_dir.name,
+        "evaluation_source_run": report.get("run_id"),
         "observer_regime": regime,
         "observer_fraction": fraction,
         "protocol": str(_run_eval_report(run_dir).get("protocol", "")),
