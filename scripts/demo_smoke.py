@@ -105,10 +105,10 @@ def _check_api(port: int) -> None:
 def _check_console_build() -> None:
     """Prove the console bundles with no network. Uses the already-installed node_modules;
     `npm ci` is Track B's gate, not this one, so a missing tree is a skip with instruction."""
-    console = REPO / "apps" / "drishti"
+    console = REPO / "apps" / "drishti-v2"
     if not (console / "node_modules").is_dir():
         print(
-            "demo-smoke: SKIP console build — apps/drishti/node_modules absent. "
+            "demo-smoke: SKIP console build — apps/drishti-v2/node_modules absent. "
             "Run `make verify-drishti` once to install, then this proves the offline build."
         )
         return
@@ -122,7 +122,7 @@ def _check_console_build() -> None:
     )
     if result.returncode != 0 or not (console / "dist").is_dir():
         _fail("console `npm run build` failed offline:\n" + (result.stderr or "").strip()[-400:])
-    print("demo-smoke: console built offline (apps/drishti/dist).")
+    print("demo-smoke: console built offline (apps/drishti-v2/dist).")
 
 
 def _check_attached(port: int) -> None:

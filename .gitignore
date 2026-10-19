@@ -88,6 +88,35 @@ apps/drishti-v2/dist/
 apps/drishti-v2/node_modules/
 apps/drishti-v2/.vite/
 
+# Local working output and historical research.
+research/
+measurements/
+*.log
+.superpowers/
+.claude/
+apps/*/node_modules/
+apps/*/dist/
+apps/drishti-v2/docs/
+
+# Keep the small contract files required by the pipeline; ignore local notes.
+docs/*
+!docs/DATA-CONTRACTS.md
+!docs/FEATURES.md
+!docs/ARCHITECTURE.md
+!docs/DEMO-RUN.md
+
+# Private planning notes should never become repository documentation.
+/CHAKRAVYUH-*.md
+/DRISHTI-*.md
+/HANDOFF-*.md
+/PROGRESS.md
+/SESSIONS.md
+/STATE.md
+/CLAUDE.md
+/dhristi-*.md
+/drishti-*.md
+/sessions-*.md
+
 # Generated research artifacts
 research/bitcoin/source-snapshots/
 research/bitcoin/storage-cleanup/

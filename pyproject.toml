@@ -1,7 +1,7 @@
 [project]
 name = "chakravyuh"
 version = "0.1.0"
-description = "Offline two-layer attribution workstation for Bitcoin traffic (SIH26146)."
+description = "Offline attribution and investigation workstation for Bitcoin traffic."
 requires-python = ">=3.11,<3.12"
 dependencies = [
   "polars==1.17.1",

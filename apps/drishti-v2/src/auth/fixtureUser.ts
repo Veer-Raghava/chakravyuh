@@ -6,5 +6,5 @@ export const FIXTURE_USER = {
   role: "NTRO · Cyber Forensics",
   // The demo passphrase is prefilled and accepted locally. No network, no hashing,
   // no validation call — this is a fixture, not real credential handling.
-  passphrase: "sih26146",
+  passphrase: "drishti-demo",
 } as const;
